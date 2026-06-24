@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+    /* ===== 環境 ===== */
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+
+    /* ===== Module ===== */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+
+    /* ===== 出力 ===== */
+    "noEmit": true
+  },
+  "include": ["vite.config.ts"]
+}
