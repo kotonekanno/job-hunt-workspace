@@ -1,3 +1,69 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/noto-sans";
+
+@theme { --font-sans: "Noto Sans Variable", "Noto Sans JP", sans-serif; }
+
+@layer base {
+  * { box-sizing: border-box; }
+  :root {
+    color-scheme: light;
+    --app-bg: #f3f5f7;
+    --panel: #ffffff;
+    --panel-raised: #f8fafb;
+    --text: #17212b;
+    --text-strong: #0c1822;
+    --muted: #687887;
+    --faint: #94a0aa;
+    --accent: #315e7d;
+    --accent-soft: #e4edf3;
+    --accent-contrast: #ffffff;
+    --line: #ccd6de;
+    --line-strong: #7892a5;
+    --grid-line: rgba(49, 94, 125, 0.045);
+    --grid-glow: rgba(49, 94, 125, 0.07);
+    --overlay: rgba(12, 24, 34, 0.42);
+    --shadow: rgba(12, 24, 34, 0.1);
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --app-bg: #111820;
+    --panel: #18222c;
+    --panel-raised: #1d2935;
+    --text: #d9e1e7;
+    --text-strong: #f3f6f8;
+    --muted: #9aa8b5;
+    --faint: #71808d;
+    --accent: #82a9c4;
+    --accent-soft: #263b4b;
+    --accent-contrast: #101820;
+    --line: #334452;
+    --line-strong: #688397;
+    --grid-line: rgba(130, 169, 196, 0.035);
+    --grid-glow: rgba(130, 169, 196, 0.06);
+    --overlay: rgba(5, 10, 14, 0.68);
+    --shadow: rgba(0, 0, 0, 0.26);
+  }
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--app-bg);
+    font-family: var(--font-sans);
+  }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  ::selection { color: var(--accent-contrast); background: var(--accent); }
+}
+
+@layer utilities {
+  .cyber-grid {
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+      radial-gradient(circle at 75% 15%, var(--grid-glow), transparent 26%);
+    background-size: 32px 32px, 32px 32px, 100% 100%;
+  }
+  .cyber-cut { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+  .cyber-cut-sm { clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); }
+}
