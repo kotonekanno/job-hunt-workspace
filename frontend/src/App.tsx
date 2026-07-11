@@ -9,7 +9,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
-import TasksPage from "./pages/tasks/TasksPage";
+import { TaskPage } from "./pages/tasks/TaskPage";
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
           <Route path="/companies" element={<CompanyListPage />} />
           <Route path="/companies/:companyId" element={<CompanyDetailPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/tasks" element={<TaskPage />} />
           <Route path="/essays" element={<EssayListPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
