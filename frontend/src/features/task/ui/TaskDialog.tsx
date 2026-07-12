@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import type { Task } from "@/features/task/model/task";
+import { CancelButton, ColoredSubmitButton } from "@/shared/button";
 
 type TaskDialogProps = { task: Task; onClose: () => void; onSave: (task: Task) => void };
 
@@ -25,7 +26,12 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
           <label className="text-xs text-[var(--muted)]">企業名（任意）<input value={form.company ?? ""} onChange={(event) => setForm({ ...form, company: event.target.value || undefined })} className={fieldClassName} /></label>
           <label className="text-xs text-[var(--muted)] sm:col-span-2">詳細<textarea required value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="mt-1 min-h-28 w-full resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></label>
         </div>
-        <div className="mt-6 flex justify-end gap-2"><button type="button" onClick={onClose} className="h-10 border border-[var(--line)] px-5 text-xs font-semibold text-[var(--muted)]">キャンセル</button><button type="submit" className="cyber-cut-sm h-10 bg-[var(--accent)] px-6 text-xs font-bold text-[var(--accent-contrast)]">保存する</button></div>
+        <div className="mt-6 flex justify-end gap-2">
+          <CancelButton
+            onClick={onClose}
+          />
+          <ColoredSubmitButton text="保存する" />
+        </div>
       </form>
     </div>
   );

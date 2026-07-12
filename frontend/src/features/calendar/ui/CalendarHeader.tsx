@@ -1,5 +1,6 @@
-import { CalendarDays, ChevronLeft, ChevronRight, Filter, Plus } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { attendanceStatuses, eventCategories, eventFormats, type AttendanceStatus, type EventCategory, type EventFormat } from "@/features/calendar/model/calendar";
+import { ColoredAddButton } from "@/shared/button";
 
 type CalendarFiltersProps = {
   displayDate: Date;
@@ -68,18 +69,11 @@ export function CalendarHeader(props: CalendarFiltersProps) {
             )}
           </select>
 
-          <button
-            type="button"
+          <ColoredAddButton
+            text="予定を追加"
+            size="m"
             onClick={props.onAddEvent}
-            className="
-              cyber-cut-sm flex h-9 items-center gap-2 bg-[var(--accent)] px-4
-              text-xs font-bold text-[var(--accent-contrast)]
-              transition-transform hover:-translate-y-0.5
-            "
-          >
-            <Plus className="size-3.5" />
-            予定を追加
-          </button>
+          />
         </div>
 
       </div>

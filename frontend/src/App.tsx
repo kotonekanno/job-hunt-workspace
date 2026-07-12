@@ -2,7 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import { MainLayout } from "./app/layouts/MainLayout";
 import { ProtectedLayout } from "./app/layouts/ProtectedLayout";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
-import CompanyDetailPage from "./pages/companies/CompanyDetailPage";
+import { CompanyDetailPage } from "./pages/companies/CompanyDetailPage";
+import { CompanyDocumentsPage } from "./pages/companies/CompanyDocumentsPage";
 import CompanyListPage from "./pages/companies/CompanyListPage";
 import EssayListPage from "./pages/essays/EssayListPage";
 import HomePage from "./pages/HomePage";
@@ -22,6 +23,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/companies" element={<CompanyListPage />} />
           <Route path="/companies/:companyId" element={<CompanyDetailPage />} />
+          <Route
+            path="/companies/:companyId/documents"
+            element={<CompanyDocumentsPage />}
+          />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/tasks" element={<TaskPage />} />
           <Route path="/essays" element={<EssayListPage />} />
