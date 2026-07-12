@@ -4,6 +4,7 @@ import type {
   SelectionStep,
   SelectionTrack,
 } from "@/features/companies/model/companyDetail";
+import { DialogBase } from "@/shared/dialog";
 import { CancelButton, ColoredSubmitButton } from "@/shared/button";
 
 type SelectionTrackDialogProps = {
@@ -44,10 +45,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm"
-      onMouseDown={props.onClose}
-    >
+    <DialogBase onBackdropClick={props.onClose}>
       <form
         onSubmit={submit}
         onMouseDown={(event) => event.stopPropagation()}
@@ -157,6 +155,6 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           />
         </div>
       </form>
-    </div>
+    </DialogBase>
   );
 }
