@@ -1,9 +1,16 @@
+import { InnerHeader } from "@/shared/header";
+import { UserRound } from "lucide-react";
+
 export function SettingsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <p className="font-mono text-[10px] font-semibold tracking-[0.2em] text-[var(--accent)]">// ACCOUNT_CONFIG</p>
-      <h1 className="mt-2 text-2xl font-black tracking-tight text-[var(--text-strong)]">アカウント設定</h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">プロフィールやログイン情報を管理します。</p>
+      <InnerHeader
+        title="アカウント設定"
+        subTitle="ACCOUNT_CONFIG"
+        description="プロフィールやログイン情報を管理します。"
+        icon={<UserRound className="size-5 text-[var(--accent)]" />}
+      />
+      
       <section className="cyber-cut relative mt-8 border border-[var(--line)] bg-[var(--panel)]/90 p-6 shadow-[0_8px_30px_var(--shadow)] transition-colors duration-300 sm:p-8">
         <span className="absolute top-0 left-8 h-0.5 w-20 bg-[var(--accent)]" />
         <h2 className="text-sm font-bold text-[var(--accent)]">プロフィール</h2>

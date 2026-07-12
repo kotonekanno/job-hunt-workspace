@@ -79,13 +79,14 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
     <EditDialog
       title="タスクを編集"
       subTitle="// TASK_EDITOR"
-      fields={fields}
       onClose={onClose}
       onSubmit={submit}
       submitText="保存する"
       formClassName="max-w-xl p-6 sm:p-8"
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"
-    />
+    >
+      {fields}
+    </EditDialog>
   );
 }

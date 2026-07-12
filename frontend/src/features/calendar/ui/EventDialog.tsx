@@ -6,7 +6,7 @@ import {
   type CalendarEvent,
 } from "@/features/calendar/model/calendar";
 import { EditDialog } from "@/shared/dialog";
-import { Select } from "@/shared/select";
+import { Select, toSelectOptions } from "@/shared/select";
 
 type EventDialogProps = {
   event?: CalendarEvent;
@@ -94,11 +94,12 @@ export function EventDialog({ event, onClose, onSave }: EventDialogProps) {
         予定種別
         <Select
           value={form.category}
-          items={eventCategories}
-          onChange={(changeEvent: any) => setForm({
+          options={toSelectOptions(eventCategories)}
+          onValueChange={(category) => setForm({
             ...form,
-            category: changeEvent.target.value as CalendarEvent["category"],
+            category,
           })}
+          className="mt-1 w-full"
         />
       </label>
 
@@ -106,11 +107,12 @@ export function EventDialog({ event, onClose, onSave }: EventDialogProps) {
         実施形式
         <Select
           value={form.format}
-          items={eventFormats}
-          onChange={(changeEvent) => setForm({
+          options={toSelectOptions(eventFormats)}
+          onValueChange={(format) => setForm({
             ...form,
-            format: changeEvent.target.value as CalendarEvent["format"],
+            format,
           })}
+          className="mt-1 w-full"
         />
       </label>
 
@@ -118,11 +120,12 @@ export function EventDialog({ event, onClose, onSave }: EventDialogProps) {
         参加状況
         <Select
           value={form.status}
-          items={attendanceStatuses}
-          onChange={(changeEvent) => setForm({
+          options={toSelectOptions(attendanceStatuses)}
+          onValueChange={(status) => setForm({
             ...form,
-            status: changeEvent.target.value as CalendarEvent["status"],
+            status,
           })}
+          className="mt-1 w-full"
         />
       </label>
 
@@ -157,13 +160,14 @@ export function EventDialog({ event, onClose, onSave }: EventDialogProps) {
     <EditDialog
       title={event ? "予定を編集" : "予定を追加"}
       subTitle="// EVENT_EDITOR"
-      fields={fields}
       onClose={onClose}
       onSubmit={submit}
       submitText="保存する"
       formClassName="max-h-[90vh] max-w-2xl overflow-y-auto p-6 sm:p-8"
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"
-    />
+    >
+      {fields}
+    </EditDialog>
   );
 }

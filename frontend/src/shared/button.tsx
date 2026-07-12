@@ -1,218 +1,197 @@
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useState, type ReactElement } from "react";
+import {
+  Pencil,
+  Plus,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  useState,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+} from "react";
 import { DeleteDialog } from "@/shared/dialog";
+import type { Size } from "@/shared/shared-type";
 
-type Size = "s" | "m" | "l";
+type ButtonVariant = "primary" | "secondary" | "danger-ghost";
 
-type TextProps = {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: ReactNode;
+  variant?: ButtonVariant;
+};
+
+type AddButtonProps = {
   text: string;
-  size?: Size;
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-}
+  size: Size;
+  onClick: () => void;
+};
 
-type IconProps = {
-  icon: ReactElement;
-  style: string;
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-}
+type IconActionButtonProps = {
+  onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  ariaLabel?: string;
+};
 
-type BulkDeleteProps = {
+type BulkDeleteButtonProps = {
   size: Size;
   count: number;
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-}
+  onConfirm: () => void;
+  itemLabel?: string;
+};
 
-export function TransparentTextButton({ text, onClick }: TextProps) {
+const variantStyles: Record<ButtonVariant, string> = {
+  primary: "cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  secondary: "border-[var(--line)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]",
+  "danger-ghost": "border-[var(--line)] font-semibold text-[var(--muted)] hover:border-rose-500 hover:text-rose-500",
+};
+
+const sizeStyles = {
+  s: {
+    button: "h-8 gap-1.5 px-3 text-[9px]",
+    icon: "size-3",
+  },
+  m: {
+    button: "h-9 gap-2 px-4 text-xs",
+    icon: "size-3.5",
+  },
+  l: {
+    button: "h-10 gap-2 px-5 text-sm",
+    icon: "size-4",
+  },
+} satisfies Record<Size, { button: string; icon: string }>;
+
+function Button({
+  children,
+  variant = "secondary",
+  type = "button",
+  className = "",
+  ...props
+}: ButtonProps) {
   return (
     <button
-      type="button"
-      onClick={onClick}
-      className="
-        h-10 border border-[var(--line)] px-5
-        text-xs font-semibold text-[var(--muted)]
-        transition-colors hover:border-[var(--muted)]
-      "
+      type={type}
+      className={`inline-flex cursor-pointer items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]} ${className}`}
+      {...props}
     >
-      {text}
+      {children}
     </button>
   );
 }
 
-function TransparentIconButton({ icon, style, onClick }: IconProps) {
+function IconActionButton({
+  icon: Icon,
+  onClick,
+  ariaLabel,
+  danger = false,
+}: IconActionButtonProps & {
+  icon: LucideIcon;
+  danger?: boolean;
+}) {
   return (
-    <button
-      type="button"
+    <Button
+      variant={danger ? "danger-ghost" : "secondary"}
       onClick={onClick}
-      className={`
-        flex size-8 items-center justify-center
-        border border-[var(--line)] text-[var(--muted)]
-        ${style}
-      `}
+      aria-label={ariaLabel}
+      title={ariaLabel}
+      className="size-8 p-0"
     >
-      {icon}
-    </button>
+      <Icon className="size-3.5" />
+    </Button>
   );
 }
 
-
-export function EditIconButton({ onClick }: { onClick: React.MouseEventHandler<HTMLButtonElement> }) {
+export function EditIconButton({
+  onClick,
+  ariaLabel = "編集",
+}: IconActionButtonProps) {
   return (
-    <TransparentIconButton
-      icon={<Pencil className="size-3.5" />}
-      style="hover:border-[var(--accent)] hover:text-[var(--accent)]"
+    <IconActionButton
+      icon={Pencil}
       onClick={onClick}
+      ariaLabel={ariaLabel}
     />
   );
 }
 
-export function DeleteTextButton({ onClick }: { onClick: React.MouseEventHandler<HTMLButtonElement> }) {
+export function DeleteIconButton({
+  onClick,
+  ariaLabel = "削除",
+}: IconActionButtonProps) {
   return (
-    <button
-      type="button"
+    <IconActionButton
+      icon={Trash2}
       onClick={onClick}
-      className="
-        h-10 bg-rose-500 px-5 text-xs font-bold text-white
-        border border-rose-500
-        transition-colors hover:bg-[var(--accent-soft)] hover:text-rose-500
-      "
-    >
-      削除する
-    </button>
-  );
-}
-
-export function DeleteIconButton({ onClick }: { onClick: React.MouseEventHandler<HTMLButtonElement> }) {
-  return (
-    <TransparentIconButton
-      icon={<Trash2 className="size-3.5" />}
-      style="hover:border-rose-500 hover:text-rose-500"
-      onClick={onClick}
+      ariaLabel={ariaLabel}
+      danger
     />
   );
 }
 
-export function BulkDeleteButton({ size, count, onClick }: BulkDeleteProps) {
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  var buttonStyle: string;
-  var iconStyle: string;
+export function AddButton({
+  text,
+  size,
+  onClick,
+}: AddButtonProps) {
+  const styles = sizeStyles[size];
 
-  if (size === "s") {
-    buttonStyle = "h-7 gap-1 text-[9px] px-2";
-    iconStyle = "size-3";
-  } else {
-    buttonStyle = "h-10 gap-2 text-xs px-4";
-    iconStyle = "size-3.5";
-  }
-  
   return (
-    <>
-      <button
-        type="button"
-        disabled={count === 0}
-        onClick={() => setIsDeleteDialogOpen(true)}
-        className={`
-          flex items-center border border-[var(--line)]
-          font-semibold text-[var(--muted)] transition-colors
-          hover:border-rose-500 hover:text-rose-500 disabled:opacity-40
-          ${buttonStyle}
-        `}
-      >
-        <Trash2 className={iconStyle} />
-        完了済みを削除 ({count})
-      </button>
-
-      {isDeleteDialogOpen && (
-        <DeleteDialog
-          title="完了済みのタスクを削除しますか？"
-          text={`完了済みのタスク${count}件を一括削除します。この操作は取り消せません。`}
-          onCancel={() => setIsDeleteDialogOpen(false)}
-          onDelete={(event) => {
-            onClick(event);
-            setIsDeleteDialogOpen(false);
-          }}
-          onBackdropClick={() => setIsDeleteDialogOpen(false)}
-        />
-      )}
-    </>
-  );
-}
-
-export function CancelButton({ onClick }: { onClick: React.MouseEventHandler<HTMLButtonElement> }) {
-  return (
-    <button
-      type="button"
+    <Button
+      variant="primary"
       onClick={onClick}
-      className="
-        h-10 border border-[var(--line)] px-5
-        text-xs font-semibold text-[var(--muted)]
-        transition-colors hover:border-[var(--muted)]
-      "
+      className={styles.button}
     >
-      キャンセル
-    </button>
-  );
-}
-
-export function ColoredAddButton({text, size, onClick}: TextProps) {
-  var buttonStyle: string;
-  var iconStyle: string;
-
-  if (size === "s") {
-    buttonStyle = "h-8 gap-1.5 px-3 text-[9px]";
-    iconStyle = "size-3";
-  } else {
-    buttonStyle = "h-9 gap-2 px-4 text-xs";
-    iconStyle = "size-3.5";
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`
-        cyber-cut-sm flex items-center font-bold
-        border border-[var(--accent)]
-        bg-[var(--accent)] text-[var(--accent-contrast)]
-        transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]
-        ${buttonStyle}
-      `}
-    >
-      <Plus className={iconStyle} />
+      <Plus className={styles.icon} />
       {text}
-    </button>
+    </Button>
   );
 }
 
-export function TransParentAddButton({ text, onClick }: TextProps) {
+export function OutlineAddButton({
+  text,
+  onClick,
+}: Omit<AddButtonProps, "size">) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="secondary"
       onClick={onClick}
-      className="
-        flex h-8 items-center gap-1.5
-        border border-[var(--line)] px-3
-        text-[9px] font-bold text-[var(--accent)]
-        transition-colors hover:border-[var(--accent)]
-      "
+      className="h-8 gap-1.5 px-3 text-[9px] font-bold text-[var(--accent)]"
     >
       <Plus className="size-3" />
       {text}
-    </button>
+    </Button>
   );
 }
 
-export function ColoredSubmitButton({ text }: { text: string }) {
+export function BulkDeleteButton({
+  size,
+  count,
+  onConfirm,
+  itemLabel = "完了済みのタスク",
+}: BulkDeleteButtonProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const styles = sizeStyles[size];
+
   return (
-    <button
-      type="submit"
-      className="
-        cyber-cut-sm h-10 bg-[var(--accent)]
-        border border-[var(--accent)]
-        px-5 text-xs font-bold text-[var(--accent-contrast)]
-        transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]
-      "
-    >
-      {text}
-    </button>
+    <>
+      <Button
+        variant="danger-ghost"
+        disabled={count === 0}
+        onClick={() => setIsDialogOpen(true)}
+        className={styles.button}
+      >
+        <Trash2 className={styles.icon} />
+        完了済みを削除 ({count})
+      </Button>
+
+      {isDialogOpen && (
+        <DeleteDialog
+          title={`${itemLabel}を削除しますか？`}
+          text={`${itemLabel}${count}件を一括削除します。この操作は取り消せません。`}
+          onClose={() => setIsDialogOpen(false)}
+          onConfirm={() => {
+            onConfirm();
+            setIsDialogOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 }

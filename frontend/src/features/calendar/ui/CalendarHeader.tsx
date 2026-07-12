@@ -1,7 +1,11 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { attendanceStatuses, eventCategories, eventFormats, type AttendanceStatus, type EventCategory, type EventFormat } from "@/features/calendar/model/calendar";
-import { ColoredAddButton } from "@/shared/button";
-import { Select } from "@/shared/select";
+import { AddButton } from "@/shared/button";
+import {
+  Select,
+  toSelectOptions,
+  type SelectOption,
+} from "@/shared/select";
 
 type CalendarFiltersProps = {
   displayDate: Date;
@@ -19,8 +23,11 @@ type CalendarFiltersProps = {
 };
 
 export function CalendarHeader(props: CalendarFiltersProps) {
-  const selectClassName = "h-9 border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-xs text-[var(--text)] outline-none transition-colors focus:border-[var(--accent)]";
   const years = Array.from({ length: 7 }, (_, index) => 2023 + index);
+  const months: SelectOption<number>[] = Array.from(
+    { length: 12 },
+    (_, index) => ({ value: index, label: `${index + 1}月` }),
+  );
 
   return (
     <div className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)] transition-colors duration-300">
@@ -30,19 +37,26 @@ export function CalendarHeader(props: CalendarFiltersProps) {
           <button type="button" onClick={props.onPreviousMonth} className="flex size-9 items-center justify-center border border-[var(--line)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]" aria-label="前の月"><ChevronLeft className="size-4" /></button>
           <Select
             value={props.displayDate.getFullYear()}
-            items={years}
-            onChange={
-              (event) => props.onDateChange(
-                new Date(Number(event.target.value),
-                props.displayDate.getMonth(),
-                1)
-              )
-            }
+            options={years.map((year) => ({
+              value: year,
+              label: `${year}年`,
+            }))}
+            onValueChange={(year) => props.onDateChange(new Date(
+              year,
+              props.displayDate.getMonth(),
+              1,
+            ))}
+            aria-label="年を選択"
           />
           <Select
             value={props.displayDate.getMonth()}
-            items={Array.from({ length: 12 }, (_, i) => i + 1)}
-            onChange={(event) => props.onDateChange(new Date(props.displayDate.getFullYear(), Number(event.target.value), 1))}
+            options={months}
+            onValueChange={(month) => props.onDateChange(new Date(
+              props.displayDate.getFullYear(),
+              month,
+              1,
+            ))}
+            aria-label="月を選択"
           />
           <button type="button" onClick={props.onNextMonth} className="flex size-9 items-center justify-center border border-[var(--line)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]" aria-label="次の月"><ChevronRight className="size-4" /></button>
           <button type="button" onClick={props.onToday} className="flex h-9 items-center gap-2 border border-[var(--line)] px-3 text-xs font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"><CalendarDays className="size-3.5" />今日</button>
@@ -53,23 +67,35 @@ export function CalendarHeader(props: CalendarFiltersProps) {
 
           <Select
             value={props.category}
-            items={["すべての予定", ...eventCategories]}
-            onChange={(event) => props.onCategoryChange(event.target.value as EventCategory | "すべて")}
+            options={[
+              { value: "すべて", label: "すべての予定" },
+              ...toSelectOptions(eventCategories),
+            ]}
+            onValueChange={props.onCategoryChange}
+            aria-label="予定種別で絞り込む"
           />
           
           <Select
             value={props.format}
-            items={["すべての形式", ...eventFormats]}
-            onChange={(event) => props.onFormatChange(event.target.value as EventFormat | "すべて")}
+            options={[
+              { value: "すべて", label: "すべての形式" },
+              ...toSelectOptions(eventFormats),
+            ]}
+            onValueChange={props.onFormatChange}
+            aria-label="実施形式で絞り込む"
           />
 
           <Select
             value={props.status}
-            items={["すべての参加状況", ...attendanceStatuses]}
-            onChange={(event) => props.onStatusChange(event.target.value as AttendanceStatus | "すべて")}
+            options={[
+              { value: "すべて", label: "すべての参加状況" },
+              ...toSelectOptions(attendanceStatuses),
+            ]}
+            onValueChange={props.onStatusChange}
+            aria-label="参加状況で絞り込む"
           />
 
-          <ColoredAddButton
+          <AddButton
             text="予定を追加"
             size="m"
             onClick={props.onAddEvent}

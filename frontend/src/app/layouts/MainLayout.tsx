@@ -26,16 +26,18 @@ export function MainLayout() {
 
   return (
     <div className="cyber-grid flex min-h-screen flex-col bg-[var(--app-bg)] text-[var(--text)] transition-colors duration-300">
-      <header className="relative z-40 border-b border-[var(--line-strong)] bg-[var(--panel)]/95 shadow-[0_2px_18px_var(--shadow)] backdrop-blur transition-colors duration-300">
+      <header className="fixed top-0 right-0 left-0 z-40 border-b border-[var(--line-strong)] bg-[var(--panel)]/95 shadow-[0_2px_18px_var(--shadow)] backdrop-blur transition-colors duration-300">
         <div className="absolute bottom-0 left-0 h-px w-1/3 bg-[var(--accent)]" />
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-5 sm:px-8">
-          <Link to="/" className="flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]" aria-label="超・就活管理 ホーム">
+          <Link to="/" className="flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]" aria-label="極・就活管理 ホーム">
             <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-[0_3px_12px_var(--shadow)]">
               <BriefcaseBusiness aria-hidden="true" className="size-4" />
             </span>
-            <span>
-              <span className="block text-base font-black tracking-[0.14em] text-[var(--text-strong)]">超・就活管理</span>
-              <span className="hidden font-mono text-[9px] tracking-[0.22em] text-[var(--accent)] sm:block">CAREER_OS // MANAGEMENT</span>
+            <span
+              className="block text-2xl font-black tracking-[0.14em] text-[var(--text-strong)] px-2"
+              style={{ fontFamily: 'tamanegi' }}
+            >
+              極・就活管理
             </span>
           </Link>
 
@@ -63,10 +65,16 @@ export function MainLayout() {
         </div>
       </header>
 
-      <main className="flex min-h-0 flex-1"><Outlet /></main>
+      <main className="flex min-h-0 flex-1 pt-16"><Outlet /></main>
       <footer className="border-t border-[var(--line)] bg-[var(--panel)] transition-colors duration-300">
-        <div className="mx-auto flex min-h-14 w-full max-w-[1440px] flex-col items-center justify-between gap-1 px-5 py-3 font-mono text-[10px] tracking-wider text-[var(--faint)] sm:flex-row sm:px-8">
-          <p>就活管理アプリ 超・就活管理</p><p>© 2026 超・就活管理</p>
+        <div
+          className="
+            mx-auto flex min-h-14 w-full max-w-[1440px] items-center
+            px-5 py-3 justify-center font-mono text-[10px]
+            tracking-wider text-[var(--faint)] sm:flex-row sm:px-8
+          "
+        >
+          <p>© 2026 極・就活管理 v1.0.0</p>
         </div>
       </footer>
     </div>

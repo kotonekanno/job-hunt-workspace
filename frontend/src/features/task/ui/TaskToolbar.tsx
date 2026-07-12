@@ -1,6 +1,7 @@
-import { Search, Trash2 } from "lucide-react";
+import { Search } from "lucide-react";
 import type { TaskSort } from "@/features/task/model/task";
 import { BulkDeleteButton } from "@/shared/button";
+import { Select, toSelectOptions } from "@/shared/select";
 
 type TaskToolbarProps = {
   companyQuery: string;
@@ -34,26 +35,20 @@ export function TaskToolbar(props: TaskToolbarProps) {
         />
       </div>
       <div className="flex flex-wrap gap-2">
-        <select
+        <Select
           value={props.sort}
-          onChange={(event) =>
-            props.onSortChange(event.target.value as TaskSort)
-          }
-          className="
-            h-10 border border-[var(--line)] bg-[var(--panel-raised)]
-            px-3 text-xs text-[var(--text)] outline-none
-            focus:border-[var(--accent)]
-          "
-          aria-label="タスクを並べ替える"
-        >
-          <option>手動</option>
-          <option>期限が近い順</option>
-          <option>企業名順</option>
-        </select>
+          options={toSelectOptions<TaskSort>([
+            "手動",
+            "期限が近い順",
+            "企業名順",
+          ])}
+          onValueChange={props.onSortChange}
+          aria-label="タスクの並び順"
+        />
         <BulkDeleteButton
           size="l"
           count={props.completedCount}
-          onClick={props.onDeleteCompleted}
+          onConfirm={props.onDeleteCompleted}
         />
       </div>
     </div>
