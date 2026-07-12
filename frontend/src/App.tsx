@@ -4,11 +4,12 @@ import { ProtectedLayout } from "./app/layouts/ProtectedLayout";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { CompanyDetailPage } from "./pages/companies/CompanyDetailPage";
 import { CompanyDocumentsPage } from "./pages/companies/CompanyDocumentsPage";
-import CompanyListPage from "./pages/companies/CompanyListPage";
-import EssayListPage from "./pages/essays/EssayListPage";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
+import { CompanyListPage } from "./pages/companies/CompanyListPage";
+import { EssayPage } from "./pages/essays/EssayPage";
+import { HomePage } from "./pages/HomePage";
+import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { AppSettingsPage } from "./pages/settings/AppSettingsPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { TaskPage } from "./pages/tasks/TaskPage";
 
@@ -29,8 +30,9 @@ function App() {
           />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/tasks" element={<TaskPage />} />
-          <Route path="/essays" element={<EssayListPage />} />
+          <Route path="/essays" element={<EssayPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings/app" element={<AppSettingsPage />} />
         </Route>
       </Route>
     </Routes>
