@@ -1,11 +1,14 @@
-import { Plus, Trash2, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { useId, useState, type FormEvent } from "react";
 import type {
   SelectionStep,
   SelectionTrack,
 } from "@/features/companies/model/companyDetail";
-import { DialogBase } from "@/shared/dialog";
-import { CancelButton, ColoredSubmitButton } from "@/shared/button";
+import {
+  DialogActions,
+  DialogBase,
+  DialogHeader,
+} from "@/shared/dialog";
 
 type SelectionTrackDialogProps = {
   track?: SelectionTrack;
@@ -14,6 +17,7 @@ type SelectionTrackDialogProps = {
 };
 
 export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
+  const titleId = useId();
   const [name, setName] = useState(props.track?.name ?? "");
   const [steps, setSteps] = useState<SelectionStep[]>(
     props.track?.steps ?? [createEmptyStep()],
@@ -24,7 +28,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
       id: Date.now() + Math.random(),
       name: "",
       memo: "",
-      result: "未受験",
+      result: "not_started",
     };
   }
 
@@ -45,20 +49,19 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
   }
 
   return (
-    <DialogBase onBackdropClick={props.onClose}>
+    <DialogBase onClose={props.onClose}>
       <form
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         onSubmit={submit}
-        onMouseDown={(event) => event.stopPropagation()}
         className="cyber-cut max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-[var(--line-strong)] bg-[var(--panel)] p-6 shadow-[0_20px_60px_var(--shadow)]"
       >
-        <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
-          <h2 className="text-base font-bold text-[var(--text-strong)]">
-            {props.track ? "選考を編集" : "選考を追加"}
-          </h2>
-          <button type="button" onClick={props.onClose}>
-            <X className="size-4 text-[var(--muted)]" />
-          </button>
-        </div>
+        <DialogHeader
+          title={props.track ? "選考を編集" : "選考を追加"}
+          titleId={titleId}
+          onClose={props.onClose}
+        />
 
         <label className="mt-5 block text-xs text-[var(--muted)]">
           選考の種類
@@ -146,14 +149,11 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           選考ステップを追加
         </button>
 
-        <div className="mt-6 flex justify-end gap-2">
-          <CancelButton
-            onClick={props.onClose}
-          />
-          <ColoredSubmitButton
-            text="保存する"
-          />
-        </div>
+        <DialogActions
+          onClose={props.onClose}
+          confirmText="保存する"
+          confirmType="submit"
+        />
       </form>
     </DialogBase>
   );

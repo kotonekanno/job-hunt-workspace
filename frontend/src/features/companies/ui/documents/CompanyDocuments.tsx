@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { initialDocuments } from "@/features/companies/model/companyDetail";
 import { MarkdownPreview } from "@/features/companies/ui/documents/MarkdownPreview";
+import { CompanyHeader } from "../detail/CompanyHeader";
 
 export function CompanyDocuments() {
   const { companyId } = useParams();
@@ -36,6 +37,8 @@ export function CompanyDocuments() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
+      <CompanyHeader />
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Link
           to={`/companies/${companyId}`}

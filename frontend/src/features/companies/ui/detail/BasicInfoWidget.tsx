@@ -2,7 +2,7 @@ import { useState } from "react";
 import { companyProfile } from "@/features/companies/model/companyDetail";
 import { RecordDialog } from "@/features/companies/ui/detail/RecordDialog";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import { TransParentAddButton } from "@/shared/button";
+import { OutlineAddButton } from "@/shared/button";
 
 type BasicInfoWidgetProps = {
   onRemove: () => void;
@@ -13,7 +13,7 @@ export function BasicInfoWidget({ onRemove }: BasicInfoWidgetProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const addButton = (
-    <TransParentAddButton
+    <OutlineAddButton
       text="レコードを追加"
       onClick={() => setIsDialogOpen(true)}
     />

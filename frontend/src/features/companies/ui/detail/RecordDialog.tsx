@@ -30,7 +30,9 @@ export function RecordDialog({
   return (
     <EditDialog
       title={title}
-      fields={
+      onClose={onClose}
+      onSubmit={submit}
+    >
         <>
           <label className="block text-xs text-[var(--muted)]">
             {labelName}
@@ -53,10 +55,6 @@ export function RecordDialog({
             />
           </label>
         </>
-      }
-      onClose={onClose}
-      onSubmit={submit}
-      onBackdropClick={onClose}
-    />
+    </EditDialog>
   );
 }

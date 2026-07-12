@@ -7,19 +7,20 @@ import {
 } from "@/features/companies/model/companyDetail";
 import { SelectionTrackDialog } from "@/features/companies/ui/detail/SelectionTrackDialog";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import { ColoredAddButton } from "@/shared/button";
+import { AddButton } from "@/shared/button";
+import { SelectionStatusBadge } from "../selection-step-badge";
 
 const resultStyle: Record<SelectionResult, string> = {
-  未受験: "border-[var(--line)] text-[var(--faint)]",
-  結果待ち: "border-amber-500/50 bg-amber-500/10 text-amber-600",
-  合格: "border-emerald-500/50 bg-emerald-500/10 text-emerald-600",
-  不合格: "border-rose-500/50 bg-rose-500/10 text-rose-500",
+  not_started: "border-[var(--line)] text-[var(--faint)]",
+  pending: "border-amber-500/50 bg-amber-500/10 text-amber-600",
+  passed: "border-emerald-500/50 bg-emerald-500/10 text-emerald-600",
+  failed: "border-rose-500/50 bg-rose-500/10 text-rose-500",
 };
 
 function ResultIcon({ result }: { result: SelectionResult }) {
-  if (result === "合格") return <Check className="size-3" />;
-  if (result === "不合格") return <X className="size-3" />;
-  if (result === "結果待ち") return <Clock3 className="size-3" />;
+  if (result === "passed") return <Check className="size-3" />;
+  if (result === "failed") return <X className="size-3" />;
+  if (result === "pending") return <Clock3 className="size-3" />;
   return <Minus className="size-3" />;
 }
 
@@ -56,7 +57,7 @@ export function SelectionWidget() {
   }
 
   const addButton = (
-    <ColoredAddButton
+    <AddButton
       text="選考を追加"
       size="s"
       onClick={() => {
@@ -121,25 +122,12 @@ export function SelectionWidget() {
                       <time className="font-mono text-[9px] font-bold text-[var(--accent)]">
                         {step.date ? step.date.slice(5).replace("-", "/") : "--/--"}
                       </time>
-                      <span className={`flex items-center justify-center gap-1 border px-1 py-0.5 ${resultStyle[step.result]}`}>
-                        <ResultIcon result={step.result} />
-                        <select
-                          value={step.result}
-                          onClick={(event) => event.stopPropagation()}
-                          onChange={(event) => updateStepResult(
-                            track.id,
-                            step.id,
-                            event.target.value as SelectionResult,
-                          )}
-                          className="bg-transparent text-[8px] font-semibold outline-none"
-                          aria-label={`${step.name}の選考状況`}
-                        >
-                          <option value="未受験">未受験</option>
-                          <option value="結果待ち">結果待ち</option>
-                          <option value="合格">合格</option>
-                          <option value="不合格">不合格</option>
-                        </select>
-                      </span>
+                        
+                      <SelectionStatusBadge
+                        result={step.result}
+                        size="s"
+                      />
+
                       <ChevronDown className="size-3 text-[var(--faint)] transition-transform group-open/step:rotate-180" />
                     </summary>
                     <p className="border-t border-[var(--line)] bg-[var(--panel)] px-3 py-2.5 text-[9px] leading-relaxed text-[var(--muted)]">

@@ -1,4 +1,3 @@
-import { Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { relatedTasks } from "@/features/companies/model/companyDetail";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
@@ -42,7 +41,7 @@ export function RelatedTasksWidget() {
     <BulkDeleteButton
       size="s"
       count={completedCount}
-      onClick={() => setTasks((current) => current.filter(
+      onConfirm={() => setTasks((current) => current.filter(
         (task) => !task.completed,
       ))}
     />

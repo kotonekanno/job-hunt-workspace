@@ -5,7 +5,7 @@ import { EventDialog } from "@/features/calendar/ui/EventDialog";
 import { EventListItem } from "@/features/calendar/ui/UpcomingEvents";
 import { relatedEvents } from "@/features/companies/model/companyDetail";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import { ColoredAddButton } from "@/shared/button";
+import { AddButton } from "@/shared/button";
 
 export function RelatedEventsWidget() {
   const [events, setEvents] = useState<CalendarEvent[]>(relatedEvents);
@@ -34,7 +34,7 @@ export function RelatedEventsWidget() {
   }
 
   const addButton = (
-    <ColoredAddButton
+    <AddButton
       text="予定を追加"
       size="s"
       onClick={() => {

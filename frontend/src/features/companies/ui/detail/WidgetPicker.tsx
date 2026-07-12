@@ -4,7 +4,6 @@ import {
   widgetLabels,
   type WidgetType,
 } from "@/features/companies/model/companyDetail";
-import { ColoredAddButton } from "@/shared/button";
 
 type WidgetPickerProps = {
   hiddenWidgets: WidgetType[];

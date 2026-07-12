@@ -7,10 +7,10 @@ export type WidgetType =
   | "selection";
 
 export type SelectionResult =
-  | "未受験"
-  | "結果待ち"
-  | "合格"
-  | "不合格";
+  | "not_started" // 未受験
+  | "pending"     // 結果待ち
+  | "passed"      // 合格
+  | "failed";     // 不合格
 
 export type SelectionStep = {
   id: number;
@@ -101,18 +101,18 @@ export const initialSelectionTracks: SelectionTrack[] = [
     id: 1,
     name: "本選考",
     steps: [
-      { id: 1, name: "書類選考", date: "2026-06-10", memo: "ES・履歴書を提出", result: "合格" },
-      { id: 2, name: "適性検査", date: "2026-06-18", memo: "Web受検", result: "合格" },
-      { id: 3, name: "一次面接", date: "2026-06-27", memo: "現場マネージャー2名", result: "合格" },
-      { id: 4, name: "最終面接", date: "2026-07-16", memo: "役員面接。履歴書を持参する。", result: "未受験" },
+      { id: 1, name: "書類選考", date: "2026-06-10", memo: "ES・履歴書を提出", result: "passed" },
+      { id: 2, name: "適性検査", date: "2026-06-18", memo: "Web受検", result: "passed" },
+      { id: 3, name: "一次面接", date: "2026-06-27", memo: "現場マネージャー2名", result: "passed" },
+      { id: 4, name: "最終面接", date: "2026-07-16", memo: "役員面接。履歴書を持参する。", result: "not_started" },
     ],
   },
   {
     id: 2,
     name: "サマーインターン",
     steps: [
-      { id: 5, name: "参加者選考", date: "2025-07-15", memo: "オンライン面接", result: "合格" },
-      { id: 6, name: "3daysインターン", date: "2025-08-20", memo: "新規事業立案ワーク", result: "合格" },
+      { id: 5, name: "参加者選考", date: "2025-07-15", memo: "オンライン面接", result: "passed" },
+      { id: 6, name: "3daysインターン", date: "2025-08-20", memo: "新規事業立案ワーク", result: "passed" },
     ],
   },
 ];

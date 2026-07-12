@@ -1,4 +1,3 @@
-import { Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCompanyDetail } from "@/features/companies/hooks/useCompanyDetail";
 import {
@@ -14,7 +13,6 @@ import { RelatedEventsWidget } from "@/features/companies/ui/detail/RelatedEvent
 import { RelatedTasksWidget } from "@/features/companies/ui/detail/RelatedTasksWidget";
 import { SelectionWidget } from "@/features/companies/ui/detail/SelectionWidget";
 import { WidgetPicker } from "@/features/companies/ui/detail/WidgetPicker";
-import { CancelButton, DeleteTextButton } from "@/shared/button";
 import { DeleteDialog } from "@/shared/dialog";
 
 const allWidgets: WidgetType[] = widgetOrder;
@@ -82,9 +80,8 @@ export function CompanyDashboard() {
         <DeleteDialog
           title="コンポーネントを削除しますか？"
           text={`「${widgetLabels[pendingRemoval]}」をこの画面から削除します。`}
-          onCancel={() => setPendingRemoval(null)}
-          onDelete={confirmRemoval}
-          onBackdropClick={() => setPendingRemoval(null)}
+          onClose={() => setPendingRemoval(null)}
+          onConfirm={confirmRemoval}
         />
       )}
     </div>
