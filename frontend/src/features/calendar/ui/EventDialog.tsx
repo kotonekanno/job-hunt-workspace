@@ -6,6 +6,7 @@ import {
   type CalendarEvent,
 } from "@/features/calendar/model/calendar";
 import { EditDialog } from "@/shared/dialog";
+import { Select } from "@/shared/select";
 
 type EventDialogProps = {
   event?: CalendarEvent;
@@ -91,44 +92,38 @@ export function EventDialog({ event, onClose, onSave }: EventDialogProps) {
 
       <label className="text-xs text-[var(--muted)]">
         予定種別
-        <select
+        <Select
           value={form.category}
-          onChange={(changeEvent) => setForm({
+          items={eventCategories}
+          onChange={(changeEvent: any) => setForm({
             ...form,
             category: changeEvent.target.value as CalendarEvent["category"],
           })}
-          className={fieldClassName}
-        >
-          {eventCategories.map((item) => <option key={item}>{item}</option>)}
-        </select>
+        />
       </label>
 
       <label className="text-xs text-[var(--muted)]">
         実施形式
-        <select
+        <Select
           value={form.format}
+          items={eventFormats}
           onChange={(changeEvent) => setForm({
             ...form,
             format: changeEvent.target.value as CalendarEvent["format"],
           })}
-          className={fieldClassName}
-        >
-          {eventFormats.map((item) => <option key={item}>{item}</option>)}
-        </select>
+        />
       </label>
 
       <label className="text-xs text-[var(--muted)]">
         参加状況
-        <select
+        <Select
           value={form.status}
+          items={attendanceStatuses}
           onChange={(changeEvent) => setForm({
             ...form,
             status: changeEvent.target.value as CalendarEvent["status"],
           })}
-          className={fieldClassName}
-        >
-          {attendanceStatuses.map((item) => <option key={item}>{item}</option>)}
-        </select>
+        />
       </label>
 
       <label className="text-xs text-[var(--muted)]">

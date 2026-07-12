@@ -1,6 +1,7 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { attendanceStatuses, eventCategories, eventFormats, type AttendanceStatus, type EventCategory, type EventFormat } from "@/features/calendar/model/calendar";
 import { ColoredAddButton } from "@/shared/button";
+import { Select } from "@/shared/select";
 
 type CalendarFiltersProps = {
   displayDate: Date;
@@ -27,8 +28,22 @@ export function CalendarHeader(props: CalendarFiltersProps) {
         
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" onClick={props.onPreviousMonth} className="flex size-9 items-center justify-center border border-[var(--line)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]" aria-label="前の月"><ChevronLeft className="size-4" /></button>
-          <select value={props.displayDate.getFullYear()} onChange={(event) => props.onDateChange(new Date(Number(event.target.value), props.displayDate.getMonth(), 1))} className={selectClassName} aria-label="年を選択">{years.map((year) => <option key={year} value={year}>{year}年</option>)}</select>
-          <select value={props.displayDate.getMonth()} onChange={(event) => props.onDateChange(new Date(props.displayDate.getFullYear(), Number(event.target.value), 1))} className={selectClassName} aria-label="月を選択">{Array.from({ length: 12 }, (_, month) => <option key={month} value={month}>{month + 1}月</option>)}</select>
+          <Select
+            value={props.displayDate.getFullYear()}
+            items={years}
+            onChange={
+              (event) => props.onDateChange(
+                new Date(Number(event.target.value),
+                props.displayDate.getMonth(),
+                1)
+              )
+            }
+          />
+          <Select
+            value={props.displayDate.getMonth()}
+            items={Array.from({ length: 12 }, (_, i) => i + 1)}
+            onChange={(event) => props.onDateChange(new Date(props.displayDate.getFullYear(), Number(event.target.value), 1))}
+          />
           <button type="button" onClick={props.onNextMonth} className="flex size-9 items-center justify-center border border-[var(--line)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]" aria-label="次の月"><ChevronRight className="size-4" /></button>
           <button type="button" onClick={props.onToday} className="flex h-9 items-center gap-2 border border-[var(--line)] px-3 text-xs font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"><CalendarDays className="size-3.5" />今日</button>
         </div>
@@ -36,38 +51,23 @@ export function CalendarHeader(props: CalendarFiltersProps) {
 
         <div className="flex flex-wrap items-center gap-2">
 
-          <select
+          <Select
             value={props.category}
+            items={["すべての予定", ...eventCategories]}
             onChange={(event) => props.onCategoryChange(event.target.value as EventCategory | "すべて")}
-            className={selectClassName}
-          >
-            <option value="すべて">すべての予定</option>
-            {eventCategories.map((item) =>
-              <option key={item}>{item}</option>
-            )}
-          </select>
-
-          <select
+          />
+          
+          <Select
             value={props.format}
+            items={["すべての形式", ...eventFormats]}
             onChange={(event) => props.onFormatChange(event.target.value as EventFormat | "すべて")}
-            className={selectClassName}
-          >
-            <option value="すべて">すべての形式</option>
-            {eventFormats.map((item) =>
-              <option key={item}>{item}</option>
-            )}
-          </select>
+          />
 
-          <select
+          <Select
             value={props.status}
+            items={["すべての参加状況", ...attendanceStatuses]}
             onChange={(event) => props.onStatusChange(event.target.value as AttendanceStatus | "すべて")}
-            className={selectClassName}
-          >
-            <option value="すべて">すべての参加状況</option>
-            {attendanceStatuses.map((item) =>
-              <option key={item}>{item}</option>
-            )}
-          </select>
+          />
 
           <ColoredAddButton
             text="予定を追加"
