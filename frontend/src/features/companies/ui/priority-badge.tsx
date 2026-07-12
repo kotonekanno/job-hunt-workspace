@@ -189,7 +189,7 @@ export function PriorityBadge({
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className={`flex cursor-pointer items-center justify-center border font-bold ${badgeStyle} ${sizeStyle}`}
+        className={`flex cursor-pointer items-center justify-center border font-bold transition-[transform,box-shadow,filter] duration-150 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_4px_10px_var(--shadow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${badgeStyle} ${sizeStyle}`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

@@ -58,7 +58,7 @@ export function CalendarMonth({
             <div
               key={day.dateKey}
               className={`
-                min-h-24 border-r border-b border-[var(--line)] p-1.5
+                min-h-24 min-w-0 border-r border-b border-[var(--line)] p-1.5
                 transition-colors hover:bg-[var(--panel-raised)]
                 ${(index + 1) % 7 === 0 ? "border-r-0" : ""}
                 ${!day.isCurrentMonth ? "opacity-35" : ""}
@@ -77,7 +77,7 @@ export function CalendarMonth({
                 {day.date.getDate()}
               </span>
 
-              <div className="mt-0.5 space-y-0.5">
+              <div className="mt-0.5 min-w-0 space-y-0.5 overflow-hidden">
                 {events
                   .filter((event) => event.date === day.dateKey)
                   .map((event) => (
@@ -108,16 +108,18 @@ export function CalendarEventDialog({
   return (
     <HoverCard
       sizeClassName="w-52"
+      triggerClassName="block w-full min-w-0"
       trigger={
         <button
           type="button"
           className={`
-            block h-5 w-full border-l-2 px-1.5 text-left
-            transition-all hover:translate-x-0.5
+            block h-5 w-full min-w-0 max-w-full overflow-hidden
+            border-l-2 px-1.5 text-left transition-[filter,box-shadow]
+            hover:brightness-105 hover:shadow-[0_2px_5px_var(--shadow)]
             ${getEventClassName(event)}
           `}
         >
-          <span className="flex min-w-0 items-center gap-1">
+          <span className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1 overflow-hidden">
             <span className="shrink-0 font-mono text-[8px] opacity-75">
               {event.time}
             </span>

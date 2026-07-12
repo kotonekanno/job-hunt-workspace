@@ -21,6 +21,7 @@ import {
 } from "@/features/companies/model/companyPriorityPresentation";
 import { SelectionStepBadgeForCard } from "../selection-step-badge";
 import { PriorityBadge } from "../priority-badge";
+import { DeleteIconButton } from "@/shared/button";
 
 type CompanyPriorityCardProps = {
   company: CompanyListItem;
@@ -97,6 +98,10 @@ export function CompanyListCard({
         >
           <FileText className="size-3.5" />
         </Link>
+
+        <DeleteIconButton
+          onClick={() => {}}
+        />
       </div>
 
     </article>

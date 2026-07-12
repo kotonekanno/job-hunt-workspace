@@ -18,6 +18,7 @@ type HoverCardProps = {
   children: ReactNode;
 
   sizeClassName: string;
+  triggerClassName?: string;
 
   placement?: HoverCardPlacement;
   offset?: number;
@@ -33,6 +34,7 @@ export function HoverCard({
   trigger,
   children,
   sizeClassName,
+  triggerClassName = "inline-block",
   placement = "bottom-start",
   offset = 2,
   hoverCloseDelay = 80,
@@ -144,7 +146,7 @@ export function HoverCard({
     <>
       <div
         ref={triggerRef}
-        className="inline-block"
+        className={triggerClassName}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={() => setIsPinned((current) => !current)}
