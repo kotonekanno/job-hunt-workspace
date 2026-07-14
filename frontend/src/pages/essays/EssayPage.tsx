@@ -29,7 +29,11 @@ export function EssayPage() {
       />
 
       <div className="mt-5">
-        <EssayList essays={essayArchive.essays} />
+        <EssayList
+          essays={essayArchive.essays}
+          onUpdate={essayArchive.updateEssay}
+          onDelete={essayArchive.deleteEssay}
+        />
       </div>
 
       {isDialogOpen && (

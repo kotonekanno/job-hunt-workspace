@@ -11,6 +11,7 @@ export function EssayDialog({
   onClose,
   onSave,
 }: EssayDialogProps) {
+  const [company, setCompany] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [traitInput, setTraitInput] = useState("");
@@ -23,7 +24,12 @@ export function EssayDialog({
       .map((trait) => trait.trim())
       .filter(Boolean);
 
-    onSave({ question, answer, traits: [...new Set(traits)] });
+    onSave({
+      company,
+      question,
+      answer,
+      traits: [...new Set(traits)],
+    });
     onClose();
   };
 
@@ -37,6 +43,19 @@ export function EssayDialog({
       formClassName="max-w-2xl p-6"
     >
         <>
+          <label className="block">
+            <span className="text-xs font-bold text-[var(--text-strong)]">
+              企業名
+            </span>
+            <input
+              required
+              value={company}
+              onChange={(event) => setCompany(event.target.value)}
+              placeholder="企業名を入力"
+              className="mt-2 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
+            />
+          </label>
+
           <label className="block">
             <span className="text-xs font-bold text-[var(--text-strong)]">
               設問

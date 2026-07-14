@@ -32,6 +32,7 @@ export function EventDeleteButton({
     <>
       <DeleteIconButton
         size={size}
+        transparent={false}
         ariaLabel={`${event.title}を削除`}
         onClick={openDialog}
       />

@@ -25,13 +25,15 @@ import { DeleteIconButton } from "@/shared/button";
 
 type CompanyPriorityCardProps = {
   company: CompanyListItem;
-  selectedEventId: number | null;
-  setSelectedEventId: Dispatch<SetStateAction<number | null>>;
-  onEditEvent: (event: CalendarEvent) => void;
+  selectedEventId?: number | null;
+  setSelectedEventId?: Dispatch<SetStateAction<number | null>>;
+  onEditEvent?: (event: CalendarEvent) => void;
+  showDelete?: boolean;
 };
 
 export function CompanyListCard({
-  company
+  company,
+  showDelete = true,
 }: CompanyPriorityCardProps) {
   const navigate = useNavigate();
   const companyPath = `/companies/${company.id}`;
@@ -99,10 +101,15 @@ export function CompanyListCard({
           <FileText className="size-3.5" />
         </Link>
 
-        <DeleteIconButton
-          size="s"
-          onClick={() => {}}
-        />
+        {showDelete && (
+          <span data-card-action className="inline-flex">
+            <DeleteIconButton
+              size="s"
+              transparent={false}
+              onClick={() => {}}
+            />
+          </span>
+        )}
       </div>
 
     </article>

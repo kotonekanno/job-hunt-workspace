@@ -1,6 +1,7 @@
 import { GripVertical } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
 import type { Task } from "@/features/task/model/task";
+import { CompanyBadge } from "@/shared/badge";
 import { DeleteIconButton, EditIconButton } from "@/shared/button";
 import { DeleteDialog } from "@/shared/dialog";
 import { useState } from "react";
@@ -10,9 +11,10 @@ type TaskRowProps = {
   canReorder: boolean;
   showCompany?: boolean;
   showReorder?: boolean;
+  showActions?: boolean;
   onToggle: (id: number) => void;
-  onEdit: (task: Task) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (task: Task) => void;
+  onDelete?: (id: number) => void;
 };
 
 export function TaskRow(props: TaskRowProps) {
@@ -20,13 +22,16 @@ export function TaskRow(props: TaskRowProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const showCompany = props.showCompany ?? true;
   const showReorder = props.showReorder ?? true;
-  const gridClassName = showCompany
-    ? showReorder
-      ? "grid-cols-[28px_minmax(64px,108px)_minmax(120px,1fr)_108px_36px_36px_28px]"
-      : "grid-cols-[28px_minmax(64px,108px)_minmax(120px,1fr)_108px_36px_36px]"
-    : showReorder
-      ? "grid-cols-[28px_minmax(120px,1fr)_108px_36px_36px_28px]"
-      : "grid-cols-[28px_minmax(120px,1fr)_108px_36px_36px]";
+  const showActions = props.showActions ?? true;
+  const gridTemplateColumns = [
+    "28px",
+    showCompany ? "minmax(64px, 108px)" : null,
+    "minmax(120px, 1fr)",
+    "108px",
+    showActions ? "36px" : null,
+    showActions ? "36px" : null,
+    showReorder ? "28px" : null,
+  ].filter(Boolean).join(" ");
   
   return (
     <>
@@ -47,7 +52,10 @@ export function TaskRow(props: TaskRowProps) {
               open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_6px_16px_var(--shadow)]
             "
         >
-          <summary className={`grid min-h-14 list-none items-center gap-2 px-4 [&::-webkit-details-marker]:hidden ${gridClassName}`}>
+          <summary
+            className="grid min-h-14 cursor-pointer list-none items-center gap-2 px-4 [&::-webkit-details-marker]:hidden"
+            style={{ gridTemplateColumns }}
+          >
             <input
               type="checkbox"
               checked={props.task.completed}
@@ -58,14 +66,7 @@ export function TaskRow(props: TaskRowProps) {
             />
             {showCompany && (
               props.task.company
-                ? <span
-                    className="
-                      truncate border border-[var(--line)] bg-[var(--panel-raised)]
-                      px-1.5 py-1 text-center text-[9px] text-[var(--muted)]
-                    "
-                  >
-                    {props.task.company}
-                  </span>
+                ? <CompanyBadge company={props.task.company} />
                 : <span aria-hidden="true" />
             )}
             <span
@@ -82,21 +83,27 @@ export function TaskRow(props: TaskRowProps) {
             <time className="font-mono text-sm font-bold text-[var(--text-strong)]">
               {props.task.dueDate.slice(5).replace("-", "/")} <span className="text-[10px] font-medium text-[var(--muted)]">まで</span>
             </time>
-            <EditIconButton
-              size="m"
-              onClick={(event) => {
-                event.preventDefault();
-                props.onEdit(props.task);
-              }}
-            />
-            <DeleteIconButton
-              size="m"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                setIsDeleteDialogOpen(true);
-              }}
-            />
+            {showActions && (
+              <>
+                <EditIconButton
+                  size="m"
+                  transparent={false}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    props.onEdit?.(props.task);
+                  }}
+                />
+                <DeleteIconButton
+                  size="m"
+                  transparent={false}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setIsDeleteDialogOpen(true);
+                  }}
+                />
+              </>
+            )}
             {showReorder && (
               <button
                 type="button"
@@ -130,7 +137,7 @@ export function TaskRow(props: TaskRowProps) {
           text={`「${props.task.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
           onConfirm={() => {
-            props.onDelete(props.task.id);
+            props.onDelete?.(props.task.id);
             setIsDeleteDialogOpen(false);
           }}
         />

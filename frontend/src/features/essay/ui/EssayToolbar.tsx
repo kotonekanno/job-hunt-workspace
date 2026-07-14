@@ -42,7 +42,6 @@ export function EssayToolbar({
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-3">
         <span className="mr-1 flex items-center gap-1.5 text-[10px] font-bold text-[var(--muted)]">
           <SlidersHorizontal className="size-3.5" />
-          質問の性質
         </span>
 
         <button

@@ -28,7 +28,7 @@ export function DocumentsWidget({ documents }: DocumentsWidgetProps) {
 
   return (
     <WidgetFrame
-      title="テキスト"
+      title="ドキュメント"
       code="DOCUMENTS"
       action={detailLink}
       className="lg:col-span-2"

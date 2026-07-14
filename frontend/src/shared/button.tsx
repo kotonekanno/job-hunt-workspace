@@ -27,6 +27,7 @@ type AddButtonProps = {
 
 type IconActionButtonProps = {
   size: Size;
+  transparent: boolean;
   onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   ariaLabel?: string;
 };
@@ -95,6 +96,7 @@ function Button({
 function IconActionButton({
   icon: Icon,
   size,
+  transparent,
   onClick,
   ariaLabel,
   danger = false,
@@ -110,7 +112,9 @@ function IconActionButton({
       onClick={onClick}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className={`${styles.button} shrink-0 p-0`}
+      className={`${styles.button} shrink-0 p-0 ${
+        transparent ? "border-transparent hover:border-transparent" : ""
+      }`}
     >
       <Icon className={styles.icon} />
     </Button>
@@ -119,6 +123,7 @@ function IconActionButton({
 
 export function EditIconButton({
   size,
+  transparent,
   onClick,
   ariaLabel = "編集",
 }: IconActionButtonProps) {
@@ -126,6 +131,7 @@ export function EditIconButton({
     <IconActionButton
       icon={Pencil}
       size={size}
+      transparent={transparent}
       onClick={onClick}
       ariaLabel={ariaLabel}
     />
@@ -134,6 +140,7 @@ export function EditIconButton({
 
 export function DeleteIconButton({
   size,
+  transparent,
   onClick,
   ariaLabel = "削除",
 }: IconActionButtonProps) {
@@ -141,6 +148,7 @@ export function DeleteIconButton({
     <IconActionButton
       icon={Trash2}
       size={size}
+      transparent={transparent}
       onClick={onClick}
       ariaLabel={ariaLabel}
       danger

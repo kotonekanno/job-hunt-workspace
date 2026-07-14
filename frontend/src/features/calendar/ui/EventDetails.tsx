@@ -125,6 +125,7 @@ export function EventDetails({
           {onEdit && (
             <EditIconButton
               size="s"
+              transparent={false}
               ariaLabel={`${event.title}を編集`}
               onClick={() => onEdit(event)}
             />

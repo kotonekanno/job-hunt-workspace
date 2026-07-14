@@ -34,6 +34,20 @@ export function useEssays() {
     ]);
   };
 
+  const updateEssay = (
+    essayId: number,
+    updates: Partial<Pick<Essay, "question" | "answer">>,
+  ) => {
+    setEssays((current) => current.map((essay) =>
+      essay.id === essayId ? { ...essay, ...updates } : essay));
+  };
+
+  const deleteEssay = (essayId: number) => {
+    setEssays((current) => current.filter(
+      (essay) => essay.id !== essayId,
+    ));
+  };
+
   return {
     essays: filteredEssays,
     totalCount: essays.length,
@@ -43,5 +57,7 @@ export function useEssays() {
     setQuery,
     setSelectedTrait,
     addEssay,
+    updateEssay,
+    deleteEssay,
   };
 }

@@ -85,6 +85,7 @@ export function SelectionWidget() {
 
                 <EditIconButton
                   size="s"
+                  transparent={false}
                   ariaLabel={`${track.name}を編集`}
                   onClick={(event) => {
                     event.preventDefault();
@@ -95,6 +96,7 @@ export function SelectionWidget() {
 
                 <DeleteIconButton
                   size="s"
+                  transparent={false}
                   ariaLabel={`${track.name}を削除`}
                   onClick={(event) => {
                     event.preventDefault();

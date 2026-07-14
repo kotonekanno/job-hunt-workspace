@@ -6,7 +6,7 @@ import { EditIconButton } from "@/shared/button";
 
 type EventListItemProps = {
   event: CalendarEvent;
-  onEdit: (event: CalendarEvent) => void;
+  onEdit?: (event: CalendarEvent) => void;
   onDelete?: (eventId: number) => void;
   showCompany?: boolean;
 };
@@ -29,9 +29,11 @@ export function EventListItem({
   onDelete,
   showCompany = true,
 }: EventListItemProps) {
-  const columnsClassName = onDelete
+  const columnsClassName = onEdit && onDelete
     ? "grid-cols-[58px_minmax(0,1fr)_28px_28px_16px]"
-    : "grid-cols-[58px_minmax(0,1fr)_28px_16px]";
+    : onEdit || onDelete
+      ? "grid-cols-[58px_minmax(0,1fr)_28px_16px]"
+      : "grid-cols-[58px_minmax(0,1fr)_16px]";
 
   return (
     <details
@@ -60,15 +62,18 @@ export function EventListItem({
           )}
         </div>
 
-        <EditIconButton
-          size="s"
-          ariaLabel={`${event.title}を編集`}
-          onClick={(clickEvent) => {
-            clickEvent.preventDefault();
-            clickEvent.stopPropagation();
-            onEdit(event);
-          }}
-        />
+        {onEdit && (
+          <EditIconButton
+            size="s"
+            transparent={false}
+            ariaLabel={`${event.title}を編集`}
+            onClick={(clickEvent) => {
+              clickEvent.preventDefault();
+              clickEvent.stopPropagation();
+              onEdit(event);
+            }}
+          />
+        )}
 
         {onDelete && (
           <EventDeleteButton
