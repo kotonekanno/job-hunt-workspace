@@ -100,6 +100,7 @@ export function CompanyListCard({
         </Link>
 
         <DeleteIconButton
+          size="s"
           onClick={() => {}}
         />
       </div>

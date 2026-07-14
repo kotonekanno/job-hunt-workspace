@@ -19,6 +19,7 @@ export function CompanyHeader() {
           {companyProfile.name}
         </h1>
         <EditIconButton
+          size="m"
           onClick={() => {}}
         />
       </div>

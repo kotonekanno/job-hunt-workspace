@@ -44,6 +44,7 @@ function RecordTableRow({
       </div>
 
       <EditIconButton
+        size="m"
         onClick={onEdit}
         ariaLabel={`${label}を編集`}
       />
