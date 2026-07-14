@@ -26,6 +26,7 @@ type AddButtonProps = {
 };
 
 type IconActionButtonProps = {
+  size: Size;
   onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   ariaLabel?: string;
 };
@@ -58,6 +59,21 @@ const sizeStyles = {
   },
 } satisfies Record<Size, { button: string; icon: string }>;
 
+const iconActionSizeStyles = {
+  s: {
+    button: "size-7",
+    icon: "size-3",
+  },
+  m: {
+    button: "size-8",
+    icon: "size-3.5",
+  },
+  l: {
+    button: "size-9",
+    icon: "size-4",
+  },
+} satisfies Record<Size, { button: string; icon: string }>;
+
 function Button({
   children,
   variant = "secondary",
@@ -78,6 +94,7 @@ function Button({
 
 function IconActionButton({
   icon: Icon,
+  size,
   onClick,
   ariaLabel,
   danger = false,
@@ -85,26 +102,30 @@ function IconActionButton({
   icon: LucideIcon;
   danger?: boolean;
 }) {
+  const styles = iconActionSizeStyles[size];
+
   return (
     <Button
       variant={danger ? "danger-ghost" : "secondary"}
       onClick={onClick}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className="size-8 p-0"
+      className={`${styles.button} shrink-0 p-0`}
     >
-      <Icon className="size-3.5" />
+      <Icon className={styles.icon} />
     </Button>
   );
 }
 
 export function EditIconButton({
+  size,
   onClick,
   ariaLabel = "編集",
 }: IconActionButtonProps) {
   return (
     <IconActionButton
       icon={Pencil}
+      size={size}
       onClick={onClick}
       ariaLabel={ariaLabel}
     />
@@ -112,12 +133,14 @@ export function EditIconButton({
 }
 
 export function DeleteIconButton({
+  size,
   onClick,
   ariaLabel = "削除",
 }: IconActionButtonProps) {
   return (
     <IconActionButton
       icon={Trash2}
+      size={size}
       onClick={onClick}
       ariaLabel={ariaLabel}
       danger

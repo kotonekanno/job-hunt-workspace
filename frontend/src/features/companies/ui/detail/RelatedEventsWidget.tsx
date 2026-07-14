@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
 import { EventDialog } from "@/features/calendar/ui/EventDialog";
-import { EventListItem } from "@/features/calendar/ui/UpcomingEvents";
+import { EventListItem } from "@/features/calendar/ui/EventListItem";
 import { relatedEvents } from "@/features/companies/model/companyDetail";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
 import { AddButton } from "@/shared/button";

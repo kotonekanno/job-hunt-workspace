@@ -54,15 +54,15 @@ export function SelectionStatusBadge({
 
   const styles = {
     s: {
-      badge: "gap-1 px-2 py-1 text-[9px]",
+      badge: "w-[72px] justify-center gap-1 px-2 py-1 text-[9px]",
       icon: "size-3",
     },
     m: {
-      badge: "h-7 gap-1.5 px-2 text-[10px]",
+      badge: "h-7 w-20 justify-center gap-1.5 px-2 text-[10px]",
       icon: "size-3.5",
     },
     l: {
-      badge: "gap-1.5 px-3 py-2 text-[11px]",
+      badge: "w-24 justify-center gap-1.5 px-3 py-2 text-[11px]",
       icon: "size-4",
     },
   } satisfies Record<Size, { badge: string; icon: string }>;

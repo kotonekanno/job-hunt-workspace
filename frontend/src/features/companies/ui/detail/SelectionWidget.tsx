@@ -106,24 +106,23 @@ export function SelectionWidget() {
                 <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
               </summary>
 
-              <div className="border-t border-[var(--line)] bg-[var(--panel)] p-3">
-                <div className="relative space-y-2 before:absolute before:top-5 before:bottom-5 before:left-[15px] before:w-px before:bg-[var(--line-strong)]">
+              <div className="border-t border-[var(--line)] bg-[var(--panel)] px-3 py-4">
+                <div className="relative ml-3 space-y-2 border-l-2 border-[var(--accent-soft)] pl-5">
                   {track.steps.map((step, stepIndex) => (
                     <details
                       key={step.id}
                       className="group/step relative"
                     >
-                      <summary className="relative grid min-h-12 cursor-pointer list-none grid-cols-[32px_minmax(0,1fr)_auto_auto_14px] items-center gap-2 border border-[var(--line)] bg-[var(--panel-raised)] px-2.5 py-2 transition-colors hover:border-[var(--line-strong)] [&::-webkit-details-marker]:hidden">
-                        <span className="relative z-10 flex size-7 items-center justify-center border border-[var(--line-strong)] bg-[var(--panel)] font-mono text-[9px] font-black text-[var(--accent)]">
+                      <summary className="relative grid min-h-12 cursor-pointer list-none grid-cols-[minmax(0,1fr)_64px_72px_14px] items-center gap-2 border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-2 transition-colors hover:border-[var(--line-strong)] [&::-webkit-details-marker]:hidden">
+                        <span className="absolute top-1/2 -left-[35px] z-10 flex size-7 -translate-y-1/2 items-center justify-center border-2 border-[var(--panel)] bg-[var(--accent)] font-mono text-[8px] font-black text-[var(--accent-contrast)] shadow-[0_2px_6px_var(--shadow)]">
                           {String(stepIndex + 1).padStart(2, "0")}
                         </span>
 
-                        <span className="min-w-0 truncate text-xs font-bold text-[var(--text-strong)]">
+                        <span className="min-w-0 truncate pl-1 text-xs font-bold text-[var(--text-strong)]">
                           {step.name}
                         </span>
 
-                        <time className="flex shrink-0 items-center gap-1 font-mono text-[10px] font-black text-[var(--accent)]">
-                          <CalendarDays className="size-3 text-[var(--faint)]" />
+                        <time className="flex w-16 shrink-0 items-center justify-start gap-1 font-mono text-[10px] font-black text-[var(--accent)]">
                           {step.date
                             ? step.date.slice(5).replace("-", "/")
                             : "--/--"}
@@ -137,11 +136,8 @@ export function SelectionWidget() {
                         <ChevronDown className="size-3 text-[var(--faint)] transition-transform duration-200 group-open/step:rotate-180" />
                       </summary>
 
-                      <div className="ml-10 border-x border-b border-[var(--line)] bg-[var(--panel)] px-3 py-3">
-                        <p className="font-mono text-[8px] font-bold tracking-[0.14em] text-[var(--faint)]">
-                          DETAIL MEMO
-                        </p>
-                        <p className="mt-1.5 text-[10px] leading-5 text-[var(--muted)]">
+                      <div className="ml-3 border-x border-b border-[var(--line)] bg-[var(--panel)] px-3 py-3">
+                        <p className="mt-1 text-[10px] leading-5 text-[var(--muted)]">
                           {step.memo || "メモはありません"}
                         </p>
                       </div>

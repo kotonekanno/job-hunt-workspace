@@ -83,12 +83,14 @@ export function TaskRow(props: TaskRowProps) {
               {props.task.dueDate.slice(5).replace("-", "/")} <span className="text-[10px] font-medium text-[var(--muted)]">まで</span>
             </time>
             <EditIconButton
+              size="m"
               onClick={(event) => {
                 event.preventDefault();
                 props.onEdit(props.task);
               }}
             />
             <DeleteIconButton
+              size="m"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();

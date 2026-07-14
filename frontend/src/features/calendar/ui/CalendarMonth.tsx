@@ -1,32 +1,21 @@
-import { MapPin, Pencil, Video } from "lucide-react";
 import { toDateKey, type CalendarDay } from "@/features/calendar/lib/calendar";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { HoverCard } from "@/shared/hover-card";
+import { CalendarEventItem } from "@/features/calendar/ui/CalendarEventItem";
 
 type CalendarMonthProps = {
   days: CalendarDay[];
   events: CalendarEvent[];
   onEdit: (event: CalendarEvent) => void;
+  onDelete: (eventId: number) => void;
 };
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-
-function getEventClassName(event: CalendarEvent): string {
-  if (event.status !== "参加確定") {
-    return "border-dashed border-[var(--line-strong)] bg-transparent text-[var(--faint)] opacity-55";
-  }
-
-  if (event.format === "オフライン") {
-    return "border-[var(--accent)] bg-[var(--accent-soft)] font-semibold text-[var(--text-strong)] shadow-[0_2px_6px_var(--shadow)]";
-  }
-
-  return "border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]";
-}
 
 export function CalendarMonth({
   days,
   events,
   onEdit,
+  onDelete,
 }: CalendarMonthProps) {
   const todayKey = toDateKey(new Date(2026, 6, 12));
 
@@ -81,10 +70,11 @@ export function CalendarMonth({
                 {events
                   .filter((event) => event.date === day.dateKey)
                   .map((event) => (
-                    <CalendarEventDialog
+                    <CalendarEventItem
                       key={event.id}
                       event={event}
                       onEdit={onEdit}
+                      onDelete={onDelete}
                     />
                   ))}
               </div>
@@ -93,91 +83,5 @@ export function CalendarMonth({
         </div>
       </div>
     </div>
-  );
-}
-
-type CalendarEventDialogProps = {
-  event: CalendarEvent;
-  onEdit: (event: CalendarEvent) => void;
-};
-
-export function CalendarEventDialog({
-  event,
-  onEdit,
-}: CalendarEventDialogProps) {
-  return (
-    <HoverCard
-      sizeClassName="w-52"
-      triggerClassName="block w-full min-w-0"
-      trigger={
-        <button
-          type="button"
-          className={`
-            block h-5 w-full min-w-0 max-w-full overflow-hidden
-            border-l-2 px-1.5 text-left transition-[filter,box-shadow]
-            hover:brightness-105 hover:shadow-[0_2px_5px_var(--shadow)]
-            ${getEventClassName(event)}
-          `}
-        >
-          <span className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1 overflow-hidden">
-            <span className="shrink-0 font-mono text-[8px] opacity-75">
-              {event.time}
-            </span>
-
-            <span className="truncate text-[9px] font-bold">
-              {event.company}
-            </span>
-          </span>
-        </button>
-      }
-    >
-      <p className="text-xs font-bold text-[var(--text-strong)]">
-        {event.company}
-      </p>
-
-      <p className="mt-1 text-[10px] text-[var(--muted)]">
-        {event.title}
-      </p>
-
-      <div className="mt-2 flex items-center justify-between font-mono text-[9px] text-[var(--faint)]">
-        <span className="border border-[var(--line)] bg-[var(--accent-soft)] px-2 py-1 text-[11px] font-bold text-[var(--accent)]">
-          {event.time}
-        </span>
-
-        <span className="flex items-center gap-1">
-          {event.format === "オンライン" ? (
-            <Video className="size-3" />
-          ) : (
-            <MapPin className="size-3" />
-          )}
-
-          {event.location}
-        </span>
-      </div>
-
-      <p className="mt-2 border-t border-[var(--line)] pt-2 text-[9px] font-semibold text-[var(--accent)]">
-        {event.status}
-      </p>
-
-      {event.memo && (
-        <p className="mt-2 border-l-2 border-[var(--line-strong)] pl-2 text-[9px] leading-relaxed text-[var(--muted)]">
-          {event.memo}
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={() => onEdit(event)}
-        className="
-          mt-3 flex w-full items-center justify-center gap-1
-          border border-[var(--line)] py-1.5 text-[9px]
-          font-semibold text-[var(--muted)]
-          hover:border-[var(--accent)] hover:text-[var(--accent)]
-        "
-      >
-        <Pencil className="size-3" />
-        予定を編集
-      </button>
-    </HoverCard>
   );
 }

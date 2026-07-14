@@ -120,6 +120,10 @@ export function HoverCard({
       const target = event.target;
 
       if (!(target instanceof Node)) return;
+      if (
+        target instanceof Element
+        && target.closest('[role="dialog"], [role="alertdialog"]')
+      ) return;
       if (triggerRef.current?.contains(target)) return;
       if (cardRef.current?.contains(target)) return;
 

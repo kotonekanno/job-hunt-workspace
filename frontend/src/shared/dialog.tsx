@@ -74,7 +74,7 @@ export function DialogBase({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
