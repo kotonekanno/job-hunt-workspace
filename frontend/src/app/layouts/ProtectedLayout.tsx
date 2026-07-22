@@ -5,18 +5,18 @@ import {
   ClipboardCheck,
   FilePenLine,
   Home,
-  Menu,
   Settings,
   SlidersHorizontal,
   UserRound,
-  X,
 } from "lucide-react";
 import { useState } from "react";
 import {
   NavLink,
   Outlet,
   useLocation,
+  useOutletContext,
 } from "react-router-dom";
+import type { ProtectedLayoutOutletContext } from "@/app/layouts/MainLayout";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
@@ -46,41 +46,33 @@ const settingItems = [
 
 export function ProtectedLayout() {
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {
+    isSidebarOpen,
+    closeSidebar,
+  } = useOutletContext<ProtectedLayoutOutletContext>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(
     location.pathname.startsWith("/settings"),
   );
 
-  const closeMobileMenu = () => setIsMenuOpen(false);
-
   return (
     <div className="relative min-h-full w-full">
-      <button
-        type="button"
-        className="cyber-cut-sm fixed right-5 bottom-5 z-30 flex size-12 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-2xl md:hidden"
-        onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
-        aria-label={isMenuOpen ? "メニューを閉じる" : "メニューを開く"}
-        aria-expanded={isMenuOpen}
-      >
-        {isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-      </button>
-
-      {isMenuOpen && (
+      {isSidebarOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-10 cursor-pointer bg-[var(--overlay)] backdrop-blur-sm md:hidden"
-          onClick={closeMobileMenu}
+          className="fixed top-16 right-0 bottom-0 left-0 z-20 cursor-pointer bg-[var(--overlay)] backdrop-blur-sm md:hidden"
+          onClick={closeSidebar}
           aria-label="メニューを閉じる"
         />
       )}
 
       <aside
+        id="protected-sidebar"
         className={cn(
-          "fixed top-16 bottom-0 left-0 z-20 flex w-64 -translate-x-full flex-col border-r border-[var(--line)] bg-[var(--panel)]/95 px-4 py-6 shadow-[8px_0_30px_var(--shadow)] backdrop-blur transition-transform duration-300 md:w-60 md:translate-x-0 lg:w-64",
-          isMenuOpen && "translate-x-0",
+          "fixed top-16 bottom-0 left-0 z-30 flex w-64 -translate-x-full flex-col border-r border-[var(--line)] bg-[var(--panel)]/95 px-4 py-5 shadow-[8px_0_30px_var(--shadow)] backdrop-blur transition-transform duration-300 md:w-60 md:shadow-none lg:w-64",
+          isSidebarOpen && "translate-x-0",
         )}
       >
-        <div className="relative mb-7 border-b border-[var(--line)] px-3 pb-6">
+        <div className="relative mb-5 border-b border-[var(--line)] px-3 pb-5">
           <span className="absolute -bottom-px left-3 h-px w-16 bg-[var(--accent)]" />
           <p className="font-mono text-[9px] font-semibold tracking-[0.2em] text-[var(--accent)]">
             // YOUR_WORKSPACE
@@ -97,7 +89,7 @@ export function ProtectedLayout() {
                 <NavLink
                   to={to}
                   end={end}
-                  onClick={closeMobileMenu}
+                  onClick={closeSidebar}
                   className={({ isActive }) => cn(
                     "cyber-cut-sm flex cursor-pointer items-center gap-3 border-l-2 border-transparent px-3 py-3 text-sm font-medium text-[var(--muted)] transition-all hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
                     isActive
@@ -124,7 +116,7 @@ export function ProtectedLayout() {
                   key={item.to}
                   to={item.to}
                   end={item.end}
-                  onClick={closeMobileMenu}
+                  onClick={closeSidebar}
                   className={({ isActive }) => cn(
                     "flex cursor-pointer items-center gap-2.5 border-l-2 border-transparent px-2.5 py-2.5 text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
                     isActive
@@ -167,7 +159,12 @@ export function ProtectedLayout() {
         </div>
       </aside>
 
-      <section className="min-w-0 p-5 sm:p-8 md:ml-60 lg:ml-64 lg:p-10">
+      <section
+        className={cn(
+          "min-w-0 p-4 transition-[margin] duration-300 sm:p-6 md:p-8 lg:p-10",
+          isSidebarOpen && "md:ml-60 lg:ml-64",
+        )}
+      >
         <Outlet />
       </section>
     </div>

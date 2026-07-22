@@ -39,6 +39,14 @@ type BulkDeleteButtonProps = {
   itemLabel?: string;
 };
 
+type FloatingIconButtonProps = {
+  icon: LucideIcon;
+  onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  ariaLabel: string;
+  title?: string;
+  className?: string;
+};
+
 const variantStyles: Record<ButtonVariant, string> = {
   primary: "cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
   secondary: "border-[var(--line)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]",
@@ -153,6 +161,26 @@ export function DeleteIconButton({
       ariaLabel={ariaLabel}
       danger
     />
+  );
+}
+
+export function FloatingIconButton({
+  icon: Icon,
+  onClick,
+  ariaLabel,
+  title = ariaLabel,
+  className = "",
+}: FloatingIconButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      title={title}
+      className={`cyber-cut-sm fixed right-5 bottom-5 z-30 flex size-12 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-2xl transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-105 ${className}`}
+    >
+      <Icon className="size-5" aria-hidden="true" />
+    </button>
   );
 }
 
