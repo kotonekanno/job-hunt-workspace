@@ -5,6 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
+  useId,
   useState,
   type ButtonHTMLAttributes,
   type ReactNode,
@@ -44,7 +45,13 @@ type FloatingIconButtonProps = {
   onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   ariaLabel: string;
   title?: string;
+  tooltip?: string;
   className?: string;
+};
+
+type FloatingAddButtonProps = {
+  text: string;
+  onClick: () => void;
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -168,19 +175,47 @@ export function FloatingIconButton({
   icon: Icon,
   onClick,
   ariaLabel,
-  title = ariaLabel,
+  title,
+  tooltip = ariaLabel,
   className = "",
 }: FloatingIconButtonProps) {
+  const tooltipId = useId();
+
   return (
-    <button
-      type="button"
+    <div className="group fixed right-5 bottom-5 z-10">
+      <span
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute right-0 bottom-[calc(100%+0.5rem)] whitespace-nowrap border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-1.5 text-[10px] font-bold text-[var(--text-strong)] opacity-0 shadow-[0_6px_18px_var(--shadow)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        {tooltip}
+      </span>
+
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel}
+        aria-describedby={tooltipId}
+        title={title}
+        className={`cyber-cut-sm flex size-12 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-2xl transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-105 ${className}`}
+      >
+        <Icon className="size-5" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+export function FloatingAddButton({
+  text,
+  onClick,
+}: FloatingAddButtonProps) {
+  return (
+    <FloatingIconButton
+      icon={Plus}
       onClick={onClick}
-      aria-label={ariaLabel}
-      title={title}
-      className={`cyber-cut-sm fixed right-5 bottom-5 z-30 flex size-12 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-2xl transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-105 ${className}`}
-    >
-      <Icon className="size-5" aria-hidden="true" />
-    </button>
+      ariaLabel={text}
+      tooltip={text}
+    />
   );
 }
 

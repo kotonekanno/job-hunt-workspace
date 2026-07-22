@@ -1,5 +1,4 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import { AddButton } from "@/shared/button";
 
 type EssayToolbarProps = {
   query: string;
@@ -7,7 +6,6 @@ type EssayToolbarProps = {
   selectedTrait: string | null;
   onQueryChange: (query: string) => void;
   onTraitChange: (trait: string | null) => void;
-  onAdd: () => void;
 };
 
 export function EssayToolbar({
@@ -16,7 +14,6 @@ export function EssayToolbar({
   selectedTrait,
   onQueryChange,
   onTraitChange,
-  onAdd,
 }: EssayToolbarProps) {
   return (
     <div className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)]">
@@ -31,12 +28,6 @@ export function EssayToolbar({
             className="h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-3 pl-9 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
           />
         </div>
-
-        <AddButton
-          text="文章を追加"
-          size="m"
-          onClick={onAdd}
-        />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-3">

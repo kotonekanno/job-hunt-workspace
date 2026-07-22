@@ -4,6 +4,7 @@ import { useEssays } from "@/features/essay/hooks/useEssays";
 import { EssayDialog } from "@/features/essay/ui/EssayDialog";
 import { EssayList } from "@/features/essay/ui/EssayList";
 import { EssayToolbar } from "@/features/essay/ui/EssayToolbar";
+import { FloatingAddButton } from "@/shared/button";
 import { InnerHeader } from "@/shared/header";
 
 export function EssayPage() {
@@ -25,7 +26,6 @@ export function EssayPage() {
         selectedTrait={essayArchive.selectedTrait}
         onQueryChange={essayArchive.setQuery}
         onTraitChange={essayArchive.setSelectedTrait}
-        onAdd={() => setIsDialogOpen(true)}
       />
 
       <div className="mt-5">
@@ -35,6 +35,11 @@ export function EssayPage() {
           onDelete={essayArchive.deleteEssay}
         />
       </div>
+
+      <FloatingAddButton
+        text="文章を追加"
+        onClick={() => setIsDialogOpen(true)}
+      />
 
       {isDialogOpen && (
         <EssayDialog

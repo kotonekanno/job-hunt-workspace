@@ -3,13 +3,19 @@ import type { Task } from "@/features/task/model/task";
 import { EditDialog } from "@/shared/dialog";
 
 type TaskDialogProps = {
-  task: Task;
+  task?: Task;
   onClose: () => void;
   onSave: (task: Task) => void;
 };
 
 export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
-  const [form, setForm] = useState(task);
+  const [form, setForm] = useState<Task>(() => task ?? ({
+    id: Date.now(),
+    title: "",
+    description: "",
+    dueDate: getTodayDateKey(),
+    completed: false,
+  }));
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,11 +83,11 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
 
   return (
     <EditDialog
-      title="タスクを編集"
+      title={task ? "タスクを編集" : "タスクを追加"}
       subTitle="// TASK_EDITOR"
       onClose={onClose}
       onSubmit={submit}
-      submitText="保存する"
+      submitText={task ? "保存する" : "追加する"}
       formClassName="max-w-xl p-6 sm:p-8"
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"
@@ -89,4 +95,13 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
       {fields}
     </EditDialog>
   );
+}
+
+function getTodayDateKey() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }

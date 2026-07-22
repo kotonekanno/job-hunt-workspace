@@ -23,7 +23,15 @@ export function useTasks() {
   }
 
   function saveTask(task: Task) {
-    setTasks((current) => current.map((item) => item.id === task.id ? task : item));
+    setTasks((current) => {
+      const exists = current.some((item) => item.id === task.id);
+
+      if (exists) {
+        return current.map((item) => item.id === task.id ? task : item);
+      }
+
+      return [task, ...current];
+    });
   }
 
   function deleteTask(id: number) {

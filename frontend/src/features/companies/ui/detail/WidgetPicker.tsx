@@ -33,7 +33,7 @@ export function WidgetPicker({ hiddenWidgets, onAdd }: WidgetPickerProps) {
           text-[var(--accent-contrast)] [&::-webkit-details-marker]:hidden"
         >
         <Plus className="size-4" />
-        コンポーネントを追加
+        ウィジェットを追加
       </summary>
 
       <div className="absolute top-12 right-0 z-30 w-56 border border-[var(--line-strong)] bg-[var(--panel)] p-2 shadow-[0_12px_32px_var(--shadow)]">

@@ -1,6 +1,12 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { attendanceStatuses, eventCategories, eventFormats, type AttendanceStatus, type EventCategory, type EventFormat } from "@/features/calendar/model/calendar";
-import { AddButton } from "@/shared/button";
+import {
+  attendanceStatuses,
+  eventCategories,
+  eventFormats,
+  type AttendanceStatus,
+  type EventCategory,
+  type EventFormat,
+} from "@/features/calendar/model/calendar";
 import {
   Select,
   toSelectOptions,
@@ -19,7 +25,6 @@ type CalendarFiltersProps = {
   onPreviousMonth: () => void;
   onNextMonth: () => void;
   onToday: () => void;
-  onAddEvent: () => void;
 };
 
 export function CalendarHeader(props: CalendarFiltersProps) {
@@ -95,11 +100,6 @@ export function CalendarHeader(props: CalendarFiltersProps) {
             aria-label="参加状況で絞り込む"
           />
 
-          <AddButton
-            text="予定を追加"
-            size="m"
-            onClick={props.onAddEvent}
-          />
         </div>
 
       </div>

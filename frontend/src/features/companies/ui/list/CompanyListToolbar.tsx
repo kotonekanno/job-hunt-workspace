@@ -3,7 +3,6 @@ import {
   progressOptions,
   type CompanyProgress,
 } from "@/features/companies/model/companyList";
-import { AddButton } from "@/shared/button";
 import { Select, toSelectOptions } from "@/shared/select";
 
 type CompanyListToolbarProps = {
@@ -11,7 +10,6 @@ type CompanyListToolbarProps = {
   progress: CompanyProgress | "すべて";
   onQueryChange: (query: string) => void;
   onProgressChange: (progress: CompanyProgress | "すべて") => void;
-  onAdd: () => void;
 };
 
 export function CompanyListToolbar(props: CompanyListToolbarProps) {
@@ -39,7 +37,6 @@ export function CompanyListToolbar(props: CompanyListToolbarProps) {
           className="h-10"
           aria-label="選考状況で絞り込む"
         />
-        <AddButton text="企業を追加" size="m" onClick={props.onAdd} />
       </div>
     </div>
   );
