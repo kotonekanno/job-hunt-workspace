@@ -1,38 +1,32 @@
-import {
-  FileText
-} from "lucide-react";
+import { FileText } from "lucide-react";
 import type {
-  Dispatch,
   KeyboardEvent,
   MouseEvent,
-  SetStateAction,
 } from "react";
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import { useNavigate } from "react-router-dom";
 import type {
   CompanyListItem,
+  CompanyPriority,
 } from "@/features/companies/model/companyList";
+import { PriorityBadge } from "@/features/companies/ui/priority-badge";
+import { SelectionStepBadgeForCard } from "@/features/companies/ui/selection-step-badge";
 import {
-  priorityLabels,
-  priorityStyle,
-} from "@/features/companies/model/companyPriorityPresentation";
-import { SelectionStepBadgeForCard } from "../selection-step-badge";
-import { PriorityBadge } from "../priority-badge";
-import { DeleteIconButton } from "@/shared/button";
+  DeleteIconButton,
+  IconActionButton,
+} from "@/shared/button";
 
 type CompanyPriorityCardProps = {
   company: CompanyListItem;
-  selectedEventId?: number | null;
-  setSelectedEventId?: Dispatch<SetStateAction<number | null>>;
-  onEditEvent?: (event: CalendarEvent) => void;
+  onPriorityChange?: (
+    companyId: number,
+    priority: CompanyPriority,
+  ) => void;
   showDelete?: boolean;
 };
 
 export function CompanyListCard({
   company,
+  onPriorityChange,
   showDelete = true,
 }: CompanyPriorityCardProps) {
   const navigate = useNavigate();
@@ -72,6 +66,12 @@ export function CompanyListCard({
           <PriorityBadge
             priority={company.priority}
             size="s"
+            onChange={(priority) => {
+              onPriorityChange?.(
+                company.id,
+                (priority ?? 0) as CompanyPriority,
+              );
+            }}
           />
         </span>
 
@@ -87,19 +87,21 @@ export function CompanyListCard({
           />
         </span>
 
-        <Link
-          data-card-action
-          to={`/companies/${company.id}/documents`}
-          className="
-            flex h-7 shrink-0 cursor-pointer items-center gap-1.5
-            border border-[var(--accent)] bg-[var(--accent-soft)]
-            px-2.5 text-[9px] font-bold text-[var(--accent)] transition-colors
-            hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]
-          "
-          aria-label={`${company.name}の文書を開く`}
-        >
-          <FileText className="size-3.5" />
-        </Link>
+        <span data-card-action className="inline-flex">
+          <IconActionButton
+            icon={FileText}
+            size="s"
+            transparent={false}
+            ariaLabel={`${company.name}のドキュメントページを開く`}
+            tooltip="ドキュメントページを開く"
+            className="border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]"
+            iconClassName="size-3.5"
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate(`/companies/${company.id}/documents`);
+            }}
+          />
+        </span>
 
         {showDelete && (
           <span data-card-action className="inline-flex">

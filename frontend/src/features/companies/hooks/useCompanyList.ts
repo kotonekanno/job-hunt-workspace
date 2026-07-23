@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   initialCompanyList,
   type CompanyListItem,
+  type CompanyPriority,
   type CompanyProgress,
 } from "@/features/companies/model/companyList";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
@@ -44,6 +45,16 @@ export function useCompanyList() {
         : company));
   }
 
+  function updatePriorityOptimistically(
+    companyId: number,
+    priority: CompanyPriority,
+  ) {
+    setCompanies((current) => current.map((company) =>
+      company.id === companyId
+        ? { ...company, priority }
+        : company));
+  }
+
   return {
     allCompanies: companies,
     companies: visibleCompanies,
@@ -53,5 +64,6 @@ export function useCompanyList() {
     setProgress,
     addCompany,
     updateNextEvent,
+    updatePriorityOptimistically,
   };
 }

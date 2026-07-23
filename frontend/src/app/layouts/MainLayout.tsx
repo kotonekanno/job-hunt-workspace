@@ -18,6 +18,8 @@ import {
 
 type Theme = "light" | "dark";
 
+const sidebarBreakpointQuery = "(min-width: 768px)";
+
 export type ProtectedLayoutOutletContext = {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
@@ -40,7 +42,7 @@ export function MainLayout() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
-    window.matchMedia("(min-width: 768px)").matches);
+    window.matchMedia(sidebarBreakpointQuery).matches);
   const isProtectedPage = !["/login", "/register"].includes(
     location.pathname,
   );
@@ -53,13 +55,27 @@ export function MainLayout() {
   useEffect(() => {
     if (isProtectedPage) {
       setIsSidebarOpen(
-        window.matchMedia("(min-width: 768px)").matches,
+        window.matchMedia(sidebarBreakpointQuery).matches,
       );
       return;
     }
 
     setIsSidebarOpen(false);
   }, [isProtectedPage]);
+
+  useEffect(() => {
+    const breakpoint = window.matchMedia(sidebarBreakpointQuery);
+
+    function closeSidebarOnNarrowScreen(event: MediaQueryListEvent) {
+      if (!event.matches) setIsSidebarOpen(false);
+    }
+
+    breakpoint.addEventListener("change", closeSidebarOnNarrowScreen);
+
+    return () => {
+      breakpoint.removeEventListener("change", closeSidebarOnNarrowScreen);
+    };
+  }, []);
 
   const protectedLayoutContext: ProtectedLayoutOutletContext = {
     isSidebarOpen,

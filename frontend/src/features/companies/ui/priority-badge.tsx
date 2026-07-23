@@ -71,6 +71,16 @@ const colorStyle: Record<Priority, string> = {
   6: "border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75",
 };
 
+const hoverColorStyle: Record<Priority, string> = {
+  0: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  1: "hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  2: "hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]",
+  3: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  4: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  5: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  6: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] hover:opacity-100",
+};
+
 export function PriorityBadge({
   priority,
   size,
@@ -91,6 +101,7 @@ export function PriorityBadge({
 
   const text = priorityTexts[normalizedPriority];
   const badgeStyle = colorStyle[normalizedPriority];
+  const badgeHoverStyle = hoverColorStyle[normalizedPriority];
   const sizeStyle = size === "s"
     ? "w-16 px-2 py-1 text-[9px]"
     : "w-24 px-3 py-1.5 text-xs";
@@ -189,7 +200,7 @@ export function PriorityBadge({
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className={`flex cursor-pointer items-center justify-center border font-bold transition-[transform,box-shadow,filter] duration-150 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_4px_10px_var(--shadow)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${badgeStyle} ${sizeStyle}`}
+        className={`flex cursor-pointer items-center justify-center border font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${badgeStyle} ${badgeHoverStyle} ${sizeStyle}`}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

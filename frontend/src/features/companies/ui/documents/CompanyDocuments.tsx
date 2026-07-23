@@ -1,9 +1,10 @@
-import { ArrowLeft, FileText, Save } from "lucide-react";
+import type { JSONContent } from "@tiptap/core";
+import { ArrowLeft, Check, FileText, Save } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { initialDocuments } from "@/features/companies/model/companyDetail";
-import { MarkdownPreview } from "@/features/companies/ui/documents/MarkdownPreview";
-import { CompanyHeader } from "../detail/CompanyHeader";
+import { RichTextEditor } from "@/features/companies/ui/documents/RichTextEditor";
+import { CompanyHeader } from "@/features/companies/ui/detail/CompanyHeader";
 
 export function CompanyDocuments() {
   const { companyId } = useParams();
@@ -15,24 +16,33 @@ export function CompanyDocuments() {
       ? requestedId
       : initialDocuments[0].id,
   );
-  const [isEditing, setIsEditing] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
 
   const selectedDocument = useMemo(
     () => documents.find((document) => document.id === selectedId) ?? documents[0],
     [documents, selectedId],
   );
 
-  function updateContent(content: string) {
+  function updateContent(content: JSONContent) {
+    setIsSaved(false);
     setDocuments((current) => current.map((document) =>
       document.id === selectedId
-        ? { ...document, content, updatedAt: "2026-07-12" }
+        ? { ...document, content }
         : document));
   }
 
   function selectDocument(id: number) {
     setSelectedId(id);
     setSearchParams({ document: String(id) });
-    setIsEditing(false);
+    setIsSaved(true);
+  }
+
+  function saveDocument() {
+    setDocuments((current) => current.map((document) =>
+      document.id === selectedId
+        ? { ...document, updatedAt: "2026-07-23" }
+        : document));
+    setIsSaved(true);
   }
 
   return (
@@ -50,11 +60,23 @@ export function CompanyDocuments() {
 
         <button
           type="button"
-          onClick={() => setIsEditing((current) => !current)}
-          className="cyber-cut-sm flex h-10 items-center gap-2 bg-[var(--accent)] px-5 text-xs font-bold text-[var(--accent-contrast)]"
+          onClick={saveDocument}
+          disabled={isSaved}
+          className="
+            cyber-cut-sm flex h-10 cursor-pointer items-center gap-2
+            bg-[var(--accent)] px-5 text-xs font-bold
+            text-[var(--accent-contrast)] transition-colors
+            hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]
+            disabled:cursor-not-allowed disabled:bg-[var(--accent-soft)]
+            disabled:text-[var(--accent)]
+          "
         >
-          <Save className="size-4" />
-          {isEditing ? "プレビューを見る" : "Markdownを編集"}
+          {isSaved ? (
+            <Check className="size-4" />
+          ) : (
+            <Save className="size-4" />
+          )}
+          {isSaved ? "保存済み" : "保存する"}
         </button>
       </div>
 
@@ -86,17 +108,23 @@ export function CompanyDocuments() {
           </div>
         </aside>
 
-        <main className="p-5 sm:p-8">
-          {isEditing ? (
-            <textarea
-              value={selectedDocument.content}
-              onChange={(event) => updateContent(event.target.value)}
-              className="min-h-[540px] w-full resize-none bg-transparent font-mono text-sm leading-7 text-[var(--text)] outline-none"
-              aria-label={`${selectedDocument.title}を編集`}
-            />
-          ) : (
-            <MarkdownPreview content={selectedDocument.content} />
-          )}
+        <main className="min-w-0 p-4 sm:p-6">
+          <div className="mb-4">
+            <p className="font-mono text-[9px] tracking-[0.16em] text-[var(--faint)]">
+              EDITING
+            </p>
+            <h2 className="mt-1 text-lg font-bold text-[var(--text-strong)]">
+              {selectedDocument.title}
+            </h2>
+          </div>
+
+          <RichTextEditor
+            key={selectedDocument.id}
+            value={selectedDocument.content}
+            onChange={updateContent}
+            placeholder="企業研究や面接対策を入力してください"
+            minHeight={500}
+          />
         </main>
       </div>
     </div>

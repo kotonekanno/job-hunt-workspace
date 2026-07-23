@@ -26,11 +26,19 @@ type AddButtonProps = {
   onClick: () => void;
 };
 
-type IconActionButtonProps = {
+type IconActionButtonBaseProps = {
   size: Size;
   transparent: boolean;
   onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   ariaLabel?: string;
+};
+
+type IconActionButtonProps = IconActionButtonBaseProps & {
+  icon: LucideIcon;
+  danger?: boolean;
+  tooltip?: string;
+  className?: string;
+  iconClassName?: string;
 };
 
 type BulkDeleteButtonProps = {
@@ -108,31 +116,48 @@ function Button({
   );
 }
 
-function IconActionButton({
+export function IconActionButton({
   icon: Icon,
   size,
   transparent,
   onClick,
   ariaLabel,
   danger = false,
-}: IconActionButtonProps & {
-  icon: LucideIcon;
-  danger?: boolean;
-}) {
+  tooltip,
+  className = "",
+  iconClassName,
+}: IconActionButtonProps) {
   const styles = iconActionSizeStyles[size];
+  const tooltipId = useId();
 
-  return (
+  const button = (
     <Button
       variant={danger ? "danger-ghost" : "secondary"}
       onClick={onClick}
       aria-label={ariaLabel}
-      title={ariaLabel}
+      aria-describedby={tooltip ? tooltipId : undefined}
+      title={tooltip ? undefined : ariaLabel}
       className={`${styles.button} shrink-0 p-0 ${
         transparent ? "border-transparent hover:border-transparent" : ""
-      }`}
+      } ${className}`}
     >
-      <Icon className={styles.icon} />
+      <Icon className={iconClassName ?? styles.icon} />
     </Button>
+  );
+
+  if (!tooltip) return button;
+
+  return (
+    <span className="group/icon relative inline-flex shrink-0">
+      {button}
+      <span
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute right-0 bottom-[calc(100%+0.5rem)] z-50 whitespace-nowrap border border-[var(--line-strong)] bg-[var(--panel)] px-2.5 py-1.5 text-[9px] font-bold text-[var(--text-strong)] opacity-0 shadow-[0_6px_18px_var(--shadow)] transition-opacity group-hover/icon:opacity-100 group-focus-within/icon:opacity-100"
+      >
+        {tooltip}
+      </span>
+    </span>
   );
 }
 
@@ -141,7 +166,7 @@ export function EditIconButton({
   transparent,
   onClick,
   ariaLabel = "編集",
-}: IconActionButtonProps) {
+}: IconActionButtonBaseProps) {
   return (
     <IconActionButton
       icon={Pencil}
@@ -158,7 +183,7 @@ export function DeleteIconButton({
   transparent,
   onClick,
   ariaLabel = "削除",
-}: IconActionButtonProps) {
+}: IconActionButtonBaseProps) {
   return (
     <IconActionButton
       icon={Trash2}

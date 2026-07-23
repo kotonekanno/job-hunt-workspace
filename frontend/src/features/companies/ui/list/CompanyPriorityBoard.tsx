@@ -20,11 +20,16 @@ type CompanyPriorityBoardProps = {
     companyId: number,
     event: CalendarEvent,
   ) => void;
+  onPriorityChange: (
+    companyId: number,
+    priority: CompanyPriority,
+  ) => void;
 };
 
 export function CompanyPriorityBoard({
   companies,
   onEventChange,
+  onPriorityChange,
 }: CompanyPriorityBoardProps) {
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent>();
@@ -62,6 +67,20 @@ export function CompanyPriorityBoard({
 
       return next;
     });
+  };
+
+  const changePriority = (
+    companyId: number,
+    priority: CompanyPriority,
+  ) => {
+    setCollapsedPriorities((current) => {
+      const next = new Set(current);
+      next.delete(priority);
+
+      return next;
+    });
+
+    onPriorityChange(companyId, priority);
   };
 
   return (
@@ -107,9 +126,7 @@ export function CompanyPriorityBoard({
                   <CompanyListCard
                     key={company.id}
                     company={company}
-                    selectedEventId={selectedEventId}
-                    setSelectedEventId={setSelectedEventId}
-                    onEditEvent={openEventEditor}
+                    onPriorityChange={changePriority}
                   />
                 ))}
               </div>

@@ -74,23 +74,7 @@ export function HomeDashboard() {
         items={summaryItems}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <DashboardCard
-          title="直近の予定"
-          label="UPCOMING EVENTS"
-          to="/calendar"
-          linkText="カレンダー"
-        >
-          <div className="space-y-2">
-            {upcomingEvents.map((event) => (
-              <EventListItem
-                key={event.id}
-                event={event}
-              />
-            ))}
-          </div>
-        </DashboardCard>
-
+      <div className="grid gap-5 lg:grid-cols-2">
         <DashboardCard
           title="優先タスク"
           label="NEXT TASKS"
@@ -105,16 +89,14 @@ export function HomeDashboard() {
             onToggle={taskArchive.toggleTask}
           />
         </DashboardCard>
-      </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
         <DashboardCard
           title="注目している企業"
           label="TOP PRIORITY"
           to="/companies"
           linkText="企業一覧"
         >
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2">
             {initialCompanyList
               .filter((company) => company.priority === 1)
               .map((company) => (
@@ -124,6 +106,22 @@ export function HomeDashboard() {
                   showDelete={false}
                 />
               ))}
+          </div>
+        </DashboardCard>
+
+        <DashboardCard
+          title="直近の予定"
+          label="UPCOMING EVENTS"
+          to="/calendar"
+          linkText="カレンダー"
+        >
+          <div className="space-y-2">
+            {upcomingEvents.map((event) => (
+              <EventListItem
+                key={event.id}
+                event={event}
+              />
+            ))}
           </div>
         </DashboardCard>
 

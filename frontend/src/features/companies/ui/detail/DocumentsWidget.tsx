@@ -1,7 +1,7 @@
 import { ChevronDown, FileText, MoveRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import type { CompanyDocument } from "@/features/companies/model/companyDetail";
-import { MarkdownPreview } from "@/features/companies/ui/documents/MarkdownPreview";
+import { RichTextEditor } from "@/features/companies/ui/documents/RichTextEditor";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
 
 type DocumentsWidgetProps = {
@@ -48,7 +48,13 @@ export function DocumentsWidget({ documents }: DocumentsWidgetProps) {
             </summary>
 
             <div className="border-t border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6">
-              <MarkdownPreview content={document.content} />
+              <RichTextEditor
+                value={document.content}
+                onChange={() => undefined}
+                readOnly
+                minHeight={0}
+                className="border-0 bg-transparent"
+              />
             </div>
           </details>
         ))}
