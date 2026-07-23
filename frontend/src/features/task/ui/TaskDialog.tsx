@@ -13,7 +13,7 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
     id: Date.now(),
     title: "",
     description: "",
-    dueDate: getTodayDateKey(),
+    dueDate: undefined,
     completed: false,
   }));
 
@@ -28,39 +28,13 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
   const fields = (
     <>
       <label className="text-xs text-[var(--muted)] sm:col-span-2">
-        タスク内容
+        タイトル
         <input
           required
           value={form.title}
           onChange={(event) => setForm({
             ...form,
             title: event.target.value,
-          })}
-          className={fieldClassName}
-        />
-      </label>
-
-      <label className="text-xs text-[var(--muted)]">
-        期限
-        <input
-          required
-          type="date"
-          value={form.dueDate}
-          onChange={(event) => setForm({
-            ...form,
-            dueDate: event.target.value,
-          })}
-          className={fieldClassName}
-        />
-      </label>
-
-      <label className="text-xs text-[var(--muted)]">
-        企業名（任意）
-        <input
-          value={form.company ?? ""}
-          onChange={(event) => setForm({
-            ...form,
-            company: event.target.value || undefined,
           })}
           className={fieldClassName}
         />
@@ -78,6 +52,31 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
           className="mt-1 min-h-28 w-full resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
         />
       </label>
+      <label className="text-xs text-[var(--muted)]">
+        期限
+        <input
+          type="date"
+          value={form.dueDate ?? ""}
+          onChange={(event) => setForm({
+            ...form,
+            dueDate: event.target.value || undefined,
+          })}
+          className={fieldClassName}
+        />
+      </label>
+
+      <label className="text-xs text-[var(--muted)]">
+        企業名（任意）
+        <input
+          value={form.company ?? ""}
+          onChange={(event) => setForm({
+            ...form,
+            company: event.target.value || undefined,
+          })}
+          className={fieldClassName}
+        />
+      </label>
+
     </>
   );
 
@@ -95,13 +94,4 @@ export function TaskDialog({ task, onClose, onSave }: TaskDialogProps) {
       {fields}
     </EditDialog>
   );
-}
-
-function getTodayDateKey() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
 }

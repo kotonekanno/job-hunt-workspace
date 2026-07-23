@@ -1,21 +1,22 @@
 import {
-  CalendarDays,
   ChevronDown,
   GitBranch,
 } from "lucide-react";
 import { useState } from "react";
 import {
   initialSelectionTracks,
+  type SelectionResult,
   type SelectionTrack,
 } from "@/features/companies/model/companyDetail";
+import { SelectionStepItem } from "@/features/companies/ui/detail/SelectionStepItem";
 import { SelectionTrackDialog } from "@/features/companies/ui/detail/SelectionTrackDialog";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import { SelectionStatusBadge } from "@/features/companies/ui/selection-step-badge";
 import {
   AddButton,
   DeleteIconButton,
   EditIconButton,
 } from "@/shared/button";
+import { DeleteDialog } from "@/shared/dialog";
 
 type SelectionWidgetProps = {
   onRemove: () => void;
@@ -27,6 +28,7 @@ export function SelectionWidget({
   const [tracks, setTracks] = useState(initialSelectionTracks);
   const [editingTrack, setEditingTrack] = useState<SelectionTrack>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [pendingTrack, setPendingTrack] = useState<SelectionTrack>();
 
   function saveTrack(track: SelectionTrack) {
     const exists = tracks.some((item) => item.id === track.id);
@@ -49,6 +51,40 @@ export function SelectionWidget({
     setTracks((current) => current.filter(
       (track) => track.id !== trackId,
     ));
+  }
+
+  function updateStepResult(
+    trackId: number,
+    stepId: number,
+    result: SelectionResult,
+  ) {
+    setTracks((current) => current.map((track) =>
+      track.id === trackId
+        ? {
+            ...track,
+            steps: track.steps.map((step) =>
+              step.id === stepId
+                ? { ...step, result }
+                : step),
+          }
+        : track));
+  }
+
+  function updateStepMemo(
+    trackId: number,
+    stepId: number,
+    memo: string,
+  ) {
+    setTracks((current) => current.map((track) =>
+      track.id === trackId
+        ? {
+            ...track,
+            steps: track.steps.map((step) =>
+              step.id === stepId
+                ? { ...step, memo }
+                : step),
+          }
+        : track));
   }
 
   const addButton = (
@@ -105,7 +141,7 @@ export function SelectionWidget({
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    removeTrack(track.id);
+                    setPendingTrack(track);
                   }}
                 />
 
@@ -115,39 +151,18 @@ export function SelectionWidget({
               <div className="border-t border-[var(--line)] bg-[var(--panel)] px-3 py-4">
                 <div className="relative ml-3 space-y-2 border-l-2 border-[var(--accent-soft)] pl-5">
                   {track.steps.map((step, stepIndex) => (
-                    <details
+                    <SelectionStepItem
                       key={step.id}
-                      className="group/step relative"
-                    >
-                      <summary className="relative grid min-h-12 cursor-pointer list-none grid-cols-[minmax(0,1fr)_64px_72px_14px] items-center gap-2 border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-2 transition-colors hover:border-[var(--line-strong)] [&::-webkit-details-marker]:hidden">
-                        <span className="absolute top-1/2 -left-[35px] z-10 flex size-7 -translate-y-1/2 items-center justify-center border-2 border-[var(--panel)] bg-[var(--accent)] font-mono text-[8px] font-black text-[var(--accent-contrast)] shadow-[0_2px_6px_var(--shadow)]">
-                          {String(stepIndex + 1).padStart(2, "0")}
-                        </span>
-
-                        <span className="min-w-0 truncate pl-1 text-xs font-bold text-[var(--text-strong)]">
-                          {step.name}
-                        </span>
-
-                        <time className="flex w-16 shrink-0 items-center justify-start gap-1 font-mono text-[10px] font-black text-[var(--accent)]">
-                          {step.date
-                            ? step.date.slice(5).replace("-", "/")
-                            : "--/--"}
-                        </time>
-
-                        <SelectionStatusBadge
-                          result={step.result}
-                          size="s"
-                        />
-
-                        <ChevronDown className="size-3 text-[var(--faint)] transition-transform duration-200 group-open/step:rotate-180" />
-                      </summary>
-
-                      <div className="ml-3 border-x border-b border-[var(--line)] bg-[var(--panel)] px-3 py-3">
-                        <p className="mt-1 text-[10px] leading-5 text-[var(--muted)]">
-                          {step.memo || "メモはありません"}
-                        </p>
-                      </div>
-                    </details>
+                      trackName={track.name}
+                      step={step}
+                      index={stepIndex}
+                      onResultChange={(result) => {
+                        updateStepResult(track.id, step.id, result);
+                      }}
+                      onMemoChange={(memo) => {
+                        updateStepMemo(track.id, step.id, memo);
+                      }}
+                    />
                   ))}
                 </div>
               </div>
@@ -161,6 +176,18 @@ export function SelectionWidget({
           track={editingTrack}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveTrack}
+        />
+      )}
+
+      {pendingTrack && (
+        <DeleteDialog
+          title="選考を削除しますか？"
+          text={`「${pendingTrack.name}」と含まれる選考ステップを削除します。この操作は取り消せません。`}
+          onClose={() => setPendingTrack(undefined)}
+          onConfirm={() => {
+            removeTrack(pendingTrack.id);
+            setPendingTrack(undefined);
+          }}
         />
       )}
     </>

@@ -5,6 +5,7 @@ import type {
   SelectionTrack,
 } from "@/features/companies/model/companyDetail";
 import {
+  DeleteDialog,
   DialogActions,
   DialogBase,
   DialogHeader,
@@ -22,6 +23,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
   const [steps, setSteps] = useState<SelectionStep[]>(
     props.track?.steps ?? [createEmptyStep()],
   );
+  const [pendingStepId, setPendingStepId] = useState<number>();
 
   function createEmptyStep(): SelectionStep {
     return {
@@ -87,10 +89,8 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                 <button
                   type="button"
                   disabled={steps.length === 1}
-                  onClick={() => setSteps((current) => current.filter(
-                    (item) => item.id !== step.id,
-                  ))}
-                  className="flex size-7 items-center justify-center text-[var(--muted)] hover:text-rose-500 disabled:opacity-30"
+                  onClick={() => setPendingStepId(step.id)}
+                  className="flex size-7 cursor-pointer items-center justify-center text-[var(--muted)] hover:text-rose-500 disabled:cursor-not-allowed disabled:opacity-30"
                   aria-label={`ステップ${index + 1}を削除`}
                 >
                   <Trash2 className="size-3.5" />
@@ -155,6 +155,20 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           confirmType="submit"
         />
       </form>
+
+      {pendingStepId !== undefined && (
+        <DeleteDialog
+          title="選考ステップを削除しますか？"
+          text={`「${steps.find((step) => step.id === pendingStepId)?.name || "名称未設定のステップ"}」を削除します。この操作は取り消せません。`}
+          onClose={() => setPendingStepId(undefined)}
+          onConfirm={() => {
+            setSteps((current) => current.filter(
+              (step) => step.id !== pendingStepId,
+            ));
+            setPendingStepId(undefined);
+          }}
+        />
+      )}
     </DialogBase>
   );
 }

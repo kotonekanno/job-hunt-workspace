@@ -23,7 +23,9 @@ export function RelatedTasksWidget() {
         return completionOrder;
       }
 
-      return left.dueDate.localeCompare(right.dueDate);
+      return (left.dueDate ?? "\uffff").localeCompare(
+        right.dueDate ?? "\uffff",
+      );
     }),
     [tasks],
   );
@@ -93,9 +95,7 @@ export function RelatedTasksWidget() {
       >
         <TaskList
           tasks={sortedTasks}
-          canReorder={false}
           showCompany={false}
-          showReorder={false}
           onToggle={toggleTask}
           onEdit={openEditDialog}
           onDelete={(id) => setTasks((current) => current.filter(

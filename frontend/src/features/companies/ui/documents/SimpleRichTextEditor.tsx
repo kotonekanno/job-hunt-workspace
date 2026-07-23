@@ -14,6 +14,7 @@ import {
 } from "react";
 import type { RichTextEditorProps } from "@/features/companies/ui/documents/RichTextEditor.types";
 import { RichTextShortcuts } from "@/features/companies/ui/documents/RichTextShortcuts";
+import { SearchHighlight } from "@/features/companies/ui/documents/SearchHighlight";
 import { SimpleEditorToolbar } from "@/features/companies/ui/documents/SimpleEditorToolbar";
 
 export function SimpleRichTextEditor({
@@ -24,6 +25,7 @@ export function SimpleRichTextEditor({
   readOnly = false,
   minHeight = 480,
   className = "",
+  searchQuery = "",
 }: RichTextEditorProps) {
   const [isLinkEditing, setIsLinkEditing] = useState(false);
   const [linkValue, setLinkValue] = useState("");
@@ -71,6 +73,7 @@ export function SimpleRichTextEditor({
       RichTextShortcuts.configure({
         onOpenLink: openLinkEditor,
       }),
+      SearchHighlight,
     ],
     [openLinkEditor, placeholder, readOnly],
   );
@@ -106,6 +109,10 @@ export function SimpleRichTextEditor({
   useEffect(() => {
     editor?.setEditable(!disabled && !readOnly);
   }, [disabled, editor, readOnly]);
+
+  useEffect(() => {
+    editor?.commands.setSearchHighlight(searchQuery);
+  }, [editor, searchQuery]);
 
   useEffect(() => {
     if (!editor || value === lastEmittedValue.current) {

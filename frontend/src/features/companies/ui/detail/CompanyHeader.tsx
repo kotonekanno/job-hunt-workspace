@@ -9,15 +9,19 @@ import {
 } from "react";
 import {
   companyProfile,
+  type SelectionResult,
 } from "@/features/companies/model/companyDetail";
 import { EditIconButton } from "@/shared/button";
 import { PriorityBadge } from "../priority-badge";
-import { SelectionStepBadgeForHeader } from "../selection-step-badge";
+import { SelectionStepBadge } from "../selection-step-badge";
 
 export function CompanyHeader() {
   const [companyName, setCompanyName] = useState(companyProfile.name);
   const [draftName, setDraftName] = useState(companyProfile.name);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [selectionResult, setSelectionResult] = useState<SelectionResult>(
+    companyProfile.selectionResult,
+  );
 
   function startEditingName() {
     setDraftName(companyName);
@@ -105,10 +109,12 @@ export function CompanyHeader() {
         )}
       </div>
 
-      <SelectionStepBadgeForHeader
-        title="本選考"
-        step="最終面接"
-        result="failed"
+      <SelectionStepBadge
+        title={companyProfile.selectionType}
+        step={companyProfile.selectionStep}
+        result={selectionResult}
+        size="l"
+        onResultChange={setSelectionResult}
       />
 
     </header>

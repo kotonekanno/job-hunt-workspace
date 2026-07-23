@@ -6,4 +6,5 @@ export type RichTextEditorProps = {
   readOnly?: boolean;
   minHeight?: number;
   className?: string;
+  searchQuery?: string;
 };

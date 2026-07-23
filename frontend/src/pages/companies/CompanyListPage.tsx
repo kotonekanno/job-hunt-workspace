@@ -32,7 +32,8 @@ export function CompanyListPage() {
         <CompanyPriorityBoard
           companies={companyList.companies}
           onEventChange={companyList.updateNextEvent}
-          onPriorityChange={companyList.updatePriorityOptimistically}
+          onCompaniesReorder={companyList.reorderCompanies}
+          onSelectionResultChange={companyList.updateSelectionResult}
         />
       </div>
 

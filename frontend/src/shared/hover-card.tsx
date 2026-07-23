@@ -23,6 +23,8 @@ type HoverCardProps = {
   placement?: HoverCardPlacement;
   offset?: number;
   hoverCloseDelay?: number;
+  openOnHover?: boolean;
+  closeOnContentClick?: boolean;
 };
 
 type CardPosition = {
@@ -38,6 +40,8 @@ export function HoverCard({
   placement = "bottom-start",
   offset = 2,
   hoverCloseDelay = 80,
+  openOnHover = true,
+  closeOnContentClick = false,
 }: HoverCardProps) {
   const triggerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -50,7 +54,7 @@ export function HoverCard({
     left: 0,
   });
 
-  const isVisible = isHovered || isPinned;
+  const isVisible = (openOnHover && isHovered) || isPinned;
 
   function clearCloseTimer() {
     if (!closeTimerRef.current) return;
@@ -151,9 +155,24 @@ export function HoverCard({
       <div
         ref={triggerRef}
         className={triggerClassName}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        role={openOnHover ? undefined : "button"}
+        tabIndex={openOnHover ? undefined : 0}
+        aria-expanded={openOnHover ? undefined : isPinned}
+        onMouseEnter={openOnHover ? handleMouseEnter : undefined}
+        onMouseLeave={openOnHover ? handleMouseLeave : undefined}
         onClick={() => setIsPinned((current) => !current)}
+        onKeyDown={(event) => {
+          if (openOnHover) {
+            return;
+          }
+
+          if (event.key !== "Enter" && event.key !== " ") {
+            return;
+          }
+
+          event.preventDefault();
+          setIsPinned((current) => !current);
+        }}
       >
         {trigger}
       </div>
@@ -162,9 +181,17 @@ export function HoverCard({
         createPortal(
           <div
             ref={cardRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={openOnHover ? handleMouseEnter : undefined}
+            onMouseLeave={openOnHover ? handleMouseLeave : undefined}
             onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+
+              if (closeOnContentClick) {
+                setIsPinned(false);
+                setIsHovered(false);
+              }
+            }}
             className={`
               fixed z-[9999] cursor-default
               border border-[var(--line-strong)]

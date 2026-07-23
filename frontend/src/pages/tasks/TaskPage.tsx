@@ -38,21 +38,17 @@ export function TaskPage() {
 
       <TaskToolbar
         companyQuery={tasks.companyQuery}
-        sort={tasks.sort}
         completedCount={tasks.completedCount}
         onCompanyQueryChange={tasks.setCompanyQuery}
-        onSortChange={tasks.setSort}
         onDeleteCompleted={tasks.deleteCompletedTasks}
       />
       <div className="mt-5 overflow-x-auto">
         <div className="min-w-[700px]">
           <TaskList
             tasks={tasks.tasks}
-            canReorder={tasks.sort === "手動" && !tasks.companyQuery}
             onToggle={tasks.toggleTask}
             onEdit={openEditDialog}
             onDelete={tasks.deleteTask}
-            onReorder={tasks.reorderTasks}
           />
         </div>
       </div>

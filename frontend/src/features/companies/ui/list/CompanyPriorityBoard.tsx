@@ -1,6 +1,11 @@
-import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Reorder } from "motion/react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import type { SelectionResult } from "@/features/companies/model/companyDetail";
 import { EventDialog } from "@/features/calendar/ui/EventDialog";
 import {
   priorities,
@@ -8,11 +13,8 @@ import {
   type CompanyListItem,
   type CompanyPriority,
 } from "@/features/companies/model/companyList";
+import { priorityLabels } from "@/features/companies/model/companyPriorityPresentation";
 import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
-import {
-  priorityLabels,
-  priorityStyle,
-} from "@/features/companies/model/companyPriorityPresentation";
 
 type CompanyPriorityBoardProps = {
   companies: CompanyListItem[];
@@ -20,23 +22,72 @@ type CompanyPriorityBoardProps = {
     companyId: number,
     event: CalendarEvent,
   ) => void;
-  onPriorityChange: (
+  onCompaniesReorder: (
+    orderedIds: number[],
+    priorityChanges: Array<{
+      companyId: number;
+      priority: CompanyPriority;
+    }>,
+  ) => void;
+  onSelectionResultChange: (
     companyId: number,
-    priority: CompanyPriority,
+    result: SelectionResult,
   ) => void;
 };
+
+const initialPriorityOrder = [
+  ...priorities,
+  ...secondaryPriorities,
+];
+
+const priorityTextStyles: Record<CompanyPriority, string> = {
+  1: "text-[var(--accent)]",
+  2: "text-[var(--text-strong)]",
+  3: "text-[var(--text-strong)]",
+  4: "text-[var(--muted)]",
+  5: "text-[var(--faint)]",
+  6: "text-[var(--faint)] opacity-75",
+  0: "text-[var(--muted)]",
+};
+
+function getPriorityItemId(priority: CompanyPriority) {
+  return `priority-${priority}`;
+}
+
+function getCompanyItemId(companyId: number) {
+  return `company-${companyId}`;
+}
+
+function getPriorityFromItemId(
+  itemId: string,
+): CompanyPriority | undefined {
+  if (!itemId.startsWith("priority-")) {
+    return undefined;
+  }
+
+  return Number(itemId.replace("priority-", "")) as CompanyPriority;
+}
+
+function getCompanyIdFromItemId(
+  itemId: string,
+): number | undefined {
+  if (!itemId.startsWith("company-")) {
+    return undefined;
+  }
+
+  return Number(itemId.replace("company-", ""));
+}
 
 export function CompanyPriorityBoard({
   companies,
   onEventChange,
-  onPriorityChange,
+  onCompaniesReorder,
+  onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent>();
   const [editingCompanyId, setEditingCompanyId] = useState<number | null>(null);
-  const [collapsedPriorities, setCollapsedPriorities] = useState<
-    Set<CompanyPriority>
-  >(() => new Set([4, 5, 6]));
+  const priorityOrder = initialPriorityOrder;
 
   useEffect(() => {
     const closeEventDetail = () => setSelectedEventId(null);
@@ -45,6 +96,16 @@ export function CompanyPriorityBoard({
 
     return () => document.removeEventListener("mousedown", closeEventDetail);
   }, []);
+
+  const boardItemIds = useMemo(
+    () => priorityOrder.flatMap((priority) => [
+      getPriorityItemId(priority),
+      ...companies
+          .filter((company) => company.priority === priority)
+          .map((company) => getCompanyItemId(company.id)),
+    ]),
+    [companies, priorityOrder],
+  );
 
   const openEventEditor = (event: CalendarEvent) => {
     const company = companies.find((item) => item.nextEvent?.id === event.id);
@@ -55,85 +116,103 @@ export function CompanyPriorityBoard({
     setEditingCompanyId(company.id);
   };
 
-  const togglePriority = (priority: CompanyPriority) => {
-    setCollapsedPriorities((current) => {
-      const next = new Set(current);
+  function reorderBoard(orderedItemIds: string[]) {
+    let currentPriority: CompanyPriority | undefined;
+    const orderedCompanyIds: number[] = [];
+    const priorityChanges: Array<{
+      companyId: number;
+      priority: CompanyPriority;
+    }> = [];
 
-      if (next.has(priority)) {
-        next.delete(priority);
-      } else {
-        next.add(priority);
+    orderedItemIds.forEach((itemId) => {
+      const priority = getPriorityFromItemId(itemId);
+
+      if (priority !== undefined) {
+        currentPriority = priority;
+        return;
       }
 
-      return next;
+      const companyId = getCompanyIdFromItemId(itemId);
+
+      if (companyId === undefined) {
+        return;
+      }
+
+      orderedCompanyIds.push(companyId);
+
+      if (currentPriority !== undefined) {
+        priorityChanges.push({
+          companyId,
+          priority: currentPriority,
+        });
+      }
     });
-  };
 
-  const changePriority = (
-    companyId: number,
-    priority: CompanyPriority,
-  ) => {
-    setCollapsedPriorities((current) => {
-      const next = new Set(current);
-      next.delete(priority);
-
-      return next;
-    });
-
-    onPriorityChange(companyId, priority);
-  };
+    onCompaniesReorder(orderedCompanyIds, priorityChanges);
+  }
 
   return (
-    <div className="space-y-3">
-      {[...priorities, ...secondaryPriorities].map((priority) => {
-        const laneCompanies = companies.filter(
-          (company) => company.priority === priority,
-        );
-        const isCollapsed = collapsedPriorities.has(priority);
+    <>
+      <Reorder.Group
+        axis="y"
+        values={boardItemIds}
+        onReorder={reorderBoard}
+        className="w-full space-y-1 p-0"
+      >
+        {priorityOrder.flatMap((priority) => {
+          const laneCompanies = companies.filter(
+            (company) => company.priority === priority,
+          );
 
-        if (laneCompanies.length === 0) return null;
-
-        return (
-          <section
-            key={priority}
-            className={`border border-[var(--line)] bg-[var(--panel)] shadow-[0_5px_18px_var(--shadow)] ${priority === 0 ? "mt-10 border-t-2 border-t-[var(--line-strong)]" : ""} ${priority === 6 ? "opacity-80" : ""}`}
-          >
-            <button
-              type="button"
-              onClick={() => togglePriority(priority)}
-              className={`flex w-full cursor-pointer items-center justify-between gap-4 border-b px-4 py-3 text-left ${priorityStyle[priority]}`}
-              aria-expanded={!isCollapsed}
-              aria-label={`${priorityLabels[priority]}を${isCollapsed ? "開く" : "閉じる"}`}
+          return [
+            <Reorder.Item
+              key={getPriorityItemId(priority)}
+              value={getPriorityItemId(priority)}
+              dragListener={false}
+              layout="position"
+              transition={{
+                layout: {
+                  type: "spring",
+                  stiffness: 420,
+                  damping: 34,
+                  mass: 0.75,
+                },
+              }}
+              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 0 ? "pt-6" : ""}`}
             >
-              <div className="flex items-center gap-3">
-                <p className="font-mono text-[8px] tracking-[0.18em] opacity-70">
-                  PRIORITY
-                </p>
-                <span className="h-4 w-px bg-current opacity-30" />
-                <h2 className="text-lg font-black">
-                  {priorityLabels[priority]}
-                </h2>
-              </div>
+              <div
+                className={`
+                  flex min-h-9 w-full items-center
+                  justify-between gap-4 border border-[var(--line)]
+                  px-3 text-left
+                  ${priorityTextStyles[priority]}
+                `}
+              >
+                <div className="flex min-w-0 items-baseline gap-3">
+                  <p className="shrink-0 font-mono text-[7px] tracking-[0.16em] opacity-60">
+                    PRIORITY
+                  </p>
 
-              <ChevronDown
-                className={`size-4 shrink-0 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : "rotate-0"}`}
+                  <h2 className="truncate text-sm font-black">
+                    {priorityLabels[priority]}
+                  </h2>
+                </div>
+
+              </div>
+            </Reorder.Item>,
+
+            ...laneCompanies.map((company) => (
+              <CompanyListCard
+                key={getCompanyItemId(company.id)}
+                company={company}
+                canReorder
+                dragValue={getCompanyItemId(company.id)}
+                onSelectionResultChange={onSelectionResultChange}
               />
-            </button>
-
-            {!isCollapsed && (
-              <div className="grid gap-2 p-3 lg:grid-cols-2">
-                {laneCompanies.map((company) => (
-                  <CompanyListCard
-                    key={company.id}
-                    company={company}
-                    onPriorityChange={changePriority}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-        );
-      })}
+            )),
+          ];
+        })}
+      </Reorder.Group>
 
       {editingEvent && editingCompanyId !== null && (
         <EventDialog
@@ -150,6 +229,6 @@ export function CompanyPriorityBoard({
           }}
         />
       )}
-    </div>
+    </>
   );
 }

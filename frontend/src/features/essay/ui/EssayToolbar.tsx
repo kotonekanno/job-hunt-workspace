@@ -1,4 +1,5 @@
-import { Search, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
+import { SearchBox } from "@/shared/SearchBox";
 
 type EssayToolbarProps = {
   query: string;
@@ -18,14 +19,11 @@ export function EssayToolbar({
   return (
     <div className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative min-w-0 flex-1">
-          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--faint)]" />
-          <input
-            type="search"
+        <div className="min-w-0 flex-1">
+          <SearchBox
             value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
+            onValueChange={onQueryChange}
             placeholder="設問・本文を検索"
-            className="h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-3 pl-9 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
           />
         </div>
       </div>

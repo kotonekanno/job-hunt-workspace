@@ -64,7 +64,9 @@ export function HomeDashboard() {
   const taskArchive = useTasks();
   const pendingTasks = taskArchive.tasks
     .filter((task) => !task.completed)
-    .sort((first, second) => first.dueDate.localeCompare(second.dueDate))
+    .sort((first, second) => (first.dueDate ?? "\uffff").localeCompare(
+      second.dueDate ?? "\uffff",
+    ))
     .slice(0, 4);
 
   return (
@@ -83,8 +85,6 @@ export function HomeDashboard() {
         >
           <TaskList
             tasks={pendingTasks}
-            canReorder={false}
-            showReorder={false}
             showActions={false}
             onToggle={taskArchive.toggleTask}
           />

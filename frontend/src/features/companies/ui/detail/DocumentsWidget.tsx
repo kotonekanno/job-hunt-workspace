@@ -7,7 +7,10 @@ import {
   Reorder,
   useDragControls,
 } from "motion/react";
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import type { CompanyDocument } from "@/features/companies/model/companyDetail";
 import { DocumentCreateDialog } from "@/features/companies/ui/detail/DocumentCreateDialog";
 import { RichTextEditor } from "@/features/companies/ui/documents/RichTextEditor";
@@ -17,6 +20,7 @@ import {
   DeleteIconButton,
 } from "@/shared/button";
 import { DeleteDialog } from "@/shared/dialog";
+import { SearchBox } from "@/shared/SearchBox";
 
 type DocumentsWidgetProps = {
   documents: CompanyDocument[];
@@ -28,18 +32,32 @@ type DocumentsWidgetProps = {
 
 type DocumentAccordionProps = {
   document: CompanyDocument;
+  searchQuery: string;
   onChange: (document: CompanyDocument) => void;
   onDelete: (id: number) => void;
 };
 
 function DocumentAccordion({
   document,
+  searchQuery,
   onChange,
   onDelete,
 }: DocumentAccordionProps) {
   const dragControls = useDragControls();
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const contentMatches = Boolean(
+    searchQuery.trim()
+    && document.content
+      .toLocaleLowerCase()
+      .includes(searchQuery.trim().toLocaleLowerCase()),
+  );
+
+  useEffect(() => {
+    if (contentMatches) {
+      setIsOpen(true);
+    }
+  }, [contentMatches]);
 
   return (
     <>
@@ -64,6 +82,7 @@ function DocumentAccordion({
         className="list-none"
       >
         <details
+          open={isOpen}
           onToggle={(event) => setIsOpen(event.currentTarget.open)}
           className="
             group border border-[var(--line)]
@@ -121,6 +140,7 @@ function DocumentAccordion({
                 })}
                 minHeight={280}
                 className="documents-accordion-editor"
+                searchQuery={contentMatches ? searchQuery : ""}
               />
             </div>
           )}
@@ -150,6 +170,34 @@ export function DocumentsWidget({
   onDocumentReorder,
 }: DocumentsWidgetProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredDocuments = documents.filter((document) =>
+    `${document.title}\n${document.content}`
+      .toLocaleLowerCase()
+      .includes(normalizedQuery));
+
+  function reorderFilteredDocuments(
+    orderedDocuments: CompanyDocument[],
+  ) {
+    const visibleIds = new Set(
+      filteredDocuments.map((document) => document.id),
+    );
+    let visibleIndex = 0;
+
+    const orderedIds = documents.map((document) => {
+      if (!visibleIds.has(document.id)) {
+        return document.id;
+      }
+
+      const nextDocument = orderedDocuments[visibleIndex];
+      visibleIndex += 1;
+
+      return nextDocument.id;
+    });
+
+    onDocumentReorder(orderedIds);
+  }
 
   return (
     <>
@@ -158,33 +206,47 @@ export function DocumentsWidget({
         code="DOCUMENTS"
         icon={FileText}
         action={(
-          <AddButton
-            text="書類を追加"
-            size="s"
-            onClick={() => setIsCreateDialogOpen(true)}
-          />
+          <div className="flex items-center gap-2">
+            <SearchBox
+              value={query}
+              onValueChange={setQuery}
+              placeholder="タイトル・本文を検索"
+              aria-label="ドキュメントを検索"
+              size="s"
+              className="w-44 sm:w-60"
+            />
+
+            <AddButton
+              text="書類を追加"
+              size="s"
+              onClick={() => setIsCreateDialogOpen(true)}
+            />
+          </div>
         )}
         className="lg:col-span-2"
       >
         <Reorder.Group
           axis="y"
-          values={documents}
-          onReorder={(orderedDocuments) => {
-            onDocumentReorder(orderedDocuments.map(
-              (document) => document.id,
-            ));
-          }}
+          values={filteredDocuments}
+          onReorder={reorderFilteredDocuments}
           className="space-y-2 p-0"
         >
-          {documents.map((document) => (
+          {filteredDocuments.map((document) => (
             <DocumentAccordion
               key={document.id}
               document={document}
+              searchQuery={query}
               onChange={onDocumentChange}
               onDelete={onDocumentDelete}
             />
           ))}
         </Reorder.Group>
+
+        {filteredDocuments.length === 0 && (
+          <p className="border border-dashed border-[var(--line)] py-8 text-center text-xs text-[var(--faint)]">
+            該当するドキュメントはありません
+          </p>
+        )}
       </WidgetFrame>
 
       {isCreateDialogOpen && (

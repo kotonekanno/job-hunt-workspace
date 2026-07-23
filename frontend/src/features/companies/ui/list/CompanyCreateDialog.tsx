@@ -24,7 +24,8 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
       priority,
       progress: "未応募",
       selectionType: "本選考",
-      currentStep: "企業研究",
+      currentStep: "書類選考",
+      selectionResult: "not_started",
       pendingTasks: 0,
     });
     props.onClose();

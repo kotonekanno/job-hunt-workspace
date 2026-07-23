@@ -11,6 +11,7 @@ type WidgetFrameProps = {
   children: ReactNode;
   onRemove?: () => void;
   action?: ReactNode;
+  headingAccessory?: ReactNode;
   className?: string;
 };
 
@@ -19,8 +20,8 @@ export function WidgetFrame(props: WidgetFrameProps) {
 
   return (
     <section className={`cyber-cut border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_6px_22px_var(--shadow)] ${props.className ?? ""}`}>
-      <div className="flex items-start justify-between border-b border-[var(--line)] pb-3">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--line)] pb-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center bg-[var(--accent-soft)]">
             <Icon
               aria-hidden="true"
@@ -37,6 +38,8 @@ export function WidgetFrame(props: WidgetFrameProps) {
               {props.title}
             </h2>
           </div>
+
+          {props.headingAccessory}
         </div>
 
         <div className="flex items-center gap-2">

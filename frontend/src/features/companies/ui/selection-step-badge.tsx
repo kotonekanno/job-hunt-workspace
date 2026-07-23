@@ -1,11 +1,14 @@
 import {
   Check,
   Clock3,
-  GitBranch,
   Minus,
   X,
   type LucideIcon,
 } from "lucide-react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import type { SelectionResult } from "../model/companyDetail";
 import type { Size } from "@/shared/shared-type";
 import { HoverCard } from "@/shared/hover-card";
@@ -13,12 +16,16 @@ import { HoverCard } from "@/shared/hover-card";
 type StatusProps = {
   result: SelectionResult;
   size: Size;
+  interactive?: boolean;
 };
 
 type BadgeProps = {
   title: string;
   step: string;
   result: SelectionResult;
+  onResultChange?: (result: SelectionResult) => void;
+  showContext?: boolean;
+  compactMenu?: boolean;
 };
 
 const icon: Record<SelectionResult, LucideIcon> = {
@@ -39,6 +46,17 @@ const statusColorStyle: Record<SelectionResult, string> = {
     "border-blue-500/50 bg-blue-500/10 text-blue-600",
 };
 
+const interactiveStatusStyle: Record<SelectionResult, string> = {
+  not_started:
+    "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  pending:
+    "hover:border-amber-500 hover:bg-amber-500 hover:text-white",
+  passed:
+    "hover:border-emerald-500 hover:bg-emerald-500 hover:text-white",
+  failed:
+    "hover:border-blue-500 hover:bg-blue-500 hover:text-white",
+};
+
 const statusText: Record<SelectionResult, string> = {
   not_started: "未受験",
   pending: "結果待ち",
@@ -46,9 +64,17 @@ const statusText: Record<SelectionResult, string> = {
   failed: "不合格",
 };
 
+const selectionResults: SelectionResult[] = [
+  "not_started",
+  "pending",
+  "passed",
+  "failed",
+];
+
 export function SelectionStatusBadge({
   result,
   size,
+  interactive = false,
 }: StatusProps) {
   const Icon = icon[result];
 
@@ -76,7 +102,9 @@ export function SelectionStatusBadge({
     <span
       className={`
         inline-flex shrink-0 items-center border font-semibold
+        transition-colors
         ${statusColorStyle[result]}
+        ${interactive ? interactiveStatusStyle[result] : ""}
         ${badgeStyle}
       `}
     >
@@ -90,88 +118,107 @@ type SelectionStepBadgeProps = BadgeProps & {
   size: Size;
 };
 
-function SelectionStepBadge({
+export function SelectionStepBadge({
   title,
   step,
   result,
   size,
+  onResultChange,
+  showContext = true,
+  compactMenu = false,
 }: SelectionStepBadgeProps) {
+  const [selectedResult, setSelectedResult] = useState(result);
+
+  useEffect(() => {
+    setSelectedResult(result);
+  }, [result]);
+
+  function selectResult(nextResult: SelectionResult) {
+    setSelectedResult(nextResult);
+    onResultChange?.(nextResult);
+  }
 
   return (
     <HoverCard
-      sizeClassName="w-56"
+      sizeClassName={compactMenu ? "w-44" : "w-60"}
       placement="bottom-end"
+      openOnHover={false}
+      closeOnContentClick
+      triggerClassName="inline-block cursor-pointer outline-none"
       trigger={
         <SelectionStatusBadge
-          result={result}
+          result={selectedResult}
           size={size}
+          interactive
         />
       }
     >
-      <div className="relative">
-        <span className="absolute -top-3 -left-3 h-0.5 w-16 bg-[var(--accent)]" />
-
-        <div className="flex items-center gap-2 pt-1">
-          <span className="flex size-7 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
-            <GitBranch className="size-3.5" />
-          </span>
-
-          <div className="min-w-0">
-            <p className="font-mono text-[8px] font-bold tracking-[0.16em] text-[var(--faint)]">
-              CURRENT SELECTION
-            </p>
-            <p className="mt-0.5 truncate text-[10px] font-semibold text-[var(--muted)]">
+      <div>
+        {showContext && (
+          <div className="border-b border-[var(--line)] px-1 pb-2.5">
+            <p className="truncate text-[10px] font-semibold text-[var(--muted)]">
               {title}
             </p>
+
+            <div className="mt-1 flex items-center gap-2">
+              <span className="h-4 w-0.5 shrink-0 bg-[var(--accent)]" />
+
+              <p className="min-w-0 flex-1 truncate text-sm font-black text-[var(--text-strong)]">
+                {step}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="mt-3 border-l-2 border-[var(--accent)] bg-[var(--panel-raised)] px-3 py-2.5">
-          <p className="font-mono text-[8px] font-semibold tracking-wider text-[var(--faint)]">
-            CURRENT STEP
+        <div className={`px-1 ${showContext ? "pt-2.5" : ""}`}>
+          <p className="font-mono text-[8px] font-bold tracking-[0.16em] text-[var(--accent)]">
+            SELECTION STATUS
           </p>
-          <p className="mt-1 text-sm font-black leading-5 text-[var(--text-strong)]">
-            {step}
-          </p>
-        </div>
 
-        <div className="mt-3 flex items-center justify-between border-t border-[var(--line)] pt-2.5">
-          <span className="text-[9px] font-semibold text-[var(--faint)]">
-            選考状況
-          </span>
-          <SelectionStatusBadge result={result} size="s" />
+          <div
+            role="listbox"
+            aria-label="選考状況"
+            className="mt-1.5 space-y-0.5"
+          >
+            {selectionResults.map((option) => {
+              const OptionIcon = icon[option];
+              const isSelected = selectedResult === option;
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => selectResult(option)}
+                  className={`flex w-full cursor-pointer items-center gap-2 border-l-2 text-left transition-colors ${
+                    isSelected
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text-strong)]"
+                      : "border-transparent text-[var(--muted)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]"
+                  } ${compactMenu ? "px-2 py-1.5" : "px-2.5 py-2"}`}
+                >
+                  <span
+                    className={`
+                      flex size-5 shrink-0 items-center justify-center border
+                      ${statusColorStyle[option]}
+                    `}
+                  >
+                    <OptionIcon className="size-3" />
+                  </span>
+
+                  <span className="min-w-0 flex-1 text-[10px] font-bold">
+                    {statusText[option]}
+                  </span>
+
+                  {isSelected && (
+                    <Check className="size-3.5 shrink-0 text-[var(--accent)]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </HoverCard>
-  );
-}
-
-export function SelectionStepBadgeForHeader({
-  title,
-  step,
-  result,
-}: BadgeProps) {
-  return (
-    <SelectionStepBadge
-      title={title}
-      step={step}
-      result={result}
-      size="l"
-    />
-  );
-}
-
-export function SelectionStepBadgeForCard({
-  title,
-  step,
-  result,
-}: BadgeProps) {
-  return (
-    <SelectionStepBadge
-      title={title}
-      step={step}
-      result={result}
-      size="m"
-    />
   );
 }
