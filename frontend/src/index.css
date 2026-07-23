@@ -305,6 +305,23 @@
     padding: 0;
   }
 
+  .company-documents-editor {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .company-documents-editor .simple-editor-content-shell {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .company-documents-editor .simple-tiptap-content {
+    min-height: 100%;
+  }
+
   @media (max-width: 640px) {
     .tiptap-editor-content {
       padding: 1rem;
