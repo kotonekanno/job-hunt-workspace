@@ -1,6 +1,7 @@
-import type { Editor, JSONContent } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { Markdown } from "@tiptap/markdown";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -15,15 +16,6 @@ import type { RichTextEditorProps } from "@/features/companies/ui/documents/Rich
 import { RichTextShortcuts } from "@/features/companies/ui/documents/RichTextShortcuts";
 import { SimpleEditorToolbar } from "@/features/companies/ui/documents/SimpleEditorToolbar";
 
-const emptyDocument: JSONContent = {
-  type: "doc",
-  content: [
-    {
-      type: "paragraph",
-    },
-  ],
-};
-
 export function SimpleRichTextEditor({
   value,
   onChange,
@@ -35,7 +27,7 @@ export function SimpleRichTextEditor({
 }: RichTextEditorProps) {
   const [isLinkEditing, setIsLinkEditing] = useState(false);
   const [linkValue, setLinkValue] = useState("");
-  const lastEmittedValue = useRef<JSONContent | null>(null);
+  const lastEmittedValue = useRef<string | null>(null);
 
   const openLinkEditor = useCallback((currentEditor: Editor) => {
     if (disabled || readOnly) {
@@ -72,6 +64,7 @@ export function SimpleRichTextEditor({
             `${node.textContent || "チェック項目"}を${checked ? "未完了" : "完了"}にする`,
         },
       }),
+      Markdown,
       Placeholder.configure({
         placeholder,
       }),
@@ -85,7 +78,8 @@ export function SimpleRichTextEditor({
   const editor = useEditor(
     {
       extensions,
-      content: value ?? emptyDocument,
+      content: value,
+      contentType: "markdown",
       editable: !disabled && !readOnly,
       immediatelyRender: false,
       shouldRerenderOnTransaction: false,
@@ -101,7 +95,7 @@ export function SimpleRichTextEditor({
         },
       },
       onUpdate: ({ editor: currentEditor }) => {
-        const nextValue = currentEditor.getJSON();
+        const nextValue = currentEditor.getMarkdown();
         lastEmittedValue.current = nextValue;
         onChange(nextValue);
       },
@@ -118,7 +112,8 @@ export function SimpleRichTextEditor({
       return;
     }
 
-    editor.commands.setContent(value ?? emptyDocument, {
+    editor.commands.setContent(value, {
+      contentType: "markdown",
       emitUpdate: false,
     });
   }, [editor, value]);
@@ -180,7 +175,8 @@ export function SimpleRichTextEditor({
       {!readOnly && !disabled && (
         <div
           className="
-            sticky top-16 z-20 border-b border-[var(--line)]
+            simple-editor-toolbar sticky top-16 z-20
+            border-b border-[var(--line)]
             bg-[var(--panel-raised)]/95 backdrop-blur
           "
         >

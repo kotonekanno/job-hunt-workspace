@@ -7,7 +7,6 @@ import {
   Settings,
   Sun,
   UserPlus,
-  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -97,12 +96,8 @@ export function MainLayout() {
                 aria-label={isSidebarOpen ? "メニューを閉じる" : "メニューを開く"}
                 aria-expanded={isSidebarOpen}
                 aria-controls="protected-sidebar"
-              >
-                {isSidebarOpen ? (
-                  <X aria-hidden="true" className="size-4" />
-                ) : (
-                  <Menu aria-hidden="true" className="size-4" />
-                )}
+              >                
+                <Menu aria-hidden="true" className="size-4" />
               </button>
             )}
 

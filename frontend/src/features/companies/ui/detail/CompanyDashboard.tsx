@@ -9,10 +9,12 @@ import { BasicInfoWidget } from "@/features/companies/ui/detail/BasicInfoWidget"
 import { CompanyHeader } from "@/features/companies/ui/detail/CompanyHeader";
 import { DocumentsWidget } from "@/features/companies/ui/detail/DocumentsWidget";
 import { LinksWidget } from "@/features/companies/ui/detail/LinksWidget";
+import { QuickMemoWidget } from "@/features/companies/ui/detail/QuickMemoWidget";
 import { RelatedEventsWidget } from "@/features/companies/ui/detail/RelatedEventsWidget";
 import { RelatedTasksWidget } from "@/features/companies/ui/detail/RelatedTasksWidget";
 import { SelectionWidget } from "@/features/companies/ui/detail/SelectionWidget";
 import { WidgetPicker } from "@/features/companies/ui/detail/WidgetPicker";
+import { BackLink } from "@/shared/BackLink";
 import { DeleteDialog } from "@/shared/dialog";
 
 const allWidgets: WidgetType[] = widgetOrder;
@@ -45,10 +47,26 @@ export function CompanyDashboard() {
           <DocumentsWidget
             key={widget}
             documents={company.documents}
+            onDocumentChange={company.saveDocument}
+            onDocumentCreate={company.addDocument}
+            onDocumentDelete={company.deleteDocument}
+            onDocumentReorder={company.reorderDocuments}
           />
         );
       case "selection":
-        return <SelectionWidget key={widget} />;
+        return (
+          <SelectionWidget
+            key={widget}
+            onRemove={requestRemoval}
+          />
+        );
+      case "memo":
+        return (
+          <QuickMemoWidget
+            key={widget}
+            onRemove={requestRemoval}
+          />
+        );
     }
   }
 
@@ -65,12 +83,16 @@ export function CompanyDashboard() {
     <div className="mx-auto w-full max-w-7xl">
       <CompanyHeader />
 
-      <div className="mt-4 flex justify-end">
-        <WidgetPicker
-          hiddenWidgets={hiddenWidgets}
-          onAdd={company.addWidget}
-        />
+      <div className="mt-4">
+        <BackLink to="/companies">
+          企業一覧へ戻る
+        </BackLink>
       </div>
+
+      <WidgetPicker
+        hiddenWidgets={hiddenWidgets}
+        onAdd={company.addWidget}
+      />
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {company.widgets.map(renderWidget)}

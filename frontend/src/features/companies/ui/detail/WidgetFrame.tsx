@@ -1,9 +1,13 @@
-import { Trash2 } from "lucide-react";
+import {
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 type WidgetFrameProps = {
   title: string;
   code: string;
+  icon: LucideIcon;
   children: ReactNode;
   onRemove?: () => void;
   action?: ReactNode;
@@ -11,16 +15,28 @@ type WidgetFrameProps = {
 };
 
 export function WidgetFrame(props: WidgetFrameProps) {
+  const Icon = props.icon;
+
   return (
     <section className={`cyber-cut border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_6px_22px_var(--shadow)] ${props.className ?? ""}`}>
       <div className="flex items-start justify-between border-b border-[var(--line)] pb-3">
-        <div>
-          <p className="font-mono text-[9px] tracking-[0.2em] text-[var(--accent)]">
-            // {props.code}
-          </p>
-          <h2 className="mt-1 text-sm font-bold text-[var(--text-strong)]">
-            {props.title}
-          </h2>
+        <div className="flex items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center bg-[var(--accent-soft)]">
+            <Icon
+              aria-hidden="true"
+              className="size-4 text-[var(--accent)]"
+            />
+          </span>
+
+          <div>
+            <p className="font-mono text-[9px] tracking-[0.2em] text-[var(--accent)]">
+              // {props.code}
+            </p>
+
+            <h2 className="mt-1 text-sm font-bold text-[var(--text-strong)]">
+              {props.title}
+            </h2>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

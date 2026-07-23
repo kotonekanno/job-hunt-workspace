@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
 import { EventDialog } from "@/features/calendar/ui/EventDialog";
@@ -49,6 +49,7 @@ export function RelatedEventsWidget() {
       <WidgetFrame
         title="関連イベント"
         code="RELATED_EVENTS"
+        icon={CalendarDays}
         action={addButton}
       >
         <div className="space-y-2">

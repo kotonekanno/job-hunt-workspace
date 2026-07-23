@@ -8,12 +8,13 @@ import {
 
 export function useCompanyDetail() {
   const [widgets, setWidgets] = useState<WidgetType[]>([
-    "basic-info",
-    "links",
     "documents",
+    "basic-info",
+    "memo",
     "selection",
-    "tasks",
+    "links",
     "events",
+    "tasks",
   ]);
   const [documents, setDocuments] = useState<CompanyDocument[]>(initialDocuments);
 
@@ -38,11 +39,38 @@ export function useCompanyDetail() {
       item.id === document.id ? document : item));
   }
 
+  function addDocument(title: string) {
+    setDocuments((current) => [
+      ...current,
+      {
+        id: Math.max(0, ...current.map((document) => document.id)) + 1,
+        title,
+        updatedAt: new Date().toISOString().slice(0, 10),
+        content: "",
+      },
+    ]);
+  }
+
+  function deleteDocument(id: number) {
+    setDocuments((current) => current.filter(
+      (document) => document.id !== id,
+    ));
+  }
+
+  function reorderDocuments(orderedIds: number[]) {
+    setDocuments((current) => orderedIds
+      .map((id) => current.find((document) => document.id === id))
+      .filter((document): document is CompanyDocument => Boolean(document)));
+  }
+
   return {
     widgets,
     documents,
     addWidget,
     removeWidget,
     saveDocument,
+    addDocument,
+    deleteDocument,
+    reorderDocuments,
   };
 }

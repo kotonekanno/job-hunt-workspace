@@ -17,7 +17,13 @@ import {
   EditIconButton,
 } from "@/shared/button";
 
-export function SelectionWidget() {
+type SelectionWidgetProps = {
+  onRemove: () => void;
+};
+
+export function SelectionWidget({
+  onRemove,
+}: SelectionWidgetProps) {
   const [tracks, setTracks] = useState(initialSelectionTracks);
   const [editingTrack, setEditingTrack] = useState<SelectionTrack>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -61,7 +67,9 @@ export function SelectionWidget() {
       <WidgetFrame
         title="選考状況"
         code="SELECTION_PROCESS"
+        icon={GitBranch}
         action={addButton}
+        onRemove={onRemove}
       >
         <div className="space-y-3">
           {tracks.map((track) => (
@@ -70,10 +78,6 @@ export function SelectionWidget() {
               className="group border border-[var(--line)] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]"
             >
               <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-3.5 py-2.5 [&::-webkit-details-marker]:hidden">
-                <span className="flex size-8 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
-                  <GitBranch className="size-4" />
-                </span>
-
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-black text-[var(--text-strong)]">
                     {track.name}

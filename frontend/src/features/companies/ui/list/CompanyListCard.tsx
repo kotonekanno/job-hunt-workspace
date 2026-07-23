@@ -1,4 +1,3 @@
-import { FileText } from "lucide-react";
 import type {
   KeyboardEvent,
   MouseEvent,
@@ -12,7 +11,6 @@ import { PriorityBadge } from "@/features/companies/ui/priority-badge";
 import { SelectionStepBadgeForCard } from "@/features/companies/ui/selection-step-badge";
 import {
   DeleteIconButton,
-  IconActionButton,
 } from "@/shared/button";
 
 type CompanyPriorityCardProps = {
@@ -84,22 +82,6 @@ export function CompanyListCard({
             title="本選考"
             step="最終面接"
             result="pending"
-          />
-        </span>
-
-        <span data-card-action className="inline-flex">
-          <IconActionButton
-            icon={FileText}
-            size="s"
-            transparent={false}
-            ariaLabel={`${company.name}のドキュメントページを開く`}
-            tooltip="ドキュメントページを開く"
-            className="border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]"
-            iconClassName="size-3.5"
-            onClick={(event) => {
-              event.stopPropagation();
-              navigate(`/companies/${company.id}/documents`);
-            }}
           />
         </span>
 

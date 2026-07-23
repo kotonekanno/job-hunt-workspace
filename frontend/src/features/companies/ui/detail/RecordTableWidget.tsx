@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { RecordDialog } from "@/features/companies/ui/detail/RecordDialog";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
@@ -17,6 +18,7 @@ type RecordTableRowProps = {
 type RecordTableWidgetProps = {
   title: string;
   code: string;
+  icon: LucideIcon;
   initialRecords: string[][];
   dialogTitle: string;
   labelName: string;
@@ -56,6 +58,7 @@ function RecordTableRow({
 export function RecordTableWidget({
   title,
   code,
+  icon,
   initialRecords,
   dialogTitle,
   labelName,
@@ -79,6 +82,7 @@ export function RecordTableWidget({
       <WidgetFrame
         title={title}
         code={code}
+        icon={icon}
         onRemove={onRemove}
         action={addButton}
       >

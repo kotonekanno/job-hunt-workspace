@@ -1,4 +1,3 @@
-import type { JSONContent } from "@tiptap/core";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
 
 export type WidgetType =
@@ -7,7 +6,8 @@ export type WidgetType =
   | "tasks"
   | "events"
   | "documents"
-  | "selection";
+  | "selection"
+  | "memo";
 
 export type SelectionResult =
   | "not_started" // 未受験
@@ -33,7 +33,7 @@ export type CompanyDocument = {
   id: number;
   title: string;
   updatedAt: string;
-  content: JSONContent;
+  content: string;
 };
 
 export const widgetLabels: Record<WidgetType, string> = {
@@ -43,15 +43,17 @@ export const widgetLabels: Record<WidgetType, string> = {
   events: "関連イベント",
   documents: "テキスト",
   selection: "選考状況",
+  memo: "メモ",
 };
 
 export const widgetOrder: WidgetType[] = [
-  "basic-info",
-  "links",
   "documents",
+  "basic-info",
+  "memo",
   "selection",
-  "tasks",
+  "links",
   "events",
+  "tasks",
 ];
 
 export const companyProfile = {
@@ -89,135 +91,31 @@ export const initialDocuments: CompanyDocument[] = [
     id: 1,
     title: "企業研究メモ",
     updatedAt: "2026-07-11",
-    content: {
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "企業研究" }],
-        },
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "強み" }],
-        },
-        {
-          type: "bulletList",
-          content: [
-            {
-              type: "listItem",
-              content: [
-                {
-                  type: "paragraph",
-                  content: [
-                    {
-                      type: "text",
-                      text: "自社プロダクトの継続率が高い",
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "listItem",
-              content: [
-                {
-                  type: "paragraph",
-                  content: [
-                    {
-                      type: "text",
-                      text: "若手の裁量が大きい",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "確認したいこと" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "配属決定のプロセスについて質問する。",
-            },
-          ],
-        },
-      ],
-    },
+    content: `# 企業研究
+
+## 強み
+
+- 自社プロダクトの継続率が高い
+- 若手の裁量が大きい
+
+## 確認したいこと
+
+配属決定のプロセスについて質問する。`,
   },
   {
     id: 2,
     title: "面接対策",
     updatedAt: "2026-07-12",
-    content: {
-      type: "doc",
-      content: [
-        {
-          type: "heading",
-          attrs: { level: 1 },
-          content: [{ type: "text", text: "最終面接" }],
-        },
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "志望動機" }],
-        },
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "顧客課題に長期的に向き合える点に魅力を感じた。",
-            },
-          ],
-        },
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "逆質問" }],
-        },
-        {
-          type: "bulletList",
-          content: [
-            {
-              type: "listItem",
-              content: [
-                {
-                  type: "paragraph",
-                  content: [
-                    {
-                      type: "text",
-                      text: "今後注力するプロダクト領域",
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "listItem",
-              content: [
-                {
-                  type: "paragraph",
-                  content: [
-                    {
-                      type: "text",
-                      text: "評価制度とキャリアパス",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+    content: `# 最終面接
+
+## 志望動機
+
+顧客課題に長期的に向き合える点に魅力を感じた。
+
+## 逆質問
+
+- 今後注力するプロダクト領域
+- 評価制度とキャリアパス`,
   },
 ];
 

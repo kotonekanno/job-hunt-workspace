@@ -71,6 +71,34 @@
 }
 
 @layer components {
+  .quick-memo-widget {
+    position: relative;
+    clip-path: none;
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent-soft) 72%, var(--panel)),
+        color-mix(in srgb, var(--accent-soft) 44%, var(--panel))
+      );
+  }
+
+  .quick-memo-widget::after {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 1.5rem;
+    height: 1.5rem;
+    background:
+      linear-gradient(
+        225deg,
+        var(--app-bg) 0 47%,
+        var(--line-strong) 48% 51%,
+        var(--panel-raised) 52%
+      );
+    content: "";
+    pointer-events: none;
+  }
+
   .rich-text-toolbar-scroll {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -290,6 +318,20 @@
     padding: 2.75rem clamp(1.5rem, 5vw, 4rem) max(5rem, 18vh);
   }
 
+  .simple-rich-text-editor .simple-editor-toolbar {
+    display: none;
+  }
+
+  .simple-rich-text-editor:focus-within .simple-editor-toolbar {
+    display: block;
+  }
+
+  .documents-accordion-editor,
+  .documents-accordion-editor:focus-within {
+    border: 0;
+    box-shadow: none;
+  }
+
   .simple-rich-text-editor .simple-tiptap-content > p,
   .simple-rich-text-editor .simple-tiptap-content > ul,
   .simple-rich-text-editor .simple-tiptap-content > ol {
@@ -303,23 +345,6 @@
 
   .simple-rich-text-editor.tiptap-editor-readonly .simple-tiptap-content {
     padding: 0;
-  }
-
-  .company-documents-editor {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .company-documents-editor .simple-editor-content-shell {
-    min-height: 0;
-    flex: 1;
-    overflow-y: auto;
-  }
-
-  .company-documents-editor .simple-tiptap-content {
-    min-height: 100%;
   }
 
   @media (max-width: 640px) {

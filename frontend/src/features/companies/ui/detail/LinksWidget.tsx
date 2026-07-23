@@ -1,3 +1,4 @@
+import { Link2 } from "lucide-react";
 import { companyProfile } from "@/features/companies/model/companyDetail";
 import { RecordTableWidget } from "@/features/companies/ui/detail/RecordTableWidget";
 
@@ -12,6 +13,7 @@ export function LinksWidget({
     <RecordTableWidget
       title="関連リンク集"
       code="RELATED_LINKS"
+      icon={Link2}
       initialRecords={companyProfile.links}
       dialogTitle="関連リンクを追加"
       labelName="リンク名"
