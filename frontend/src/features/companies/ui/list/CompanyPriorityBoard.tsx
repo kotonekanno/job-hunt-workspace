@@ -1,12 +1,8 @@
 import { Reorder } from "motion/react";
 import {
-  useEffect,
   useMemo,
-  useState,
 } from "react";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import type { SelectionResult } from "@/features/companies/model/companyDetail";
-import { EventDialog } from "@/features/calendar/ui/EventDialog";
+import type { SelectionStatus } from "@/features/companies/model/selection";
 import {
   priorities,
   secondaryPriorities,
@@ -18,10 +14,6 @@ import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
 
 type CompanyPriorityBoardProps = {
   companies: CompanyListItem[];
-  onEventChange: (
-    companyId: number,
-    event: CalendarEvent,
-  ) => void;
   onCompaniesReorder: (
     orderedIds: number[],
     priorityChanges: Array<{
@@ -31,7 +23,7 @@ type CompanyPriorityBoardProps = {
   ) => void;
   onSelectionResultChange: (
     companyId: number,
-    result: SelectionResult,
+    result: SelectionStatus,
   ) => void;
 };
 
@@ -80,22 +72,10 @@ function getCompanyIdFromItemId(
 
 export function CompanyPriorityBoard({
   companies,
-  onEventChange,
   onCompaniesReorder,
   onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
-  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  const [editingEvent, setEditingEvent] = useState<CalendarEvent>();
-  const [editingCompanyId, setEditingCompanyId] = useState<number | null>(null);
   const priorityOrder = initialPriorityOrder;
-
-  useEffect(() => {
-    const closeEventDetail = () => setSelectedEventId(null);
-
-    document.addEventListener("mousedown", closeEventDetail);
-
-    return () => document.removeEventListener("mousedown", closeEventDetail);
-  }, []);
 
   const boardItemIds = useMemo(
     () => priorityOrder.flatMap((priority) => [
@@ -106,15 +86,6 @@ export function CompanyPriorityBoard({
     ]),
     [companies, priorityOrder],
   );
-
-  const openEventEditor = (event: CalendarEvent) => {
-    const company = companies.find((item) => item.nextEvent?.id === event.id);
-
-    if (!company) return;
-
-    setEditingEvent(event);
-    setEditingCompanyId(company.id);
-  };
 
   function reorderBoard(orderedItemIds: string[]) {
     let currentPriority: CompanyPriority | undefined;
@@ -160,9 +131,9 @@ export function CompanyPriorityBoard({
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
-          const laneCompanies = companies.filter(
-            (company) => company.priority === priority,
-          );
+          const laneCompanies = companies
+            .filter((company) => company.priority === priority)
+            .sort((left, right) => left.order - right.order);
 
           return [
             <Reorder.Item
@@ -214,21 +185,6 @@ export function CompanyPriorityBoard({
         })}
       </Reorder.Group>
 
-      {editingEvent && editingCompanyId !== null && (
-        <EventDialog
-          event={editingEvent}
-          onClose={() => {
-            setEditingEvent(undefined);
-            setEditingCompanyId(null);
-          }}
-          onSave={(event, id) => {
-            onEventChange(editingCompanyId, {
-              ...event,
-              id: id ?? editingEvent.id,
-            });
-          }}
-        />
-      )}
     </>
   );
 }

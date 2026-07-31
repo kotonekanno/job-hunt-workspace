@@ -12,9 +12,9 @@ import {
 import {
   attendanceEnabledCategories,
   eventCategories,
+  eventCategoryLabels,
   type CalendarEvent,
   type EventCategory,
-  type EventFormat,
 } from "@/features/calendar/model/calendar";
 import { companyNameOptions } from "@/features/companies/model/companyList";
 import { CompanyCombobox } from "@/shared/CompanyCombobox";
@@ -22,7 +22,6 @@ import { EditDialog } from "@/shared/dialog";
 import { RequiredMark } from "@/shared/form";
 import {
   Select,
-  toSelectOptions,
 } from "@/shared/select";
 
 type EventDialogProps = {
@@ -45,19 +44,19 @@ export function EventDialog({
   onClose,
   onSave,
 }: EventDialogProps) {
-  const initialDate = event?.date ?? getTodayDateKey();
+  const initialDate = event?.startDate ?? getTodayDateKey();
   const [form, setForm] = useState<Omit<CalendarEvent, "id">>({
     title: event?.title ?? "",
     company: event?.company || defaultCompany || "",
-    category: event?.category ?? "説明会",
-    allDay: event?.allDay ?? false,
-    date: initialDate,
+    category: event?.category ?? "session",
+    isAllDay: event?.isAllDay ?? false,
+    startDate: initialDate,
     endDate: event?.endDate ?? initialDate,
     startTime: event?.startTime ?? "10:00",
     endTime: event?.endTime ?? "11:00",
-    format: event?.format ?? "オンライン",
-    status: event?.status ?? "参加",
-    memo: event?.memo ?? "",
+    isOnline: event?.isOnline ?? true,
+    isAttending: event?.isAttending ?? true,
+    note: event?.note ?? "",
   });
   const canSelectAttendance = attendanceEnabledCategories.includes(
     form.category,
@@ -67,7 +66,7 @@ export function EventDialog({
     setForm({
       ...form,
       category,
-      status: form.status ?? "参加",
+      isAttending: form.isAttending ?? true,
     });
   }
 
@@ -76,7 +75,9 @@ export function EventDialog({
 
     onSave({
       ...form,
-      status: canSelectAttendance ? form.status ?? "参加" : undefined,
+      isAttending: canSelectAttendance
+        ? form.isAttending ?? true
+        : undefined,
     }, event?.id);
     onClose();
   }
@@ -96,7 +97,7 @@ export function EventDialog({
         <label className="text-xs text-[var(--muted)]">
           企業名
           <CompanyCombobox
-            value={form.company}
+            value={form.company ?? ""}
             options={companyNameOptions}
             allowEmpty
             onValueChange={(company) => setForm({
@@ -125,7 +126,10 @@ export function EventDialog({
           予定種別
           <Select
             value={form.category}
-            options={toSelectOptions(eventCategories)}
+            options={eventCategories.map((category) => ({
+              value: category,
+              label: eventCategoryLabels[category],
+            }))}
             onValueChange={changeCategory}
             className="mt-1 w-full"
           />
@@ -135,23 +139,23 @@ export function EventDialog({
           <SwitchField
             label="終日"
             icon={CalendarClock}
-            checked={form.allDay}
-            onChange={(allDay) => setForm({
+            checked={form.isAllDay}
+            onChange={(isAllDay) => setForm({
               ...form,
-              allDay,
+              isAllDay,
             })}
           />
         </div>
 
         <DateTimeField
           label="開始"
-          date={form.date}
+          date={form.startDate}
           time={form.startTime ?? "10:00"}
-          timeDisabled={form.allDay}
-          onDateChange={(date) => setForm({
+          timeDisabled={form.isAllDay}
+          onDateChange={(startDate) => setForm({
             ...form,
-            date,
-            endDate: form.endDate < date ? date : form.endDate,
+            startDate,
+            endDate: form.endDate < startDate ? startDate : form.endDate,
           })}
           onTimeChange={(startTime) => setForm({
             ...form,
@@ -163,8 +167,8 @@ export function EventDialog({
           label="終了"
           date={form.endDate}
           time={form.endTime ?? "11:00"}
-          minDate={form.date}
-          timeDisabled={form.allDay}
+          minDate={form.startDate}
+          timeDisabled={form.isAllDay}
           onDateChange={(endDate) => setForm({
             ...form,
             endDate,
@@ -177,23 +181,23 @@ export function EventDialog({
 
         <div className="text-xs text-[var(--muted)]">
           実施形式
-          <SegmentedControl<EventFormat>
-            value={form.format}
+          <SegmentedControl<boolean>
+            value={form.isOnline}
             options={[
               {
-                value: "オンライン",
+                value: true,
                 label: "オンライン",
                 icon: Monitor,
               },
               {
-                value: "オフライン",
+                value: false,
                 label: "オフライン",
                 icon: MapPin,
               },
             ]}
-            onChange={(format) => setForm({
+            onChange={(isOnline) => setForm({
               ...form,
-              format,
+              isOnline,
             })}
           />
         </div>
@@ -201,23 +205,23 @@ export function EventDialog({
         <SwitchField
           label="参加状況"
           icon={CircleCheck}
-          checked={form.status !== "不参加"}
+          checked={form.isAttending !== false}
           checkedText="参加"
           uncheckedText="不参加"
           disabled={!canSelectAttendance}
           onChange={(isParticipating) => setForm({
             ...form,
-            status: isParticipating ? "参加" : "不参加",
+            isAttending: isParticipating,
           })}
         />
 
         <label className="text-xs text-[var(--muted)] sm:col-span-2">
           メモ
           <textarea
-            value={form.memo}
+            value={form.note}
             onChange={(changeEvent) => setForm({
               ...form,
-              memo: changeEvent.target.value,
+              note: changeEvent.target.value,
             })}
             className="mt-1 min-h-24 w-full cursor-text resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none transition-colors hover:border-[var(--line-strong)] focus:border-[var(--accent)]"
             placeholder="準備することや確認事項など"
@@ -337,19 +341,19 @@ function SwitchField({
   );
 }
 
-type SegmentedOption<T extends string> = {
+type SegmentedOption<T extends string | boolean> = {
   value: T;
   label: string;
   icon: LucideIcon;
 };
 
-type SegmentedControlProps<T extends string> = {
+type SegmentedControlProps<T extends string | boolean> = {
   value: T;
   options: SegmentedOption<T>[];
   onChange: (value: T) => void;
 };
 
-function SegmentedControl<T extends string>({
+function SegmentedControl<T extends string | boolean>({
   value,
   options,
   onChange,
@@ -362,7 +366,7 @@ function SegmentedControl<T extends string>({
 
         return (
           <button
-            key={option.value}
+            key={String(option.value)}
             type="button"
             aria-pressed={isSelected}
             onClick={() => onChange(option.value)}

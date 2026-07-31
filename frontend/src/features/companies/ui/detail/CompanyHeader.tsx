@@ -9,8 +9,8 @@ import {
 } from "react";
 import {
   companyProfile,
-  type SelectionResult,
 } from "@/features/companies/model/companyDetail";
+import type { SelectionStatus } from "@/features/companies/model/selection";
 import { EditIconButton } from "@/shared/button";
 import { PriorityBadge } from "../priority-badge";
 import { SelectionStepBadge } from "../selection-step-badge";
@@ -19,7 +19,7 @@ export function CompanyHeader() {
   const [companyName, setCompanyName] = useState(companyProfile.name);
   const [draftName, setDraftName] = useState(companyProfile.name);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [selectionResult, setSelectionResult] = useState<SelectionResult>(
+  const [selectionResult, setSelectionResult] = useState<SelectionStatus>(
     companyProfile.selectionResult,
   );
 

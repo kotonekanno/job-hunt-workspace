@@ -14,7 +14,7 @@ export function UpcomingEvents({
   onDelete,
 }: UpcomingEventsProps) {
   const upcomingEvents = [...events]
-    .filter((event) => event.date >= "2026-07-12")
+    .filter((event) => event.startDate >= "2026-07-12")
     .sort((left, right) =>
       getEventSortKey(left).localeCompare(getEventSortKey(right)))
     .slice(0, 4);

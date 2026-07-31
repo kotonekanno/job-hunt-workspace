@@ -12,7 +12,7 @@ import type {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CompanyListItem } from "@/features/companies/model/companyList";
-import type { SelectionResult } from "@/features/companies/model/companyDetail";
+import type { SelectionStatus } from "@/features/companies/model/selection";
 import { SelectionStepBadge } from "@/features/companies/ui/selection-step-badge";
 import {
   DeleteIconButton,
@@ -25,7 +25,7 @@ type CompanyPriorityCardProps = {
   dragValue?: string;
   onSelectionResultChange?: (
     companyId: number,
-    result: SelectionResult,
+    result: SelectionStatus,
   ) => void;
 };
 
@@ -82,9 +82,9 @@ export function CompanyListCard({
 
         <span data-card-action className="inline-flex">
           <SelectionStepBadge
-            title={company.selectionType}
-            step={company.currentStep}
-            result={company.selectionResult}
+            title={company.selection.title}
+            step={company.selection.step}
+            result={company.selection.status}
             size="m"
             onResultChange={(result) => {
               onSelectionResultChange?.(company.id, result);

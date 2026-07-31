@@ -2,8 +2,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { useId, useState, type FormEvent } from "react";
 import type {
   SelectionStep,
-  SelectionTrack,
-} from "@/features/companies/model/companyDetail";
+  Selection,
+} from "@/features/companies/model/selection";
 import {
   DeleteDialog,
   DialogActions,
@@ -13,25 +13,29 @@ import {
 import { RequiredMark } from "@/shared/form";
 
 type SelectionTrackDialogProps = {
-  track?: SelectionTrack;
+  track?: Selection;
   onClose: () => void;
-  onSave: (track: SelectionTrack) => void;
+  onSave: (track: Selection) => void;
 };
 
 export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
   const titleId = useId();
-  const [name, setName] = useState(props.track?.name ?? "");
+  const [title, setTitle] = useState(props.track?.title ?? "");
   const [steps, setSteps] = useState<SelectionStep[]>(
-    props.track?.steps ?? [createEmptyStep()],
+    props.track?.steps
+      ? [...props.track.steps].sort((left, right) => left.stepNo - right.stepNo)
+      : [createEmptyStep(1)],
   );
   const [pendingStepId, setPendingStepId] = useState<number>();
 
-  function createEmptyStep(): SelectionStep {
+  function createEmptyStep(stepNo: number): SelectionStep {
     return {
       id: Date.now() + Math.random(),
-      name: "",
-      memo: "",
-      result: "not_started",
+      stepNo,
+      title: "",
+      heldAt: "",
+      note: "",
+      status: "not_started",
     };
   }
 
@@ -45,8 +49,12 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
 
     props.onSave({
       id: props.track?.id ?? Date.now(),
-      name,
-      steps,
+      title,
+      isActive: props.track?.isActive ?? true,
+      steps: steps.map((step, index) => ({
+        ...step,
+        stepNo: index + 1,
+      })),
     });
     props.onClose();
   }
@@ -71,8 +79,8 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           <RequiredMark />
           <input
             required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
             placeholder="例：本選考"
             className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
           />
@@ -105,9 +113,9 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                   <RequiredMark />
                   <input
                     required
-                    value={step.name}
+                    value={step.title}
                     onChange={(event) => updateStep(step.id, {
-                      name: event.target.value,
+                      title: event.target.value,
                     })}
                     className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
@@ -117,9 +125,9 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                   日付
                   <input
                     type="date"
-                    value={step.date ?? ""}
+                    value={step.heldAt}
                     onChange={(event) => updateStep(step.id, {
-                      date: event.target.value || undefined,
+                      heldAt: event.target.value,
                     })}
                     className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
@@ -128,9 +136,9 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                 <label className="text-xs text-[var(--muted)] sm:col-span-2">
                   メモ
                   <textarea
-                    value={step.memo}
+                    value={step.note}
                     onChange={(event) => updateStep(step.id, {
-                      memo: event.target.value,
+                      note: event.target.value,
                     })}
                     className="mt-1 min-h-20 w-full resize-y border border-[var(--line)] bg-[var(--panel)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
@@ -144,7 +152,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           type="button"
           onClick={() => setSteps((current) => [
             ...current,
-            createEmptyStep(),
+            createEmptyStep(current.length + 1),
           ])}
           className="mt-3 flex h-9 w-full items-center justify-center gap-2 border border-dashed border-[var(--line-strong)] text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent-soft)]"
         >
@@ -162,12 +170,12 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
       {pendingStepId !== undefined && (
         <DeleteDialog
           title="選考ステップを削除しますか？"
-          text={`「${steps.find((step) => step.id === pendingStepId)?.name || "名称未設定のステップ"}」を削除します。この操作は取り消せません。`}
+          text={`「${steps.find((step) => step.id === pendingStepId)?.title || "名称未設定のステップ"}」を削除します。この操作は取り消せません。`}
           onClose={() => setPendingStepId(undefined)}
           onConfirm={() => {
-            setSteps((current) => current.filter(
-              (step) => step.id !== pendingStepId,
-            ));
+            setSteps((current) => current
+              .filter((step) => step.id !== pendingStepId)
+              .map((step, index) => ({ ...step, stepNo: index + 1 })));
             setPendingStepId(undefined);
           }}
         />

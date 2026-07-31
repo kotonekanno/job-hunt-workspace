@@ -31,7 +31,9 @@ export function EssayGroupList({
 }: EssayGroupListProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {groups.map((group) => {
+      {[...groups]
+        .sort((left, right) => left.position - right.position)
+        .map((group) => {
         const essayCount = essays.filter(
           (essay) => essay.groupId === group.id,
         ).length;
@@ -88,7 +90,7 @@ export function EssayGroupList({
             )}
           </article>
         );
-      })}
+        })}
 
       <button
         type="button"

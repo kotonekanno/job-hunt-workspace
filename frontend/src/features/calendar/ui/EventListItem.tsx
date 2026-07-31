@@ -16,7 +16,7 @@ type EventListItemProps = {
 };
 
 function getEventEmphasisClassName(event: CalendarEvent): string {
-  if (event.status === "不参加") {
+  if (event.isAttending === false) {
     return "border-l-[var(--line-strong)] opacity-55";
   }
 
@@ -29,7 +29,7 @@ export function EventListItem({
   onDelete,
   showCompany = true,
 }: EventListItemProps) {
-  const FormatIcon = event.format === "オンライン"
+  const FormatIcon = event.isOnline
     ? Video
     : MapPin;
 
@@ -41,18 +41,18 @@ export function EventListItem({
         <div className="event-list-schedule flex w-[112px] shrink-0 items-stretch border-r border-[var(--line)] pr-3">
           <div className="flex w-12 shrink-0 items-center justify-center border-r border-[var(--line)] pr-2">
             <p className="font-mono text-xs font-bold text-[var(--text-strong)]">
-              {event.date.slice(5).replace("-", "/")}
+              {event.startDate.slice(5).replace("-", "/")}
             </p>
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col justify-center pl-2 font-mono">
-            {event.allDay ? (
+            {event.isAllDay ? (
               <>
                 <span className="text-[10px] font-black text-[var(--accent)]">
                   終日
                 </span>
 
-                {event.endDate && event.endDate !== event.date && (
+                {event.endDate !== event.startDate && (
                   <span className="mt-0.5 text-[8px] font-semibold text-[var(--muted)]">
                     → {event.endDate.slice(5).replace("-", "/")}
                   </span>
@@ -85,8 +85,8 @@ export function EventListItem({
         </div>
 
         <span
-          title={event.format}
-          aria-label={event.format}
+          title={event.isOnline ? "オンライン" : "オフライン"}
+          aria-label={event.isOnline ? "オンライン" : "オフライン"}
           className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel)] text-[var(--accent)]"
         >
           <FormatIcon className="size-3.5" />

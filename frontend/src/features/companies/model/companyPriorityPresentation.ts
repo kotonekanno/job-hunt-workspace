@@ -1,6 +1,5 @@
 import type {
   CompanyPriority,
-  CompanyProgress,
 } from "@/features/companies/model/companyList";
 
 export const priorityStyle: Record<CompanyPriority, string> = {
@@ -21,12 +20,4 @@ export const priorityLabels: Record<CompanyPriority, string> = {
   5: "第5志望",
   0: "未分類",
   6: "アーカイブ",
-};
-
-export const progressStyle: Record<CompanyProgress, string> = {
-  未応募: "border-[var(--line)] text-[var(--faint)]",
-  選考中: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]",
-  結果待ち: "border-amber-500/50 bg-amber-500/10 text-amber-600",
-  内定: "border-emerald-500/50 bg-emerald-500/10 text-emerald-600",
-  終了: "border-rose-500/50 bg-rose-500/10 text-rose-500",
 };

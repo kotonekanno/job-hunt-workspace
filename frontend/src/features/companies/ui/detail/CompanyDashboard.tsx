@@ -60,7 +60,7 @@ export function CompanyDashboard() {
             onRemove={requestRemoval}
           />
         );
-      case "memo":
+      case "note":
         return (
           <QuickMemoWidget
             key={widget}

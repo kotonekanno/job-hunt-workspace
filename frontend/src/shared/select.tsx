@@ -55,6 +55,7 @@ export function Select<T extends SelectValue>({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function toSelectOptions<T extends SelectValue>(
   values: readonly T[],
 ): SelectOption<T>[] {

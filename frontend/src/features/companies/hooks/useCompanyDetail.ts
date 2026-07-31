@@ -12,11 +12,13 @@ export function useCompanyDetail() {
     "basic-info",
     "links",
     "selection",
-    "memo",
+    "note",
     "events",
     "tasks",
   ]);
-  const [documents, setDocuments] = useState<CompanyDocument[]>(initialDocuments);
+  const [documents, setDocuments] = useState<CompanyDocument[]>(
+    [...initialDocuments].sort((left, right) => left.position - right.position),
+  );
 
   function addWidget(widget: WidgetType) {
     setWidgets((current) => {
@@ -44,9 +46,9 @@ export function useCompanyDetail() {
       ...current,
       {
         id: Math.max(0, ...current.map((document) => document.id)) + 1,
+        position: Math.max(0, ...current.map((document) => document.position)) + 1,
         title,
-        updatedAt: new Date().toISOString().slice(0, 10),
-        content: "",
+        text: "",
       },
     ]);
   }
@@ -60,7 +62,11 @@ export function useCompanyDetail() {
   function reorderDocuments(orderedIds: number[]) {
     setDocuments((current) => orderedIds
       .map((id) => current.find((document) => document.id === id))
-      .filter((document): document is CompanyDocument => Boolean(document)));
+      .filter((document): document is CompanyDocument => Boolean(document))
+      .map((document, index) => ({
+        ...document,
+        position: index + 1,
+      })));
   }
 
   return {

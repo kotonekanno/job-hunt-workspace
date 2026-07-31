@@ -71,10 +71,10 @@ export function DocumentDetailPage() {
 
       <div className="mt-4">
         <RichTextEditor
-          value={document.content}
-          onChange={(content) => documentArchive.updateDocument({
+          value={document.text}
+          onChange={(text) => documentArchive.updateDocument({
             ...document,
-            content,
+            text,
           })}
           placeholder="自由にメモを入力してください"
           minHeight={560}

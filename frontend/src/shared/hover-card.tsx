@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -76,7 +77,7 @@ export function HoverCard({
     }, hoverCloseDelay);
   }
 
-  function updatePosition() {
+  const updatePosition = useCallback(() => {
     const triggerElement = triggerRef.current;
     const cardElement = cardRef.current;
 
@@ -97,13 +98,13 @@ export function HoverCard({
         ? triggerRect.right - cardWidth
         : triggerRect.left,
     });
-  }
+  }, [offset, placement]);
 
   useLayoutEffect(() => {
     if (!isVisible) return;
 
     updatePosition();
-  }, [isVisible, placement, offset, children]);
+  }, [children, isVisible, updatePosition]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -115,7 +116,7 @@ export function HoverCard({
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
-  }, [isVisible, placement, offset]);
+  }, [isVisible, updatePosition]);
 
   useEffect(() => {
     if (!isPinned) return;

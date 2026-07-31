@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import type { Selection, SelectionStatus } from "./selection";
 
 export type WidgetType =
   | "basic-info"
@@ -7,33 +8,13 @@ export type WidgetType =
   | "events"
   | "documents"
   | "selection"
-  | "memo";
-
-export type SelectionResult =
-  | "not_started" // 未受験
-  | "pending"     // 結果待ち
-  | "passed"      // 合格
-  | "failed";     // 不合格
-
-export type SelectionStep = {
-  id: number;
-  name: string;
-  date?: string;
-  memo: string;
-  result: SelectionResult;
-};
-
-export type SelectionTrack = {
-  id: number;
-  name: string;
-  steps: SelectionStep[];
-};
+  | "note";
 
 export type CompanyDocument = {
   id: number;
+  position: number;
   title: string;
-  updatedAt: string;
-  content: string;
+  text: string;
 };
 
 export const widgetLabels: Record<WidgetType, string> = {
@@ -43,7 +24,7 @@ export const widgetLabels: Record<WidgetType, string> = {
   events: "関連イベント",
   documents: "テキスト",
   selection: "選考状況",
-  memo: "メモ",
+  note: "メモ",
 };
 
 export const widgetOrder: WidgetType[] = [
@@ -51,7 +32,7 @@ export const widgetOrder: WidgetType[] = [
   "basic-info",
   "links",
   "selection",
-  "memo",
+  "note",
   "events",
   "tasks",
 ];
@@ -60,7 +41,7 @@ export const companyProfile = {
   name: "青山テクノロジー株式会社",
   selectionType: "本選考",
   selectionStep: "最終面接",
-  selectionResult: "pending" as SelectionResult,
+  selectionResult: "pending" as SelectionStatus,
   basicInfo: [
     ["業界", "IT・ソフトウェア"],
     ["所在地", "東京都港区青山 1-2-3"],
@@ -81,16 +62,16 @@ export const relatedTasks = [
 ];
 
 export const relatedEvents: CalendarEvent[] = [
-  { id: 1, title: "最終面接", company: "青山テクノロジー株式会社", date: "2026-07-16", endDate: "2026-07-16", allDay: false, startTime: "13:00", endTime: "14:00", category: "面接", format: "オフライン", memo: "受付は開始15分前。履歴書を1部持参する。" },
-  { id: 2, title: "内定者面談（予定）", company: "青山テクノロジー株式会社", date: "2026-07-30", endDate: "2026-07-30", allDay: false, startTime: "11:00", endTime: "12:00", category: "カジュアル面談", format: "オンライン", memo: "最終面接の結果に応じて日程が確定する。" },
+  { id: 1, title: "最終面接", company: "青山テクノロジー株式会社", note: "受付は開始15分前。履歴書を1部持参する。", startDate: "2026-07-16", endDate: "2026-07-16", isAllDay: false, startTime: "13:00", endTime: "14:00", category: "interview", isOnline: false },
+  { id: 2, title: "内定者面談（予定）", company: "青山テクノロジー株式会社", note: "最終面接の結果に応じて日程が確定する。", startDate: "2026-07-30", endDate: "2026-07-30", isAllDay: false, startTime: "11:00", endTime: "12:00", category: "chat", isOnline: true },
 ];
 
 export const initialDocuments: CompanyDocument[] = [
   {
     id: 1,
+    position: 1,
     title: "企業研究メモ",
-    updatedAt: "2026-07-11",
-    content: `# 企業研究
+    text: `# 企業研究
 
 ## 強み
 
@@ -103,9 +84,9 @@ export const initialDocuments: CompanyDocument[] = [
   },
   {
     id: 2,
+    position: 2,
     title: "面接対策",
-    updatedAt: "2026-07-12",
-    content: `# 最終面接
+    text: `# 最終面接
 
 ## 志望動機
 
@@ -118,23 +99,25 @@ export const initialDocuments: CompanyDocument[] = [
   },
 ];
 
-export const initialSelectionTracks: SelectionTrack[] = [
+export const initialSelectionTracks: Selection[] = [
   {
     id: 1,
-    name: "本選考",
+    title: "本選考",
+    isActive: true,
     steps: [
-      { id: 1, name: "書類選考", date: "2026-06-10", memo: "ES・履歴書を提出", result: "passed" },
-      { id: 2, name: "適性検査", date: "2026-06-18", memo: "Web受検", result: "passed" },
-      { id: 3, name: "一次面接", date: "2026-06-27", memo: "現場マネージャー2名", result: "passed" },
-      { id: 4, name: "最終面接", date: "2026-07-16", memo: "役員面接。履歴書を持参する。", result: "not_started" },
+      { id: 1, stepNo: 1, title: "書類選考", heldAt: "2026-06-10", note: "ES・履歴書を提出", status: "passed" },
+      { id: 2, stepNo: 2, title: "適性検査", heldAt: "2026-06-18", note: "Web受検", status: "passed" },
+      { id: 3, stepNo: 3, title: "一次面接", heldAt: "2026-06-27", note: "現場マネージャー2名", status: "passed" },
+      { id: 4, stepNo: 4, title: "最終面接", heldAt: "2026-07-16", note: "役員面接。履歴書を持参する。", status: "not_started" },
     ],
   },
   {
     id: 2,
-    name: "サマーインターン",
+    title: "サマーインターン",
+    isActive: false,
     steps: [
-      { id: 5, name: "参加者選考", date: "2025-07-15", memo: "オンライン面接", result: "passed" },
-      { id: 6, name: "3daysインターン", date: "2025-08-20", memo: "新規事業立案ワーク", result: "passed" },
+      { id: 5, stepNo: 1, title: "参加者選考", heldAt: "2025-07-15", note: "オンライン面接", status: "passed" },
+      { id: 6, stepNo: 2, title: "3daysインターン", heldAt: "2025-08-20", note: "新規事業立案ワーク", status: "passed" },
     ],
   },
 ];

@@ -49,6 +49,8 @@ export function CompanyCombobox({
     option.toLocaleLowerCase().includes(normalizedQuery));
 
   useEffect(() => {
+    // Keep the editable query in sync when a parent selects a new company.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setQuery(value);
   }, [value]);
 
