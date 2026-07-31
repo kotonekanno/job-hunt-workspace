@@ -53,7 +53,7 @@ export function CompanyHeader() {
   }
 
   return (
-    <header className="cyber-cut flex flex-wrap items-center gap-4 border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_6px_24px_var(--shadow)] sm:p-6">
+    <header className="ui-panel cyber-cut flex flex-wrap items-center gap-4 border border-[var(--line)] p-5 sm:p-6">
       <PriorityBadge
         priority={2}
         size="m"

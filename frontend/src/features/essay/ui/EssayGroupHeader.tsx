@@ -12,7 +12,7 @@ export function EssayGroupHeader({
 }: EssayGroupHeaderProps) {
   return (
     <div className="mb-5">
-      <div className="flex items-center gap-4 border border-[var(--line)] bg-[var(--panel)] px-5 py-4 shadow-[0_4px_16px_var(--shadow)]">
+      <div className="ui-panel flex items-center gap-4 border border-[var(--line)] px-5 py-4">
         <div className="flex size-11 shrink-0 items-center justify-center border border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--accent)]">
           <Files className="size-5" />
         </div>

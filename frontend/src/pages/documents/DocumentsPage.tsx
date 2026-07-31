@@ -54,7 +54,7 @@ export function DocumentsPage() {
         icon={<NotebookTabs className="size-5 text-[var(--accent)]" />}
       />
 
-      <div className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)]">
+      <div className="ui-panel cyber-cut border border-[var(--line)] p-4">
         <SearchBox
           value={query}
           onValueChange={setQuery}

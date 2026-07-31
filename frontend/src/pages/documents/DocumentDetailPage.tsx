@@ -25,7 +25,7 @@ export function DocumentDetailPage() {
     return (
       <div className="mx-auto w-full max-w-6xl">
         <BackLink to="/documents">ドキュメント一覧へ戻る</BackLink>
-        <div className="mt-5 border border-dashed border-[var(--line-strong)] bg-[var(--panel)] py-16 text-center">
+        <div className="ui-empty-state mt-5 border border-dashed border-[var(--line-strong)] py-16 text-center">
           <p className="text-sm font-bold text-[var(--muted)]">
             指定されたドキュメントは見つかりませんでした
           </p>
@@ -40,7 +40,7 @@ export function DocumentDetailPage() {
         <BackLink to="/documents">ドキュメント一覧へ戻る</BackLink>
       </div>
 
-      <header className="flex items-center gap-4 border border-[var(--line)] bg-[var(--panel)] px-5 py-4 shadow-[0_4px_16px_var(--shadow)]">
+      <header className="ui-panel flex items-center gap-4 border border-[var(--line)] px-5 py-4">
         <div className="flex size-11 shrink-0 items-center justify-center border border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--accent)]">
           <FileText className="size-5" />
         </div>
@@ -60,7 +60,7 @@ export function DocumentDetailPage() {
         />
       </header>
 
-      <div className="mt-4 border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_4px_16px_var(--shadow)]">
+      <div className="ui-panel mt-4 border border-[var(--line)] p-4">
         <SearchBox
           value={query}
           onValueChange={setQuery}

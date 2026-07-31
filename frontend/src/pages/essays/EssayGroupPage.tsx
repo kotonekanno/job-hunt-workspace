@@ -39,7 +39,7 @@ export function EssayGroupPage() {
     return (
       <div className="mx-auto w-full max-w-6xl">
         <BackLink to="/essays">ES文章ストックへ戻る</BackLink>
-        <div className="mt-5 border border-dashed border-[var(--line-strong)] bg-[var(--panel)] py-16 text-center">
+        <div className="ui-empty-state mt-5 border border-dashed border-[var(--line-strong)] py-16 text-center">
           <p className="text-sm font-bold text-[var(--muted)]">
             指定されたジャンルは見つかりませんでした
           </p>

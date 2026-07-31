@@ -193,10 +193,8 @@ export function HoverCard({
               }
             }}
             className={`
-              fixed z-[9999] cursor-default
-              border border-[var(--line-strong)]
-              bg-[var(--panel)] p-3 text-left
-              shadow-[0_10px_28px_var(--shadow)]
+              ui-floating-surface fixed z-[9999] cursor-default
+              animate-in p-3 text-left fade-in zoom-in-95 duration-150
               ${sizeClassName}
             `}
             style={{

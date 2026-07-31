@@ -14,7 +14,7 @@ type CompanyListToolbarProps = {
 
 export function CompanyListToolbar(props: CompanyListToolbarProps) {
   return (
-    <div className="cyber-cut flex flex-col justify-between gap-3 border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)] sm:flex-row sm:items-center">
+    <div className="ui-panel cyber-cut flex flex-col justify-between gap-3 border border-[var(--line)] p-4 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1 sm:max-w-sm">
         <SearchBox
           value={props.query}

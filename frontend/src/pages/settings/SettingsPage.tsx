@@ -11,7 +11,7 @@ export function SettingsPage() {
         icon={<UserRound className="size-5 text-[var(--accent)]" />}
       />
       
-      <section className="cyber-cut relative mt-8 border border-[var(--line)] bg-[var(--panel)]/90 p-6 shadow-[0_8px_30px_var(--shadow)] transition-colors duration-300 sm:p-8">
+      <section className="ui-panel ui-panel-accentless cyber-cut relative mt-8 border border-[var(--line)] p-6 transition-colors duration-300 sm:p-8">
         <span className="absolute top-0 left-8 h-0.5 w-20 bg-[var(--accent)]" />
         <h2 className="text-sm font-bold text-[var(--accent)]">プロフィール</h2>
         <dl className="mt-6 divide-y divide-[var(--line)] text-sm">

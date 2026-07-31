@@ -49,7 +49,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl overflow-hidden border border-[var(--line-strong)] bg-[var(--panel)] shadow-[0_18px_60px_var(--shadow)] md:grid-cols-[0.82fr_1.18fr]">
+    <div className="ui-panel ui-panel-accentless mx-auto grid w-full max-w-5xl overflow-hidden border border-[var(--line-strong)] md:grid-cols-[0.82fr_1.18fr]">
       <aside className="relative hidden overflow-hidden border-r border-[var(--line)] bg-[var(--accent-soft)] p-8 md:flex md:flex-col md:justify-between lg:p-10">
         <span className="absolute top-0 left-0 h-1 w-28 bg-[var(--accent)]" />
         <div>
@@ -105,7 +105,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="name@example.com"
-                  className="h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-3 pl-10 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-[var(--accent)]"
+                  className="ui-field h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-3 pl-10 text-sm text-[var(--text)] outline-none placeholder:text-[var(--faint)]"
                 />
               </span>
             </label>
@@ -124,7 +124,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="8文字以上"
-                  className="h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-11 pl-10 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-[var(--accent)]"
+                  className="ui-field h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-11 pl-10 text-sm text-[var(--text)] outline-none placeholder:text-[var(--faint)]"
                 />
                 <button
                   type="button"
@@ -146,7 +146,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
             <button
               type="submit"
-              className="cyber-cut-sm flex h-11 w-full cursor-pointer items-center justify-center gap-2 border border-[var(--accent)] bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
+              className="ui-control cyber-cut-sm flex h-11 w-full cursor-pointer items-center justify-center gap-2 border border-[var(--accent)] bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)] shadow-[0_4px_16px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
             >
               {pageContent.submitText}
               <ArrowRight className="size-3.5" />

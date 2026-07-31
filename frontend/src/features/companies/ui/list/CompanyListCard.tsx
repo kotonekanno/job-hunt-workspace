@@ -65,7 +65,7 @@ export function CompanyListCard({
       tabIndex={0}
       onClick={openCompany}
       onKeyDown={openCompanyFromKeyboard}
-      className="group cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-1.5 transition-all hover:border-[var(--accent)] hover:shadow-[0_4px_12px_var(--shadow)] focus-visible:border-[var(--accent)] focus-visible:outline-none"
+      className="ui-panel-interactive group cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-1.5 focus-visible:border-[var(--accent)] focus-visible:outline-none"
       aria-label={`${company.name}の詳細を開く`}
     >
       <div className="flex items-center gap-2">

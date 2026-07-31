@@ -32,7 +32,7 @@ export function CalendarMonth({
   const todayKey = toDateKey(new Date(2026, 6, 12));
 
   return (
-    <div className="overflow-x-auto border border-[var(--line)] bg-[var(--panel)] shadow-[0_8px_28px_var(--shadow)] transition-colors duration-300">
+    <div className="ui-panel overflow-x-auto border border-[var(--line)] transition-colors duration-300">
       <div className="min-w-[760px]">
         <div className="grid grid-cols-7 border-b border-[var(--line)] bg-[var(--panel-raised)]">
           {weekdays.map((weekday, index) => (

@@ -35,7 +35,7 @@ export function CalendarHeader(props: CalendarFiltersProps) {
   );
 
   return (
-    <div className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_6px_24px_var(--shadow)] transition-colors duration-300">
+    <div className="ui-panel cyber-cut border border-[var(--line)] p-4 transition-colors duration-300">
       <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
         
         <div className="flex flex-wrap items-center gap-2">

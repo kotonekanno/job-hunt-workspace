@@ -35,7 +35,7 @@ export function TaskRow(props: TaskRowProps) {
     <>
       <details
         className="
-          group cyber-cut relative border border-[var(--line)]
+          ui-panel-interactive group cyber-cut relative border border-[var(--line)]
           bg-[var(--panel)] shadow-[0_4px_16px_var(--shadow)]
           transition-[border-color,box-shadow] duration-200
           open:border-[var(--line-strong)] hover:border-[var(--accent)]

@@ -37,7 +37,7 @@ export function HomeOverviewHeader({
   const weekday = weekdayLabels[currentDate.getDay()];
 
   return (
-    <header className="cyber-cut overflow-hidden border border-[var(--line-strong)] bg-[var(--panel)] shadow-[0_8px_28px_var(--shadow)]">
+    <header className="ui-panel ui-panel-accentless cyber-cut overflow-hidden border border-[var(--line-strong)]">
       <div className="flex flex-col lg:flex-row">
         <div className="relative flex min-w-56 items-center gap-4 border-b border-[var(--line)] px-5 py-5 lg:border-r lg:border-b-0 sm:px-6">
           <span className="absolute top-0 left-0 h-1 w-24 bg-[var(--accent)]" />
@@ -69,7 +69,7 @@ export function HomeOverviewHeader({
             <Link
               key={label}
               to={to}
-              className="group flex min-w-0 cursor-pointer items-center gap-3 border-r border-b border-[var(--line)] px-4 py-4 transition-colors hover:bg-[var(--panel-raised)] xl:border-b-0 last:border-r-0"
+              className="group flex min-w-0 cursor-pointer items-center gap-3 border-r border-b border-[var(--line)] px-4 py-4 transition-[background-color,box-shadow] hover:bg-[var(--panel-raised)] hover:shadow-[inset_0_-2px_0_var(--accent)] xl:border-b-0 last:border-r-0"
             >
               <span className="flex size-8 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
                 <Icon className="size-4" />
@@ -87,7 +87,7 @@ export function HomeOverviewHeader({
                 </p>
               </div>
 
-              <ArrowUpRight className="size-3.5 shrink-0 text-[var(--faint)] transition-colors group-hover:text-[var(--accent)]" />
+              <ArrowUpRight className="size-3.5 shrink-0 text-[var(--faint)] transition-[color,transform] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--accent)]" />
             </Link>
           ))}
         </nav>

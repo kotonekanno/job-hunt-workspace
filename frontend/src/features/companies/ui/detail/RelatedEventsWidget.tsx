@@ -101,7 +101,7 @@ export function RelatedEventsWidget() {
           ))}
 
           {visibleEvents.length === 0 && (
-            <p className="border border-dashed border-[var(--line)] py-8 text-center text-xs text-[var(--faint)]">
+            <p className="ui-empty-state border border-dashed border-[var(--line)] py-8 text-center text-xs text-[var(--faint)]">
               表示できる予定はありません
             </p>
           )}

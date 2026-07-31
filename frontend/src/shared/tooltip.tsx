@@ -98,10 +98,11 @@ export function Tooltip({
                   : "translate(-50%, 0)",
             }}
             className="
-              pointer-events-none fixed z-[100] max-w-[min(20rem,calc(100vw-1rem))]
-              whitespace-nowrap border border-[var(--line-strong)]
-              bg-[var(--panel)] px-2 py-1 text-[9px] font-bold
-              text-[var(--text-strong)] shadow-[0_6px_18px_var(--shadow)]
+              ui-floating-surface pointer-events-none fixed z-[100]
+              max-w-[min(20rem,calc(100vw-1rem))] animate-in
+              whitespace-nowrap px-2.5 py-1.5 text-[9px] font-bold
+              tracking-wide text-[var(--text-strong)] fade-in zoom-in-95
+              duration-150
             "
           >
             {content}

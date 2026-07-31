@@ -20,7 +20,7 @@ export function UpcomingEvents({
     .slice(0, 4);
 
   return (
-    <aside className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_8px_28px_var(--shadow)] transition-colors duration-300">
+    <aside className="ui-panel cyber-cut border border-[var(--line)] p-4 transition-colors duration-300">
       <div className="flex items-end justify-between border-b border-[var(--line)] pb-3">
         <div>
           <p className="font-mono text-[9px] tracking-[0.2em] text-[var(--accent)]">

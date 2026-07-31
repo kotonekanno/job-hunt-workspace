@@ -40,7 +40,7 @@ export function EssayGroupList({
         return (
           <article
             key={group.id}
-            className="relative min-h-36 overflow-hidden border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] hover:border-[var(--accent)] hover:shadow-[0_6px_20px_var(--shadow)]"
+            className="ui-panel-interactive relative min-h-36 overflow-hidden border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)]"
           >
             <Link
               to={`/essays/${group.id}`}

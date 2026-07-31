@@ -37,7 +37,7 @@ export function SearchBox({
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         className={`
-          w-full cursor-text border border-[var(--line)]
+          ui-field w-full cursor-text border border-[var(--line)]
           bg-[var(--panel-raised)] text-[var(--text)] outline-none
           transition-colors placeholder:text-[var(--faint)]
           hover:border-[var(--line-strong)] focus:border-[var(--accent)]

@@ -35,7 +35,7 @@ export function Select<T extends SelectValue>({
         if (selectedOption) onValueChange(selectedOption.value);
       }}
       className={`
-        h-9 cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)]
+        ui-field h-9 cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)]
         px-3 text-xs text-[var(--text)] outline-none transition-colors
         focus:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40
         hover:border-[var(--accent)] ${className}

@@ -21,7 +21,7 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <section
-      className={`cyber-cut border border-[var(--line)] bg-[var(--panel)] shadow-[0_5px_18px_var(--shadow)] ${className}`}
+      className={`ui-panel cyber-cut border border-[var(--line)] ${className}`}
     >
       <header className="flex items-center justify-between gap-4 border-b border-[var(--line)] px-4 py-3">
         <div>
@@ -35,7 +35,7 @@ export function DashboardCard({
 
         <Link
           to={to}
-          className="flex cursor-pointer items-center gap-1 border border-[var(--line)] px-2.5 py-1.5 text-[9px] font-bold text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          className="ui-control flex cursor-pointer items-center gap-1 border border-[var(--line)] bg-[var(--panel-raised)] px-2.5 py-1.5 text-[9px] font-bold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           {linkText}
           <ArrowUpRight className="size-3" />

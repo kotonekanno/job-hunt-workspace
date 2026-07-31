@@ -36,7 +36,7 @@ export function AppSettingsPage() {
         {settingGroups.map(({ title, description, icon: Icon, options }) => (
           <section
             key={title}
-            className="cyber-cut border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_5px_18px_var(--shadow)] sm:p-6"
+            className="ui-panel cyber-cut border border-[var(--line)] p-5 sm:p-6"
           >
             <div className="flex items-start gap-3 border-b border-[var(--line)] pb-4">
               <span className="flex size-9 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">

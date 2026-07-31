@@ -84,7 +84,7 @@ export function MainLayout() {
 
   return (
     <div className="cyber-grid flex min-h-screen flex-col bg-[var(--app-bg)] text-[var(--text)] transition-colors duration-300">
-      <header className="fixed top-0 right-0 left-0 z-40 border-b border-[var(--line-strong)] bg-[var(--panel)]/95 shadow-[0_2px_18px_var(--shadow)] backdrop-blur transition-colors duration-300">
+      <header className="ui-system-bar fixed top-0 right-0 left-0 z-40 border-b border-[var(--line-strong)] backdrop-blur transition-colors duration-300">
         <div className="absolute bottom-0 left-0 h-px w-24 bg-[var(--accent)]" />
         <div className="flex h-16 w-full items-center">
           <div className="flex min-w-0 flex-1 items-center px-3 sm:px-4">
@@ -92,7 +92,7 @@ export function MainLayout() {
               <button
                 type="button"
                 onClick={protectedLayoutContext.toggleSidebar}
-                className="mr-3 flex size-9 shrink-0 cursor-pointer items-center justify-center bg-transparent text-[var(--faint)] transition-colors hover:bg-[var(--panel-raised)]"
+                className="ui-control mr-3 flex size-9 shrink-0 cursor-pointer items-center justify-center bg-transparent text-[var(--faint)] hover:bg-[var(--panel-raised)] hover:text-[var(--accent)]"
                 aria-label={isSidebarOpen ? "メニューを閉じる" : "メニューを開く"}
                 aria-expanded={isSidebarOpen}
                 aria-controls="protected-sidebar"
@@ -123,7 +123,7 @@ export function MainLayout() {
               type="button"
               onClick={() => setTheme((current) =>
                 current === "light" ? "dark" : "light")}
-              className="flex size-9 cursor-pointer items-center justify-center border border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)] transition-all hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              className="ui-control flex size-9 cursor-pointer items-center justify-center border border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-[0_0_14px_var(--accent-glow)]"
               aria-label={theme === "light"
                 ? "ダークモードに切り替える"
                 : "ライトモードに切り替える"}
@@ -137,12 +137,12 @@ export function MainLayout() {
             </button>
 
             <details className="group relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 transition-colors hover:border-[var(--line)] hover:bg-[var(--panel-raised)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] [&::-webkit-details-marker]:hidden">
+              <summary className="ui-control flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 hover:border-[var(--line)] hover:bg-[var(--panel-raised)] [&::-webkit-details-marker]:hidden">
                 <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)]">YM</span>
                 <span className="hidden text-left lg:block"><span className="block text-xs font-semibold text-[var(--text-strong)]">山田みらい</span><span className="block font-mono text-[9px] tracking-wider text-[var(--muted)]">USER_01 / ONLINE</span></span>
                 <ChevronDown aria-hidden="true" className="size-3.5 text-[var(--accent)] transition-transform group-open:rotate-180" />
               </summary>
-              <div className="cyber-cut absolute right-0 top-[calc(100%+0.5rem)] w-56 border border-[var(--line-strong)] bg-[var(--panel)] py-2 shadow-[0_12px_32px_var(--shadow)]">
+              <div className="ui-floating-surface cyber-cut absolute right-0 top-[calc(100%+0.5rem)] w-56 py-2">
                 <p className="border-b border-[var(--line)] px-4 pb-2 font-mono text-[9px] font-semibold tracking-[0.2em] text-[var(--accent)]">// ACCOUNT_ACCESS</p>
                 <nav className="pt-2" aria-label="アカウントメニュー">
                   {accountMenuItems.map(({ label, to, icon: Icon }) => (

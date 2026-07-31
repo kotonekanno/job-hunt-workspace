@@ -34,7 +34,7 @@ export function DocumentList({
 }: DocumentListProps) {
   if (documents.length === 0) {
     return (
-      <div className="border border-dashed border-[var(--line-strong)] bg-[var(--panel)] py-16 text-center">
+      <div className="ui-empty-state border border-dashed border-[var(--line-strong)] py-16 text-center">
         <FileText className="mx-auto size-7 text-[var(--faint)]" />
         <p className="mt-3 text-sm font-bold text-[var(--muted)]">
           該当するドキュメントはありません
@@ -93,7 +93,7 @@ function DocumentListItem({
           zIndex: 20,
           boxShadow: "0 16px 36px var(--shadow)",
         }}
-        className="group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)] transition-[border-color,box-shadow] hover:border-[var(--accent)] hover:shadow-[0_6px_16px_var(--shadow)]"
+        className="ui-panel-interactive group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)]"
       >
         <Link
           to={`/documents/${document.id}`}

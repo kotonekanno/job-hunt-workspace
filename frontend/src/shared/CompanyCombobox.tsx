@@ -159,7 +159,7 @@ export function CompanyCombobox({
           setIsOpen(true);
         }}
         onKeyDown={handleKeyDown}
-        className="h-10 w-full cursor-text border border-[var(--line)] bg-[var(--panel-raised)] pl-3 pr-16 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] hover:border-[var(--line-strong)] focus:border-[var(--accent)]"
+        className="ui-field h-10 w-full cursor-text border border-[var(--line)] bg-[var(--panel-raised)] pl-3 pr-16 text-sm text-[var(--text)] outline-none placeholder:text-[var(--faint)]"
       />
 
       <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
@@ -181,7 +181,7 @@ export function CompanyCombobox({
         <div
           id={listboxId}
           role="listbox"
-          className="absolute left-0 top-[calc(100%+2px)] z-[100] max-h-52 w-full overflow-y-auto border border-[var(--line-strong)] bg-[var(--panel)] p-1 shadow-[0_12px_28px_var(--shadow)]"
+          className="ui-floating-surface absolute left-0 top-[calc(100%+2px)] z-[100] max-h-52 w-full overflow-y-auto p-1"
         >
           {allowEmpty && (
             <button

@@ -28,12 +28,6 @@ type DialogActionsProps = {
   destructive?: boolean;
 };
 
-type HoverDialogBaseProps = {
-  children: ReactNode;
-  isSelected: boolean;
-  onClick: () => void;
-};
-
 type DeleteDialogProps = {
   title: string;
   text: string;
@@ -74,7 +68,7 @@ export function DialogBase({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[10000] flex animate-in items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm fade-in duration-150"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -93,7 +87,8 @@ export function DialogHeader({
   titleClassName = "text-base",
 }: DialogHeaderProps) {
   return (
-    <div className="flex items-start justify-between border-b border-[var(--line)] pb-4">
+    <div className="relative flex items-start justify-between border-b border-[var(--line)] pb-4">
+      <span className="absolute -bottom-px left-0 h-px w-14 bg-[var(--accent)]" />
       <div>
         {subTitle && (
           <p className="font-mono text-[9px] tracking-[0.2em] text-[var(--accent)]">
@@ -111,7 +106,7 @@ export function DialogHeader({
       <button
         type="button"
         onClick={onClose}
-        className="flex size-8 cursor-pointer items-center justify-center text-[var(--muted)] hover:text-[var(--text-strong)]"
+        className="ui-control flex size-8 cursor-pointer items-center justify-center text-[var(--muted)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]"
         aria-label="ダイアログを閉じる"
       >
         <X className="size-4" />
@@ -132,7 +127,7 @@ export function DialogActions({
       <button
         type="button"
         onClick={onClose}
-        className="h-10 cursor-pointer border border-[var(--line)] px-5 text-xs font-semibold text-[var(--muted)] transition-colors hover:border-[var(--muted)]"
+        className="ui-control h-10 cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-5 text-xs font-semibold text-[var(--muted)] hover:border-[var(--muted)]"
       >
         キャンセル
       </button>
@@ -140,8 +135,8 @@ export function DialogActions({
         type={confirmType}
         onClick={onConfirm}
         className={destructive
-          ? "h-10 cursor-pointer border border-rose-500 bg-rose-500 px-5 text-xs font-bold text-white transition-colors hover:bg-[var(--accent-soft)] hover:text-rose-500"
-          : "cyber-cut-sm h-10 cursor-pointer border border-[var(--accent)] bg-[var(--accent)] px-5 text-xs font-bold text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"}
+          ? "ui-control h-10 cursor-pointer border border-rose-500 bg-rose-500 px-5 text-xs font-bold text-white hover:bg-[var(--accent-soft)] hover:text-rose-500"
+          : "ui-control cyber-cut-sm h-10 cursor-pointer border border-[var(--accent)] bg-[var(--accent)] px-5 text-xs font-bold text-[var(--accent-contrast)] shadow-[0_4px_14px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"}
       >
         {confirmText}
       </button>
@@ -163,7 +158,7 @@ export function DeleteDialog({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="cyber-cut w-full max-w-md border border-[var(--line-strong)] bg-[var(--panel)] p-6 shadow-[0_20px_60px_var(--shadow)]"
+        className="ui-dialog-surface cyber-cut w-full max-w-md animate-in border border-[var(--line-strong)] p-6 zoom-in-95 duration-150"
       >
         <div className="flex items-center gap-2 pb-2">
           <Trash2 className="size-5 text-rose-500" />
@@ -203,7 +198,7 @@ export function EditDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         onSubmit={onSubmit}
-        className={`cyber-cut w-full border border-[var(--line-strong)] bg-[var(--panel)] shadow-[0_20px_60px_var(--shadow)] ${formClassName}`}
+        className={`ui-dialog-surface cyber-cut w-full animate-in border border-[var(--line-strong)] zoom-in-95 duration-150 ${formClassName}`}
       >
         <DialogHeader
           title={title}

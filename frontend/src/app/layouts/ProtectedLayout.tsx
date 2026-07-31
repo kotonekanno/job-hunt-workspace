@@ -70,7 +70,7 @@ export function ProtectedLayout() {
       <aside
         id="protected-sidebar"
         className={cn(
-          "fixed top-16 bottom-0 left-0 z-30 flex w-64 -translate-x-full flex-col border-r border-[var(--line)] bg-[var(--panel)]/95 px-4 py-5 shadow-[8px_0_30px_var(--shadow)] backdrop-blur transition-transform duration-300 md:w-60 md:shadow-none lg:w-64",
+          "ui-sidebar fixed top-16 bottom-0 left-0 z-30 flex w-64 -translate-x-full flex-col border-r border-[var(--line)] px-4 py-5 shadow-[8px_0_30px_var(--shadow)] backdrop-blur transition-transform duration-300 md:w-60 md:shadow-none lg:w-64",
           isSidebarOpen && "translate-x-0",
         )}
       >
@@ -93,7 +93,7 @@ export function ProtectedLayout() {
                   end={end}
                   onClick={closeSidebar}
                   className={({ isActive }) => cn(
-                    "cyber-cut-sm flex cursor-pointer items-center gap-3 border-l-2 border-transparent px-3 py-3 text-sm font-medium text-[var(--muted)] transition-all hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
+                    "ui-control cyber-cut-sm flex cursor-pointer items-center gap-3 border-l-2 border-transparent px-3 py-3 text-sm font-medium text-[var(--muted)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
                     isActive
                       && "border-[var(--accent)] bg-[var(--accent-soft)] font-bold text-[var(--text-strong)] shadow-[0_3px_14px_var(--shadow)]",
                   )}
@@ -143,7 +143,7 @@ export function ProtectedLayout() {
             type="button"
             onClick={() => setIsSettingsOpen((isOpen) => !isOpen)}
             className={cn(
-              "cyber-cut-sm flex w-full cursor-pointer items-center gap-3 border border-[var(--line)] px-3 py-3 text-sm font-bold text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
+              "ui-control cyber-cut-sm flex w-full cursor-pointer items-center gap-3 border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-3 text-sm font-bold text-[var(--muted)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]",
               location.pathname.startsWith("/settings")
                 && "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text-strong)]",
             )}

@@ -50,7 +50,7 @@ export function EssayList({
 }: EssayListProps) {
   if (essays.length === 0) {
     return (
-      <div className="border border-dashed border-[var(--line-strong)] bg-[var(--panel)] py-16 text-center">
+      <div className="ui-empty-state border border-dashed border-[var(--line-strong)] py-16 text-center">
         <FilePenLine className="mx-auto size-7 text-[var(--faint)]" />
         <p className="mt-3 text-sm font-bold text-[var(--muted)]">
           条件に一致する文章はありません
@@ -110,7 +110,7 @@ function EssayListItem({
 
   return (
     <>
-      <article className="border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]">
+      <article className="ui-panel-interactive border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)]">
         <div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
           <div className="min-w-0 flex-1">
             {essay.company && (

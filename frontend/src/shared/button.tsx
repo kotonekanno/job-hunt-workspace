@@ -5,13 +5,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
-  useId,
   useState,
   type ButtonHTMLAttributes,
   type ReactNode,
 } from "react";
 import { DeleteDialog } from "@/shared/dialog";
 import type { Size } from "@/shared/shared-type";
+import { Tooltip } from "@/shared/tooltip";
 
 type ButtonVariant = "primary" | "secondary" | "danger-ghost";
 
@@ -63,9 +63,9 @@ type FloatingAddButtonProps = {
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  secondary: "border-[var(--line)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]",
-  "danger-ghost": "border-[var(--line)] font-semibold text-[var(--muted)] hover:border-rose-500 hover:text-rose-500",
+  primary: "cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] shadow-[0_4px_14px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
+  secondary: "border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-[0_3px_10px_var(--shadow)]",
+  "danger-ghost": "border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-rose-500 hover:text-rose-500",
 };
 
 const sizeStyles = {
@@ -108,7 +108,7 @@ function Button({
   return (
     <button
       type={type}
-      className={`inline-flex cursor-pointer items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]} ${className}`}
+      className={`ui-control inline-flex cursor-pointer items-center justify-center border disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {children}
@@ -128,17 +128,16 @@ export function IconActionButton({
   iconClassName,
 }: IconActionButtonProps) {
   const styles = iconActionSizeStyles[size];
-  const tooltipId = useId();
-
   const button = (
     <Button
       variant={danger ? "danger-ghost" : "secondary"}
       onClick={onClick}
       aria-label={ariaLabel}
-      aria-describedby={tooltip ? tooltipId : undefined}
       title={tooltip ? undefined : ariaLabel}
       className={`${styles.button} shrink-0 p-0 ${
-        transparent ? "border-transparent hover:border-transparent" : ""
+        transparent
+          ? "border-transparent bg-transparent hover:border-transparent hover:bg-[var(--panel-raised)]"
+          : ""
       } ${className}`}
     >
       <Icon className={iconClassName ?? styles.icon} />
@@ -147,18 +146,7 @@ export function IconActionButton({
 
   if (!tooltip) return button;
 
-  return (
-    <span className="group/icon relative inline-flex shrink-0">
-      {button}
-      <span
-        id={tooltipId}
-        role="tooltip"
-        className="pointer-events-none absolute right-0 bottom-[calc(100%+0.5rem)] z-50 whitespace-nowrap border border-[var(--line-strong)] bg-[var(--panel)] px-2.5 py-1.5 text-[9px] font-bold text-[var(--text-strong)] opacity-0 shadow-[0_6px_18px_var(--shadow)] transition-opacity group-hover/icon:opacity-100 group-focus-within/icon:opacity-100"
-      >
-        {tooltip}
-      </span>
-    </span>
-  );
+  return <Tooltip content={tooltip}>{button}</Tooltip>;
 }
 
 export function EditIconButton({
@@ -204,28 +192,19 @@ export function FloatingIconButton({
   tooltip = ariaLabel,
   className = "",
 }: FloatingIconButtonProps) {
-  const tooltipId = useId();
-
   return (
-    <div className="group fixed right-5 bottom-5 z-10">
-      <span
-        id={tooltipId}
-        role="tooltip"
-        className="pointer-events-none absolute right-0 bottom-[calc(100%+0.5rem)] whitespace-nowrap border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-1.5 text-[10px] font-bold text-[var(--text-strong)] opacity-0 shadow-[0_6px_18px_var(--shadow)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-      >
-        {tooltip}
-      </span>
-
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={ariaLabel}
-        aria-describedby={tooltipId}
-        title={title}
-        className={`cyber-cut-sm flex size-12 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] shadow-2xl transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-105 ${className}`}
-      >
-        <Icon className="size-5" aria-hidden="true" />
-      </button>
+    <div className="fixed right-5 bottom-5 z-10">
+      <Tooltip content={tooltip}>
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={ariaLabel}
+          title={title}
+          className={`ui-control cyber-cut-sm flex size-12 cursor-pointer items-center justify-center border border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)] shadow-[0_10px_28px_var(--shadow),0_0_18px_var(--accent-glow)] hover:-translate-y-0.5 hover:brightness-105 ${className}`}
+        >
+          <Icon className="size-5" aria-hidden="true" />
+        </button>
+      </Tooltip>
     </div>
   );
 }
