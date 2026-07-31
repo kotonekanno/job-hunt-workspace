@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from "react";
+import { companyNameOptions } from "@/features/companies/model/companyList";
 import type { Essay } from "@/features/essay/model/essay";
+import { CompanyCombobox } from "@/shared/CompanyCombobox";
 import { EditDialog } from "@/shared/dialog";
+import { RequiredMark } from "@/shared/form";
 
 type EssayDialogProps = {
   onClose: () => void;
@@ -46,19 +49,22 @@ export function EssayDialog({
           <label className="block">
             <span className="text-xs font-bold text-[var(--text-strong)]">
               企業名
+              <RequiredMark />
             </span>
-            <input
+            <CompanyCombobox
               required
               value={company}
-              onChange={(event) => setCompany(event.target.value)}
-              placeholder="企業名を入力"
-              className="mt-2 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
+              options={companyNameOptions}
+              onValueChange={setCompany}
+              placeholder="企業名を検索"
+              className="mt-2"
             />
           </label>
 
           <label className="block">
             <span className="text-xs font-bold text-[var(--text-strong)]">
               設問
+              <RequiredMark />
             </span>
             <textarea
               required
@@ -73,6 +79,7 @@ export function EssayDialog({
           <label className="block">
             <span className="text-xs font-bold text-[var(--text-strong)]">
               本文
+              <RequiredMark />
             </span>
             <textarea
               required
@@ -90,6 +97,7 @@ export function EssayDialog({
           <label className="block">
             <span className="text-xs font-bold text-[var(--text-strong)]">
               質問の性質
+              <RequiredMark />
             </span>
             <input
               required

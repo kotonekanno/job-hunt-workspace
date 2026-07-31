@@ -1,6 +1,9 @@
 import { ListTodo } from "lucide-react";
 import { useMemo, useState } from "react";
-import { relatedTasks } from "@/features/companies/model/companyDetail";
+import {
+  companyProfile,
+  relatedTasks,
+} from "@/features/companies/model/companyDetail";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
 import type { Task } from "@/features/task/model/task";
 import { TaskDialog } from "@/features/task/ui/TaskDialog";
@@ -107,6 +110,7 @@ export function RelatedTasksWidget() {
       {isDialogOpen && (
         <TaskDialog
           task={editingTask}
+          defaultCompany={companyProfile.name}
           onClose={closeDialog}
           onSave={saveTask}
         />

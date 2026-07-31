@@ -1,4 +1,8 @@
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  MapPin,
+  Video,
+} from "lucide-react";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
 import { EventDeleteButton } from "@/features/calendar/ui/EventDeleteButton";
 import { EventDetails } from "@/features/calendar/ui/EventDetails";
@@ -12,15 +16,11 @@ type EventListItemProps = {
 };
 
 function getEventEmphasisClassName(event: CalendarEvent): string {
-  if (event.status !== "参加確定") {
-    return "border-l-[var(--line-strong)] bg-[var(--panel-raised)] opacity-80";
+  if (event.status === "不参加") {
+    return "border-l-[var(--line-strong)] opacity-55";
   }
 
-  if (event.format === "オンライン") {
-    return "border-l-[var(--accent)] bg-[var(--accent-soft)] shadow-[0_3px_12px_var(--shadow)]";
-  }
-
-  return "border-l-[var(--line-strong)] bg-[var(--panel-raised)]";
+  return "border-l-[var(--accent)]";
 }
 
 export function EventListItem({
@@ -29,60 +29,92 @@ export function EventListItem({
   onDelete,
   showCompany = true,
 }: EventListItemProps) {
-  const columnsClassName = onEdit && onDelete
-    ? "grid-cols-[58px_minmax(0,1fr)_28px_28px_16px]"
-    : onEdit || onDelete
-      ? "grid-cols-[58px_minmax(0,1fr)_28px_16px]"
-      : "grid-cols-[58px_minmax(0,1fr)_16px]";
+  const FormatIcon = event.format === "オンライン"
+    ? Video
+    : MapPin;
 
   return (
     <details
-      className={`group border border-[var(--line)] border-l-[3px] transition-[border-color,box-shadow] duration-200 open:border-[var(--line-strong)] hover:border-y-[var(--line-strong)] hover:border-r-[var(--line-strong)] hover:shadow-[0_5px_16px_var(--shadow)] ${getEventEmphasisClassName(event)}`}
+      className={`group border border-[var(--line)] border-l-[3px] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] duration-200 open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)] ${getEventEmphasisClassName(event)}`}
     >
-      <summary
-        className={`grid min-h-16 cursor-pointer list-none items-center gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden ${columnsClassName}`}
-      >
-        <div className="border-r border-[var(--line)] pr-3 text-center">
-          <p className="font-mono text-xs font-bold text-[var(--text-strong)]">
-            {event.date.slice(5).replace("-", "/")}
-          </p>
-          <p className="mt-1 font-mono text-xs font-black text-[var(--accent)]">
-            {event.time}
-          </p>
+      <summary className="event-list-summary flex min-h-16 cursor-pointer list-none items-center gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+        <div className="event-list-schedule flex w-[112px] shrink-0 items-stretch border-r border-[var(--line)] pr-3">
+          <div className="flex w-12 shrink-0 items-center justify-center border-r border-[var(--line)] pr-2">
+            <p className="font-mono text-xs font-bold text-[var(--text-strong)]">
+              {event.date.slice(5).replace("-", "/")}
+            </p>
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col justify-center pl-2 font-mono">
+            {event.allDay ? (
+              <>
+                <span className="text-[10px] font-black text-[var(--accent)]">
+                  終日
+                </span>
+
+                {event.endDate && event.endDate !== event.date && (
+                  <span className="mt-0.5 text-[8px] font-semibold text-[var(--muted)]">
+                    → {event.endDate.slice(5).replace("-", "/")}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="text-[10px] font-black text-[var(--accent)]">
+                  {event.startTime ?? "--:--"}
+                </span>
+
+                <span className="mt-0.5 text-[10px] font-bold text-[var(--muted)]">
+                  {event.endTime ?? "--:--"}
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="min-w-0">
-          <h3 className="truncate text-xs font-bold text-[var(--text-strong)]">
-            {showCompany ? event.company : event.title}
-          </h3>
+        <div className="min-w-0 flex-1">
           {showCompany && (
-            <p className="mt-1 truncate text-[11px] text-[var(--text)]">
-              {event.title}
+            <p className="truncate text-[10px] text-[var(--muted)]">
+              {event.company}
             </p>
           )}
+
+          <h3 className={`truncate text-xs font-bold text-[var(--text-strong)] ${showCompany ? "mt-1" : ""}`}>
+            {event.title}
+          </h3>
         </div>
 
-        {onEdit && (
-          <EditIconButton
-            size="s"
-            transparent={false}
-            ariaLabel={`${event.title}を編集`}
-            onClick={(clickEvent) => {
-              clickEvent.preventDefault();
-              clickEvent.stopPropagation();
-              onEdit(event);
-            }}
-          />
-        )}
+        <span
+          title={event.format}
+          aria-label={event.format}
+          className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel)] text-[var(--accent)]"
+        >
+          <FormatIcon className="size-3.5" />
+        </span>
 
-        {onDelete && (
-          <EventDeleteButton
-            event={event}
-            size="s"
-            onDelete={onDelete}
-            stopPropagation
-          />
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          {onEdit && (
+            <EditIconButton
+              size="s"
+              transparent={false}
+              ariaLabel={`${event.title}を編集`}
+              onClick={(clickEvent) => {
+                clickEvent.preventDefault();
+                clickEvent.stopPropagation();
+                onEdit(event);
+              }}
+            />
+          )}
+
+          {onDelete && (
+            <EventDeleteButton
+              event={event}
+              size="s"
+              onDelete={onDelete}
+              stopPropagation
+            />
+          )}
+        </div>
 
         <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
       </summary>

@@ -4,9 +4,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import { getEventSortKey } from "@/features/calendar/lib/eventTime";
 import { EventDialog } from "@/features/calendar/ui/EventDialog";
 import { EventListItem } from "@/features/calendar/ui/EventListItem";
-import { relatedEvents } from "@/features/companies/model/companyDetail";
+import {
+  companyProfile,
+  relatedEvents,
+} from "@/features/companies/model/companyDetail";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
 import { AddButton } from "@/shared/button";
 
@@ -28,9 +32,7 @@ export function RelatedEventsWidget() {
   const visibleEvents = [...events]
     .filter((event) => showPastEvents || event.date >= todayKey)
     .sort((left, right) =>
-      `${left.date}${left.time}`.localeCompare(
-        `${right.date}${right.time}`,
-      ));
+      getEventSortKey(left).localeCompare(getEventSortKey(right)));
 
   function saveEvent(event: Omit<CalendarEvent, "id">, id?: number) {
     if (id !== undefined) {
@@ -109,6 +111,7 @@ export function RelatedEventsWidget() {
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}
+          defaultCompany={companyProfile.name}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveEvent}
         />

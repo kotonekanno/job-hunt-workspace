@@ -1,4 +1,5 @@
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import { getEventSortKey } from "@/features/calendar/lib/eventTime";
 import { EventListItem } from "@/features/calendar/ui/EventListItem";
 
 type UpcomingEventsProps = {
@@ -15,7 +16,7 @@ export function UpcomingEvents({
   const upcomingEvents = [...events]
     .filter((event) => event.date >= "2026-07-12")
     .sort((left, right) =>
-      `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`))
+      getEventSortKey(left).localeCompare(getEventSortKey(right)))
     .slice(0, 4);
 
   return (

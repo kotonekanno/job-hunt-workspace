@@ -1,4 +1,8 @@
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
+import type {
+  CalendarEvent,
+  EventCategory,
+} from "@/features/calendar/model/calendar";
+import { getEventStartTimeLabel } from "@/features/calendar/lib/eventTime";
 import { EventDetails } from "@/features/calendar/ui/EventDetails";
 import { HoverCard } from "@/shared/hover-card";
 
@@ -8,16 +12,20 @@ type CalendarEventItemProps = {
   onDelete: (eventId: number) => void;
 };
 
+const categoryColorClassName: Record<EventCategory, string> = {
+  "説明会": "border-sky-500 bg-sky-500/10 text-[var(--text-strong)]",
+  "面接": "border-rose-500 bg-rose-500/10 text-[var(--text-strong)]",
+  "カジュアル面談": "border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]",
+  "インターン": "border-purple-500 bg-purple-500/10 text-[var(--text-strong)]",
+  "その他": "border-slate-500 bg-slate-500/10 text-[var(--text-strong)]",
+};
+
 function getEventClassName(event: CalendarEvent): string {
-  if (event.status !== "参加確定") {
-    return "border-dashed border-[var(--line-strong)] bg-transparent text-[var(--faint)] opacity-55";
-  }
+  const emphasisClassName = event.status === "不参加"
+    ? "bg-transparent opacity-50 shadow-none"
+    : "font-semibold shadow-[0_2px_6px_var(--shadow)]";
 
-  if (event.format === "オフライン") {
-    return "border-[var(--accent)] bg-[var(--accent-soft)] font-semibold text-[var(--text-strong)] shadow-[0_2px_6px_var(--shadow)]";
-  }
-
-  return "border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]";
+  return `${categoryColorClassName[event.category]} ${emphasisClassName}`;
 }
 
 export function CalendarEventItem({
@@ -41,7 +49,7 @@ export function CalendarEventItem({
         >
           <span className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1 overflow-hidden">
             <span className="shrink-0 font-mono text-[8px] opacity-75">
-              {event.time}
+              {getEventStartTimeLabel(event)}
             </span>
 
             <span className="truncate text-[9px] font-bold">
@@ -54,7 +62,6 @@ export function CalendarEventItem({
       <EventDetails
         event={event}
         size="s"
-        showLocation
         onEdit={onEdit}
         onDelete={onDelete}
       />

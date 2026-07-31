@@ -6,6 +6,7 @@ import {
   ListTodo,
 } from "lucide-react";
 import { calendarEvents } from "@/features/calendar/model/calendar";
+import { getEventSortKey } from "@/features/calendar/lib/eventTime";
 import { EventListItem } from "@/features/calendar/ui/EventListItem";
 import { initialCompanyList } from "@/features/companies/model/companyList";
 import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
@@ -21,7 +22,7 @@ const today = "2026-07-12";
 const upcomingEvents = calendarEvents
   .filter((event) => event.date >= today)
   .sort((first, second) => (
-    `${first.date}${first.time}`.localeCompare(`${second.date}${second.time}`)
+    getEventSortKey(first).localeCompare(getEventSortKey(second))
   ))
   .slice(0, 3);
 

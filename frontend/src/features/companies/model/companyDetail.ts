@@ -81,8 +81,8 @@ export const relatedTasks = [
 ];
 
 export const relatedEvents: CalendarEvent[] = [
-  { id: 1, title: "最終面接", company: "青山テクノロジー株式会社", date: "2026-07-16", time: "13:00", category: "面接", location: "東京本社", format: "オフライン", status: "参加確定", memo: "受付は開始15分前。履歴書を1部持参する。" },
-  { id: 2, title: "内定者面談（予定）", company: "青山テクノロジー株式会社", date: "2026-07-30", time: "11:00", category: "カジュアル面談", location: "Google Meet", format: "オンライン", status: "不確定", memo: "最終面接の結果に応じて日程が確定する。" },
+  { id: 1, title: "最終面接", company: "青山テクノロジー株式会社", date: "2026-07-16", endDate: "2026-07-16", allDay: false, startTime: "13:00", endTime: "14:00", category: "面接", format: "オフライン", memo: "受付は開始15分前。履歴書を1部持参する。" },
+  { id: 2, title: "内定者面談（予定）", company: "青山テクノロジー株式会社", date: "2026-07-30", endDate: "2026-07-30", allDay: false, startTime: "11:00", endTime: "12:00", category: "カジュアル面談", format: "オンライン", memo: "最終面接の結果に応じて日程が確定する。" },
 ];
 
 export const initialDocuments: CompanyDocument[] = [

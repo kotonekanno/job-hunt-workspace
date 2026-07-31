@@ -25,7 +25,7 @@ export function useCalendar() {
 
   const upcomingEvents = useMemo(
     () => events.filter((event) =>
-      event.status === "参加確定"
+      event.status !== "不参加"
       && (category === "すべて" || event.category === category)
       && (format === "すべて" || event.format === format)),
     [events, category, format],

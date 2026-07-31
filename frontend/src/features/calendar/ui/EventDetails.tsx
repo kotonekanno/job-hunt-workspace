@@ -1,6 +1,4 @@
 import {
-  CheckCircle2,
-  CircleHelp,
   MapPin,
   Video,
 } from "lucide-react";
@@ -15,23 +13,22 @@ type EventDetailsProps = {
   size: EventDetailsSize;
   showHeading?: boolean;
   showCompany?: boolean;
-  showLocation?: boolean;
   onEdit?: (event: CalendarEvent) => void;
   onDelete?: (eventId: number) => void;
 };
 
 const sizeStyles = {
   s: {
-    headingGap: "gap-2.5",
-    time: "w-12 text-sm",
+    headingGap: "gap-2",
+    time: "w-12 text-[11px]",
     company: "text-xs",
     title: "text-[10px]",
     contentGap: "mt-2.5",
     memo: "text-[10px] leading-5",
   },
   m: {
-    headingGap: "gap-3",
-    time: "w-14 text-base",
+    headingGap: "gap-2.5",
+    time: "w-14 text-xs",
     company: "text-sm",
     title: "text-[11px]",
     contentGap: "mt-3",
@@ -44,76 +41,74 @@ export function EventDetails({
   size,
   showHeading = true,
   showCompany = true,
-  showLocation = false,
   onEdit,
   onDelete,
 }: EventDetailsProps) {
   const styles = sizeStyles[size];
-  const isConfirmed = event.status === "参加確定";
+  const FormatIcon = event.format === "オンライン"
+    ? Video
+    : MapPin;
 
   return (
     <div>
       {showHeading && (
         <div className={`flex items-center ${styles.headingGap}`}>
           <time
-            className={`shrink-0 border-r border-[var(--line)] pr-2.5 font-mono font-black text-[var(--accent)] ${styles.time}`}
+            className={`flex shrink-0 flex-col justify-center border-r border-[var(--line)] pr-2.5 font-mono ${styles.time}`}
           >
-            {event.time}
+            {event.allDay ? (
+              <>
+                <span className="font-black text-[var(--accent)]">
+                  終日
+                </span>
+
+                {event.endDate && event.endDate !== event.date && (
+                  <span className="mt-1 text-[9px] font-semibold text-[var(--muted)]">
+                    → {event.endDate.slice(5).replace("-", "/")}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="font-black text-[var(--accent)]">
+                  {event.startTime ?? "--:--"}
+                </span>
+
+                <span className="mt-1 font-semibold text-[var(--muted)]">
+                  {event.endTime ?? "--:--"}
+                </span>
+              </>
+            )}
           </time>
 
           <div className="min-w-0 flex-1">
             {showCompany && (
-              <h3
-                className={`truncate font-bold text-[var(--text-strong)] ${styles.company}`}
+              <p
+                className={`truncate text-[var(--muted)] ${styles.title}`}
               >
                 {event.company}
-              </h3>
+              </p>
             )}
 
-            <p
-              className={`truncate text-[var(--muted)] ${showCompany ? "mt-0.5" : "font-bold text-[var(--text-strong)]"} ${styles.title}`}
+            <h3
+              className={`truncate font-bold text-[var(--text-strong)] ${showCompany ? "mt-0.5" : ""} ${styles.company}`}
             >
               {event.title}
-            </p>
+            </h3>
           </div>
 
+          <span
+            title={event.format}
+            aria-label={event.format}
+            className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel-raised)] text-[var(--accent)]"
+          >
+            <FormatIcon className="size-3.5" />
+          </span>
         </div>
       )}
 
-      <div
-        className={`flex flex-wrap items-center gap-2 ${
-          showHeading ? styles.contentGap : ""
-        }`}
-      >
-        <span className="inline-flex items-center gap-1.5 border border-[var(--line)] bg-[var(--panel-raised)] px-2 py-1 text-[9px] font-semibold text-[var(--muted)]">
-          {event.format === "オンライン" ? (
-            <Video className="size-3 text-[var(--accent)]" />
-          ) : (
-            <MapPin className="size-3 text-[var(--accent)]" />
-          )}
-          {showLocation ? event.location : event.format}
-        </span>
-
-        <span
-          className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[9px] font-semibold ${
-            isConfirmed
-              ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-              : "border-[var(--line)] bg-[var(--panel-raised)] text-[var(--faint)]"
-          }`}
-        >
-          {isConfirmed ? (
-            <CheckCircle2 className="size-3" />
-          ) : (
-            <CircleHelp className="size-3" />
-          )}
-          {event.status}
-        </span>
-      </div>
-
-      <div
-        className={`${styles.contentGap} border-l-2 border-[var(--accent-soft)] pl-3`}
-      >
-        <p className={`text-[var(--muted)] ${styles.memo}`}>
+      <div className={styles.contentGap}>
+        <p className={`text-[var(--text)] ${styles.memo}`}>
           {event.memo || "メモはありません"}
         </p>
       </div>

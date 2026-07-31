@@ -11,6 +11,18 @@ type CalendarMonthProps = {
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 
+function occursOnDate(
+  event: CalendarEvent,
+  dateKey: string,
+) {
+  if (!event.allDay) {
+    return event.date === dateKey;
+  }
+
+  return event.date <= dateKey
+    && (event.endDate ?? event.date) >= dateKey;
+}
+
 export function CalendarMonth({
   days,
   events,
@@ -68,7 +80,7 @@ export function CalendarMonth({
 
               <div className="mt-0.5 min-w-0 space-y-0.5 overflow-hidden">
                 {events
-                  .filter((event) => event.date === day.dateKey)
+                  .filter((event) => occursOnDate(event, day.dateKey))
                   .map((event) => (
                     <CalendarEventItem
                       key={event.id}

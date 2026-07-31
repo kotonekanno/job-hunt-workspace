@@ -6,6 +6,7 @@ import {
   type CompanyPriority,
 } from "@/features/companies/model/companyList";
 import { EditDialog } from "@/shared/dialog";
+import { RequiredMark } from "@/shared/form";
 import { Select, type SelectOption } from "@/shared/select";
 
 type CompanyCreateDialogProps = {
@@ -53,6 +54,7 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
         <>
           <label className="block text-xs text-[var(--muted)]">
             会社名
+            <RequiredMark />
             <input
               required
               value={name}

@@ -10,6 +10,7 @@ import {
   DialogBase,
   DialogHeader,
 } from "@/shared/dialog";
+import { RequiredMark } from "@/shared/form";
 
 type SelectionTrackDialogProps = {
   track?: SelectionTrack;
@@ -67,6 +68,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
 
         <label className="mt-5 block text-xs text-[var(--muted)]">
           選考の種類
+          <RequiredMark />
           <input
             required
             value={name}
@@ -83,7 +85,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
               className="border border-[var(--line)] bg-[var(--panel-raised)] p-4"
             >
               <div className="flex items-center justify-between">
-                <p className="font-mono text-[9px] font-bold text-[var(--accent)]">
+                <p className="font-mono text-xs font-black tracking-[0.08em] text-[var(--accent)]">
                   STEP {index + 1}
                 </p>
                 <button
@@ -100,6 +102,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
               <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_150px]">
                 <label className="text-xs text-[var(--muted)]">
                   選考ステップの名前
+                  <RequiredMark />
                   <input
                     required
                     value={step.name}
@@ -111,7 +114,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                 </label>
 
                 <label className="text-xs text-[var(--muted)]">
-                  日付（任意）
+                  日付
                   <input
                     type="date"
                     value={step.date ?? ""}

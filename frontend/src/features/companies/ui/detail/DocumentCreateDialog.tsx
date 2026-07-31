@@ -3,6 +3,7 @@ import {
   type FormEvent,
 } from "react";
 import { EditDialog } from "@/shared/dialog";
+import { RequiredMark } from "@/shared/form";
 
 type DocumentCreateDialogProps = {
   onClose: () => void;
@@ -37,6 +38,7 @@ export function DocumentCreateDialog({
     >
       <label className="block text-xs text-[var(--muted)]">
         タイトル
+        <RequiredMark />
 
         <input
           autoFocus
