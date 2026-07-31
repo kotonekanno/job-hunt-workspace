@@ -10,7 +10,10 @@ import { getEventSortKey } from "@/features/calendar/lib/eventTime";
 import { EventListItem } from "@/features/calendar/ui/EventListItem";
 import { initialCompanyList } from "@/features/companies/model/companyList";
 import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
-import { initialEssays } from "@/features/essay/model/essay";
+import {
+  initialEssayGroups,
+  initialEssays,
+} from "@/features/essay/model/essay";
 import { DashboardCard } from "@/features/home/ui/DashboardCard";
 import { HomeOverviewHeader } from "@/features/home/ui/HomeOverviewHeader";
 import { useTasks } from "@/features/task/hooks/useTasks";
@@ -148,7 +151,7 @@ export function HomeDashboard() {
               </p>
               <div className="mt-3 flex items-center gap-1.5 text-[9px] font-bold text-emerald-600">
                 <CheckCircle2 className="size-3.5" />
-                {new Set(initialEssays.flatMap((essay) => essay.traits)).size}カテゴリを登録済み
+                {initialEssayGroups.length}ジャンルを登録済み
               </div>
             </div>
           </div>

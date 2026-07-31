@@ -19,6 +19,10 @@ type CompanyComboboxProps = {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  emptyLabel?: string;
+  invalidMessage?: string;
+  noResultsText?: string;
+  clearAriaLabel?: string;
 };
 
 export function CompanyCombobox({
@@ -29,6 +33,10 @@ export function CompanyCombobox({
   required = false,
   placeholder = "企業名を検索",
   className = "",
+  emptyLabel = "未選択",
+  invalidMessage = "一覧から項目を選択してください。",
+  noResultsText = "該当する項目はありません",
+  clearAriaLabel = "選択を解除する",
 }: CompanyComboboxProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -57,9 +65,9 @@ export function CompanyCombobox({
     input.setCustomValidity(
       hasConfirmedValue && (!required || Boolean(value)) || isEmptyAllowed
         ? ""
-        : "企業一覧から企業名を選択してください。",
+        : invalidMessage,
     );
-  }, [allowEmpty, query, required, value]);
+  }, [allowEmpty, invalidMessage, query, required, value]);
 
   useEffect(() => {
     function closeOnOutsideMouseDown(event: MouseEvent) {
@@ -159,7 +167,7 @@ export function CompanyCombobox({
           <button
             type="button"
             onClick={clearCompany}
-            aria-label="企業を未選択にする"
+            aria-label={clearAriaLabel}
             className="flex size-6 cursor-pointer items-center justify-center text-[var(--faint)] transition-colors hover:text-rose-500"
           >
             <X className="size-3.5" />
@@ -185,7 +193,7 @@ export function CompanyCombobox({
               className="flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-xs text-[var(--muted)] transition-colors hover:bg-[var(--panel-raised)]"
             >
               <span className="size-3.5" />
-              未選択
+              {emptyLabel}
             </button>
           )}
 
@@ -217,7 +225,7 @@ export function CompanyCombobox({
 
           {filteredOptions.length === 0 && (
             <p className="px-3 py-5 text-center text-xs text-[var(--faint)]">
-              該当する企業はありません
+              {noResultsText}
             </p>
           )}
         </div>

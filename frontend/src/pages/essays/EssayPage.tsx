@@ -1,50 +1,102 @@
+import {
+  ArrowUpDown,
+  FilePenLine,
+} from "lucide-react";
 import { useState } from "react";
-import { FilePenLine } from "lucide-react";
-import { useEssays } from "@/features/essay/hooks/useEssays";
+import { useEssayArchive } from "@/features/essay/hooks/useEssayArchive";
+import {
+  unclassifiedEssayGroupId,
+  type EssayGroup,
+} from "@/features/essay/model/essay";
 import { EssayDialog } from "@/features/essay/ui/EssayDialog";
-import { EssayList } from "@/features/essay/ui/EssayList";
-import { EssayToolbar } from "@/features/essay/ui/EssayToolbar";
+import { EssayGroupDialog } from "@/features/essay/ui/EssayGroupDialog";
+import { EssayGroupList } from "@/features/essay/ui/EssayGroupList";
+import { EssayGroupReorderDialog } from "@/features/essay/ui/EssayGroupReorderDialog";
 import { FloatingAddButton } from "@/shared/button";
+import { DeleteDialog } from "@/shared/dialog";
 import { InnerHeader } from "@/shared/header";
 
 export function EssayPage() {
-  const essayArchive = useEssays();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const essayArchive = useEssayArchive();
+  const [isEssayDialogOpen, setIsEssayDialogOpen] = useState(false);
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<EssayGroup | null>(null);
+  const [deletingGroup, setDeletingGroup] = useState<EssayGroup | null>(null);
+  const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <InnerHeader
-        title="ES文章ストック"
-        subTitle="ESSAY ARCHIVE"
-        description="設問と回答を蓄積し、過去に書いた表現をすぐに探せます。"
-        icon={<FilePenLine className="size-5 text-[var(--accent)]" />}
-      />
-
-      <EssayToolbar
-        query={essayArchive.query}
-        traits={essayArchive.traits}
-        selectedTrait={essayArchive.selectedTrait}
-        onQueryChange={essayArchive.setQuery}
-        onTraitChange={essayArchive.setSelectedTrait}
-      />
-
-      <div className="mt-5">
-        <EssayList
-          essays={essayArchive.essays}
-          onUpdate={essayArchive.updateEssay}
-          onDelete={essayArchive.deleteEssay}
+      <div className="relative pr-32">
+        <InnerHeader
+          title="ES文章ストック"
+          subTitle="ESSAY ARCHIVE"
+          icon={<FilePenLine className="size-5 text-[var(--accent)]" />}
         />
+
+        <button
+          type="button"
+          onClick={() => setIsReorderDialogOpen(true)}
+          className="absolute right-0 top-0 inline-flex h-9 cursor-pointer items-center gap-2 border border-[var(--line)] bg-[var(--panel)] px-3 text-[10px] font-bold text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          <ArrowUpDown className="size-3.5" />
+          並べ替え
+        </button>
       </div>
+
+      <EssayGroupList
+        groups={essayArchive.groups}
+        essays={essayArchive.essays}
+        onAddGroup={() => setIsGroupDialogOpen(true)}
+        onEditGroup={setEditingGroup}
+        onDeleteGroup={setDeletingGroup}
+      />
 
       <FloatingAddButton
         text="文章を追加"
-        onClick={() => setIsDialogOpen(true)}
+        onClick={() => setIsEssayDialogOpen(true)}
       />
 
-      {isDialogOpen && (
+      {isEssayDialogOpen && (
         <EssayDialog
-          onClose={() => setIsDialogOpen(false)}
+          groups={essayArchive.groups}
+          defaultGroupId={unclassifiedEssayGroupId}
+          onClose={() => setIsEssayDialogOpen(false)}
           onSave={essayArchive.addEssay}
+        />
+      )}
+
+      {isGroupDialogOpen && (
+        <EssayGroupDialog
+          onClose={() => setIsGroupDialogOpen(false)}
+          onSave={essayArchive.addGroup}
+        />
+      )}
+
+      {editingGroup && (
+        <EssayGroupDialog
+          groupName={editingGroup.name}
+          onClose={() => setEditingGroup(null)}
+          onSave={(name) => essayArchive.updateGroup(editingGroup.id, name)}
+        />
+      )}
+
+      {deletingGroup && (
+        <DeleteDialog
+          title={`「${deletingGroup.name}」を削除しますか？`}
+          text="このジャンルに含まれるESは削除されず、「未分類」へ移動します。"
+          onClose={() => setDeletingGroup(null)}
+          onConfirm={() => {
+            essayArchive.deleteGroup(deletingGroup.id);
+            setDeletingGroup(null);
+          }}
+        />
+      )}
+
+      {isReorderDialogOpen && (
+        <EssayGroupReorderDialog
+          groups={essayArchive.groups}
+          onClose={() => setIsReorderDialogOpen(false)}
+          onSave={essayArchive.reorderGroups}
         />
       )}
     </div>

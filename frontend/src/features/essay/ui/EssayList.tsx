@@ -1,38 +1,52 @@
 import {
   Check,
   ChevronDown,
+  Copy,
   FilePenLine,
-  X,
 } from "lucide-react";
-import { useState, type MouseEvent } from "react";
-import type { Essay } from "@/features/essay/model/essay";
+import { useState } from "react";
+import type {
+  Essay,
+  EssayGroup,
+} from "@/features/essay/model/essay";
+import { EssayGroupMoveDialog } from "@/features/essay/ui/EssayGroupMoveDialog";
+import { HighlightedEssayText } from "@/features/essay/ui/HighlightedEssayText";
 import { CompanyBadge } from "@/shared/badge";
 import {
   DeleteIconButton,
   EditIconButton,
+  IconActionButton,
 } from "@/shared/button";
 import { DeleteDialog } from "@/shared/dialog";
+import { Select } from "@/shared/select";
 
-type EssayUpdates = Partial<Pick<Essay, "question" | "answer">>;
+const collapsedAnswerLength = 220;
 
 type EssayListProps = {
   essays: Essay[];
-  onUpdate: (essayId: number, updates: EssayUpdates) => void;
+  groups: EssayGroup[];
+  onEdit: (essay: Essay) => void;
   onDelete: (essayId: number) => void;
+  onGroupChange: (essay: Essay, groupId: string) => void;
+  searchQuery?: string;
 };
 
 type EssayListItemProps = {
   essay: Essay;
-  onUpdate: (essayId: number, updates: EssayUpdates) => void;
+  groups: EssayGroup[];
+  onEdit: (essay: Essay) => void;
   onDelete: (essayId: number) => void;
+  onGroupChange: (essay: Essay, groupId: string) => void;
+  searchQuery: string;
 };
-
-type EditingField = "question" | "answer" | null;
 
 export function EssayList({
   essays,
-  onUpdate,
+  groups,
+  onEdit,
   onDelete,
+  onGroupChange,
+  searchQuery = "",
 }: EssayListProps) {
   if (essays.length === 0) {
     return (
@@ -46,13 +60,16 @@ export function EssayList({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {essays.map((essay) => (
         <EssayListItem
           key={essay.id}
           essay={essay}
-          onUpdate={onUpdate}
+          groups={groups}
+          onEdit={onEdit}
           onDelete={onDelete}
+          onGroupChange={onGroupChange}
+          searchQuery={searchQuery}
         />
       ))}
     </div>
@@ -61,139 +78,140 @@ export function EssayList({
 
 function EssayListItem({
   essay,
-  onUpdate,
+  groups,
+  onEdit,
   onDelete,
+  onGroupChange,
+  searchQuery,
 }: EssayListItemProps) {
-  const [editingField, setEditingField] = useState<EditingField>(null);
-  const [draft, setDraft] = useState("");
+  const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const isLongAnswer = essay.answer.length > collapsedAnswerLength;
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const answerMatchesQuery = Boolean(
+    normalizedQuery
+    && essay.answer.toLocaleLowerCase().includes(normalizedQuery),
+  );
+  const visibleAnswer = isLongAnswer
+    && !isAnswerExpanded
+    && !answerMatchesQuery
+    ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
+    : essay.answer;
+  const currentGroup = groups.find((group) => group.id === essay.groupId);
+  const pendingGroup = groups.find((group) => group.id === pendingGroupId);
 
-  function startEditing(
-    field: Exclude<EditingField, null>,
-    clickEvent: MouseEvent<HTMLButtonElement>,
-  ) {
-    clickEvent.preventDefault();
-    clickEvent.stopPropagation();
-    setEditingField(field);
-    setDraft(essay[field]);
-  }
-
-  function saveEditing(clickEvent: MouseEvent<HTMLButtonElement>) {
-    clickEvent.preventDefault();
-    clickEvent.stopPropagation();
-
-    if (!editingField || !draft.trim()) return;
-
-    onUpdate(essay.id, { [editingField]: draft.trim() });
-    setEditingField(null);
-  }
-
-  function cancelEditing(clickEvent: MouseEvent<HTMLButtonElement>) {
-    clickEvent.preventDefault();
-    clickEvent.stopPropagation();
-    setEditingField(null);
-    setDraft("");
+  async function copyAnswer() {
+    await navigator.clipboard.writeText(essay.answer);
+    setIsCopied(true);
+    window.setTimeout(() => setIsCopied(false), 1600);
   }
 
   return (
     <>
-      <details className="group border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]">
-        <summary className="flex cursor-pointer list-none items-start gap-3 p-4 [&::-webkit-details-marker]:hidden">
+      <article className="border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]">
+        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
           <div className="min-w-0 flex-1">
-            <CompanyBadge
-              company={essay.company}
-              className="inline-block max-w-full px-2"
-            />
-
-            <div className="mt-2 flex items-start gap-2">
-              {editingField === "question" ? (
-                <InlineEditor
-                  value={draft}
-                  rows={2}
-                  ariaLabel="設問を編集"
-                  onChange={setDraft}
-                  onSave={saveEditing}
-                  onCancel={cancelEditing}
-                />
-              ) : (
-                <>
-                  <p className="min-w-0 flex-1 text-sm font-bold leading-6 text-[var(--text-strong)]">
-                    {essay.question}
-                  </p>
-                  <EditIconButton
-                    size="s"
-                    transparent={false}
-                    ariaLabel="設問を編集"
-                    onClick={(event) => startEditing("question", event)}
-                  />
-                </>
-              )}
-            </div>
-
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {essay.traits.map((trait) => (
-                <span
-                  key={trait}
-                  className="border border-[var(--line-strong)] bg-[var(--panel-raised)] px-2 py-0.5 text-[9px] font-semibold text-[var(--muted)]"
-                >
-                  {trait}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <DeleteIconButton
-            size="s"
-            transparent={false}
-            ariaLabel="ESを削除"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setIsDeleteDialogOpen(true);
-            }}
-          />
-
-          <ChevronDown className="mt-1 size-4 shrink-0 text-[var(--faint)] transition-transform group-open:rotate-180" />
-        </summary>
-
-        <div className="border-t border-[var(--line)] px-4 py-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-mono text-[9px] font-bold tracking-[0.16em] text-[var(--accent)]">
-              ANSWER
-            </p>
-
-            {editingField !== "answer" && (
-              <EditIconButton
-                size="s"
-                transparent={false}
-                ariaLabel="回答を編集"
-                onClick={(event) => startEditing("answer", event)}
+            {essay.company && (
+              <CompanyBadge
+                company={essay.company}
+                className="inline-block max-w-full px-2"
               />
             )}
           </div>
 
-          {editingField === "answer" ? (
-            <div className="mt-3">
-              <InlineEditor
-                value={draft}
-                rows={8}
-                ariaLabel="回答を編集"
-                onChange={setDraft}
-                onSave={saveEditing}
-                onCancel={cancelEditing}
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Select
+              value={essay.groupId}
+              options={groups.map((group) => ({
+                value: group.id,
+                label: group.name,
+              }))}
+              onValueChange={(groupId) => {
+                if (groupId !== essay.groupId) setPendingGroupId(groupId);
+              }}
+              aria-label="質問の性質を変更"
+              className="h-7 max-w-40 py-0 text-[10px] font-bold"
+            />
+            <EditIconButton
+              size="s"
+              transparent={false}
+              ariaLabel="ESを編集"
+              onClick={() => onEdit(essay)}
+            />
+            <DeleteIconButton
+              size="s"
+              transparent={false}
+              ariaLabel="ESを削除"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <section className="border-b border-[var(--line)] p-4">
+            <p className="font-mono text-[9px] font-bold tracking-[0.16em] text-[var(--accent)]">
+              QUESTION
+            </p>
+            <p className="mt-2 whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
+              <HighlightedEssayText
+                text={essay.question}
+                query={searchQuery}
+              />
+            </p>
+          </section>
+
+          <section className="p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-mono text-[9px] font-bold tracking-[0.16em] text-[var(--accent)]">
+                ANSWER
+              </p>
+              <IconActionButton
+                icon={isCopied ? Check : Copy}
+                size="s"
+                transparent={false}
+                ariaLabel={isCopied ? "コピーしました" : "回答をコピー"}
+                tooltip={isCopied ? "コピーしました" : "回答をコピー"}
+                onClick={copyAnswer}
+                iconClassName={isCopied ? "size-3 text-emerald-500" : undefined}
               />
             </div>
-          ) : (
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[var(--text)]">
-              {essay.answer}
-            </p>
-          )}
 
-          <p className="mt-4 text-right font-mono text-[9px] text-[var(--faint)]">
-            {(editingField === "answer" ? draft : essay.answer).length} 文字
-          </p>
+            {isLongAnswer && !answerMatchesQuery ? (
+              <button
+                type="button"
+                onClick={() => setIsAnswerExpanded((current) => !current)}
+                className="group/answer mt-2 block w-full cursor-pointer text-left"
+                aria-expanded={isAnswerExpanded}
+              >
+                <span className="block whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
+                  <HighlightedEssayText
+                    text={visibleAnswer}
+                    query={searchQuery}
+                  />
+                </span>
+                <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-[var(--accent)]">
+                  {isAnswerExpanded ? "折りたたむ" : "全文を表示"}
+                  <ChevronDown
+                    className={`size-3.5 transition-transform ${
+                      isAnswerExpanded ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+              </button>
+            ) : (
+              <p className="mt-2 whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
+                <HighlightedEssayText
+                  text={visibleAnswer}
+                  query={searchQuery}
+                />
+              </p>
+            )}
+          </section>
         </div>
-      </details>
+
+      </article>
 
       {isDeleteDialogOpen && (
         <DeleteDialog
@@ -206,61 +224,18 @@ function EssayListItem({
           }}
         />
       )}
+
+      {currentGroup && pendingGroup && (
+        <EssayGroupMoveDialog
+          currentGroupName={currentGroup.name}
+          nextGroupName={pendingGroup.name}
+          onClose={() => setPendingGroupId(null)}
+          onConfirm={() => {
+            onGroupChange(essay, pendingGroup.id);
+            setPendingGroupId(null);
+          }}
+        />
+      )}
     </>
-  );
-}
-
-type InlineEditorProps = {
-  value: string;
-  rows: number;
-  ariaLabel: string;
-  onChange: (value: string) => void;
-  onSave: (event: MouseEvent<HTMLButtonElement>) => void;
-  onCancel: (event: MouseEvent<HTMLButtonElement>) => void;
-};
-
-function InlineEditor({
-  value,
-  rows,
-  ariaLabel,
-  onChange,
-  onSave,
-  onCancel,
-}: InlineEditorProps) {
-  return (
-    <div
-      className="min-w-0 flex-1"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <textarea
-        autoFocus
-        value={value}
-        rows={rows}
-        aria-label={ariaLabel}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full resize-y border border-[var(--accent)] bg-[var(--panel-raised)] p-3 text-sm leading-7 text-[var(--text)] outline-none shadow-[0_0_0_2px_var(--accent-soft)]"
-      />
-
-      <div className="mt-2 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex h-8 cursor-pointer items-center gap-1.5 border border-[var(--line)] px-3 text-[10px] font-semibold text-[var(--muted)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--text-strong)]"
-        >
-          <X className="size-3" />
-          キャンセル
-        </button>
-
-        <button
-          type="button"
-          disabled={!value.trim()}
-          onClick={onSave}
-          className="inline-flex h-8 cursor-pointer items-center gap-1.5 border border-[var(--accent)] bg-[var(--accent)] px-3 text-[10px] font-bold text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <Check className="size-3" />
-          保存
-        </button>
-      </div>
-    </div>
   );
 }
