@@ -100,7 +100,7 @@ export function CompanyDashboard() {
 
       {pendingRemoval && (
         <DeleteDialog
-          title="コンポーネントを削除しますか？"
+          title="ウィジェットを削除しますか？"
           text={`「${widgetLabels[pendingRemoval]}」をこの画面から削除します。`}
           onClose={() => setPendingRemoval(null)}
           onConfirm={confirmRemoval}

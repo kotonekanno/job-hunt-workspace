@@ -49,9 +49,9 @@ export const widgetLabels: Record<WidgetType, string> = {
 export const widgetOrder: WidgetType[] = [
   "documents",
   "basic-info",
-  "memo",
-  "selection",
   "links",
+  "selection",
+  "memo",
   "events",
   "tasks",
 ];

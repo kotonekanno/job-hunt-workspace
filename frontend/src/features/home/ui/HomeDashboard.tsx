@@ -1,7 +1,6 @@
 import {
   Building2,
   CalendarDays,
-  CheckCircle2,
   FilePenLine,
   ListTodo,
 } from "lucide-react";
@@ -10,12 +9,10 @@ import { getEventSortKey } from "@/features/calendar/lib/eventTime";
 import { EventListItem } from "@/features/calendar/ui/EventListItem";
 import { initialCompanyList } from "@/features/companies/model/companyList";
 import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
-import {
-  initialEssayGroups,
-  initialEssays,
-} from "@/features/essay/model/essay";
+import { initialEssays } from "@/features/essay/model/essay";
 import { DashboardCard } from "@/features/home/ui/DashboardCard";
 import { HomeOverviewHeader } from "@/features/home/ui/HomeOverviewHeader";
+import { HomeResourceLinks } from "@/features/home/ui/HomeResourceLinks";
 import { useTasks } from "@/features/task/hooks/useTasks";
 import { initialTasks } from "@/features/task/model/task";
 import { TaskList } from "@/features/task/ui/TaskList";
@@ -129,33 +126,7 @@ export function HomeDashboard() {
           </div>
         </DashboardCard>
 
-        <DashboardCard
-          title="ES文章ストック"
-          label="ESSAY ARCHIVE"
-          to="/essays"
-          linkText="文章を探す"
-        >
-          <div className="flex items-center gap-5">
-            <div className="flex size-20 shrink-0 flex-col items-center justify-center border border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]">
-              <FilePenLine className="size-5" />
-              <span className="mt-1 text-xl font-black">
-                {initialEssays.length}
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-[var(--text-strong)]">
-                蓄積した文章を再利用
-              </p>
-              <p className="mt-1.5 text-[10px] leading-5 text-[var(--muted)]">
-                設問や本文、質問の性質から過去の回答を横断検索できます。
-              </p>
-              <div className="mt-3 flex items-center gap-1.5 text-[9px] font-bold text-emerald-600">
-                <CheckCircle2 className="size-3.5" />
-                {initialEssayGroups.length}ジャンルを登録済み
-              </div>
-            </div>
-          </div>
-        </DashboardCard>
+        <HomeResourceLinks />
       </div>
     </div>
   );

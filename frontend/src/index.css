@@ -319,11 +319,15 @@
   }
 
   .simple-rich-text-editor .simple-editor-toolbar {
-    display: none;
+    visibility: hidden;
   }
 
   .simple-rich-text-editor:focus-within .simple-editor-toolbar {
-    display: block;
+    visibility: visible;
+  }
+
+  .workspace-document-editor .simple-editor-toolbar {
+    visibility: visible;
   }
 
   .documents-accordion-editor,

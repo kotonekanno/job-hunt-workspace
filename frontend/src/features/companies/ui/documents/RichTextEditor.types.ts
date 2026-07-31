@@ -7,4 +7,5 @@ export type RichTextEditorProps = {
   minHeight?: number;
   className?: string;
   searchQuery?: string;
+  staticAppearance?: boolean;
 };

@@ -7,12 +7,14 @@ import {
   EditIconButton,
   OutlineAddButton,
 } from "@/shared/button";
+import { DeleteDialog } from "@/shared/dialog";
 
 type RecordTableRowProps = {
   label: string;
   value: string;
   renderValue: (value: string) => ReactNode;
   onEdit: () => void;
+  onDelete: () => void;
 };
 
 type RecordTableWidgetProps = {
@@ -33,9 +35,10 @@ function RecordTableRow({
   value,
   renderValue,
   onEdit,
+  onDelete,
 }: RecordTableRowProps) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_32px] items-center gap-2 py-3 h-12">
+    <div className="grid h-12 grid-cols-[minmax(0,1fr)_32px_32px] items-center gap-2 py-3">
       <div className="grid min-w-0 gap-1 sm:grid-cols-[120px_minmax(0,1fr)]">
         <dt className="text-xs text-[var(--faint)]">
           {label}
@@ -50,6 +53,13 @@ function RecordTableRow({
         transparent={true}
         onClick={onEdit}
         ariaLabel={`${label}を編集`}
+      />
+
+      <DeleteIconButton
+        size="m"
+        transparent={true}
+        onClick={onDelete}
+        ariaLabel={`${label}を削除`}
       />
     </div>
   );
@@ -69,11 +79,31 @@ export function RecordTableWidget({
 }: RecordTableWidgetProps) {
   const [records, setRecords] = useState(initialRecords);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRecordIndex, setEditingRecordIndex] = useState<number | null>(
+    null,
+  );
+  const [deletingRecordIndex, setDeletingRecordIndex] = useState<number | null>(
+    null,
+  );
+  const editingRecord = editingRecordIndex === null
+    ? undefined
+    : records[editingRecordIndex];
+  const deletingRecord = deletingRecordIndex === null
+    ? undefined
+    : records[deletingRecordIndex];
+
+  function closeRecordDialog() {
+    setIsDialogOpen(false);
+    setEditingRecordIndex(null);
+  }
 
   const addButton = (
     <OutlineAddButton
       text="レコードを追加"
-      onClick={() => setIsDialogOpen(true)}
+      onClick={() => {
+        setEditingRecordIndex(null);
+        setIsDialogOpen(true);
+      }}
     />
   );
 
@@ -87,13 +117,17 @@ export function RecordTableWidget({
         action={addButton}
       >
         <dl className="divide-y divide-[var(--line)] text-sm">
-          {records.map(([label, value]) => (
+          {records.map(([label, value], index) => (
             <RecordTableRow
-              key={`${label}-${value}`}
+              key={`${label}-${value}-${index}`}
               label={label}
               value={value}
               renderValue={renderValue}
-              onEdit={() => {}}
+              onEdit={() => {
+                setEditingRecordIndex(index);
+                setIsDialogOpen(true);
+              }}
+              onDelete={() => setDeletingRecordIndex(index)}
             />
           ))}
         </dl>
@@ -101,15 +135,41 @@ export function RecordTableWidget({
 
       {isDialogOpen && (
         <RecordDialog
-          title={dialogTitle}
+          title={editingRecord
+            ? dialogTitle.replace("追加", "編集")
+            : dialogTitle}
           labelName={labelName}
           valueName={valueName}
           valueType={valueType}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={(label, value) => setRecords((current) => [
-            ...current,
-            [label, value],
-          ])}
+          initialLabel={editingRecord?.[0]}
+          initialValue={editingRecord?.[1]}
+          submitText={editingRecord ? "保存する" : "追加する"}
+          onClose={closeRecordDialog}
+          onSave={(label, value) => setRecords((current) => {
+            if (editingRecordIndex === null) {
+              return [...current, [label, value]];
+            }
+
+            return current.map((record, index) => (
+              index === editingRecordIndex
+                ? [label, value]
+                : record
+            ));
+          })}
+        />
+      )}
+
+      {deletingRecord && (
+        <DeleteDialog
+          title="レコードを削除しますか？"
+          text={`「${deletingRecord[0]}」を削除します。この操作は取り消せません。`}
+          onClose={() => setDeletingRecordIndex(null)}
+          onConfirm={() => {
+            setRecords((current) => current.filter(
+              (_, index) => index !== deletingRecordIndex,
+            ));
+            setDeletingRecordIndex(null);
+          }}
         />
       )}
     </>

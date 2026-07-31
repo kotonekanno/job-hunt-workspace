@@ -26,6 +26,7 @@ export function SimpleRichTextEditor({
   minHeight = 480,
   className = "",
   searchQuery = "",
+  staticAppearance = false,
 }: RichTextEditorProps) {
   const [isLinkEditing, setIsLinkEditing] = useState(false);
   const [linkValue, setLinkValue] = useState("");
@@ -171,8 +172,7 @@ export function SimpleRichTextEditor({
         border border-[var(--line)] bg-[var(--panel)]
         text-[var(--text)] shadow-[0_10px_30px_var(--shadow)]
         transition-[border-color,box-shadow]
-        focus-within:border-[var(--line-strong)]
-        focus-within:shadow-[0_12px_36px_var(--shadow)]
+        ${staticAppearance ? "" : "focus-within:border-[var(--line-strong)] focus-within:shadow-[0_12px_36px_var(--shadow)]"}
         ${disabled ? "opacity-55" : ""}
         ${readOnly ? "tiptap-editor-readonly shadow-none focus-within:border-[var(--line)] focus-within:shadow-none" : ""}
         ${className}

@@ -10,9 +10,9 @@ export function useCompanyDetail() {
   const [widgets, setWidgets] = useState<WidgetType[]>([
     "documents",
     "basic-info",
-    "memo",
-    "selection",
     "links",
+    "selection",
+    "memo",
     "events",
     "tasks",
   ]);

@@ -8,6 +8,9 @@ type RecordDialogProps = {
   valueType?: "text" | "url";
   onClose: () => void;
   onSave: (label: string, value: string) => void;
+  initialLabel?: string;
+  initialValue?: string;
+  submitText?: string;
 };
 
 export function RecordDialog({
@@ -16,10 +19,13 @@ export function RecordDialog({
   valueName,
   valueType,
   onClose,
-  onSave
+  onSave,
+  initialLabel = "",
+  initialValue = "",
+  submitText,
 }: RecordDialogProps) {
-  const [label, setLabel] = useState("");
-  const [value, setValue] = useState("");
+  const [label, setLabel] = useState(initialLabel);
+  const [value, setValue] = useState(initialValue);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +36,7 @@ export function RecordDialog({
   return (
     <EditDialog
       title={title}
+      submitText={submitText}
       onClose={onClose}
       onSubmit={submit}
     >

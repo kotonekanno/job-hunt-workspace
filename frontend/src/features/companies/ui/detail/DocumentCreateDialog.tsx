@@ -8,11 +8,17 @@ import { RequiredMark } from "@/shared/form";
 type DocumentCreateDialogProps = {
   onClose: () => void;
   onCreate: (title: string) => void;
+  dialogTitle?: string;
+  subTitle?: string;
+  placeholder?: string;
 };
 
 export function DocumentCreateDialog({
   onClose,
   onCreate,
+  dialogTitle = "書類を追加",
+  subTitle = "// DOCUMENT_CREATE",
+  placeholder = "例：一次面接対策",
 }: DocumentCreateDialogProps) {
   const [title, setTitle] = useState("");
 
@@ -30,8 +36,8 @@ export function DocumentCreateDialog({
 
   return (
     <EditDialog
-      title="書類を追加"
-      subTitle="// DOCUMENT_CREATE"
+      title={dialogTitle}
+      subTitle={subTitle}
       submitText="追加する"
       onClose={onClose}
       onSubmit={submit}
@@ -46,7 +52,7 @@ export function DocumentCreateDialog({
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none transition-colors focus:border-[var(--accent)]"
-          placeholder="例：一次面接対策"
+          placeholder={placeholder}
         />
       </label>
     </EditDialog>

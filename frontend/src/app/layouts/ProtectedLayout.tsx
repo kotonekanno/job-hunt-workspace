@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   FilePenLine,
   Home,
+  NotebookTabs,
   Settings,
   SlidersHorizontal,
   UserRound,
@@ -25,6 +26,7 @@ const navigationItems = [
   { label: "カレンダー", to: "/calendar", icon: CalendarDays },
   { label: "タスク", to: "/tasks", icon: ClipboardCheck },
   { label: "ES・作文", to: "/essays", icon: FilePenLine },
+  { label: "ドキュメント", to: "/documents", icon: NotebookTabs },
 ];
 
 const settingItems = [
