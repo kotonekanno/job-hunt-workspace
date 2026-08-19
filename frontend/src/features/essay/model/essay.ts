@@ -6,7 +6,7 @@ export type EssayGroup = {
 
 export type Essay = {
   id: number;
-  company: string;
+  company?: string;
   groupId: string;
   question: string;
   answer: string;

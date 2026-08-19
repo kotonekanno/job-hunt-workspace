@@ -20,25 +20,25 @@ export function RelatedTasksWidget() {
 
   const sortedTasks = useMemo(
     () => [...tasks].sort((left, right) => {
-      const completionOrder = Number(left.completed) - Number(right.completed);
+      const completionOrder = Number(left.done) - Number(right.done);
 
       if (completionOrder !== 0) {
         return completionOrder;
       }
 
-      return (left.dueDate ?? "\uffff").localeCompare(
-        right.dueDate ?? "\uffff",
+      return (left.deadline ?? "\uffff").localeCompare(
+        right.deadline ?? "\uffff",
       );
     }),
     [tasks],
   );
 
-  const completedCount = tasks.filter((task) => task.completed).length;
+  const completedCount = tasks.filter((task) => task.done).length;
 
   function toggleTask(id: number) {
     setTasks((current) => current.map((task) =>
       task.id === id
-        ? { ...task, completed: !task.completed }
+        ? { ...task, done: !task.done }
         : task));
   }
 
@@ -76,7 +76,7 @@ export function RelatedTasksWidget() {
         size="s"
         count={completedCount}
         onConfirm={() => setTasks((current) => current.filter(
-          (task) => !task.completed,
+          (task) => !task.done,
         ))}
       />
 

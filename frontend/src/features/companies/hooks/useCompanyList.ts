@@ -15,21 +15,21 @@ export function useCompanyList() {
       .filter((company) => company.name
         .toLowerCase()
         .includes(query.toLowerCase()))
-      .sort((left, right) => left.order - right.order),
+      .sort((left, right) => left.position - right.position),
     [companies, query],
   );
 
-  function addCompany(company: Omit<CompanyListItem, "id" | "order">) {
+  function addCompany(company: Omit<CompanyListItem, "id" | "position">) {
     setCompanies((current) => [
       ...current,
       {
         ...company,
         id: Math.max(0, ...current.map((item) => item.id)) + 1,
-        order: Math.max(
+        position: Math.max(
           0,
           ...current
             .filter((item) => item.priority === company.priority)
-            .map((item) => item.order),
+            .map((item) => item.position),
         ) + 1,
       },
     ]);
@@ -79,7 +79,7 @@ export function useCompanyList() {
         const remainingIds = updatedCompanies
           .filter((company) =>
             company.priority === priority && !orderedIdSet.has(company.id))
-          .sort((left, right) => left.order - right.order)
+          .sort((left, right) => left.position - right.position)
           .map((company) => company.id);
 
         [...orderedIdsInPriority, ...remainingIds].forEach((id, index) => {
@@ -89,7 +89,7 @@ export function useCompanyList() {
 
       return updatedCompanies.map((company) => ({
         ...company,
-        order: orderByCompanyId.get(company.id) ?? company.order,
+        position: orderByCompanyId.get(company.id) ?? company.position,
       }));
     });
   }

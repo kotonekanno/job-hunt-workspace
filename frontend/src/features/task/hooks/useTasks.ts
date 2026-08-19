@@ -12,22 +12,22 @@ export function useTasks() {
 
     return [...filtered].sort((left, right) => {
       const completionOrder =
-        Number(left.completed) - Number(right.completed);
+        Number(left.done) - Number(right.done);
 
       if (completionOrder !== 0) {
         return completionOrder;
       }
 
-      return (left.dueDate ?? "\uffff").localeCompare(
-        right.dueDate ?? "\uffff",
+      return (left.deadline ?? "\uffff").localeCompare(
+        right.deadline ?? "\uffff",
       );
     });
   }, [tasks, companyQuery]);
 
   function toggleTask(id: number) {
     setTasks((current) => current
-      .map((task) => task.id === id ? { ...task, completed: !task.completed } : task)
-      .sort((left, right) => Number(left.completed) - Number(right.completed)));
+      .map((task) => task.id === id ? { ...task, done: !task.done } : task)
+      .sort((left, right) => Number(left.done) - Number(right.done)));
   }
 
   function saveTask(task: Task) {
@@ -47,13 +47,13 @@ export function useTasks() {
   }
 
   function deleteCompletedTasks() {
-    setTasks((current) => current.filter((task) => !task.completed));
+    setTasks((current) => current.filter((task) => !task.done));
   }
 
   return {
     tasks: visibleTasks,
     companyQuery,
-    completedCount: tasks.filter((task) => task.completed).length,
+    completedCount: tasks.filter((task) => task.done).length,
     setCompanyQuery,
     toggleTask,
     saveTask,

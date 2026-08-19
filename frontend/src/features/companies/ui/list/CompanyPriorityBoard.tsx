@@ -133,7 +133,7 @@ export function CompanyPriorityBoard({
         {priorityOrder.flatMap((priority) => {
           const laneCompanies = companies
             .filter((company) => company.priority === priority)
-            .sort((left, right) => left.order - right.order);
+            .sort((left, right) => left.position - right.position);
 
           return [
             <Reorder.Item

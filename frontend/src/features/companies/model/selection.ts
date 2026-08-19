@@ -21,7 +21,7 @@ export type Selection = {
   steps: SelectionStep[];
 };
 
-export type currentSelection = {
+export type CurrentSelection = {
   title: string;
   step: string;
   status: SelectionStatus;
