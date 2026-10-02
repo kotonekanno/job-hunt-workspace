@@ -1,4 +1,4 @@
-import { ArrowUpRight, GripVertical } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,12 +6,16 @@ import type { CompanyListItem } from '@/features/companies/model/companyList';
 import type { SelectionStatus } from '@/features/companies/model/selection';
 import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
 import { DeleteIconButton } from '@/shared/button';
+import { DragHandle } from '@/shared/DragHandle';
+import { cn } from '@/lib/utils';
 
 type CompanyPriorityCardProps = {
   company: CompanyListItem;
   showDelete?: boolean;
   canReorder?: boolean;
   dragValue?: string;
+  onDragSessionStart?: (cancelDrag: () => void) => void;
+  onDragSessionEnd?: () => void;
   onSelectionResultChange?: (
     companyId: number,
     result: SelectionStatus,
@@ -23,6 +27,8 @@ export function CompanyListCard({
   showDelete = true,
   canReorder = false,
   dragValue,
+  onDragSessionStart,
+  onDragSessionEnd,
   onSelectionResultChange,
 }: CompanyPriorityCardProps) {
   const navigate = useNavigate();
@@ -52,10 +58,13 @@ export function CompanyListCard({
       tabIndex={0}
       onClick={openCompany}
       onKeyDown={openCompanyFromKeyboard}
-      className="ui-panel-interactive group cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-1.5 focus-visible:border-[var(--accent)] focus-visible:outline-none hover:border-[var(--line-strong)]"
+      className={cn(
+        'cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] focus-visible:border-[var(--accent)] focus-visible:outline-none',
+        'ui-panel-interactive group hover:border-[var(--line-strong)]',
+      )}
       aria-label={`${company.name}の詳細を開く`}
     >
-      <div className="flex items-center gap-2">
+      <div className={cn('flex min-h-10 items-center gap-2 pl-3', !canReorder && 'pr-3')}>
         <span className="flex size-7 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
           <ArrowUpRight aria-hidden="true" className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </span>
@@ -83,24 +92,17 @@ export function CompanyListCard({
         )}
 
         {canReorder && (
-          <button
-            type="button"
-            data-card-action
+          <DragHandle
+            raised
+            compact
             onPointerDown={(event) => {
               event.preventDefault();
               event.stopPropagation();
               dragControls.start(event);
             }}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            className="flex size-7 shrink-0 touch-none cursor-grab items-center justify-center text-[var(--faint)] transition-colors hover:text-[var(--accent)] active:cursor-grabbing"
-            aria-label={`${company.name}を並べ替えて志望度を変更`}
+            label={`${company.name}を並べ替えて志望度を変更`}
             title="ドラッグして志望度を変更"
-          >
-            <GripVertical className="size-4" />
-          </button>
+          />
         )}
       </div>
     </article>
@@ -115,6 +117,8 @@ export function CompanyListCard({
       value={dragValue}
       dragListener={false}
       dragControls={dragControls}
+      onDragStart={() => onDragSessionStart?.(() => dragControls.cancel())}
+      onDragEnd={onDragSessionEnd}
       layout="position"
       transition={{
         layout: {
@@ -127,7 +131,6 @@ export function CompanyListCard({
       whileDrag={{
         x: 0,
         zIndex: 20,
-        boxShadow: '0 16px 36px var(--shadow)',
       }}
       className="w-full list-none"
     >

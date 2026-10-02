@@ -1,10 +1,13 @@
-import { ArrowUpRight, FileText, GripVertical } from 'lucide-react';
+import { ArrowUpRight, FileText } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import { useState, type PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { WorkspaceDocument } from '@/features/documents/model/document';
 import { DeleteIconButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
+import { DragHandle } from '@/shared/DragHandle';
+import { cn } from '@/lib/utils';
+import { useListDragSession } from '@/shared/useListDragSession';
 
 type DocumentListProps = {
   documents: WorkspaceDocument[];
@@ -15,6 +18,8 @@ type DocumentListProps = {
 type DocumentListItemProps = {
   document: WorkspaceDocument;
   onDelete: (documentId: number) => void;
+  onDragSessionStart: (cancelDrag: () => void) => void;
+  onDragSessionEnd: () => void;
 };
 
 export function DocumentList({
@@ -22,6 +27,7 @@ export function DocumentList({
   onDelete,
   onReorder,
 }: DocumentListProps) {
+  const { isDragSessionActive, startDragSession, endDragSession } = useListDragSession();
   if (documents.length === 0) {
     return (
       <div className="ui-empty-state border border-dashed border-[var(--line-strong)] py-16 text-center">
@@ -38,6 +44,7 @@ export function DocumentList({
       axis="y"
       values={documents}
       onReorder={onReorder}
+      data-drag-session={isDragSessionActive}
       className="space-y-2 p-0"
     >
       {documents.map((document) => (
@@ -45,13 +52,15 @@ export function DocumentList({
           key={document.id}
           document={document}
           onDelete={onDelete}
+          onDragSessionStart={startDragSession}
+          onDragSessionEnd={endDragSession}
         />
       ))}
     </Reorder.Group>
   );
 }
 
-function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
+function DocumentListItem({ document, onDelete, onDragSessionStart, onDragSessionEnd }: DocumentListItemProps) {
   const dragControls = useDragControls();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -66,6 +75,8 @@ function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
         value={document}
         dragListener={false}
         dragControls={dragControls}
+        onDragStart={() => onDragSessionStart(() => dragControls.cancel())}
+        onDragEnd={onDragSessionEnd}
         layout="position"
         transition={{
           layout: {
@@ -80,7 +91,10 @@ function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
           zIndex: 20,
           boxShadow: '0 16px 36px var(--shadow)',
         }}
-        className="ui-panel-interactive group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)] hover:border-[var(--line-strong)]"
+        className={cn(
+          'flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)]',
+          'ui-panel-interactive group hover:border-[var(--line-strong)]',
+        )}
       >
         <Link
           to={`/documents/${document.id}`}
@@ -104,15 +118,11 @@ function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
           />
         </div>
 
-        <button
-          type="button"
+        <DragHandle
           onPointerDown={startDragging}
-          aria-label={`${document.title}を並べ替え`}
+          label={`${document.title}を並べ替え`}
           title="ドラッグして並べ替え"
-          className="flex w-11 shrink-0 touch-none cursor-grab items-center justify-center text-[var(--faint)] transition-colors hover:bg-[var(--panel-raised)] hover:text-[var(--accent)] active:cursor-grabbing"
-        >
-          <GripVertical className="size-4" />
-        </button>
+        />
       </Reorder.Item>
 
       {isDeleteDialogOpen && (

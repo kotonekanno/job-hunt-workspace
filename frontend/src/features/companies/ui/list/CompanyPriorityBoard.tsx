@@ -9,6 +9,7 @@ import {
 } from '@/features/companies/model/companyList';
 import { priorityLabels } from '@/features/companies/model/companyPriorityPresentation';
 import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
+import { useListDragSession } from '@/shared/useListDragSession';
 
 type CompanyPriorityBoardProps = {
   companies: CompanyListItem[];
@@ -64,6 +65,7 @@ export function CompanyPriorityBoard({
   onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
   const priorityOrder = initialPriorityOrder;
+  const { isDragSessionActive, startDragSession, endDragSession } = useListDragSession();
 
   const boardItemIds = useMemo(
     () =>
@@ -117,6 +119,7 @@ export function CompanyPriorityBoard({
         axis="y"
         values={boardItemIds}
         onReorder={reorderBoard}
+        data-drag-session={isDragSessionActive}
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
@@ -165,6 +168,8 @@ export function CompanyPriorityBoard({
                 key={getCompanyItemId(company.id)}
                 company={company}
                 canReorder
+                onDragSessionStart={startDragSession}
+                onDragSessionEnd={endDragSession}
                 dragValue={getCompanyItemId(company.id)}
                 onSelectionResultChange={onSelectionResultChange}
               />
