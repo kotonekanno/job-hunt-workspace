@@ -1,6 +1,5 @@
 import { ChevronDown, GitBranch } from 'lucide-react';
 import { useState } from 'react';
-import { initialSelectionTracks } from '../../model/companyDetail';
 import {
   type SelectionStatus,
   type Selection,
@@ -8,73 +7,44 @@ import {
 import { SelectionStepItem } from '@/features/companies/ui/detail/SelectionStepItem';
 import { SelectionTrackDialog } from '@/features/companies/ui/detail/SelectionTrackDialog';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
-import { AddButton, DeleteIconButton, EditIconButton } from '@/shared/button';
-import { DeleteDialog } from '@/shared/dialog';
+import { AddButton } from '@/shared/button';
+import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
+import { DeleteDialog, EditDialog } from '@/shared/dialog';
+import { SelectionProgressMenu } from '@/features/companies/ui/detail/SelectionProgressMenu';
 
 type SelectionWidgetProps = {
   onRemove: () => void;
+  tracks: Selection[];
+  saveTrack: (track: Selection) => void;
+  removeTrack: (id: number) => void;
+  setActive: (id: number) => void;
+  updateStepResult: (
+    trackId: number,
+    stepId: number,
+    result: SelectionStatus,
+  ) => void;
 };
 
-export function SelectionWidget({ onRemove }: SelectionWidgetProps) {
-  const [tracks, setTracks] = useState(initialSelectionTracks);
+export function SelectionWidget({
+  onRemove,
+  tracks,
+  saveTrack,
+  removeTrack,
+  setActive,
+  updateStepResult,
+}: SelectionWidgetProps) {
   const [editingTrack, setEditingTrack] = useState<Selection>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pendingTrack, setPendingTrack] = useState<Selection>();
-
-  function saveTrack(track: Selection) {
-    const exists = tracks.some((item) => item.id === track.id);
-
-    if (exists) {
-      setTracks((current) =>
-        current.map((item) => (item.id === track.id ? track : item)),
-      );
-      return;
-    }
-
-    setTracks((current) => [...current, track]);
-  }
+  const [pendingActive, setPendingActive] = useState<Selection>();
+  const [expandedIds, setExpandedIds] = useState(() =>
+    tracks.filter((track) => track.isActive).map((track) => track.id),
+  );
+  const activeTrack = tracks.find((track) => track.isActive);
 
   function openEditDialog(track: Selection) {
     setEditingTrack(track);
     setIsDialogOpen(true);
-  }
-
-  function removeTrack(trackId: number) {
-    setTracks((current) => current.filter((track) => track.id !== trackId));
-  }
-
-  function updateStepResult(
-    trackId: number,
-    stepId: number,
-    result: SelectionStatus,
-  ) {
-    setTracks((current) =>
-      current.map((track) =>
-        track.id === trackId
-          ? {
-              ...track,
-              steps: track.steps.map((step) =>
-                step.id === stepId ? { ...step, status: result } : step,
-              ),
-            }
-          : track,
-      ),
-    );
-  }
-
-  function updateStepMemo(trackId: number, stepId: number, memo: string) {
-    setTracks((current) =>
-      current.map((track) =>
-        track.id === trackId
-          ? {
-              ...track,
-              steps: track.steps.map((step) =>
-                step.id === stepId ? { ...step, note: memo } : step,
-              ),
-            }
-          : track,
-      ),
-    );
   }
 
   const addButton = (
@@ -101,40 +71,49 @@ export function SelectionWidget({ onRemove }: SelectionWidgetProps) {
           {tracks.map((track) => (
             <details
               key={track.id}
+              open={expandedIds.includes(track.id)}
+              onToggle={(event) => {
+                const open = event.currentTarget.open;
+                setExpandedIds((current) =>
+                  open
+                    ? current.includes(track.id)
+                      ? current
+                      : [...current, track.id]
+                    : current.includes(track.id)
+                      ? current.filter((id) => id !== track.id)
+                      : current,
+                );
+              }}
               className="group border border-[var(--line)] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]"
             >
               <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-3.5 py-2.5 [&::-webkit-details-marker]:hidden">
+                <SelectionProgressMenu
+                  title={track.title}
+                  isActive={track.isActive}
+                  onChange={() => {
+                    if (!track.isActive && activeTrack) setPendingActive(track);
+                    else setActive(track.id);
+                  }}
+                />
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-black text-[var(--text-strong)]">
+                  <h3 className="truncate text-[15px] font-black text-[var(--text-strong)]">
                     {track.title}
                   </h3>
-                  <p className="mt-0.5 font-mono text-[8px] font-semibold tracking-[0.12em] text-[var(--faint)]">
-                    {track.steps.length} SELECTION STEPS
-                  </p>
+                  {track.isActive && (
+                    <p className="mt-0.5 font-mono text-[9px] font-semibold tracking-widest text-[var(--accent)]">
+                      IN PROGRESS
+                    </p>
+                  )}
                 </div>
 
-                <EditIconButton
-                  size="s"
-                  transparent={false}
-                  ariaLabel={`${track.title}を編集`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openEditDialog(track);
-                  }}
+                <span className="ml-auto shrink-0 font-mono text-xs font-semibold tracking-[0.08em] text-[var(--muted)]">
+                  {track.steps.length} STEPS
+                </span>
+                <EditDeleteMenu
+                  label={track.title}
+                  onEdit={() => openEditDialog(track)}
+                  onDelete={() => setPendingTrack(track)}
                 />
-
-                <DeleteIconButton
-                  size="s"
-                  transparent={false}
-                  ariaLabel={`${track.title}を削除`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setPendingTrack(track);
-                  }}
-                />
-
                 <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
               </summary>
 
@@ -148,11 +127,9 @@ export function SelectionWidget({ onRemove }: SelectionWidgetProps) {
                         trackName={track.title}
                         step={step}
                         index={stepIndex}
+                        isCurrent={track.currentStep === step.id}
                         onResultChange={(result) => {
                           updateStepResult(track.id, step.id, result);
-                        }}
-                        onMemoChange={(memo) => {
-                          updateStepMemo(track.id, step.id, memo);
                         }}
                       />
                     ))}
@@ -169,6 +146,24 @@ export function SelectionWidget({ onRemove }: SelectionWidgetProps) {
           onClose={() => setIsDialogOpen(false)}
           onSave={saveTrack}
         />
+      )}
+
+      {pendingActive && (
+        <EditDialog
+          title="進行中の選考を変更しますか？"
+          submitText="変更する"
+          onClose={() => setPendingActive(undefined)}
+          onSubmit={(event) => {
+            event.preventDefault();
+            setActive(pendingActive.id);
+            setPendingActive(undefined);
+          }}
+        >
+          <p className="text-sm leading-6 text-[var(--text)]">
+            進行中の選考を「{activeTrack?.title}」から「{pendingActive.title}
+            」に変更します。「{activeTrack?.title}」は進行中の選考から外れます。
+          </p>
+        </EditDialog>
       )}
 
       {pendingTrack && (

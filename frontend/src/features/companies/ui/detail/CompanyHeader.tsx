@@ -1,19 +1,24 @@
-import { Check, X } from 'lucide-react';
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { companyProfile } from '@/features/companies/model/companyDetail';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+import type {
+  CurrentSelection,
+  SelectionStatus,
+} from '@/features/companies/model/selection';
 import { EditIconButton } from '@/shared/button';
+import { InlineEditActions } from '@/shared/InlineEditActions';
 import { PriorityBadge } from '../priority-badge';
 import { SelectionStepBadge } from '../selection-step-badge';
 
-export function CompanyHeader() {
+export function CompanyHeader({
+  selection,
+  onResultChange,
+}: {
+  selection?: CurrentSelection;
+  onResultChange: (result: SelectionStatus) => void;
+}) {
   const [companyName, setCompanyName] = useState(companyProfile.name);
   const [draftName, setDraftName] = useState(companyProfile.name);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [selectionResult, setSelectionResult] = useState<SelectionStatus>(
-    companyProfile.selectionResult,
-  );
-
   function startEditingName() {
     setDraftName(companyName);
     setIsEditingName(true);
@@ -62,25 +67,12 @@ export function CompanyHeader() {
               className="min-w-0 flex-1 border-0 border-b border-[var(--accent)] bg-transparent p-0 text-xl font-black text-[var(--text-strong)] outline-none sm:text-2xl"
             />
 
-            <button
-              type="submit"
+            <InlineEditActions
               disabled={!draftName.trim()}
-              className="flex size-8 shrink-0 cursor-pointer items-center justify-center border border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)] disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="企業名を保存"
-              title="保存"
-            >
-              <Check className="size-3.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={cancelEditingName}
-              className="flex size-8 shrink-0 cursor-pointer items-center justify-center border border-[var(--line)] text-[var(--muted)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--text-strong)]"
-              aria-label="企業名の編集をキャンセル"
-              title="キャンセル"
-            >
-              <X className="size-3.5" />
-            </button>
+              saveLabel="企業名を保存"
+              cancelLabel="企業名の編集をキャンセル"
+              onCancel={cancelEditingName}
+            />
           </form>
         ) : (
           <>
@@ -97,13 +89,15 @@ export function CompanyHeader() {
         )}
       </div>
 
-      <SelectionStepBadge
-        title={companyProfile.selectionType}
-        step={companyProfile.selectionStep}
-        result={selectionResult}
-        size="l"
-        onResultChange={setSelectionResult}
-      />
+      {selection && (
+        <SelectionStepBadge
+          title={selection.title}
+          step={selection.step}
+          result={selection.status}
+          size="l"
+          onResultChange={onResultChange}
+        />
+      )}
     </header>
   );
 }

@@ -27,7 +27,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
 
             <Route element={<ProtectedLayout />}>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/home" element={<HomePage />} />
               <Route path="/companies" element={<CompanyListPage />} />
               <Route
                 path="/companies/:companyId"

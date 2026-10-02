@@ -17,6 +17,7 @@ export type Selection = {
   id: number;
   title: string;
   isActive: boolean;
+  currentStep: number;
   steps: SelectionStep[];
 };
 

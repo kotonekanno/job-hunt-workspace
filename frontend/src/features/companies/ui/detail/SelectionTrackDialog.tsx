@@ -51,7 +51,8 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
     props.onSave({
       id: props.track?.id ?? Date.now(),
       title,
-      isActive: props.track?.isActive ?? true,
+      isActive: props.track?.isActive ?? false,
+      currentStep: props.track?.currentStep ?? steps[0].id,
       steps: steps.map((step, index) => ({
         ...step,
         stepNo: index + 1,

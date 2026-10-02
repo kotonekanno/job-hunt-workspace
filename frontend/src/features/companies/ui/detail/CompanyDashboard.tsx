@@ -1,3 +1,5 @@
+import { useSelectionProgress } from '@/features/companies/hooks/useSelectionProgress';
+import { SelectionProgressDialog } from '@/features/companies/ui/detail/SelectionProgressDialog';
 import { useMemo, useState } from 'react';
 import { useCompanyDetail } from '@/features/companies/hooks/useCompanyDetail';
 import {
@@ -20,6 +22,9 @@ const allWidgets: WidgetType[] = widgetOrder;
 
 export function CompanyDashboard() {
   const company = useCompanyDetail();
+  const selection = useSelectionProgress();
+  const active = selection.tracks.find((track) => track.isActive);
+  const current = active?.steps.find((step) => step.id === active.currentStep);
   const [pendingRemoval, setPendingRemoval] = useState<WidgetType | null>(null);
 
   const hiddenWidgets = useMemo(
@@ -58,7 +63,7 @@ export function CompanyDashboard() {
             key={widget}
             className="min-w-0 lg:col-start-1 lg:row-start-3 [&>section]:h-full"
           >
-            <SelectionWidget onRemove={requestRemoval} />
+            <SelectionWidget onRemove={requestRemoval} {...selection} />
           </div>
         );
       case 'activities':
@@ -77,7 +82,28 @@ export function CompanyDashboard() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <CompanyHeader />
+      <CompanyHeader
+        selection={
+          active && current
+            ? {
+                title: active.title,
+                step: current.title,
+                status: current.status,
+              }
+            : undefined
+        }
+        onResultChange={(result) => {
+          if (active && current)
+            selection.updateStepResult(active.id, current.id, result);
+        }}
+      />
+      {selection.pendingChange && (
+        <SelectionProgressDialog
+          {...selection.pendingChange}
+          onClose={selection.cancelChange}
+          onConfirm={selection.confirmChange}
+        />
+      )}
 
       <div className="mt-4">
         <BackLink to="/companies">企業一覧へ戻る</BackLink>

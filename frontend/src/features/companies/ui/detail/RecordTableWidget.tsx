@@ -1,21 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
-import { RecordDialog } from '@/features/companies/ui/detail/RecordDialog';
+import { InlineRecordRow } from '@/features/companies/ui/detail/InlineRecordRow';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
-import {
-  DeleteIconButton,
-  EditIconButton,
-  OutlineAddButton,
-} from '@/shared/button';
+import { OutlineAddButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
-
-type RecordTableRowProps = {
-  label: string;
-  value: string;
-  renderValue: (value: string) => ReactNode;
-  onEdit: () => void;
-  onDelete: () => void;
-};
 
 type RecordTableWidgetProps = {
   title: string;
@@ -30,78 +18,31 @@ type RecordTableWidgetProps = {
   renderValue?: (value: string) => ReactNode;
 };
 
-function RecordTableRow({
-  label,
-  value,
-  renderValue,
-  onEdit,
-  onDelete,
-}: RecordTableRowProps) {
-  return (
-    <div className="grid h-12 grid-cols-[minmax(0,1fr)_32px_32px] items-center gap-2 py-3">
-      <div className="grid min-w-0 gap-1 sm:grid-cols-[120px_minmax(0,1fr)]">
-        <dt className="text-xs text-[var(--faint)]">{label}</dt>
-        <dd className="min-w-0 font-medium text-[var(--text-strong)]">
-          {renderValue(value)}
-        </dd>
-      </div>
-
-      <EditIconButton
-        size="m"
-        transparent={true}
-        onClick={onEdit}
-        ariaLabel={`${label}を編集`}
-      />
-
-      <DeleteIconButton
-        size="m"
-        transparent={true}
-        onClick={onDelete}
-        ariaLabel={`${label}を削除`}
-      />
-    </div>
-  );
-}
+type RecordItem = { id: string; label: string; value: string; isNew?: boolean };
 
 export function RecordTableWidget({
   title,
   code,
   icon,
   initialRecords,
-  dialogTitle,
   labelName,
   valueName,
   onRemove,
-  valueType,
-  renderValue = (value) => value,
+  renderValue,
 }: RecordTableWidgetProps) {
-  const [records, setRecords] = useState(initialRecords);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingRecordIndex, setEditingRecordIndex] = useState<number | null>(
-    null,
+  const [records, setRecords] = useState<RecordItem[]>(() =>
+    initialRecords.map(([label = '', value = ''], index) => ({
+      id: `record-${index}`,
+      label,
+      value,
+    })),
   );
-  const [deletingRecordIndex, setDeletingRecordIndex] = useState<number | null>(
-    null,
-  );
-  const editingRecord =
-    editingRecordIndex === null ? undefined : records[editingRecordIndex];
-  const deletingRecord =
-    deletingRecordIndex === null ? undefined : records[deletingRecordIndex];
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deletingRecord = records.find((record) => record.id === deletingId);
 
-  function closeRecordDialog() {
-    setIsDialogOpen(false);
-    setEditingRecordIndex(null);
+  function removeRecord(id: string) {
+    setRecords((current) => current.filter((record) => record.id !== id));
   }
-
-  const addButton = (
-    <OutlineAddButton
-      text="レコードを追加"
-      onClick={() => {
-        setEditingRecordIndex(null);
-        setIsDialogOpen(true);
-      }}
-    />
-  );
 
   return (
     <>
@@ -110,61 +51,61 @@ export function RecordTableWidget({
         code={code}
         icon={icon}
         onRemove={onRemove}
-        action={addButton}
+        action={
+          <OutlineAddButton
+            text="レコードを追加"
+            onClick={() =>
+              setRecords((current) => [
+                ...current,
+                { id: crypto.randomUUID(), label: '', value: '', isNew: true },
+              ])
+            }
+          />
+        }
       >
-        <dl className="divide-y divide-[var(--line)] text-sm">
-          {records.map(([label, value], index) => (
-            <RecordTableRow
-              key={`${label}-${value}-${index}`}
-              label={label}
-              value={value}
-              renderValue={renderValue}
-              onEdit={() => {
-                setEditingRecordIndex(index);
-                setIsDialogOpen(true);
-              }}
-              onDelete={() => setDeletingRecordIndex(index)}
-            />
-          ))}
-        </dl>
+        <table
+          aria-label={title}
+          className="w-full table-fixed border-collapse"
+        >
+          <colgroup>
+            <col className="w-[30%]" />
+            <col />
+            <col className="w-[72px]" />
+          </colgroup>
+          <tbody>
+            {records.map((record) => (
+              <InlineRecordRow
+                key={record.id}
+                label={record.label}
+                value={record.value}
+                isNew={record.isNew}
+                labelName={labelName}
+                valueName={valueName}
+                renderValue={renderValue}
+                onSave={(label, value) =>
+                  setRecords((current) =>
+                    current.map((item) =>
+                      item.id === record.id
+                        ? { ...item, label, value, isNew: false }
+                        : item,
+                    ),
+                  )
+                }
+                onCancelNew={() => removeRecord(record.id)}
+                onDelete={() => setDeletingId(record.id)}
+              />
+            ))}
+          </tbody>
+        </table>
       </WidgetFrame>
-
-      {isDialogOpen && (
-        <RecordDialog
-          title={
-            editingRecord ? dialogTitle.replace('追加', '編集') : dialogTitle
-          }
-          labelName={labelName}
-          valueName={valueName}
-          valueType={valueType}
-          initialLabel={editingRecord?.[0]}
-          initialValue={editingRecord?.[1]}
-          submitText={editingRecord ? '保存する' : '追加する'}
-          onClose={closeRecordDialog}
-          onSave={(label, value) =>
-            setRecords((current) => {
-              if (editingRecordIndex === null) {
-                return [...current, [label, value]];
-              }
-
-              return current.map((record, index) =>
-                index === editingRecordIndex ? [label, value] : record,
-              );
-            })
-          }
-        />
-      )}
-
       {deletingRecord && (
         <DeleteDialog
           title="レコードを削除しますか？"
-          text={`「${deletingRecord[0]}」を削除します。この操作は取り消せません。`}
-          onClose={() => setDeletingRecordIndex(null)}
+          text={`「${deletingRecord.label}」を削除します。この操作は取り消せません。`}
+          onClose={() => setDeletingId(null)}
           onConfirm={() => {
-            setRecords((current) =>
-              current.filter((_, index) => index !== deletingRecordIndex),
-            );
-            setDeletingRecordIndex(null);
+            removeRecord(deletingRecord.id);
+            setDeletingId(null);
           }}
         />
       )}

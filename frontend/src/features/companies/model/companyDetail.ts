@@ -148,6 +148,7 @@ export const initialSelectionTracks: Selection[] = [
     id: 1,
     title: '本選考',
     isActive: true,
+    currentStep: 4,
     steps: [
       {
         id: 1,
@@ -187,6 +188,7 @@ export const initialSelectionTracks: Selection[] = [
     id: 2,
     title: 'サマーインターン',
     isActive: false,
+    currentStep: 6,
     steps: [
       {
         id: 5,

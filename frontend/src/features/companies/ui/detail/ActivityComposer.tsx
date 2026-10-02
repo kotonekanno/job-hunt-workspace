@@ -1,4 +1,5 @@
-import { Building2, Check, Send, UserRound } from 'lucide-react';
+import { ActivitySenderOptions } from '@/features/companies/ui/detail/ActivitySenderOptions';
+import { Building2, Send, UserRound } from 'lucide-react';
 import { DropdownMenu } from 'radix-ui';
 import { useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import type { ActivitySender } from '@/features/companies/model/activity';
@@ -6,11 +7,6 @@ import type { ActivitySender } from '@/features/companies/model/activity';
 type ActivityComposerProps = {
   onSend: (text: string, sender: ActivitySender) => void;
 };
-
-const senders = [
-  { value: 'user', label: 'ユーザー', icon: UserRound },
-  { value: 'company', label: '企業', icon: Building2 },
-] as const;
 
 export function ActivityComposer({ onSend }: ActivityComposerProps) {
   const [sender, setSender] = useState<ActivitySender>('user');
@@ -87,25 +83,7 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
             sideOffset={8}
             className="ui-floating-surface z-50 min-w-36 p-1"
           >
-            <DropdownMenu.RadioGroup
-              value={sender}
-              onValueChange={(value) => setSender(value as ActivitySender)}
-              aria-label="発信者"
-            >
-              {senders.map(({ value, label, icon: Icon }) => (
-                <DropdownMenu.RadioItem
-                  key={value}
-                  value={value}
-                  className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs text-[var(--text)] outline-none data-[highlighted]:bg-[var(--accent-soft)] data-[highlighted]:text-[var(--accent)]"
-                >
-                  <Icon aria-hidden="true" className="size-4" />
-                  {label}
-                  <DropdownMenu.ItemIndicator className="ml-auto">
-                    <Check aria-hidden="true" className="size-3.5" />
-                  </DropdownMenu.ItemIndicator>
-                </DropdownMenu.RadioItem>
-              ))}
-            </DropdownMenu.RadioGroup>
+            <ActivitySenderOptions sender={sender} onChange={setSender} />
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

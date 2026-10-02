@@ -21,7 +21,7 @@ import type { ProtectedLayoutOutletContext } from '@/app/layouts/MainLayout';
 import { cn } from '@/lib/utils';
 
 const navigationItems = [
-  { label: 'ホーム', to: '/', icon: Home, end: true },
+  { label: 'ホーム', to: '/home', icon: Home, end: true },
   { label: '企業管理', to: '/companies', icon: Building2 },
   { label: 'カレンダー', to: '/calendar', icon: CalendarDays },
   { label: 'タスク', to: '/tasks', icon: ClipboardCheck },

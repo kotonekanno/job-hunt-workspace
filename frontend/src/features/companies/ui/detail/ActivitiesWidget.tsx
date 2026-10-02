@@ -14,6 +14,12 @@ import {
 import { ActivityComposer } from '@/features/companies/ui/detail/ActivityComposer';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { cn } from '@/lib/utils';
+import {
+  ActivityMessageMenu,
+  type ActivityEditField,
+} from '@/features/companies/ui/detail/ActivityMessageMenu';
+import { ActivityEditDialog } from '@/features/companies/ui/detail/ActivityEditDialog';
+import { DeleteDialog } from '@/shared/dialog';
 
 const dateFormatter = new Intl.DateTimeFormat('ja-JP', {
   year: 'numeric',
@@ -30,6 +36,15 @@ export function ActivitiesWidget() {
   const [activities, setActivities] =
     useState<CompanyActivity[]>(initialActivities);
   const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: false });
+  const [editing, setEditing] = useState<{
+    activity: CompanyActivity;
+    field: ActivityEditField;
+  }>();
+  const [deleting, setDeleting] = useState<CompanyActivity>();
+  const orderedActivities = [...activities].sort(
+    (a, b) => Date.parse(a.sentAt) - Date.parse(b.sentAt),
+  );
+  const scrollToEndRef = useRef(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +63,9 @@ export function ActivitiesWidget() {
 
   useLayoutEffect(() => {
     const viewport = scrollRef.current;
-    if (viewport) viewport.scrollTop = viewport.scrollHeight;
+    if (viewport && scrollToEndRef.current)
+      viewport.scrollTop = viewport.scrollHeight;
+    scrollToEndRef.current = false;
     updateScrollEdges();
   }, [activities, updateScrollEdges]);
 
@@ -60,6 +77,7 @@ export function ActivitiesWidget() {
   }, [updateScrollEdges]);
 
   function sendMessage(text: string, sender: ActivitySender) {
+    scrollToEndRef.current = true;
     setActivities((current) => [
       ...current,
       {
@@ -88,15 +106,15 @@ export function ActivitiesWidget() {
             aria-live="polite"
             tabIndex={0}
             onScroll={updateScrollEdges}
-            className="h-full overflow-y-auto overscroll-contain p-3 sm:p-4"
+            className="h-full overflow-y-auto p-3 sm:p-4"
           >
             <div
               ref={contentRef}
               className="flex min-h-full flex-col justify-end gap-4"
             >
-              {activities.map((activity, index) => {
+              {orderedActivities.map((activity, index) => {
                 const date = new Date(activity.sentAt);
-                const previous = activities[index - 1];
+                const previous = orderedActivities[index - 1];
                 const showDate =
                   !previous ||
                   dateFormatter.format(date) !==
@@ -129,16 +147,32 @@ export function ActivitiesWidget() {
                           <Building2 aria-hidden="true" className="size-3.5" />
                         </span>
                       )}
-                      <p
+                      <div
                         className={cn(
-                          'min-w-0 max-w-[70%] whitespace-pre-wrap break-words rounded-xl border px-3 py-2.5 text-xs leading-6 [overflow-wrap:anywhere]',
+                          'flex min-w-0 max-w-[70%] items-start gap-2 rounded-xl border px-3 py-2.5 text-xs leading-6',
                           fromCompany
                             ? 'rounded-tl-none border-[var(--line)] bg-[var(--panel)] text-[var(--text)]'
                             : 'rounded-tr-none border-[var(--line-strong)] bg-[var(--accent-soft)] text-[var(--text-strong)]',
                         )}
                       >
-                        {activity.text}
-                      </p>
+                        <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                          {activity.text}
+                        </p>
+                        <ActivityMessageMenu
+                          sender={activity.sender}
+                          onSenderChange={(sender) =>
+                            setActivities((current) =>
+                              current.map((item) =>
+                                item.id === activity.id
+                                  ? { ...item, sender }
+                                  : item,
+                              ),
+                            )
+                          }
+                          onEdit={(field) => setEditing({ activity, field })}
+                          onDelete={() => setDeleting(activity)}
+                        />
+                      </div>
                       <time
                         dateTime={activity.sentAt}
                         className="shrink-0 pb-1 font-mono text-[9px] text-[var(--faint)]"
@@ -168,6 +202,32 @@ export function ActivitiesWidget() {
         </div>
         <ActivityComposer onSend={sendMessage} />
       </div>
+      {editing && (
+        <ActivityEditDialog
+          {...editing}
+          onClose={() => setEditing(undefined)}
+          onSave={(updated) =>
+            setActivities((current) =>
+              current.map((activity) =>
+                activity.id === updated.id ? updated : activity,
+              ),
+            )
+          }
+        />
+      )}
+      {deleting && (
+        <DeleteDialog
+          title="メッセージを削除しますか？"
+          text={`「${deleting.text}」を削除します。`}
+          onClose={() => setDeleting(undefined)}
+          onConfirm={() => {
+            setActivities((current) =>
+              current.filter((activity) => activity.id !== deleting.id),
+            );
+            setDeleting(undefined);
+          }}
+        />
+      )}
     </WidgetFrame>
   );
 }

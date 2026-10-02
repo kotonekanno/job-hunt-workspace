@@ -1,7 +1,7 @@
 import { ChevronDown, MapPin, Video } from 'lucide-react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
 import { EventDeleteButton } from '@/features/calendar/ui/EventDeleteButton';
-import { EventDetails } from '@/features/calendar/ui/EventDetails';
+import { MemoPanel } from '@/shared/MemoPanel';
 import { EditIconButton } from '@/shared/button';
 
 type EventListItemProps = {
@@ -115,9 +115,7 @@ export function EventListItem({
         <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
       </summary>
 
-      <div className="border-t border-[var(--line)] bg-[var(--panel)] px-4 py-3">
-        <EventDetails event={event} size="m" showHeading={false} />
-      </div>
+      <MemoPanel text={event.note || 'メモはありません'} />
     </details>
   );
 }

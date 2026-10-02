@@ -2,6 +2,7 @@ import { MapPin, Video } from 'lucide-react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
 import { EventDeleteButton } from '@/features/calendar/ui/EventDeleteButton';
 import { EditIconButton } from '@/shared/button';
+import { MemoText } from '@/shared/MemoPanel';
 
 type EventDetailsSize = 's' | 'm';
 
@@ -21,7 +22,6 @@ const sizeStyles = {
     company: 'text-xs',
     title: 'text-[10px]',
     contentGap: 'mt-2.5',
-    memo: 'text-[10px] leading-5',
   },
   m: {
     headingGap: 'gap-2.5',
@@ -29,7 +29,6 @@ const sizeStyles = {
     company: 'text-sm',
     title: 'text-[11px]',
     contentGap: 'mt-3',
-    memo: 'text-[11px] leading-5',
   },
 } satisfies Record<EventDetailsSize, Record<string, string>>;
 
@@ -99,9 +98,7 @@ export function EventDetails({
       )}
 
       <div className={styles.contentGap}>
-        <p className={`text-[var(--text)] ${styles.memo}`}>
-          {event.note || 'メモはありません'}
-        </p>
+        <MemoText text={event.note || 'メモはありません'} />
       </div>
 
       {(onEdit || onDelete) && (

@@ -45,7 +45,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/');
+    navigate('/home');
   };
 
   return (

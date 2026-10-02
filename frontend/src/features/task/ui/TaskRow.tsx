@@ -4,6 +4,7 @@ import type { Task } from '@/features/task/model/task';
 import { CompanyBadge } from '@/shared/badge';
 import { DeleteIconButton, EditIconButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
+import { MemoPanel } from '@/shared/MemoPanel';
 
 type TaskRowProps = {
   task: Task;
@@ -117,11 +118,7 @@ export function TaskRow(props: TaskRowProps) {
           <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
         </summary>
 
-        <div className="border-t border-[var(--line)] bg-[var(--panel-raised)] px-12 py-4">
-          <p className="text-[12px] leading-7 text-[var(--text)]">
-            {props.task.note}
-          </p>
-        </div>
+        <MemoPanel text={props.task.note} />
       </details>
 
       {isDeleteDialogOpen && (

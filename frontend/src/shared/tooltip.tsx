@@ -94,10 +94,9 @@ export function Tooltip({ content, children, side = 'top' }: TooltipProps) {
             }}
             className="
               ui-floating-surface pointer-events-none fixed z-[100]
-              max-w-[min(20rem,calc(100vw-1rem))] animate-in
+              max-w-[min(20rem,calc(100vw-1rem))] animate-none transition-none
               whitespace-nowrap px-2.5 py-1.5 text-[9px] font-bold
-              tracking-wide text-[var(--text-strong)] fade-in zoom-in-95
-              duration-150
+              tracking-wide text-[var(--text-strong)]
             "
           >
             {content}
