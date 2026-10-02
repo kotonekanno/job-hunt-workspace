@@ -23,7 +23,7 @@ export function EssayGroupList({
   onDeleteGroup,
 }: EssayGroupListProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3x">
       {[...groups]
         .sort((left, right) => left.position - right.position)
         .map((group) => {
@@ -35,7 +35,7 @@ export function EssayGroupList({
           return (
             <article
               key={group.id}
-              className="ui-panel-interactive relative min-h-36 overflow-hidden border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)]"
+              className="ui-panel-interactive relative min-h-36 overflow-hidden border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] hover:border-[var(--accent)]"
             >
               <Link
                 to={`/essays/${group.id}`}

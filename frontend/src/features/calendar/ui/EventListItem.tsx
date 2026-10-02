@@ -29,7 +29,7 @@ export function EventListItem({
 
   return (
     <details
-      className={`ui-panel-interactive group border border-[var(--line)] border-l-[3px] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] open:border-[var(--line-strong)] ${getEventEmphasisClassName(event)}`}
+      className={`hover:border-[var(--accent)] ui-panel-interactive group border border-[var(--line)] border-l-[3px] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] open:border-[var(--line-strong)] ${getEventEmphasisClassName(event)}`}
     >
       <summary className="event-list-summary flex min-h-16 cursor-pointer list-none items-center gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
         <div className="event-list-schedule flex w-[112px] shrink-0 items-stretch border-r border-[var(--line)] pr-3">

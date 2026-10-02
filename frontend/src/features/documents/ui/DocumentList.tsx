@@ -80,7 +80,7 @@ function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
           zIndex: 20,
           boxShadow: '0 16px 36px var(--shadow)',
         }}
-        className="ui-panel-interactive group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)]"
+        className="ui-panel-interactive group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)] hover:border-[var(--line-strong)]"
       >
         <Link
           to={`/documents/${document.id}`}

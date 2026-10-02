@@ -52,15 +52,15 @@ export function CompanyListCard({
       tabIndex={0}
       onClick={openCompany}
       onKeyDown={openCompanyFromKeyboard}
-      className="ui-panel-interactive group cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-1.5 focus-visible:border-[var(--accent)] focus-visible:outline-none"
+      className="ui-panel-interactive group cursor-pointer border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-1.5 focus-visible:border-[var(--accent)] focus-visible:outline-none hover:border-[var(--line-strong)]"
       aria-label={`${company.name}の詳細を開く`}
     >
       <div className="flex items-center gap-2">
         <span className="flex size-7 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
-          <ArrowUpRight aria-hidden="true" className="size-4" />
+          <ArrowUpRight aria-hidden="true" className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </span>
 
-        <span className="ml-2 min-w-0 flex-1 truncate text-sm font-bold text-[var(--text-strong)] group-hover:text-[var(--accent)]">
+        <span className="ml-2 min-w-0 flex-1 truncate text-sm font-bold text-[var(--text-strong)]">
           {company.name}
         </span>
 
