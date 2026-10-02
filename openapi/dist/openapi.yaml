@@ -1,0 +1,1945 @@
+openapi: 3.0.4
+info:
+  title: 超・就活管理 API
+  version: 0.1.0
+servers:
+  - description: ローカル開発環境
+    url: http://localhost:8080
+security:
+  - BearerAuth: []
+tags:
+  - description: 企業管理API
+    name: Companies
+  - description: 選考状況API
+    name: Selections
+  - description: カレンダーAPI
+    name: Events
+  - description: タスクAPI
+    name: Tasks
+  - description: ES管理API
+    name: Essays
+  - description: ドキュメントAPI
+    name: Documents
+paths:
+  /companies:
+    get:
+      description: 企業名、志望度、表示順と現在の選考状況を返す。
+      tags:
+        - Companies
+      operationId: getCompanies
+      summary: 企業一覧を取得する
+      responses:
+        '200':
+          description: 企業一覧の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCompaniesResponse'
+    post:
+      description: 企業名と志望度を登録し、作成した企業のIDを返す。
+      tags:
+        - Companies
+      operationId: createCompany
+      summary: 企業を新規作成する
+      requestBody:
+        description: 作成する企業の内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: 企業の新規作成に成功
+          content:
+            application/json:
+              schema:
+                description: リクエストまたはレスポンスのデータ。
+                type: object
+                required:
+                  - companyId
+                properties:
+                  companyId:
+                    description: 作成した企業のID。
+                    type: integer
+                    format: int32
+                example:
+                  companyId: 1
+  /companies/{companyId}:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    get:
+      description: 企業の基本情報、活動履歴、選考、文書、イベント、タスクを返す。
+      tags:
+        - Companies
+      operationId: getCompanyById
+      summary: 指定した企業の詳細を取得する
+      responses:
+        '200':
+          description: 企業詳細の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCompanyResponse'
+    patch:
+      description: 指定した企業の名前または文書を更新する。更新する項目のみ指定する。
+      tags:
+        - Companies
+      operationId: patchCompany
+      summary: 企業情報を更新する
+      requestBody:
+        description: 企業情報の更新内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した企業を削除する。
+      tags:
+        - Companies
+      operationId: DeleteCompanyById
+      summary: 企業を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/priority:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    patch:
+      description: 指定した志望度内の、前後の企業IDで示した位置へ移動する。前後のIDを両方省略した場合は末尾に追加する。
+      tags:
+        - Companies
+      operationId: patchCompanyPriority
+      summary: 企業の志望度と並び順を更新する
+      requestBody:
+        description: 更新内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyPriorityRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/document:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    put:
+      description: 指定した企業のMarkdown形式の文書を置き換える。
+      tags:
+        - Companies
+      operationId: putCompanyDocument
+      summary: 企業文書を更新する
+      requestBody:
+        description: 更新後の企業文書。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentText'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した企業の文書を削除する。
+      tags:
+        - Companies
+      operationId: deleteCompanyDocument
+      summary: 企業文書を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/basic_infos:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    post:
+      description: 指定した企業の基本情報を1項目登録する。
+      tags:
+        - Companies
+      operationId: createCompanyBasicInfo
+      summary: 企業の基本情報を追加する
+      requestBody:
+        description: 登録内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyBasicInfoRequest'
+      responses:
+        '201':
+          description: 作成に成功。
+          content:
+            application/json:
+              schema:
+                description: 作成したリソースの識別情報。
+                type: object
+                required:
+                  - basicInfoId
+                properties:
+                  basicInfoId:
+                    description: 作成した基本情報のID。
+                    type: integer
+                    format: int32
+                example:
+                  basicInfoId: 1
+  /companies/{companyId}/basic_infos/{basicInfoId}:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/BasicInfoId'
+    patch:
+      description: 指定した基本情報の項目名または内容を部分更新する。
+      tags:
+        - Companies
+      operationId: patchCompanyBasicInfo
+      summary: 企業の基本情報を更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyBasicInfoRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した企業の基本情報を1項目削除する。
+      tags:
+        - Companies
+      operationId: deleteCompanyBasicInfo
+      summary: 企業の基本情報を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/activities:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    post:
+      description: 指定した企業とのやり取りを登録する。企業ごとに複数件登録できる。
+      tags:
+        - Companies
+      operationId: createCompanyActivity
+      summary: 企業の活動履歴を追加する
+      requestBody:
+        description: 登録内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyActivityRequest'
+      responses:
+        '201':
+          description: 作成に成功。
+          content:
+            application/json:
+              schema:
+                description: 作成したリソースの識別情報。
+                type: object
+                required:
+                  - activityId
+                properties:
+                  activityId:
+                    description: 作成した活動履歴のID。
+                    type: integer
+                    format: int32
+                example:
+                  activityId: 1
+  /companies/{companyId}/activities/{activityId}:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/ActivityId'
+    patch:
+      description: 指定した活動履歴を部分更新する。
+      tags:
+        - Companies
+      operationId: patchCompanyActivity
+      summary: 企業の活動履歴を更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyActivityRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した企業の活動履歴を1件削除する。
+      tags:
+        - Companies
+      operationId: deleteCompanyActivity
+      summary: 企業の活動履歴を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/selections:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    post:
+      description: 指定した企業の選考と選考ステップを登録する。
+      tags:
+        - Selections
+      operationId: createSelection
+      summary: 企業の選考を作成する
+      requestBody:
+        description: 登録内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSelectionRequest'
+      responses:
+        '201':
+          description: 作成に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSelectionResponse'
+  /companies/{companyId}/selections/{selectionId}:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/SelectionId'
+    patch:
+      description: 指定した選考を部分更新する。省略した項目は変更しない。selectionStepsを指定した場合は、指定された配列で選考ステップ全体を置き換える。
+      tags:
+        - Selections
+      operationId: patchSelection
+      summary: 企業の選考を更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSelectionRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した選考と、その選考に属する選考ステップを削除する。
+      tags:
+        - Selections
+      operationId: deleteSelection
+      summary: 企業の選考を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /companies/{companyId}/widgets:
+    parameters:
+      - $ref: '#/components/parameters/CompanyId'
+    patch:
+      description: 指定したウィジェットの表示・非表示を更新する。
+      tags:
+        - Companies
+      operationId: patchCompanyWidgets
+      summary: 企業のウィジェット表示設定を更新する
+      requestBody:
+        description: 更新するウィジェットの表示設定。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyWidgetRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /events:
+    get:
+      description: 指定した年月のイベント一覧を返す。年月を省略した場合は現在の年月を対象とする。
+      tags:
+        - Events
+      operationId: getEvents
+      summary: 指定した月の予定を取得する
+      parameters:
+        - $ref: '#/components/parameters/EventMonth'
+      responses:
+        '200':
+          description: 取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEventsResponse'
+    post:
+      description: イベントを登録し、作成したイベントのIDを返す。
+      tags:
+        - Events
+      operationId: createEvent
+      summary: イベントを作成する
+      requestBody:
+        description: 登録内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: 作成に成功。
+          content:
+            application/json:
+              schema:
+                description: 作成したリソースの識別情報。
+                type: object
+                required:
+                  - eventId
+                properties:
+                  eventId:
+                    description: 作成したイベントのID。
+                    type: integer
+                    format: int32
+                example:
+                  eventId: 1
+  /events/{eventId}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    patch:
+      description: 指定したイベントを部分更新する。日付や日時の整合性は更新後のイベント全体で確認する。
+      tags:
+        - Events
+      operationId: patchEvent
+      summary: イベントを更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定したイベントを削除する。
+      tags:
+        - Events
+      operationId: deleteEvent
+      summary: イベントを削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /tasks:
+    get:
+      description: 登録されているタスクの一覧を返す。
+      tags:
+        - Tasks
+      operationId: getTasks
+      summary: タスク一覧を取得する
+      responses:
+        '200':
+          description: タスク一覧の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskResponse'
+    post:
+      description: タスクを登録し、作成したタスクのIDを返す。
+      tags:
+        - Tasks
+      operationId: createTask
+      summary: タスクを新規作成する
+      requestBody:
+        description: 作成するタスクの内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: タスクの作成に成功。
+          content:
+            application/json:
+              schema:
+                description: リクエストまたはレスポンスのデータ。
+                type: object
+                required:
+                  - taskId
+                properties:
+                  taskId:
+                    description: 作成したタスクのID。
+                    type: integer
+                    format: int32
+                example:
+                  taskId: 1
+  /tasks/{taskId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+    patch:
+      description: 指定したタスクを部分更新する。
+      tags:
+        - Tasks
+      operationId: patchTask
+      summary: タスクを更新する
+      requestBody:
+        description: 更新内容。
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+        required: true
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定したタスクを削除する。
+      tags:
+        - Tasks
+      operationId: deleteTask
+      summary: タスクを削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /essays:
+    get:
+      description: 設問グループの表示順と、各グループに属するESの件数を返す。
+      tags:
+        - Essays
+      operationId: getEssayGroups
+      summary: ES設問グループ一覧を取得する
+      responses:
+        '200':
+          description: ES設問グループ一覧の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEssayGroupsResponse'
+    post:
+      description: ESの設問グループを登録し、作成したグループのIDを返す。
+      tags:
+        - Essays
+      operationId: createEssayGroup
+      summary: ESグループを作成
+      requestBody:
+        description: 作成する設問グループの内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEssayGroupRequest'
+      responses:
+        '201':
+          description: ES設問グループの作成に成功。
+          content:
+            application/json:
+              schema:
+                description: リクエストまたはレスポンスのデータ。
+                type: object
+                required:
+                  - essayGroupId
+                properties:
+                  essayGroupId:
+                    description: 作成した設問グループのID。
+                    type: integer
+                    format: int32
+                example:
+                  essayGroupId: 1
+  /essays/{essayGroupId}:
+    parameters:
+      - $ref: '#/components/parameters/EssayGroupId'
+    get:
+      description: 指定した設問グループに属するESの設問と回答を返す。
+      tags:
+        - Essays
+      operationId: getEssaysByGroupId
+      summary: ES設問グループの回答一覧を取得する
+      responses:
+        '200':
+          description: ES一覧の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEssaysResponse'
+    post:
+      description: 指定した設問グループにESの設問と回答を登録する。
+      tags:
+        - Essays
+      operationId: createEssay
+      summary: ESを追加する
+      requestBody:
+        description: 登録内容。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEssayRequest'
+      responses:
+        '201':
+          description: 作成に成功。
+          content:
+            application/json:
+              schema:
+                description: 作成したリソースの識別情報。
+                type: object
+                required:
+                  - essayId
+                properties:
+                  essayId:
+                    description: 作成したESのID。
+                    type: integer
+                    format: int32
+                example:
+                  essayId: 1
+    delete:
+      description: 指定した設問グループを削除する。ESが残っているグループはDBの参照制約により削除できない。
+      tags:
+        - Essays
+      operationId: deleteEssayGroup
+      summary: ESグループを削除
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /essays/{essayGroupId}/{essayId}:
+    parameters:
+      - $ref: '#/components/parameters/EssayGroupId'
+      - $ref: '#/components/parameters/EssayId'
+    patch:
+      description: 指定した設問グループのESを部分更新する。
+      tags:
+        - Essays
+      operationId: patchEssay
+      summary: ESを更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEssayRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した設問グループに属するESを削除する。
+      tags:
+        - Essays
+      operationId: deleteEssay
+      summary: ESを削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /documents:
+    get:
+      description: 登録されている文書のID、表示順、タイトルを返す。
+      tags:
+        - Documents
+      operationId: getDocuments
+      summary: 文書一覧を取得する
+      responses:
+        '200':
+          description: 取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDocumentsResponse'
+    post:
+      description: 文書を登録し、作成した文書のIDを返す。
+      tags:
+        - Documents
+      operationId: createDocument
+      summary: 文書を新規作成する
+      requestBody:
+        description: 作成する文書のタイトル。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentRequest'
+      responses:
+        '201':
+          description: 文書の作成に成功。
+          content:
+            application/json:
+              schema:
+                description: リクエストまたはレスポンスのデータ。
+                type: object
+                required:
+                  - documentId
+                properties:
+                  documentId:
+                    description: 作成した文書のID。
+                    type: integer
+                    format: int32
+                example:
+                  documentId: 1
+  /documents/{documentId}:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    get:
+      description: 指定した文書のタイトルと本文を返す。
+      tags:
+        - Documents
+      operationId: getDocumentById
+      summary: 文書を取得する
+      responses:
+        '200':
+          description: 文書の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+    patch:
+      description: 指定した文書のタイトルまたは本文を更新する。更新する項目のみ指定する。
+      tags:
+        - Documents
+      operationId: patchDocument
+      summary: 文書を更新する
+      requestBody:
+        description: 更新する項目のみ指定する。
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+    delete:
+      description: 指定した文書を削除する。
+      tags:
+        - Documents
+      operationId: deleteDocument
+      summary: 文書を削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+components:
+  securitySchemes:
+    BearerAuth:
+      description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。対象の全APIで必須。
+      type: http
+      scheme: bearer
+  schemas:
+    CompanyName:
+      description: 企業名
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: 株式会社サンプル
+    CompanyPriority:
+      description: 志望度。0は未分類、1～5は第1～第5志望、6はアーカイブ。
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 6
+      example: 3
+    SelectionTitle:
+      description: 選考の名称
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: 本選考
+    SelectionStepName:
+      description: 現在の選考ステップ名
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: 最終面接
+    SelectionStatus:
+      description: 選考状況。NOT_STARTEDは未受験、PENDINGは結果待ち、PASSEDは合格、FAILEDは不合格
+      type: string
+      enum:
+        - NOT_STARTED
+        - PENDING
+        - PASSED
+        - FAILED
+      minLength: 6
+      maxLength: 11
+    CurrentSelection:
+      description: 現在の選考状況。該当する選考状況がない場合はnull
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/SelectionTitle'
+        step:
+          $ref: '#/components/schemas/SelectionStepName'
+        status:
+          $ref: '#/components/schemas/SelectionStatus'
+      nullable: true
+      required:
+        - title
+        - step
+        - status
+      example:
+        title: 本選考
+        step: 最終面接
+        status: NOT_STARTED
+    CompanyListItem:
+      description: 企業一覧の1件分の情報
+      type: object
+      properties:
+        id:
+          description: 企業ID
+          type: integer
+          format: int32
+        name:
+          $ref: '#/components/schemas/CompanyName'
+        priority:
+          $ref: '#/components/schemas/CompanyPriority'
+        position:
+          description: 同じ志望度内での表示順
+          type: integer
+          format: int32
+        currentSelection:
+          $ref: '#/components/schemas/CurrentSelection'
+      required:
+        - id
+        - name
+        - priority
+        - position
+        - currentSelection
+      example:
+        id: 1
+        name: 株式会社サンプル
+        priority: 3
+        position: 1000
+        currentSelection:
+          title: 本選考
+          step: 最終面接
+          status: NOT_STARTED
+    GetCompaniesResponse:
+      description: 企業一覧の取得結果
+      type: object
+      properties:
+        companies:
+          description: 企業の一覧。該当する企業がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyListItem'
+      required:
+        - companies
+      example:
+        companies:
+          - id: 1
+            name: 株式会社サンプル
+            priority: 3
+            position: 1000
+            currentSelection:
+              title: 本選考
+              step: 最終面接
+              status: NOT_STARTED
+    CreateCompanyRequest:
+      description: 新規企業の登録内容
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/CompanyName'
+        priority:
+          $ref: '#/components/schemas/CompanyPriority'
+      required:
+        - name
+        - priority
+      example:
+        name: 株式会社サンプル
+        priority: 3
+    BasicInfoTitle:
+      description: 基本情報の項目名
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: 従業員数
+    BasicInfoText:
+      description: 基本情報の内容
+      type: string
+      minLength: 0
+      maxLength: 500
+      example: 200人
+    BasicInfo:
+      description: 企業の基本情報の1項目
+      type: object
+      properties:
+        id:
+          description: 基本情報ID
+          type: integer
+          format: int32
+        title:
+          $ref: '#/components/schemas/BasicInfoTitle'
+        text:
+          $ref: '#/components/schemas/BasicInfoText'
+      required:
+        - id
+        - title
+        - text
+      example:
+        id: 1
+        title: 従業員数
+        text: 200人
+    ActivityText:
+      description: やり取りの内容
+      type: string
+      minLength: 1
+      maxLength: 500
+      example: 説明会の案内を受け取った。
+    Activity:
+      description: 企業とのやり取り履歴の1件分の情報
+      type: object
+      properties:
+        id:
+          description: 活動履歴ID
+          type: integer
+          format: int32
+        occurredAt:
+          description: やり取りが発生した日時
+          type: string
+          format: date-time
+          example: '2026-10-15T10:00:00+09:00'
+        byUser:
+          description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+          type: boolean
+          example: true
+        text:
+          $ref: '#/components/schemas/ActivityText'
+      required:
+        - id
+        - occurredAt
+        - text
+      example:
+        id: 1
+        occurredAt: '2026-10-15T10:00:00+09:00'
+        text: 説明会の案内を受け取った。
+    Selection:
+      description: 企業の選考情報
+      type: object
+      properties:
+        id:
+          description: 選考ID
+          type: integer
+          format: int32
+        title:
+          $ref: '#/components/schemas/SelectionTitle'
+        isActive:
+          description: 進行中の選考の場合はtrue。同じ企業で進行中にできる選考は1件のみ
+          type: boolean
+      required:
+        - id
+        - title
+        - isActive
+      example:
+        id: 1
+        title: 本選考
+        isActive: true
+    DocumentText:
+      description: Markdown形式の文書
+      type: string
+      minLength: 0
+      maxLength: 50000
+      example: 志望動機と自己PRを整理する。
+    NullableCompanyName:
+      description: 関連する企業の名前。企業に紐付かない場合はnull
+      type: string
+      nullable: true
+      minLength: 1
+      maxLength: 50
+      example: 株式会社サンプル
+    EventCategory:
+      description: イベントの種類。SESSIONは説明会、CHATはカジュアル面談、INTERVIEWは面接、INTERNSHIPはインターン、OTHERはその他
+      type: string
+      enum:
+        - SESSION
+        - INTERVIEW
+        - CHAT
+        - INTERNSHIP
+        - OTHER
+      minLength: 4
+      maxLength: 10
+    EventTitle:
+      description: イベント名
+      type: string
+      minLength: 1
+      maxLength: 100
+      example: 企業説明会
+    EventNote:
+      description: イベントの詳細メモ
+      type: string
+      nullable: true
+      minLength: 0
+      maxLength: 2000
+      example: 事前に提出書類を確認する。
+    Event:
+      description: イベント情報。終日予定と時間指定の予定で使用する日付・日時が異なる
+      type: object
+      properties:
+        id:
+          description: イベントID
+          type: integer
+          format: int32
+        companyName:
+          $ref: '#/components/schemas/NullableCompanyName'
+        category:
+          $ref: '#/components/schemas/EventCategory'
+        title:
+          $ref: '#/components/schemas/EventTitle'
+        note:
+          $ref: '#/components/schemas/EventNote'
+        isAllDay:
+          description: 終日予定の場合はtrue
+          type: boolean
+        startDay:
+          description: 終日予定の開始日。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+        endDay:
+          description: 終日予定の終了日。開始日以降または同日の日付。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+        startTime:
+          description: 時間指定の予定の開始日時。終日予定ではnull。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        endTime:
+          description: 時間指定の予定の終了日時。開始日時より後であること。終日予定ではnull。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        isOnline:
+          description: オンライン開催の場合はtrue、オフライン開催の場合はfalse
+          type: boolean
+        isAttending:
+          description: 参加する場合はtrue。SESSION、INTERNSHIP、OTHERで使用し、CHAT、INTERVIEWでは省略またはnull
+          type: boolean
+          nullable: true
+      required:
+        - id
+        - category
+        - title
+        - note
+        - isAllDay
+        - isOnline
+      example:
+        id: 1
+        companyName: 株式会社サンプル
+        category: SESSION
+        title: 企業説明会
+        note: 事前に提出書類を確認する。
+        isAllDay: false
+        startDay: null
+        endDay: null
+        startTime: '2026-10-15T10:00:00+09:00'
+        endTime: '2026-10-15T11:00:00+09:00'
+        isOnline: true
+        isAttending: true
+    TaskTitle:
+      description: タスク概要
+      type: string
+      minLength: 1
+      maxLength: 200
+      example: エントリーシートを提出する
+    TaskNote:
+      description: タスクの詳細メモ
+      type: string
+      nullable: true
+      minLength: 0
+      maxLength: 2000
+      example: 事前に提出書類を確認する。
+    Task:
+      description: タスク情報
+      type: object
+      properties:
+        id:
+          description: タスクID
+          type: integer
+          format: int32
+        companyId:
+          description: 関連する企業のID。企業に紐付かない場合はnull
+          type: integer
+          format: int32
+          nullable: true
+        title:
+          $ref: '#/components/schemas/TaskTitle'
+        note:
+          $ref: '#/components/schemas/TaskNote'
+        deadline:
+          description: 期限。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        done:
+          description: trueの場合は完了、falseの場合は未完了
+          type: boolean
+      required:
+        - id
+        - title
+        - note
+        - deadline
+        - done
+      example:
+        id: 1
+        companyId: 1
+        title: エントリーシートを提出する
+        note: 事前に提出書類を確認する。
+        deadline: '2026-10-15T18:00:00+09:00'
+        done: false
+    GetCompanyResponse:
+      description: 企業の詳細情報
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/CompanyName'
+        currentSelection:
+          $ref: '#/components/schemas/CurrentSelection'
+        WidgetBasicInfo:
+          description: 基本情報ウィジェットの表示／非表示。trueならば表示
+          type: boolean
+        WidgetActivity:
+          description: やりとり履歴ウィジェットの表示／非表示。trueならば表示
+          type: boolean
+        WidgetSelection:
+          description: 選考状況ウィジェットの表示／非表示。trueならば表示
+          type: boolean
+        basicInfos:
+          description: 企業の基本情報。該当する情報がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/BasicInfo'
+        activities:
+          description: 企業とのやり取り履歴。該当する情報がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        selections:
+          description: 企業の選考一覧。該当する情報がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Selection'
+        document:
+          $ref: '#/components/schemas/DocumentText'
+        events:
+          description: 企業に関連するイベントのうち、今日以降のイベント一覧。該当する情報がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        tasks:
+          description: 企業に関連するタスク一覧。該当する情報がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - name
+        - currentSelection
+        - WidgetBasicInfo
+        - WidgetActivity
+        - WidgetSelection
+        - basicInfos
+        - activities
+        - selections
+        - document
+        - events
+        - tasks
+      example:
+        name: 株式会社サンプル
+        currentSelection:
+          title: 本選考
+          step: 最終面接
+          status: NOT_STARTED
+        WidgetBasicInfo: true
+        WidgetActivity: true
+        WidgetSelection: true
+        basicInfos:
+          - id: 1
+            title: 従業員数
+            text: 200人
+        activities:
+          - id: 1
+            occurredAt: '2026-10-15T10:00:00+09:00'
+            text: 説明会の案内を受け取った。
+        selections:
+          - id: 1
+            title: 本選考
+            isActive: true
+        document: |-
+          # 企業研究
+          事業内容と志望理由を整理する。
+        events:
+          - id: 1
+            companyName: 株式会社サンプル
+            category: SESSION
+            title: 企業説明会
+            note: 事前に提出書類を確認する。
+            isAllDay: false
+            startDay: null
+            endDay: null
+            startTime: '2026-10-15T10:00:00+09:00'
+            endTime: '2026-10-15T11:00:00+09:00'
+            isOnline: true
+            isAttending: true
+        tasks:
+          - id: 1
+            companyId: 1
+            title: エントリーシートを提出する
+            note: 事前に提出書類を確認する。
+            deadline: '2026-10-15T18:00:00+09:00'
+            done: false
+    UpdateCompanyRequest:
+      description: 企業の更新内容。更新する項目のみ指定する
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/CompanyName'
+        document:
+          $ref: '#/components/schemas/DocumentText'
+      example:
+        name: 株式会社サンプル
+        document: |-
+          # 企業研究
+          事業内容と志望理由を整理する。
+    UpdateCompanyPriorityRequest:
+      description: 企業の志望度と並び順の更新内容。previousCompanyIdとnextCompanyIdを両方省略した場合は、指定した志望度の末尾に追加する
+      type: object
+      properties:
+        priority:
+          $ref: '#/components/schemas/CompanyPriority'
+        previousCompanyId:
+          description: 移動後に直前となる企業のID。先頭に置く場合はnull
+          type: integer
+          format: int32
+          nullable: true
+        nextCompanyId:
+          description: 移動後に直後となる企業のID。末尾に置く場合はnull
+          type: integer
+          format: int32
+          nullable: true
+      required:
+        - priority
+      example:
+        priority: 3
+        previousCompanyId: 1
+        nextCompanyId: 2
+    CreateCompanyBasicInfoRequest:
+      description: 企業の基本情報の登録内容
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/BasicInfoTitle'
+        text:
+          $ref: '#/components/schemas/BasicInfoText'
+      required:
+        - title
+        - text
+      example:
+        title: 従業員数
+        text: 200人
+    UpdateCompanyBasicInfoRequest:
+      description: 企業の基本情報の部分更新内容。省略した項目は変更しない
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/BasicInfoTitle'
+        text:
+          $ref: '#/components/schemas/BasicInfoText'
+    CreateCompanyActivityRequest:
+      description: 企業とのやり取り履歴の登録内容
+      type: object
+      properties:
+        occurredAt:
+          description: やり取りが発生した日時。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+        byUser:
+          description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+          type: boolean
+          example: true
+        text:
+          $ref: '#/components/schemas/ActivityText'
+      required:
+        - occurredAt
+        - byUser
+        - text
+      example:
+        occurredAt: '2026-10-15T10:00:00+09:00'
+        byUser: true
+        text: 説明会の案内を受け取った。
+    UpdateCompanyActivityRequest:
+      description: 企業とのやり取り履歴の部分更新内容。省略した項目は変更しない
+      type: object
+      properties:
+        occurredAt:
+          description: やり取りが発生した日時。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          example: '2026-10-15T10:00:00+09:00'
+        byUser:
+          description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+          type: boolean
+          example: true
+        text:
+          $ref: '#/components/schemas/ActivityText'
+      example:
+        occurredAt: '2026-10-15T10:00:00+09:00'
+        byUser: true
+        text: 説明会の案内を受け取った。
+    SelectionStepNo:
+      description: 選考ステップの順序。同じ選考内で一意
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 50
+    SelectionStepNote:
+      description: 選考ステップの詳細メモ
+      type: string
+      nullable: true
+      minLength: 0
+      maxLength: 2000
+      example: 事前に提出書類を確認する。
+    CreateSelectionStepRequest:
+      description: 選考ステップの登録内容
+      type: object
+      properties:
+        stepNo:
+          $ref: '#/components/schemas/SelectionStepNo'
+        name:
+          $ref: '#/components/schemas/SelectionStepName'
+        heldAt:
+          description: 開催日時。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        note:
+          $ref: '#/components/schemas/SelectionStepNote'
+        status:
+          description: 選考状況。省略時はNOT_STARTED
+          allOf:
+            - $ref: '#/components/schemas/SelectionStatus'
+          default: NOT_STARTED
+      required:
+        - stepNo
+        - name
+      example:
+        stepNo: 1
+        name: 一次面接
+        heldAt: '2026-10-15T10:00:00+09:00'
+        note: 事前に提出書類を確認する。
+        status: NOT_STARTED
+    CreateSelectionRequest:
+      description: 選考と選考ステップの登録内容
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/SelectionTitle'
+        selectionSteps:
+          description: 登録する選考ステップ
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSelectionStepRequest'
+      required:
+        - title
+        - selectionSteps
+      example:
+        title: 本選考
+        selectionSteps:
+          - stepNo: 1
+            name: 一次面接
+            heldAt: '2026-10-15T10:00:00+09:00'
+            note: 事前に提出書類を確認する。
+            status: NOT_STARTED
+    CreateSelectionStepResponse:
+      description: 作成した選考ステップの識別情報。selectionIdとstepNoの組でステップを特定する
+      type: object
+      properties:
+        selectionId:
+          description: 選考ID
+          type: integer
+          format: int32
+          example: 1
+        stepNo:
+          $ref: '#/components/schemas/SelectionStepNo'
+      required:
+        - selectionId
+        - stepNo
+      example:
+        selectionId: 1
+        stepNo: 1
+    CreateSelectionResponse:
+      description: 選考の作成結果
+      type: object
+      properties:
+        selectionId:
+          description: 作成した選考のID
+          type: integer
+          format: int32
+        isActive:
+          description: 作成した選考が進行中の場合はtrue
+          type: boolean
+        selectionSteps:
+          description: 作成した選考ステップの識別情報
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSelectionStepResponse'
+      required:
+        - selectionId
+        - isActive
+        - selectionSteps
+      example:
+        selectionId: 1
+        isActive: true
+        selectionSteps:
+          - selectionId: 1
+            stepNo: 1
+    UpdateSelectionRequest:
+      description: 選考の部分更新内容。省略した項目は変更しない
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/SelectionTitle'
+        selectionSteps:
+          description: 指定した配列で選考ステップ全体を置き換える。各要素は作成時と同じ形式。空配列の場合は全ステップを削除し、項目を省略した場合は変更しない。stepNoは同じ選考内で一意
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateSelectionStepRequest'
+    UpdateCompanyWidgetRequest:
+      description: 企業詳細画面のウィジェット表示設定。更新する項目のみ指定する
+      type: object
+      properties:
+        basicInfo:
+          description: trueの場合は基本情報ウィジェットを表示する
+          type: boolean
+          example: true
+        activity:
+          description: trueの場合は活動履歴ウィジェットを表示する
+          type: boolean
+          example: true
+        selection:
+          description: trueの場合は選考状況ウィジェットを表示する
+          type: boolean
+          example: true
+    GetEventsResponse:
+      description: 指定した月のイベント一覧の取得結果
+      type: object
+      properties:
+        events:
+          description: イベントの一覧。該当するイベントがない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      required:
+        - events
+      example:
+        events:
+          - id: 1
+            companyName: 株式会社サンプル
+            category: SESSION
+            title: 企業説明会
+            note: 事前に提出書類を確認する。
+            isAllDay: false
+            startDay: null
+            endDay: null
+            startTime: '2026-10-15T10:00:00+09:00'
+            endTime: '2026-10-15T11:00:00+09:00'
+            isOnline: true
+            isAttending: true
+    CreateEventRequest:
+      description: イベントの登録内容。終了日は開始日以降、終了日時は開始日時より後とする
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID
+          type: integer
+          format: int32
+          nullable: true
+        category:
+          $ref: '#/components/schemas/EventCategory'
+        title:
+          $ref: '#/components/schemas/EventTitle'
+        note:
+          $ref: '#/components/schemas/EventNote'
+        isAllDay:
+          description: 終日予定の場合はtrue
+          type: boolean
+        startDay:
+          description: 終日予定の開始日。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+        endDay:
+          description: 終日予定の終了日。開始日以降の日付。同日の指定も可能。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+        startTime:
+          description: 時間指定の予定の開始日時。終日予定ではnull。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        endTime:
+          description: 時間指定の予定の終了日時。開始日時より後であること。終日予定ではnull。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+        isOnline:
+          description: オンライン開催の場合はtrue、オフライン開催の場合はfalse
+          type: boolean
+        isAttending:
+          description: 参加する場合はtrue。SESSION、INTERNSHIP、OTHERで使用し、CHAT、INTERVIEWでは省略またはnull。使用する種類で省略した場合はtrue
+          type: boolean
+          nullable: true
+      required:
+        - title
+        - category
+        - isAllDay
+        - isOnline
+    UpdateEventRequest:
+      description: イベントの部分更新内容。更新後のイベントは、終日ならstartDayとendDay、時間指定ならstartTimeとendTimeが必要。使用しない日付・日時はnullにする。終了日は開始日以降、終了日時は開始日時より後とする。 省略した項目は変更しない。
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID
+          type: integer
+          format: int32
+          nullable: true
+          example: 1
+        category:
+          $ref: '#/components/schemas/EventCategory'
+        title:
+          $ref: '#/components/schemas/EventTitle'
+        note:
+          $ref: '#/components/schemas/EventNote'
+        isAllDay:
+          description: 終日予定の場合はtrue。trueではstartDayとendDay、falseではstartTimeとendTimeを使用する
+          type: boolean
+          example: false
+        startDay:
+          description: 終日予定の開始日。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+          example: '2026-10-15'
+        endDay:
+          description: 終日予定の終了日。開始日以降の日付。同日の指定も可能。時間指定の予定ではnull
+          type: string
+          format: date
+          nullable: true
+          example: '2026-10-15'
+        startTime:
+          description: 時間指定の予定の開始日時。終日予定ではnull。 タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-10-15T10:00:00+09:00'
+        endTime:
+          description: 時間指定の予定の終了日時。開始日時より後であること。終日予定ではnull。 タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-10-15T11:00:00+09:00'
+        isOnline:
+          description: オンライン開催の場合はtrue、オフライン開催の場合はfalse
+          type: boolean
+          example: true
+        isAttending:
+          description: 参加する場合はtrue。SESSION、INTERNSHIP、OTHERで使用し、CHAT、INTERVIEWでは省略またはnull
+          type: boolean
+          nullable: true
+          example: true
+    GetTaskResponse:
+      description: タスク一覧の取得結果
+      type: object
+      properties:
+        tasks:
+          description: タスクの一覧。該当するタスクがない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - tasks
+      example:
+        tasks:
+          - id: 1
+            companyId: 1
+            title: エントリーシートを提出する
+            note: 事前に提出書類を確認する。
+            deadline: '2026-10-15T18:00:00+09:00'
+            done: false
+    CreateTaskRequest:
+      description: 新規タスクの登録内容
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID
+          type: integer
+          format: int32
+          nullable: true
+        title:
+          $ref: '#/components/schemas/TaskTitle'
+        note:
+          $ref: '#/components/schemas/TaskNote'
+        deadline:
+          description: 期限。タイムゾーン情報を含む日時
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - title
+        - deadline
+      example:
+        companyId: 1
+        title: エントリーシートを提出する
+        note: 事前に提出書類を確認する。
+        deadline: '2026-10-15T10:00:00+09:00'
+    UpdateTaskRequest:
+      description: タスクの更新内容。更新する項目のみ指定する
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID。nullを指定すると企業との紐付けを解除する
+          type: integer
+          format: int32
+          nullable: true
+          example: 1
+        title:
+          $ref: '#/components/schemas/TaskTitle'
+        note:
+          $ref: '#/components/schemas/TaskNote'
+        deadline:
+          description: 期限。タイムゾーン情報を含む日時。nullを指定すると期限を解除する。
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-10-15T10:00:00+09:00'
+        done:
+          description: trueの場合は完了、falseの場合は未完了
+          type: boolean
+          example: false
+    EssayGroupName:
+      description: 設問グループ名
+      type: string
+      minLength: 1
+      maxLength: 50
+    EssayGroupListItem:
+      description: ES設問グループ一覧の1件分の情報
+      type: object
+      properties:
+        id:
+          description: 設問グループID
+          type: integer
+          format: int32
+        position:
+          description: 設問グループの表示順
+          type: integer
+          format: int32
+        name:
+          $ref: '#/components/schemas/EssayGroupName'
+        quantity:
+          description: グループに属するESの件数
+          type: integer
+          minimum: 0
+      required:
+        - id
+        - position
+        - name
+        - quantity
+      example:
+        id: 1
+        position: 1000
+        name: 学生時代に力を入れたこと
+        quantity: 1
+    GetEssayGroupsResponse:
+      description: ES設問グループ一覧の取得結果
+      type: object
+      properties:
+        essayGroups:
+          description: 設問グループの一覧。該当するグループがない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/EssayGroupListItem'
+      required:
+        - essayGroups
+      example:
+        essayGroups:
+          - id: 1
+            position: 1000
+            name: 学生時代に力を入れたこと
+            quantity: 1
+    CreateEssayGroupRequest:
+      description: 新規ES設問グループの登録内容
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/EssayGroupName'
+      required:
+        - name
+      example:
+        name: 学生時代に力を入れたこと
+    EssayQuestion:
+      description: ESの設問
+      type: string
+      minLength: 1
+      maxLength: 1000
+      example: 学生時代に力を入れたことを教えてください。
+    EssayAnswer:
+      description: 設問に対する回答
+      type: string
+      minLength: 0
+      maxLength: 5000
+      example: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
+    Essay:
+      description: ESの設問と回答
+      type: object
+      properties:
+        id:
+          description: ESのID
+          type: integer
+          format: int32
+          example: 1
+        companyName:
+          $ref: '#/components/schemas/NullableCompanyName'
+        question:
+          $ref: '#/components/schemas/EssayQuestion'
+        answer:
+          $ref: '#/components/schemas/EssayAnswer'
+      required:
+        - id
+        - question
+        - answer
+      example:
+        id: 1
+        companyName: サンプル株式会社
+        question: 学生時代に力を入れたことを教えてください。
+        answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
+    GetEssaysResponse:
+      description: 指定した設問グループのES一覧の取得結果
+      type: object
+      properties:
+        essays:
+          description: 設問グループに属するESの一覧。該当するESがない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/Essay'
+      required:
+        - essays
+      example:
+        essays:
+          - id: 1
+            companyName: 株式会社サンプル
+            question: 学生時代に力を入れたことを教えてください。
+            answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
+    CreateEssayRequest:
+      description: ESの設問と回答の登録内容
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID
+          type: integer
+          format: int32
+          nullable: true
+        question:
+          $ref: '#/components/schemas/EssayQuestion'
+        answer:
+          $ref: '#/components/schemas/EssayAnswer'
+      required:
+        - question
+        - answer
+      example:
+        companyId: 1
+        question: 学生時代に力を入れたことを教えてください。
+        answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
+    UpdateEssayRequest:
+      description: ESの設問と回答の部分更新内容。省略した項目は変更しない
+      type: object
+      properties:
+        companyId:
+          description: 関連する企業のID
+          type: integer
+          format: int32
+          nullable: true
+        question:
+          $ref: '#/components/schemas/EssayQuestion'
+        answer:
+          $ref: '#/components/schemas/EssayAnswer'
+    DocumentTitle:
+      description: 文書のタイトル
+      type: string
+      minLength: 1
+      maxLength: 50
+      example: 面接対策
+    DocumentListItem:
+      description: 文書一覧の1件分の情報
+      type: object
+      properties:
+        id:
+          description: 文書ID
+          type: integer
+          format: int32
+        position:
+          description: 文書の表示順
+          type: integer
+          format: int32
+        title:
+          $ref: '#/components/schemas/DocumentTitle'
+      required:
+        - id
+        - position
+        - title
+      example:
+        id: 1
+        position: 1000
+        title: 面接対策
+    GetDocumentsResponse:
+      description: 文書一覧の取得結果
+      type: object
+      required:
+        - documents
+      properties:
+        documents:
+          description: 文書の一覧。該当する文書がない場合は空配列
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentListItem'
+      example:
+        documents:
+          - id: 1
+            position: 1000
+            title: 面接対策
+    CreateDocumentRequest:
+      description: 新規文書の登録内容
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          $ref: '#/components/schemas/DocumentTitle'
+      example:
+        title: 面接対策
+    Document:
+      description: 文書の内容
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/DocumentTitle'
+        text:
+          $ref: '#/components/schemas/DocumentText'
+      required:
+        - title
+        - text
+      example:
+        title: 面接対策
+        text: 志望動機と自己PRを整理する。
+    UpdateDocumentRequest:
+      description: 文書の部分更新内容。省略した項目は変更しない
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/DocumentTitle'
+        text:
+          $ref: '#/components/schemas/DocumentText'
+  parameters:
+    CompanyId:
+      description: 企業ID
+      name: companyId
+      in: path
+      required: true
+      schema:
+        description: 企業ID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    BasicInfoId:
+      description: 基本情報ID
+      name: basicInfoId
+      in: path
+      required: true
+      schema:
+        description: 基本情報ID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    ActivityId:
+      description: 活動履歴ID
+      name: activityId
+      in: path
+      required: true
+      schema:
+        description: 活動履歴ID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    SelectionId:
+      description: 選考ID
+      name: selectionId
+      in: path
+      required: true
+      schema:
+        description: 選考ID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    EventMonth:
+      description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
+      name: month
+      in: query
+      required: false
+      schema:
+        description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
+        type: string
+        pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
+        minLength: 7
+        maxLength: 7
+        example: 2026-10
+      example: 2026-10
+    EventId:
+      description: イベントID
+      name: eventId
+      in: path
+      required: true
+      schema:
+        description: イベントID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    TaskId:
+      description: タスクID
+      name: taskId
+      in: path
+      required: true
+      schema:
+        description: タスクID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    EssayGroupId:
+      description: ESグループID
+      name: essayGroupId
+      in: path
+      required: true
+      schema:
+        description: ESグループID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    EssayId:
+      description: ESのID
+      name: essayId
+      in: path
+      required: true
+      schema:
+        description: ESのID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+    DocumentId:
+      description: 文書ID
+      name: documentId
+      in: path
+      required: true
+      schema:
+        description: 文書ID
+        type: integer
+        format: int32
+        example: 1
+      example: 1
+  responses:
+    NoContent:
+      description: 処理に成功。レスポンスボディは返さない

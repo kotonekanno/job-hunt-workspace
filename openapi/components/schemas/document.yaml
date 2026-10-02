@@ -1,0 +1,102 @@
+# ====================
+# Value Types
+# ====================
+
+DocumentTitle:
+  description: 文書のタイトル
+  type: string
+  minLength: 1
+  maxLength: 50
+  example: 面接対策
+
+DocumentText:
+  description: Markdown形式の文書
+  type: string
+  minLength: 0
+  maxLength: 50000
+  example: 志望動機と自己PRを整理する。
+
+
+# ====================
+# Models
+# ====================
+
+DocumentListItem:
+  description: 文書一覧の1件分の情報
+  type: object
+  properties:
+    id:
+      description: 文書ID
+      type: integer
+      format: int32
+    position:
+      description: 文書の表示順
+      type: integer
+      format: int32
+    title:
+      $ref: '#/DocumentTitle'
+  required:
+    - id
+    - position
+    - title
+  example:
+    id: 1
+    position: 1000
+    title: 面接対策
+
+Document:
+  description: 文書の内容
+  type: object
+  properties:
+    title:
+      $ref: '#/DocumentTitle'
+    text:
+      $ref: '#/DocumentText'
+  required:
+    - title
+    - text
+  example:
+    title: 面接対策
+    text: 志望動機と自己PRを整理する。
+
+
+# ====================
+# Request / Response
+# ====================
+
+GetDocumentsResponse:
+  description: 文書一覧の取得結果
+  type: object
+  required:
+    - documents
+  properties:
+    documents:
+      description: 文書の一覧。該当する文書がない場合は空配列
+      type: array
+      items:
+        $ref: '#/DocumentListItem'
+  example:
+    documents:
+      - id: 1
+        position: 1000
+        title: 面接対策
+
+CreateDocumentRequest:
+  description: 新規文書の登録内容
+  type: object
+  required:
+    - title
+  properties:
+    title:
+      $ref: '#/DocumentTitle'
+  example:
+    title: 面接対策
+
+UpdateDocumentRequest:
+  description: 文書の部分更新内容。省略した項目は変更しない
+  type: object
+  properties:
+    title:
+      $ref: '#/DocumentTitle'
+    text:
+      $ref: '#/DocumentText'

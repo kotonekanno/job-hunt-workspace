@@ -1,0 +1,75 @@
+openapi: 3.0.4
+
+info:
+  title: 超・就活管理 API
+  version: 0.1.0
+
+servers:
+  - description: ローカル開発環境
+    url: http://localhost:8080
+
+security:
+  - BearerAuth: []
+
+tags:
+  - description: 企業管理API
+    name: Companies
+  - description: 選考状況API
+    name: Selections
+  - description: カレンダーAPI
+    name: Events
+  - description: タスクAPI
+    name: Tasks
+  - description: ES管理API
+    name: Essays
+  - description: ドキュメントAPI
+    name: Documents
+
+paths:
+  /companies:
+    $ref: ./paths/companies.yaml
+  /companies/{companyId}:
+    $ref: ./paths/companies_by_id.yaml
+  /companies/{companyId}/priority:
+    $ref: ./paths/companies_priority.yaml
+  /companies/{companyId}/document:
+    $ref: ./paths/companies_document.yaml
+  /companies/{companyId}/basic_infos:
+    $ref: ./paths/companies_basic_infos.yaml
+  /companies/{companyId}/basic_infos/{basicInfoId}:
+    $ref: ./paths/companies_basic_infos_by_id.yaml
+  /companies/{companyId}/activities:
+    $ref: ./paths/companies_activities.yaml
+  /companies/{companyId}/activities/{activityId}:
+    $ref: ./paths/companies_activities_by_id.yaml
+  /companies/{companyId}/selections:
+    $ref: ./paths/companies_selections.yaml
+  /companies/{companyId}/selections/{selectionId}:
+    $ref: ./paths/companies_selections_by_id.yaml
+  /companies/{companyId}/widgets:
+    $ref: ./paths/companies_widgets.yaml
+  /events:
+    $ref: ./paths/events.yaml
+  /events/{eventId}:
+    $ref: ./paths/events_by_id.yaml
+  /tasks:
+    $ref: ./paths/tasks.yaml
+  /tasks/{taskId}:
+    $ref: ./paths/tasks_by_id.yaml
+  /essays:
+    $ref: ./paths/essays.yaml
+  /essays/{essayGroupId}:
+    $ref: ./paths/essays_by_group_id.yaml
+  /essays/{essayGroupId}/{essayId}:
+    $ref: ./paths/essays_group_by_id.yaml
+  /documents:
+    $ref: ./paths/documents.yaml
+  /documents/{documentId}:
+    $ref: ./paths/documents_by_id.yaml
+
+components:
+  securitySchemes:
+    BearerAuth:
+      description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。対象の全APIで必須。
+      type: http
+      scheme: bearer

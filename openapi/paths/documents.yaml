@@ -1,0 +1,44 @@
+get:
+  description: 登録されている文書のID、表示順、タイトルを返す。
+  tags:
+    - Documents
+  operationId: getDocuments
+  summary: 文書一覧を取得する
+  responses:
+    '200':
+      description: 取得に成功。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/document.yaml#/GetDocumentsResponse
+
+post:
+  description: 文書を登録し、作成した文書のIDを返す。
+  tags:
+    - Documents
+  operationId: createDocument
+  summary: 文書を新規作成する
+  requestBody:
+    description: 作成する文書のタイトル。
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/document.yaml#/CreateDocumentRequest
+  responses:
+    '201':
+      description: 文書の作成に成功。
+      content:
+        application/json:
+          schema:
+            description: リクエストまたはレスポンスのデータ。
+            type: object
+            required:
+              - documentId
+            properties:
+              documentId:
+                description: 作成した文書のID。
+                type: integer
+                format: int32
+            example:
+              documentId: 1

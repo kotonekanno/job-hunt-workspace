@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "openapi:lint": "redocly lint openapi/openapi.yaml"
+    "openapi:lint": "redocly lint ../openapi/openapi.yaml",
+    "openapi:bundle": "redocly bundle ../openapi/openapi.yaml -o ../openapi/dist/openapi.yaml",
+    "openapi:generate": "openapi-typescript ../openapi/dist/openapi.yaml -o src/generated/openapi.ts"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "^5.2.10",

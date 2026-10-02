@@ -1,0 +1,139 @@
+# ====================
+# Value Types
+# ====================
+
+TaskTitle:
+  description: タスク概要
+  type: string
+  minLength: 1
+  maxLength: 200
+  example: エントリーシートを提出する
+
+TaskNote:
+  description: タスクの詳細メモ
+  type: string
+  nullable: true
+  minLength: 0
+  maxLength: 2000
+  example: 事前に提出書類を確認する。
+
+
+# ====================
+# Models
+# ====================
+
+Task:
+  description: タスク情報
+  type: object
+  properties:
+    id:
+      description: タスクID
+      type: integer
+      format: int32
+    companyId:
+      description: 関連する企業のID。企業に紐付かない場合はnull
+      type: integer
+      format: int32
+      nullable: true
+    title:
+      $ref: '#/TaskTitle'
+    note:
+      $ref: '#/TaskNote'
+    deadline:
+      description: 期限。タイムゾーン情報を含む日時
+      type: string
+      format: date-time
+      nullable: true
+    done:
+      description: trueの場合は完了、falseの場合は未完了
+      type: boolean
+  required:
+    - id
+    - title
+    - note
+    - deadline
+    - done
+  example:
+    id: 1
+    companyId: 1
+    title: エントリーシートを提出する
+    note: 事前に提出書類を確認する。
+    deadline: '2026-10-15T18:00:00+09:00'
+    done: false
+
+
+# ====================
+# Request / Response
+# ====================
+
+GetTaskResponse:
+  description: タスク一覧の取得結果
+  type: object
+  properties:
+    tasks:
+      description: タスクの一覧。該当するタスクがない場合は空配列
+      type: array
+      items:
+        $ref: '#/Task'
+  required:
+    - tasks
+  example:
+    tasks:
+      - id: 1
+        companyId: 1
+        title: エントリーシートを提出する
+        note: 事前に提出書類を確認する。
+        deadline: '2026-10-15T18:00:00+09:00'
+        done: false
+
+CreateTaskRequest:
+  description: 新規タスクの登録内容
+  type: object
+  properties:
+    companyId:
+      description: 関連する企業のID
+      type: integer
+      format: int32
+      nullable: true
+    title:
+      $ref: '#/TaskTitle'
+    note:
+      $ref: '#/TaskNote'
+    deadline:
+      description: 期限。タイムゾーン情報を含む日時
+      type: string
+      format: date-time
+      nullable: true
+  required:
+    - title
+    - deadline
+  example:
+    companyId: 1
+    title: エントリーシートを提出する
+    note: 事前に提出書類を確認する。
+    deadline: '2026-10-15T10:00:00+09:00'
+
+UpdateTaskRequest:
+  description: タスクの更新内容。更新する項目のみ指定する
+  type: object
+  properties:
+    companyId:
+      description: 関連する企業のID。nullを指定すると企業との紐付けを解除する
+      type: integer
+      format: int32
+      nullable: true
+      example: 1
+    title:
+      $ref: '#/TaskTitle'
+    note:
+      $ref: '#/TaskNote'
+    deadline:
+      description: 期限。タイムゾーン情報を含む日時。nullを指定すると期限を解除する。
+      type: string
+      format: date-time
+      nullable: true
+      example: '2026-10-15T10:00:00+09:00'
+    done:
+      description: trueの場合は完了、falseの場合は未完了
+      type: boolean
+      example: false

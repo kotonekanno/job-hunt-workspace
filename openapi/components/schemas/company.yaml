@@ -1,0 +1,399 @@
+# ====================
+# Value Types
+# ====================
+
+CompanyName:
+  description: 企業名
+  type: string
+  minLength: 1
+  maxLength: 50
+  example: 株式会社サンプル
+
+NullableCompanyName:
+  description: 関連する企業の名前。企業に紐付かない場合はnull
+  type: string
+  nullable: true
+  minLength: 1
+  maxLength: 50
+  example: 株式会社サンプル
+
+CompanyPriority:
+  description: 志望度。0は未分類、1～5は第1～第5志望、6はアーカイブ。
+  type: integer
+  format: int32
+  minimum: 0
+  maximum: 6
+  example: 3
+
+BasicInfoTitle:
+  description: 基本情報の項目名
+  type: string
+  minLength: 1
+  maxLength: 50
+  example: 従業員数
+
+BasicInfoText:
+  description: 基本情報の内容
+  type: string
+  minLength: 0
+  maxLength: 500
+  example: 200人
+
+ActivityText:
+  description: やり取りの内容
+  type: string
+  minLength: 1
+  maxLength: 500
+  example: 説明会の案内を受け取った。
+
+
+# ====================
+# Models
+# ====================
+
+CompanyListItem:
+  description: 企業一覧の1件分の情報
+  type: object
+  properties:
+    id:
+      description: 企業ID
+      type: integer
+      format: int32
+    name:
+      $ref: '#/CompanyName'
+    priority:
+      $ref: '#/CompanyPriority'
+    position:
+      description: 同じ志望度内での表示順
+      type: integer
+      format: int32
+    currentSelection:
+      $ref: ./selection.yaml#/CurrentSelection
+  required:
+    - id
+    - name
+    - priority
+    - position
+    - currentSelection
+  example:
+    id: 1
+    name: 株式会社サンプル
+    priority: 3
+    position: 1000
+    currentSelection:
+      title: 本選考
+      step: 最終面接
+      status: NOT_STARTED
+
+BasicInfo:
+  description: 企業の基本情報の1項目
+  type: object
+  properties:
+    id:
+      description: 基本情報ID
+      type: integer
+      format: int32
+    title:
+      $ref: '#/BasicInfoTitle'
+    text:
+      $ref: '#/BasicInfoText'
+  required:
+    - id
+    - title
+    - text
+  example:
+    id: 1
+    title: 従業員数
+    text: 200人
+
+Activity:
+  description: 企業とのやり取り履歴の1件分の情報
+  type: object
+  properties:
+    id:
+      description: 活動履歴ID
+      type: integer
+      format: int32
+    occurredAt:
+      description: やり取りが発生した日時
+      type: string
+      format: date-time
+      example: '2026-10-15T10:00:00+09:00'
+    byUser:
+      description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+      type: boolean
+      example: true
+    text:
+      $ref: '#/ActivityText'
+  required:
+    - id
+    - occurredAt
+    - text
+  example:
+    id: 1
+    occurredAt: '2026-10-15T10:00:00+09:00'
+    text: 説明会の案内を受け取った。
+
+
+# ====================
+# Request / Response
+# ====================
+
+GetCompaniesResponse:
+  description: 企業一覧の取得結果
+  type: object
+  properties:
+    companies:
+      description: 企業の一覧。該当する企業がない場合は空配列
+      type: array
+      items:
+        $ref: '#/CompanyListItem'
+  required:
+    - companies
+  example:
+    companies:
+      - id: 1
+        name: 株式会社サンプル
+        priority: 3
+        position: 1000
+        currentSelection:
+          title: 本選考
+          step: 最終面接
+          status: NOT_STARTED
+
+CreateCompanyRequest:
+  description: 新規企業の登録内容
+  type: object
+  properties:
+    name:
+      $ref: '#/CompanyName'
+    priority:
+      $ref: '#/CompanyPriority'
+  required:
+    - name
+    - priority
+  example:
+    name: 株式会社サンプル
+    priority: 3
+
+GetCompanyResponse:
+  description: 企業の詳細情報
+  type: object
+  properties:
+    name:
+      $ref: '#/CompanyName'
+    currentSelection:
+      $ref: ./selection.yaml#/CurrentSelection
+    WidgetBasicInfo:
+      description: 基本情報ウィジェットの表示／非表示。trueならば表示
+      type: boolean
+    WidgetActivity:
+      description: やりとり履歴ウィジェットの表示／非表示。trueならば表示
+      type: boolean
+    WidgetSelection:
+      description: 選考状況ウィジェットの表示／非表示。trueならば表示
+      type: boolean
+    basicInfos:
+      description: 企業の基本情報。該当する情報がない場合は空配列
+      type: array
+      items:
+        $ref: '#/BasicInfo'
+    activities:
+      description: 企業とのやり取り履歴。該当する情報がない場合は空配列
+      type: array
+      items:
+        $ref: '#/Activity'
+    selections:
+      description: 企業の選考一覧。該当する情報がない場合は空配列
+      type: array
+      items:
+        $ref: ./selection.yaml#/Selection
+    document:
+      $ref: './document.yaml#/DocumentText'
+    events:
+      description: 企業に関連するイベントのうち、今日以降のイベント一覧。該当する情報がない場合は空配列
+      type: array
+      items:
+        $ref: ./event.yaml#/Event
+    tasks:
+      description: 企業に関連するタスク一覧。該当する情報がない場合は空配列
+      type: array
+      items:
+        $ref: ./task.yaml#/Task
+  required:
+    - name
+    - currentSelection
+    - WidgetBasicInfo
+    - WidgetActivity
+    - WidgetSelection
+    - basicInfos
+    - activities
+    - selections
+    - document
+    - events
+    - tasks
+  example:
+    name: 株式会社サンプル
+    currentSelection:
+      title: 本選考
+      step: 最終面接
+      status: NOT_STARTED
+    WidgetBasicInfo: true
+    WidgetActivity: true
+    WidgetSelection: true
+    basicInfos:
+      - id: 1
+        title: 従業員数
+        text: 200人
+    activities:
+      - id: 1
+        occurredAt: '2026-10-15T10:00:00+09:00'
+        text: 説明会の案内を受け取った。
+    selections:
+      - id: 1
+        title: 本選考
+        isActive: true
+    document: '# 企業研究
+
+      事業内容と志望理由を整理する。'
+    events:
+      - id: 1
+        companyName: 株式会社サンプル
+        category: SESSION
+        title: 企業説明会
+        note: 事前に提出書類を確認する。
+        isAllDay: false
+        startDay: null
+        endDay: null
+        startTime: '2026-10-15T10:00:00+09:00'
+        endTime: '2026-10-15T11:00:00+09:00'
+        isOnline: true
+        isAttending: true
+    tasks:
+      - id: 1
+        companyId: 1
+        title: エントリーシートを提出する
+        note: 事前に提出書類を確認する。
+        deadline: '2026-10-15T18:00:00+09:00'
+        done: false
+
+UpdateCompanyRequest:
+  description: 企業の更新内容。更新する項目のみ指定する
+  type: object
+  properties:
+    name:
+      $ref: '#/CompanyName'
+    document:
+      $ref: './document.yaml#/DocumentText'
+  example:
+    name: 株式会社サンプル
+    document: '# 企業研究
+
+      事業内容と志望理由を整理する。'
+
+UpdateCompanyPriorityRequest:
+  description: 企業の志望度と並び順の更新内容。previousCompanyIdとnextCompanyIdを両方省略した場合は、指定した志望度の末尾に追加する
+  type: object
+  properties:
+    priority:
+      $ref: '#/CompanyPriority'
+    previousCompanyId:
+      description: 移動後に直前となる企業のID。先頭に置く場合はnull
+      type: integer
+      format: int32
+      nullable: true
+    nextCompanyId:
+      description: 移動後に直後となる企業のID。末尾に置く場合はnull
+      type: integer
+      format: int32
+      nullable: true
+  required:
+    - priority
+  example:
+    priority: 3
+    previousCompanyId: 1
+    nextCompanyId: 2
+
+UpdateCompanyWidgetRequest:
+  description: 企業詳細画面のウィジェット表示設定。更新する項目のみ指定する
+  type: object
+  properties:
+    basicInfo:
+      description: trueの場合は基本情報ウィジェットを表示する
+      type: boolean
+      example: true
+    activity:
+      description: trueの場合は活動履歴ウィジェットを表示する
+      type: boolean
+      example: true
+    selection:
+      description: trueの場合は選考状況ウィジェットを表示する
+      type: boolean
+      example: true
+
+CreateCompanyBasicInfoRequest:
+  description: 企業の基本情報の登録内容
+  type: object
+  properties:
+    title:
+      $ref: '#/BasicInfoTitle'
+    text:
+      $ref: '#/BasicInfoText'
+  required:
+    - title
+    - text
+  example:
+    title: 従業員数
+    text: 200人
+
+UpdateCompanyBasicInfoRequest:
+  description: 企業の基本情報の部分更新内容。省略した項目は変更しない
+  type: object
+  properties:
+    title:
+      $ref: '#/BasicInfoTitle'
+    text:
+      $ref: '#/BasicInfoText'
+
+CreateCompanyActivityRequest:
+  description: 企業とのやり取り履歴の登録内容
+  type: object
+  properties:
+    occurredAt:
+      description: やり取りが発生した日時。タイムゾーン情報を含む日時
+      type: string
+      format: date-time
+    byUser:
+      description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+      type: boolean
+      example: true
+    text:
+      $ref: '#/ActivityText'
+  required:
+    - occurredAt
+    - byUser
+    - text
+  example:
+    occurredAt: '2026-10-15T10:00:00+09:00'
+    byUser: true
+    text: 説明会の案内を受け取った。
+
+UpdateCompanyActivityRequest:
+  description: 企業とのやり取り履歴の部分更新内容。省略した項目は変更しない
+  type: object
+  properties:
+    occurredAt:
+      description: やり取りが発生した日時。タイムゾーン情報を含む日時
+      type: string
+      format: date-time
+      example: '2026-10-15T10:00:00+09:00'
+    byUser:
+      description: ユーザー側からのやり取りの場合はtrue、企業側からの場合はfalse
+      type: boolean
+      example: true
+    text:
+      $ref: '#/ActivityText'
+  example:
+    occurredAt: '2026-10-15T10:00:00+09:00'
+    byUser: true
+    text: 説明会の案内を受け取った。

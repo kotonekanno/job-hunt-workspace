@@ -7,9 +7,8 @@
 - [users](#users)
 - [verification\_tokens](#verification_tokens)
 - [companies](#companies)
-- [company\_documents](#company_documents)
 - [company\_basic\_infos](#company_basic_infos)
-- [company\_urls](#company_urls)
+- [company\_activities](#company_activities)
 - [selections](#selections)
 - [selection\_steps](#selection_steps)
 - [events](#events)
@@ -27,9 +26,8 @@ erDiagram
   users ||--o{ essays : has
   users ||--o{ essay_groups : has
   users ||--o{ documents : has
-  companies ||--o{ company_documents : has
   companies ||--o{ company_basic_infos : has
-  companies ||--o{ company_urls : has
+  companies ||--o{ company_activities : has
   companies ||--o{ selections : has
   selections ||--o{ selection_steps : has
   companies ||--o{ events : has
@@ -59,18 +57,9 @@ erDiagram
     TEXT name
     SMALLINT priority
     BOOLEAN widget_basic_info
-    BOOLEAN widget_links
+    BOOLEAN widget_activity
     BOOLEAN widget_selection
-    BOOLEAN widget_note
-    TEXT note
-  }
-
-  company_documents {
-    SERIAL id
-    INT company_id
-    INT position
-    TEXT title
-    TEXT text
+    TEXT document
   }
 
   company_basic_infos {
@@ -81,12 +70,12 @@ erDiagram
     TEXT text
   }
 
-  company_urls {
+  company_activities {
     SERIAL id
     INT company_id
-    INT position
-    TEXT url
-    TET description
+    TIMESTAMPTZ occurred_at
+    BOOLEAN by_user
+    TEXT text
   }
 
   selections {
@@ -100,7 +89,7 @@ erDiagram
     SERIAL id
     INT selection_id
     SMALLINT step_no
-    TEXT title
+    TEXT name
     TIMESTAMPTZ held_at
     TEXT note
     TEXT status
@@ -110,6 +99,7 @@ erDiagram
     SERIAL id
     INT user_id
     INT company_id
+    TEXT category
     TEXT title
     TEXT note
     BOOLEAN is_all_day
@@ -192,7 +182,7 @@ erDiagram
 | id             | SERIAL       | NO   | ID                 |
 | user_id        | INT          | NO   | ユーザーID         |
 | token          | TEXT         | NO   | トークン           |
-| expires_at     | TIMESTAMPTZ    | NO   | 有効期限           |
+| expires_at     | TIMESTAMPTZ  | NO   | 有効期限           |
 
 - expires_at
   - トークンの有効期限
@@ -219,10 +209,9 @@ erDiagram
 | name           | TEXT         | NO   | 企業名             |
 | priority       | SMALLINT     | NO   | 志望度             |
 | widget_basic_info | BOOLEAN   | NO   | 基本情報ウィジェットの表示／非表示 |
-| widget_links   | BOOLEAN      | NO   | 関連リンクウィジェットの表示／非表示 |
+| widget_activity | BOOLEAN   | NO   | やりとり履歴ウィジェットの表示／非表示 |
 | widget_selection | BOOLEAN    | NO   | 選考状況ウィジェットの表示／非表示 |
-| widget_note    | BOOLEAN      | NO   | メモウィジェットの表示／非表示 |
-| note           | TEXT         | YES  | 付箋メモ           |
+| document       | TEXT         | YES  | Markdown形式の文書 |
 
 - priority
   - BETWEEN 0 AND 6
@@ -243,28 +232,6 @@ erDiagram
   - user_id, priority, position
 - INDEX
   - user_id
-
-## company_documents
-
-企業に関する文章(Markdown)
-
-| column         | type         | NULL | description        |
-| -------------- | ------------ | ---- | ------------------ |
-| id             | SERIAL       | NO   | 企業関連文書ID     |
-| company_id     | INT          | NO   | 企業ID             |
-| position       | INT          | NO   | 表示順             |
-| title          | TEXT         | NO   | タイトル           |
-| text           | TEXT         | NO   | 本文               |
-
-<!-- omit in toc -->
-#### 制約
-
-- FOREIGN
-  - company_id: companies.id(ON DELETE CASCADE)
-- UNIQUE
-  - company_id, position
-- INDEX
-  - company_id
 
 ## company_basic_infos
 
@@ -288,25 +255,23 @@ erDiagram
 - INDEX
   - company_id
 
-## company_urls
+## company_activities
 
-企業の関連リンク
+企業とのやり取り履歴
 
 | column         | type         | NULL | description        |
 | -------------- | ------------ | ---- | ------------------ |
-| id             | SERIAL       | NO   | リンクID           |
+| id             | SERIAL       | NO   | 活動履歴ID         |
 | company_id     | INT          | NO   | 企業ID             |
-| position       | INT          | NO   | 表示順             |
-| url            | TEXT         | NO   | リンク             |
-| description    | TEXT         | NO   | 説明               |
+| occurred_at    | TIMESTAMPTZ  | NO   | 日付               |
+| by_user        | BOOLEAN      | NO   | trueならばユーザー側からのやり取り |
+| text           | TEXT         | NO   | 内容               |
 
 <!-- omit in toc -->
 #### 制約
 
 - FOREIGN
   - company_id: companies.id(ON DELETE CASCADE)
-- UNIQUE
-  - company_id, position
 - INDEX
   - company_id
 
@@ -341,13 +306,14 @@ erDiagram
 | id             | SERIAL       | NO   | 選考ステップID     |
 | selection_id   | INT          | NO   | 選考ID             |
 | step_no        | SMALLINT     | NO   | 選考ステップの順序 |
-| title          | TEXT         | NO   | 選考ステップ名(一次面接、書類選考など)|
+| name           | TEXT         | NO   | 選考ステップ名(一次面接、書類選考など)|
 | held_at        | TIMESTAMPTZ  | YES  | 開催日時           |
 | note           | TEXT         | YES  | 詳細情報メモ       |
 | status         | TEXT         | NO   | 選考状況           |
 
 - status
-  - not_started(未受験) | pending(結果待ち) | passed(合格) | failed(不合格)
+  - NOT_STARTED(未受験) | PENDING(結果待ち) | PASSED(合格) | FAILED(不合格)
+  - DEFAULT 'NOT_STARTED'
 
 <!-- omit in toc -->
 #### 制約
@@ -380,14 +346,14 @@ erDiagram
 | is_attending   | BOOLEAN      | YES  | 参加／不参加       |
 
 - category
-  - session(説明会) | chat(カジュアル面談) | interview(面接) | internship(インターン) | other(その他)
+  - SESSION(説明会) | CHAT(カジュアル面談) | INTERVIEW(面接) | INTERNSHIP(インターン) | OTHER(その他)
 - is_all_day
   - trueならばstart_date, end_dateを使用
   - falseならばstart_time, end_timeを使用
 - is_online
   - DEFAULT TRUE
 - is_attending
-  - typeがsession(説明会)、internship(インターン)、other(その他)の場合のみ使用
+  - categoryがSESSION(説明会)、INTERNSHIP(インターン)、OTHER(その他)の場合のみ使用
   - DEFAULT TRUE
 
 <!-- omit in toc -->
