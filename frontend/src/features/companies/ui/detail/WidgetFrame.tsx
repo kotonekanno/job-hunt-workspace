@@ -10,6 +10,7 @@ type WidgetFrameProps = {
   action?: ReactNode;
   headingAccessory?: ReactNode;
   className?: string;
+  contentClassName?: string;
 };
 
 export function WidgetFrame(props: WidgetFrameProps) {
@@ -17,7 +18,7 @@ export function WidgetFrame(props: WidgetFrameProps) {
 
   return (
     <section
-      className={`ui-panel cyber-cut border border-[var(--line)] p-5 ${props.className ?? ''}`}
+      className={`ui-panel cyber-cut min-w-0 border border-[var(--line)] p-5 ${props.className ?? ''}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--line)] pb-3">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
@@ -53,7 +54,9 @@ export function WidgetFrame(props: WidgetFrameProps) {
         </div>
       </div>
 
-      <div className="mt-4">{props.children}</div>
+      <div className={`mt-4 ${props.contentClassName ?? ''}`}>
+        {props.children}
+      </div>
     </section>
   );
 }

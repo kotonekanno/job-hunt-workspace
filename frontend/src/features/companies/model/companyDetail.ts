@@ -2,13 +2,7 @@ import type { CalendarEvent } from '@/features/calendar/model/calendar';
 import type { Selection, SelectionStatus } from './selection';
 
 export type WidgetType =
-  | 'basic-info'
-  | 'links'
-  | 'tasks'
-  | 'events'
-  | 'documents'
-  | 'selection'
-  | 'note';
+  'basic-info' | 'tasks' | 'events' | 'documents' | 'selection' | 'activities';
 
 export type CompanyDocument = {
   id: number;
@@ -19,20 +13,18 @@ export type CompanyDocument = {
 
 export const widgetLabels: Record<WidgetType, string> = {
   'basic-info': '基本情報',
-  links: '関連リンク集',
   tasks: '関連タスク',
   events: '関連イベント',
-  documents: 'テキスト',
+  documents: 'ドキュメント',
   selection: '選考状況',
-  note: 'メモ',
+  activities: 'やりとり履歴',
 };
 
 export const widgetOrder: WidgetType[] = [
   'documents',
   'basic-info',
-  'links',
   'selection',
-  'note',
+  'activities',
   'events',
   'tasks',
 ];
@@ -111,7 +103,7 @@ export const relatedEvents: CalendarEvent[] = [
   },
 ];
 
-export const initialDocuments: CompanyDocument[] = [
+const documentSeeds: CompanyDocument[] = [
   {
     id: 1,
     position: 1,
@@ -143,6 +135,13 @@ export const initialDocuments: CompanyDocument[] = [
 - 評価制度とキャリアパス`,
   },
 ];
+
+export const initialDocument: CompanyDocument = {
+  id: 1,
+  position: 1,
+  title: '企業ドキュメント',
+  text: documentSeeds.map((document) => document.text).join('\n\n---\n\n'),
+};
 
 export const initialSelectionTracks: Selection[] = [
   {

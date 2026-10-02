@@ -89,6 +89,7 @@ export function RelatedTasksWidget() {
         code="RELATED_TASKS"
         icon={ListTodo}
         action={actions}
+        contentClassName="overflow-x-auto"
       >
         <TaskList
           tasks={sortedTasks}

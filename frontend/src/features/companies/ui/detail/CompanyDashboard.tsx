@@ -8,8 +8,7 @@ import {
 import { BasicInfoWidget } from '@/features/companies/ui/detail/BasicInfoWidget';
 import { CompanyHeader } from '@/features/companies/ui/detail/CompanyHeader';
 import { DocumentsWidget } from '@/features/companies/ui/detail/DocumentsWidget';
-import { LinksWidget } from '@/features/companies/ui/detail/LinksWidget';
-import { QuickMemoWidget } from '@/features/companies/ui/detail/QuickMemoWidget';
+import { ActivitiesWidget } from '@/features/companies/ui/detail/ActivitiesWidget';
 import { RelatedEventsWidget } from '@/features/companies/ui/detail/RelatedEventsWidget';
 import { RelatedTasksWidget } from '@/features/companies/ui/detail/RelatedTasksWidget';
 import { SelectionWidget } from '@/features/companies/ui/detail/SelectionWidget';
@@ -33,9 +32,14 @@ export function CompanyDashboard() {
 
     switch (widget) {
       case 'basic-info':
-        return <BasicInfoWidget key={widget} onRemove={requestRemoval} />;
-      case 'links':
-        return <LinksWidget key={widget} onRemove={requestRemoval} />;
+        return (
+          <div
+            key={widget}
+            className="min-w-0 lg:col-start-1 lg:row-start-2 [&>section]:h-full"
+          >
+            <BasicInfoWidget onRemove={requestRemoval} />
+          </div>
+        );
       case 'tasks':
         return <RelatedTasksWidget key={widget} />;
       case 'events':
@@ -44,17 +48,21 @@ export function CompanyDashboard() {
         return (
           <DocumentsWidget
             key={widget}
-            documents={company.documents}
+            document={company.document}
             onDocumentChange={company.saveDocument}
-            onDocumentCreate={company.addDocument}
-            onDocumentDelete={company.deleteDocument}
-            onDocumentReorder={company.reorderDocuments}
           />
         );
       case 'selection':
-        return <SelectionWidget key={widget} onRemove={requestRemoval} />;
-      case 'note':
-        return <QuickMemoWidget key={widget} onRemove={requestRemoval} />;
+        return (
+          <div
+            key={widget}
+            className="min-w-0 lg:col-start-1 lg:row-start-3 [&>section]:h-full"
+          >
+            <SelectionWidget onRemove={requestRemoval} />
+          </div>
+        );
+      case 'activities':
+        return <ActivitiesWidget key={widget} />;
     }
   }
 
@@ -77,7 +85,7 @@ export function CompanyDashboard() {
 
       <WidgetPicker hiddenWidgets={hiddenWidgets} onAdd={company.addWidget} />
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {company.widgets.map(renderWidget)}
       </div>
 
