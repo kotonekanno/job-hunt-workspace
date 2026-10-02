@@ -30,7 +30,7 @@ export function RelatedEventsWidget() {
   const [showPastEvents, setShowPastEvents] = useState(false);
   const todayKey = getTodayKey();
   const visibleEvents = [...events]
-    .filter((event) => showPastEvents || event.date >= todayKey)
+    .filter((event) => showPastEvents || event.startDate >= todayKey)
     .sort((left, right) =>
       getEventSortKey(left).localeCompare(getEventSortKey(right)));
 

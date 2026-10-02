@@ -1,7 +1,7 @@
 import type { CalendarEvent } from "@/features/calendar/model/calendar";
 
 export function getEventStartTimeLabel(event: CalendarEvent) {
-  if (event.allDay) {
+  if (event.isAllDay) {
     return "終日";
   }
 
@@ -9,7 +9,7 @@ export function getEventStartTimeLabel(event: CalendarEvent) {
 }
 
 export function getEventTimeRangeLabel(event: CalendarEvent) {
-  if (event.allDay) {
+  if (event.isAllDay) {
     return "終日";
   }
 
@@ -21,5 +21,5 @@ export function getEventTimeRangeLabel(event: CalendarEvent) {
 }
 
 export function getEventSortKey(event: CalendarEvent) {
-  return `${event.date}${event.allDay ? "00:00" : event.startTime ?? "23:59"}`;
+  return `${event.startDate}${event.isAllDay ? "00:00" : event.startTime ?? "23:59"}`;
 }

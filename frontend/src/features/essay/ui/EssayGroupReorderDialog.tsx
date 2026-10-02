@@ -33,7 +33,9 @@ export function EssayGroupReorderDialog({
   onSave,
 }: EssayGroupReorderDialogProps) {
   const [orderedGroups, setOrderedGroups] = useState(
-    groups.filter((group) => group.id !== unclassifiedEssayGroupId),
+    groups
+      .filter((group) => group.id !== unclassifiedEssayGroupId)
+      .sort((left, right) => left.position - right.position),
   );
   const unclassifiedGroup = groups.find(
     (group) => group.id === unclassifiedEssayGroupId,

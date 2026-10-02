@@ -19,7 +19,11 @@ export function EssayArchiveProvider({
   children,
 }: EssayArchiveProviderProps) {
   const [essays, setEssays] = useState(initialEssays);
-  const [groups, setGroups] = useState(initialEssayGroups);
+  const [groups, setGroups] = useState(
+    [...initialEssayGroups].sort(
+      (left, right) => left.position - right.position,
+    ),
+  );
 
   function addEssay(essay: Omit<Essay, "id">) {
     setEssays((current) => [
@@ -48,6 +52,12 @@ export function EssayArchiveProvider({
   function addGroup(name: string) {
     const group: EssayGroup = {
       id: `group-${Date.now()}`,
+      position: groups.find(
+        (item) => item.id === unclassifiedEssayGroupId,
+      )?.position ?? Math.max(
+        0,
+        ...groups.map((item) => item.position),
+      ) + 1,
       name,
     };
 
@@ -56,15 +66,18 @@ export function EssayArchiveProvider({
         (item) => item.id === unclassifiedEssayGroupId,
       );
 
-      if (unclassifiedIndex === -1) {
-        return [...current, group];
-      }
+      const nextGroups = unclassifiedIndex === -1
+        ? [...current, group]
+        : [
+            ...current.slice(0, unclassifiedIndex),
+            group,
+            ...current.slice(unclassifiedIndex),
+          ];
 
-      return [
-        ...current.slice(0, unclassifiedIndex),
-        group,
-        ...current.slice(unclassifiedIndex),
-      ];
+      return nextGroups.map((item, index) => ({
+        ...item,
+        position: index + 1,
+      }));
     });
     return group;
   }
@@ -82,7 +95,9 @@ export function EssayArchiveProvider({
       return;
     }
 
-    setGroups((current) => current.filter((group) => group.id !== groupId));
+    setGroups((current) => current
+      .filter((group) => group.id !== groupId)
+      .map((group, index) => ({ ...group, position: index + 1 })));
     setEssays((current) => current.map((essay) => (
       essay.groupId === groupId
         ? { ...essay, groupId: unclassifiedEssayGroupId }
@@ -108,7 +123,10 @@ export function EssayArchiveProvider({
         ...orderedGroups,
         ...remainingGroups,
         ...(unclassifiedGroup ? [unclassifiedGroup] : []),
-      ];
+      ].map((group, index) => ({
+        ...group,
+        position: index + 1,
+      }));
     });
   }
 

@@ -45,7 +45,7 @@ export function EventDetails({
   onDelete,
 }: EventDetailsProps) {
   const styles = sizeStyles[size];
-  const FormatIcon = event.format === "オンライン"
+  const FormatIcon = event.isOnline
     ? Video
     : MapPin;
 
@@ -56,13 +56,13 @@ export function EventDetails({
           <time
             className={`flex shrink-0 flex-col justify-center border-r border-[var(--line)] pr-2.5 font-mono ${styles.time}`}
           >
-            {event.allDay ? (
+            {event.isAllDay ? (
               <>
                 <span className="font-black text-[var(--accent)]">
                   終日
                 </span>
 
-                {event.endDate && event.endDate !== event.date && (
+                {event.endDate !== event.startDate && (
                   <span className="mt-1 text-[9px] font-semibold text-[var(--muted)]">
                     → {event.endDate.slice(5).replace("-", "/")}
                   </span>
@@ -98,8 +98,8 @@ export function EventDetails({
           </div>
 
           <span
-            title={event.format}
-            aria-label={event.format}
+            title={event.isOnline ? "オンライン" : "オフライン"}
+            aria-label={event.isOnline ? "オンライン" : "オフライン"}
             className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel-raised)] text-[var(--accent)]"
           >
             <FormatIcon className="size-3.5" />
@@ -109,7 +109,7 @@ export function EventDetails({
 
       <div className={styles.contentGap}>
         <p className={`text-[var(--text)] ${styles.memo}`}>
-          {event.memo || "メモはありません"}
+          {event.note || "メモはありません"}
         </p>
       </div>
 

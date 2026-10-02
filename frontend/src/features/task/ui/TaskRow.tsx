@@ -48,7 +48,7 @@ export function TaskRow(props: TaskRowProps) {
         >
           <input
             type="checkbox"
-            checked={props.task.completed}
+            checked={props.task.done}
             onChange={() => props.onToggle(props.task.id)}
             onClick={(event) => event.stopPropagation()}
             className="size-4 cursor-pointer accent-[var(--accent)]"
@@ -64,7 +64,7 @@ export function TaskRow(props: TaskRowProps) {
           <span
             className={`
               ml-2 truncate text-sm font-semibold
-              ${props.task.completed
+              ${props.task.done
                 ? "text-[var(--faint)] line-through"
                 : "text-[var(--text-strong)]"
               }
@@ -73,12 +73,12 @@ export function TaskRow(props: TaskRowProps) {
             {props.task.title}
           </span>
 
-          {props.task.dueDate ? (
+          {props.task.deadline ? (
             <time
-              dateTime={props.task.dueDate}
+              dateTime={props.task.deadline}
               className="font-mono text-sm font-bold text-[var(--text-strong)]"
             >
-              {props.task.dueDate.slice(5).replace("-", "/")}
+              {props.task.deadline.slice(5).replace("-", "/")}
               <span className="ml-1 text-[10px] font-medium text-[var(--muted)]">
                 まで
               </span>
@@ -118,7 +118,7 @@ export function TaskRow(props: TaskRowProps) {
 
         <div className="border-t border-[var(--line)] bg-[var(--panel-raised)] px-12 py-4">
           <p className="text-[12px] leading-7 text-[var(--text)]">
-            {props.task.description}
+            {props.task.note}
           </p>
         </div>
       </details>

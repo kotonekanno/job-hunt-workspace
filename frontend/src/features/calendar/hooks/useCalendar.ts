@@ -2,32 +2,34 @@ import { useMemo, useState } from "react";
 import { getCalendarDays } from "@/features/calendar/lib/calendar";
 import {
   calendarEvents,
-  type AttendanceStatus,
   type CalendarEvent,
   type EventCategory,
-  type EventFormat,
 } from "@/features/calendar/model/calendar";
+
+export type OnlineFilter = "online" | "offline" | "すべて";
+export type AttendanceFilter = "attending" | "notAttending" | "すべて";
 
 export function useCalendar() {
   const [displayDate, setDisplayDate] = useState(new Date(2026, 6, 1));
   const [events, setEvents] = useState<CalendarEvent[]>(calendarEvents);
   const [category, setCategory] = useState<EventCategory | "すべて">("すべて");
-  const [format, setFormat] = useState<EventFormat | "すべて">("すべて");
-  const [status, setStatus] = useState<AttendanceStatus | "すべて">("すべて");
+  const [format, setFormat] = useState<OnlineFilter>("すべて");
+  const [status, setStatus] = useState<AttendanceFilter>("すべて");
 
   const filteredEvents = useMemo(
     () => events.filter((event) =>
       (category === "すべて" || event.category === category)
-      && (format === "すべて" || event.format === format)
-      && (status === "すべて" || event.status === status)),
+      && (format === "すべて" || event.isOnline === (format === "online"))
+      && (status === "すべて"
+        || event.isAttending === (status === "attending"))),
     [events, category, format, status],
   );
 
   const upcomingEvents = useMemo(
     () => events.filter((event) =>
-      event.status !== "不参加"
+      event.isAttending !== false
       && (category === "すべて" || event.category === category)
-      && (format === "すべて" || event.format === format)),
+      && (format === "すべて" || event.isOnline === (format === "online"))),
     [events, category, format],
   );
 

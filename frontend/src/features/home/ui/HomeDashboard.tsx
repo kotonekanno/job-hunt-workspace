@@ -20,7 +20,7 @@ import { TaskList } from "@/features/task/ui/TaskList";
 const today = "2026-07-12";
 
 const upcomingEvents = calendarEvents
-  .filter((event) => event.date >= today)
+  .filter((event) => event.startDate >= today)
   .sort((first, second) => (
     getEventSortKey(first).localeCompare(getEventSortKey(second))
   ))
@@ -47,7 +47,7 @@ const summaryItems = [
   },
   {
     label: "今後の予定",
-    value: calendarEvents.filter((event) => event.date >= today).length,
+    value: calendarEvents.filter((event) => event.startDate >= today).length,
     unit: "件",
     icon: CalendarDays,
     to: "/calendar",

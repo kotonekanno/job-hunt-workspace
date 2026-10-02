@@ -15,12 +15,12 @@ function occursOnDate(
   event: CalendarEvent,
   dateKey: string,
 ) {
-  if (!event.allDay) {
-    return event.date === dateKey;
+  if (!event.isAllDay) {
+    return event.startDate === dateKey;
   }
 
-  return event.date <= dateKey
-    && (event.endDate ?? event.date) >= dateKey;
+  return event.startDate <= dateKey
+    && event.endDate >= dateKey;
 }
 
 export function CalendarMonth({

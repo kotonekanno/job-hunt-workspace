@@ -14,25 +14,26 @@ type DocumentArchiveProviderProps = {
   children: ReactNode;
 };
 
-function getCurrentDate() {
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Asia/Tokyo",
-  }).format(new Date());
-}
-
 export function DocumentArchiveProvider({
   children,
 }: DocumentArchiveProviderProps) {
-  const [documents, setDocuments] = useState(initialWorkspaceDocuments);
+  const [documents, setDocuments] = useState(
+    [...initialWorkspaceDocuments].sort(
+      (left, right) => left.position - right.position,
+    ),
+  );
 
   function addDocument(title: string) {
     setDocuments((current) => [
       ...current,
       {
         id: Date.now(),
+        position: Math.max(
+          0,
+          ...current.map((document) => document.position),
+        ) + 1,
         title,
-        updatedAt: getCurrentDate(),
-        content: "",
+        text: "",
       },
     ]);
   }
@@ -40,15 +41,18 @@ export function DocumentArchiveProvider({
   function updateDocument(document: WorkspaceDocument) {
     setDocuments((current) => current.map((currentDocument) => (
       currentDocument.id === document.id
-        ? { ...document, updatedAt: getCurrentDate() }
+        ? document
         : currentDocument
     )));
   }
 
   function deleteDocument(documentId: number) {
-    setDocuments((current) => current.filter(
-      (document) => document.id !== documentId,
-    ));
+    setDocuments((current) => current
+      .filter((document) => document.id !== documentId)
+      .map((document, index) => ({
+        ...document,
+        position: index + 1,
+      })));
   }
 
   function reorderDocuments(orderedDocumentIds: number[]) {
@@ -59,7 +63,11 @@ export function DocumentArchiveProvider({
 
       return orderedDocumentIds
         .map((documentId) => documentsById.get(documentId))
-        .filter((document): document is WorkspaceDocument => Boolean(document));
+        .filter((document): document is WorkspaceDocument => Boolean(document))
+        .map((document, index) => ({
+          ...document,
+          position: index + 1,
+        }));
     });
   }
 

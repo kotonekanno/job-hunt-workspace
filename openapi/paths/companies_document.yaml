@@ -1,0 +1,29 @@
+parameters:
+  - $ref: ../components/parameters/path.yaml#/CompanyId
+
+put:
+  description: 指定した企業のMarkdown形式の文書を置き換える。
+  tags:
+    - Companies
+  operationId: putCompanyDocument
+  summary: 企業文書を更新する
+  requestBody:
+    description: 更新後の企業文書。
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/document.yaml#/DocumentText'
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
+
+delete:
+  description: 指定した企業の文書を削除する。
+  tags:
+    - Companies
+  operationId: deleteCompanyDocument
+  summary: 企業文書を削除する
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

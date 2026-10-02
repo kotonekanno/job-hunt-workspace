@@ -8,7 +8,6 @@ import {
   useDragControls,
 } from "motion/react";
 import {
-  useEffect,
   useState,
 } from "react";
 import type { CompanyDocument } from "@/features/companies/model/companyDetail";
@@ -48,16 +47,12 @@ function DocumentAccordion({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const contentMatches = Boolean(
     searchQuery.trim()
-    && document.content
+    && document.text
       .toLocaleLowerCase()
       .includes(searchQuery.trim().toLocaleLowerCase()),
   );
 
-  useEffect(() => {
-    if (contentMatches) {
-      setIsOpen(true);
-    }
-  }, [contentMatches]);
+  const isExpanded = isOpen || contentMatches;
 
   return (
     <>
@@ -82,7 +77,7 @@ function DocumentAccordion({
         className="list-none"
       >
         <details
-          open={isOpen}
+          open={isExpanded}
           onToggle={(event) => setIsOpen(event.currentTarget.open)}
           className="
             group border border-[var(--line)]
@@ -133,10 +128,10 @@ function DocumentAccordion({
           {isOpen && (
             <div className="border-t border-[var(--line)] bg-[var(--panel)]">
               <RichTextEditor
-                value={document.content}
-                onChange={(content) => onChange({
+                value={document.text}
+                onChange={(text) => onChange({
                   ...document,
-                  content,
+                  text,
                 })}
                 minHeight={280}
                 className="documents-accordion-editor"
@@ -172,8 +167,11 @@ export function DocumentsWidget({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const filteredDocuments = documents.filter((document) =>
-    `${document.title}\n${document.content}`
+  const orderedDocuments = [...documents].sort(
+    (left, right) => left.position - right.position,
+  );
+  const filteredDocuments = orderedDocuments.filter((document) =>
+    `${document.title}\n${document.text}`
       .toLocaleLowerCase()
       .includes(normalizedQuery));
 
@@ -185,7 +183,7 @@ export function DocumentsWidget({
     );
     let visibleIndex = 0;
 
-    const orderedIds = documents.map((document) => {
+    const orderedIds = orderedDocuments.map((document) => {
       if (!visibleIds.has(document.id)) {
         return document.id;
       }

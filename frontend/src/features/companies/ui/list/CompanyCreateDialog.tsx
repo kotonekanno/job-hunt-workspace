@@ -11,7 +11,7 @@ import { Select, type SelectOption } from "@/shared/select";
 
 type CompanyCreateDialogProps = {
   onClose: () => void;
-  onSave: (company: Omit<CompanyListItem, "id">) => void;
+  onSave: (company: Omit<CompanyListItem, "id" | "order">) => void;
 };
 
 export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
@@ -23,11 +23,11 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
     props.onSave({
       name,
       priority,
-      progress: "未応募",
-      selectionType: "本選考",
-      currentStep: "書類選考",
-      selectionResult: "not_started",
-      pendingTasks: 0,
+      selection: {
+        title: "本選考",
+        step: "書類選考",
+        status: "not_started",
+      },
     });
     props.onClose();
   }

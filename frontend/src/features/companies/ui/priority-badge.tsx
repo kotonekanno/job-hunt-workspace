@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import type { Size } from "@/shared/shared-type";
+import type { CompanyPriority } from "../model/companyList";
 
 type PriorityBadgeProps = {
   priority: number | null;
@@ -18,9 +19,7 @@ type PriorityBadgeProps = {
   onChange?: (priority: number | null) => void;
 };
 
-type Priority = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
-export const priorityTexts = [
+const priorityTexts = [
   "未分類",
   "第１志望",
   "第２志望",
@@ -61,7 +60,7 @@ const priorityOptions = [
   },
 ] as const;
 
-const colorStyle: Record<Priority, string> = {
+const colorStyle: Record<CompanyPriority, string> = {
   0: "border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]",
   1: "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)]",
   2: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]",
@@ -71,7 +70,7 @@ const colorStyle: Record<Priority, string> = {
   6: "border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75",
 };
 
-const hoverColorStyle: Record<Priority, string> = {
+const hoverColorStyle: Record<CompanyPriority, string> = {
   0: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
   1: "hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
   2: "hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]",
@@ -89,15 +88,14 @@ export function PriorityBadge({
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const [selectedPriority, setSelectedPriority] = useState(priority);
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({
     top: 0,
     left: 0,
   });
 
-  const normalizedPriority: Priority =
-    selectedPriority === null ? 0 : selectedPriority as Priority;
+  const normalizedPriority: CompanyPriority =
+    priority === null ? 0 : priority as CompanyPriority;
 
   const text = priorityTexts[normalizedPriority];
   const badgeStyle = colorStyle[normalizedPriority];
@@ -105,10 +103,6 @@ export function PriorityBadge({
   const sizeStyle = size === "s"
     ? "w-16 px-2 py-1 text-[9px]"
     : "w-24 px-3 py-1.5 text-xs";
-
-  useEffect(() => {
-    setSelectedPriority(priority);
-  }, [priority]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -187,7 +181,6 @@ export function PriorityBadge({
   }, [isOpen]);
 
   const selectPriority = (nextPriority: number) => {
-    setSelectedPriority(nextPriority);
     setIsOpen(false);
     onChange?.(nextPriority);
   };
@@ -227,7 +220,7 @@ export function PriorityBadge({
             <div className="mt-1 space-y-0.5">
               {priorityOptions.map((option) => {
                 const isSelected =
-                  selectedPriority === option.value;
+                  priority === option.value;
                 const isArchive = option.value === 6;
                 const isUnassigned = option.value === 0;
 

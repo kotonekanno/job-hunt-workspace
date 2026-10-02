@@ -5,9 +5,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type {
-  SelectionResult,
+  SelectionStatus,
   SelectionStep,
-} from "@/features/companies/model/companyDetail";
+} from "@/features/companies/model/selection";
 import { SelectionStepBadge } from "@/features/companies/ui/selection-step-badge";
 import {
   EditIconButton,
@@ -18,7 +18,7 @@ type SelectionStepItemProps = {
   trackName: string;
   step: SelectionStep;
   index: number;
-  onResultChange: (result: SelectionResult) => void;
+  onResultChange: (result: SelectionStatus) => void;
   onMemoChange: (memo: string) => void;
 };
 
@@ -30,10 +30,10 @@ export function SelectionStepItem({
   onMemoChange,
 }: SelectionStepItemProps) {
   const [isEditingMemo, setIsEditingMemo] = useState(false);
-  const [memoDraft, setMemoDraft] = useState(step.memo);
+  const [memoDraft, setMemoDraft] = useState(step.note);
 
   function startEditingMemo() {
-    setMemoDraft(step.memo);
+    setMemoDraft(step.note);
     setIsEditingMemo(true);
   }
 
@@ -43,7 +43,7 @@ export function SelectionStepItem({
   }
 
   function cancelEditingMemo() {
-    setMemoDraft(step.memo);
+    setMemoDraft(step.note);
     setIsEditingMemo(false);
   }
 
@@ -55,15 +55,15 @@ export function SelectionStepItem({
         </span>
 
         <span className="min-w-0 truncate pl-1 text-xs font-bold text-[var(--text-strong)]">
-          {step.name}
+          {step.title}
         </span>
 
         <time
-          dateTime={step.date}
+          dateTime={step.heldAt}
           className="flex w-16 shrink-0 items-center justify-start font-mono text-[11px] font-black text-[var(--text-strong)]"
         >
-          {step.date
-            ? step.date.slice(5).replace("-", "/")
+          {step.heldAt
+            ? step.heldAt.slice(5).replace("-", "/")
             : "--/--"}
         </time>
 
@@ -76,8 +76,8 @@ export function SelectionStepItem({
         >
           <SelectionStepBadge
             title={trackName}
-            step={step.name}
-            result={step.result}
+            step={step.title}
+            result={step.status}
             size="s"
             showContext={false}
             compactMenu
@@ -136,17 +136,17 @@ export function SelectionStepItem({
                 saveMemo();
               }
             }}
-            aria-label={`${step.name}のメモ`}
+            aria-label={`${step.title}のメモ`}
             className="min-h-24 w-full cursor-text resize-y border border-[var(--line-strong)] bg-[var(--panel-raised)] p-3 text-[11px] leading-5 text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] focus:border-[var(--accent)]"
             placeholder="詳細を入力"
           />
         ) : (
           <p className={`min-h-8 whitespace-pre-wrap text-[11px] leading-5 ${
-            step.memo
+            step.note
               ? "text-[var(--muted)]"
               : "text-[var(--faint)]"
           }`}>
-            {step.memo}
+            {step.note}
           </p>
         )}
       </div>

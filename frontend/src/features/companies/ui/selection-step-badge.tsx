@@ -5,16 +5,12 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import {
-  useEffect,
-  useState,
-} from "react";
-import type { SelectionResult } from "../model/companyDetail";
+import type { SelectionStatus } from "../model/selection";
 import type { Size } from "@/shared/shared-type";
 import { HoverCard } from "@/shared/hover-card";
 
 type StatusProps = {
-  result: SelectionResult;
+  result: SelectionStatus;
   size: Size;
   interactive?: boolean;
 };
@@ -22,20 +18,20 @@ type StatusProps = {
 type BadgeProps = {
   title: string;
   step: string;
-  result: SelectionResult;
-  onResultChange?: (result: SelectionResult) => void;
+  result: SelectionStatus;
+  onResultChange?: (result: SelectionStatus) => void;
   showContext?: boolean;
   compactMenu?: boolean;
 };
 
-const icon: Record<SelectionResult, LucideIcon> = {
+const icon: Record<SelectionStatus, LucideIcon> = {
   not_started: Minus,
   passed: Check,
   failed: X,
   pending: Clock3,
 };
 
-const statusColorStyle: Record<SelectionResult, string> = {
+const statusColorStyle: Record<SelectionStatus, string> = {
   not_started:
     "border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]",
   pending:
@@ -46,7 +42,7 @@ const statusColorStyle: Record<SelectionResult, string> = {
     "border-blue-500/50 bg-blue-500/10 text-blue-600",
 };
 
-const interactiveStatusStyle: Record<SelectionResult, string> = {
+const interactiveStatusStyle: Record<SelectionStatus, string> = {
   not_started:
     "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
   pending:
@@ -57,14 +53,14 @@ const interactiveStatusStyle: Record<SelectionResult, string> = {
     "hover:border-blue-500 hover:bg-blue-500 hover:text-white",
 };
 
-const statusText: Record<SelectionResult, string> = {
+const statusText: Record<SelectionStatus, string> = {
   not_started: "未受験",
   pending: "結果待ち",
   passed: "合格",
   failed: "不合格",
 };
 
-const selectionResults: SelectionResult[] = [
+const selectionResults: SelectionStatus[] = [
   "not_started",
   "pending",
   "passed",
@@ -127,14 +123,7 @@ export function SelectionStepBadge({
   showContext = true,
   compactMenu = false,
 }: SelectionStepBadgeProps) {
-  const [selectedResult, setSelectedResult] = useState(result);
-
-  useEffect(() => {
-    setSelectedResult(result);
-  }, [result]);
-
-  function selectResult(nextResult: SelectionResult) {
-    setSelectedResult(nextResult);
+  function selectResult(nextResult: SelectionStatus) {
     onResultChange?.(nextResult);
   }
 
@@ -147,7 +136,7 @@ export function SelectionStepBadge({
       triggerClassName="inline-block cursor-pointer outline-none"
       trigger={
         <SelectionStatusBadge
-          result={selectedResult}
+          result={result}
           size={size}
           interactive
         />
@@ -182,7 +171,7 @@ export function SelectionStepBadge({
           >
             {selectionResults.map((option) => {
               const OptionIcon = icon[option];
-              const isSelected = selectedResult === option;
+              const isSelected = result === option;
 
               return (
                 <button

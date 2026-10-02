@@ -26,10 +26,10 @@ export function TaskDialog({
     : {
         id: Date.now(),
         title: "",
-        description: "",
-        dueDate: undefined,
+        note: "",
+        deadline: undefined,
         company: defaultCompany,
-        completed: false,
+        done: false,
       });
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -60,10 +60,10 @@ export function TaskDialog({
         期限
         <input
           type="date"
-          value={form.dueDate ?? ""}
+          value={form.deadline ?? ""}
           onChange={(event) => setForm({
             ...form,
-            dueDate: event.target.value || undefined,
+            deadline: event.target.value || undefined,
           })}
           className={fieldClassName}
         />
@@ -86,10 +86,10 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)] sm:col-span-2">
         詳細
         <textarea
-          value={form.description}
+          value={form.note}
           onChange={(event) => setForm({
             ...form,
-            description: event.target.value,
+            note: event.target.value,
           })}
           className="mt-1 min-h-28 w-full resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
         />

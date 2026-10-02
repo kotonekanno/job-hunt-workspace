@@ -1,0 +1,29 @@
+parameters:
+  - $ref: ../components/parameters/path.yaml#/EventId
+
+patch:
+  description: 指定したイベントを部分更新する。日付や日時の整合性は更新後のイベント全体で確認する。
+  tags:
+    - Events
+  operationId: patchEvent
+  summary: イベントを更新する
+  requestBody:
+    description: 更新する項目のみ指定する。
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/event.yaml#/UpdateEventRequest
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
+
+delete:
+  description: 指定したイベントを削除する。
+  tags:
+    - Events
+  operationId: deleteEvent
+  summary: イベントを削除する
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

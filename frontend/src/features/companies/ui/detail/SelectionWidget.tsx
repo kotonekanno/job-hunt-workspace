@@ -3,11 +3,11 @@ import {
   GitBranch,
 } from "lucide-react";
 import { useState } from "react";
+import { initialSelectionTracks } from "../../model/companyDetail";
 import {
-  initialSelectionTracks,
-  type SelectionResult,
-  type SelectionTrack,
-} from "@/features/companies/model/companyDetail";
+  type SelectionStatus,
+  type Selection,
+} from "@/features/companies/model/selection";
 import { SelectionStepItem } from "@/features/companies/ui/detail/SelectionStepItem";
 import { SelectionTrackDialog } from "@/features/companies/ui/detail/SelectionTrackDialog";
 import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
@@ -26,11 +26,11 @@ export function SelectionWidget({
   onRemove,
 }: SelectionWidgetProps) {
   const [tracks, setTracks] = useState(initialSelectionTracks);
-  const [editingTrack, setEditingTrack] = useState<SelectionTrack>();
+  const [editingTrack, setEditingTrack] = useState<Selection>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [pendingTrack, setPendingTrack] = useState<SelectionTrack>();
+  const [pendingTrack, setPendingTrack] = useState<Selection>();
 
-  function saveTrack(track: SelectionTrack) {
+  function saveTrack(track: Selection) {
     const exists = tracks.some((item) => item.id === track.id);
 
     if (exists) {
@@ -42,7 +42,7 @@ export function SelectionWidget({
     setTracks((current) => [...current, track]);
   }
 
-  function openEditDialog(track: SelectionTrack) {
+  function openEditDialog(track: Selection) {
     setEditingTrack(track);
     setIsDialogOpen(true);
   }
@@ -56,7 +56,7 @@ export function SelectionWidget({
   function updateStepResult(
     trackId: number,
     stepId: number,
-    result: SelectionResult,
+    result: SelectionStatus,
   ) {
     setTracks((current) => current.map((track) =>
       track.id === trackId
@@ -64,7 +64,7 @@ export function SelectionWidget({
             ...track,
             steps: track.steps.map((step) =>
               step.id === stepId
-                ? { ...step, result }
+                ? { ...step, status: result }
                 : step),
           }
         : track));
@@ -81,7 +81,7 @@ export function SelectionWidget({
             ...track,
             steps: track.steps.map((step) =>
               step.id === stepId
-                ? { ...step, memo }
+                ? { ...step, note: memo }
                 : step),
           }
         : track));
@@ -116,7 +116,7 @@ export function SelectionWidget({
               <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-3.5 py-2.5 [&::-webkit-details-marker]:hidden">
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-black text-[var(--text-strong)]">
-                    {track.name}
+                    {track.title}
                   </h3>
                   <p className="mt-0.5 font-mono text-[8px] font-semibold tracking-[0.12em] text-[var(--faint)]">
                     {track.steps.length} SELECTION STEPS
@@ -126,7 +126,7 @@ export function SelectionWidget({
                 <EditIconButton
                   size="s"
                   transparent={false}
-                  ariaLabel={`${track.name}を編集`}
+                  ariaLabel={`${track.title}を編集`}
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -137,7 +137,7 @@ export function SelectionWidget({
                 <DeleteIconButton
                   size="s"
                   transparent={false}
-                  ariaLabel={`${track.name}を削除`}
+                  ariaLabel={`${track.title}を削除`}
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -150,10 +150,12 @@ export function SelectionWidget({
 
               <div className="border-t border-[var(--line)] bg-[var(--panel)] px-3 py-4">
                 <div className="relative ml-3 space-y-2 border-l-2 border-[var(--accent-soft)] pl-5">
-                  {track.steps.map((step, stepIndex) => (
+                  {[...track.steps]
+                    .sort((left, right) => left.stepNo - right.stepNo)
+                    .map((step, stepIndex) => (
                     <SelectionStepItem
                       key={step.id}
-                      trackName={track.name}
+                      trackName={track.title}
                       step={step}
                       index={stepIndex}
                       onResultChange={(result) => {
@@ -163,7 +165,7 @@ export function SelectionWidget({
                         updateStepMemo(track.id, step.id, memo);
                       }}
                     />
-                  ))}
+                    ))}
                 </div>
               </div>
             </details>
@@ -182,7 +184,7 @@ export function SelectionWidget({
       {pendingTrack && (
         <DeleteDialog
           title="選考を削除しますか？"
-          text={`「${pendingTrack.name}」と含まれる選考ステップを削除します。この操作は取り消せません。`}
+          text={`「${pendingTrack.title}」と含まれる選考ステップを削除します。この操作は取り消せません。`}
           onClose={() => setPendingTrack(undefined)}
           onConfirm={() => {
             removeTrack(pendingTrack.id);

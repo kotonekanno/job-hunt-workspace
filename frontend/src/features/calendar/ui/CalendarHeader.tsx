@@ -1,26 +1,26 @@
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  attendanceStatuses,
   eventCategories,
-  eventFormats,
-  type AttendanceStatus,
+  eventCategoryLabels,
   type EventCategory,
-  type EventFormat,
 } from "@/features/calendar/model/calendar";
+import type {
+  AttendanceFilter,
+  OnlineFilter,
+} from "@/features/calendar/hooks/useCalendar";
 import {
   Select,
-  toSelectOptions,
   type SelectOption,
 } from "@/shared/select";
 
 type CalendarFiltersProps = {
   displayDate: Date;
   category: EventCategory | "すべて";
-  format: EventFormat | "すべて";
-  status: AttendanceStatus | "すべて";
+  format: OnlineFilter;
+  status: AttendanceFilter;
   onCategoryChange: (value: EventCategory | "すべて") => void;
-  onFormatChange: (value: EventFormat | "すべて") => void;
-  onStatusChange: (value: AttendanceStatus | "すべて") => void;
+  onFormatChange: (value: OnlineFilter) => void;
+  onStatusChange: (value: AttendanceFilter) => void;
   onDateChange: (date: Date) => void;
   onPreviousMonth: () => void;
   onNextMonth: () => void;
@@ -74,7 +74,10 @@ export function CalendarHeader(props: CalendarFiltersProps) {
             value={props.category}
             options={[
               { value: "すべて", label: "すべての予定" },
-              ...toSelectOptions(eventCategories),
+              ...eventCategories.map((category) => ({
+                value: category,
+                label: eventCategoryLabels[category],
+              })),
             ]}
             onValueChange={props.onCategoryChange}
             aria-label="予定種別で絞り込む"
@@ -84,7 +87,8 @@ export function CalendarHeader(props: CalendarFiltersProps) {
             value={props.format}
             options={[
               { value: "すべて", label: "すべての形式" },
-              ...toSelectOptions(eventFormats),
+              { value: "online", label: "オンライン" },
+              { value: "offline", label: "オフライン" },
             ]}
             onValueChange={props.onFormatChange}
             aria-label="実施形式で絞り込む"
@@ -94,7 +98,8 @@ export function CalendarHeader(props: CalendarFiltersProps) {
             value={props.status}
             options={[
               { value: "すべて", label: "すべての参加状況" },
-              ...toSelectOptions(attendanceStatuses),
+              { value: "attending", label: "参加" },
+              { value: "notAttending", label: "不参加" },
             ]}
             onValueChange={props.onStatusChange}
             aria-label="参加状況で絞り込む"

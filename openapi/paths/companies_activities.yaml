@@ -1,0 +1,33 @@
+parameters:
+  - $ref: ../components/parameters/path.yaml#/CompanyId
+
+post:
+  description: 指定した企業とのやり取りを登録する。企業ごとに複数件登録できる。
+  tags:
+    - Companies
+  operationId: createCompanyActivity
+  summary: 企業の活動履歴を追加する
+  requestBody:
+    description: 登録内容。
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/company.yaml#/CreateCompanyActivityRequest
+  responses:
+    '201':
+      description: 作成に成功。
+      content:
+        application/json:
+          schema:
+            description: 作成したリソースの識別情報。
+            type: object
+            required:
+              - activityId
+            properties:
+              activityId:
+                description: 作成した活動履歴のID。
+                type: integer
+                format: int32
+            example:
+              activityId: 1

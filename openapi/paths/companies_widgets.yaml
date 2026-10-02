@@ -1,0 +1,19 @@
+parameters:
+  - $ref: ../components/parameters/path.yaml#/CompanyId
+
+patch:
+  description: 指定したウィジェットの表示・非表示を更新する。
+  tags:
+    - Companies
+  operationId: patchCompanyWidgets
+  summary: 企業のウィジェット表示設定を更新する
+  requestBody:
+    description: 更新するウィジェットの表示設定。
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/company.yaml#/UpdateCompanyWidgetRequest
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

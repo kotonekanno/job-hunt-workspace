@@ -16,14 +16,16 @@ export function DocumentsPage() {
     const normalizedQuery = query.trim().toLocaleLowerCase();
 
     if (!normalizedQuery) {
-      return documentArchive.documents;
+      return [...documentArchive.documents].sort(
+        (left, right) => left.position - right.position,
+      );
     }
 
     return documentArchive.documents.filter((document) => (
-      `${document.title}\n${document.content}`
+      `${document.title}\n${document.text}`
         .toLocaleLowerCase()
         .includes(normalizedQuery)
-    ));
+    )).sort((left, right) => left.position - right.position);
   }, [documentArchive.documents, query]);
 
   function reorderFilteredDocuments(

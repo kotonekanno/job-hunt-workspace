@@ -13,15 +13,15 @@ type CalendarEventItemProps = {
 };
 
 const categoryColorClassName: Record<EventCategory, string> = {
-  "説明会": "border-sky-500 bg-sky-500/10 text-[var(--text-strong)]",
-  "面接": "border-rose-500 bg-rose-500/10 text-[var(--text-strong)]",
-  "カジュアル面談": "border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]",
-  "インターン": "border-purple-500 bg-purple-500/10 text-[var(--text-strong)]",
-  "その他": "border-slate-500 bg-slate-500/10 text-[var(--text-strong)]",
+  session: "border-sky-500 bg-sky-500/10 text-[var(--text-strong)]",
+  interview: "border-rose-500 bg-rose-500/10 text-[var(--text-strong)]",
+  chat: "border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]",
+  internship: "border-purple-500 bg-purple-500/10 text-[var(--text-strong)]",
+  other: "border-slate-500 bg-slate-500/10 text-[var(--text-strong)]",
 };
 
 function getEventClassName(event: CalendarEvent): string {
-  const emphasisClassName = event.status === "不参加"
+  const emphasisClassName = event.isAttending === false
     ? "bg-transparent opacity-50 shadow-none"
     : "font-semibold shadow-[0_2px_6px_var(--shadow)]";
 

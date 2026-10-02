@@ -52,17 +52,6 @@ export function MainLayout() {
   }, [theme]);
 
   useEffect(() => {
-    if (isProtectedPage) {
-      setIsSidebarOpen(
-        window.matchMedia(sidebarBreakpointQuery).matches,
-      );
-      return;
-    }
-
-    setIsSidebarOpen(false);
-  }, [isProtectedPage]);
-
-  useEffect(() => {
     const breakpoint = window.matchMedia(sidebarBreakpointQuery);
 
     function closeSidebarOnNarrowScreen(event: MediaQueryListEvent) {
@@ -77,7 +66,7 @@ export function MainLayout() {
   }, []);
 
   const protectedLayoutContext: ProtectedLayoutOutletContext = {
-    isSidebarOpen,
+    isSidebarOpen: isProtectedPage && isSidebarOpen,
     toggleSidebar: () => setIsSidebarOpen((isOpen) => !isOpen),
     closeSidebar: () => setIsSidebarOpen(false),
   };
@@ -93,8 +82,8 @@ export function MainLayout() {
                 type="button"
                 onClick={protectedLayoutContext.toggleSidebar}
                 className="ui-control mr-3 flex size-9 shrink-0 cursor-pointer items-center justify-center bg-transparent text-[var(--faint)] hover:bg-[var(--panel-raised)] hover:text-[var(--accent)]"
-                aria-label={isSidebarOpen ? "メニューを閉じる" : "メニューを開く"}
-                aria-expanded={isSidebarOpen}
+                aria-label={protectedLayoutContext.isSidebarOpen ? "メニューを閉じる" : "メニューを開く"}
+                aria-expanded={protectedLayoutContext.isSidebarOpen}
                 aria-controls="protected-sidebar"
               >                
                 <Menu aria-hidden="true" className="size-4" />

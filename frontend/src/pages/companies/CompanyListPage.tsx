@@ -22,16 +22,13 @@ export function CompanyListPage() {
       <div className="mt-4">
         <CompanyListToolbar
           query={companyList.query}
-          progress={companyList.progress}
           onQueryChange={companyList.setQuery}
-          onProgressChange={companyList.setProgress}
         />
       </div>
 
       <div className="mt-5">
         <CompanyPriorityBoard
           companies={companyList.companies}
-          onEventChange={companyList.updateNextEvent}
           onCompaniesReorder={companyList.reorderCompanies}
           onSelectionResultChange={companyList.updateSelectionResult}
         />

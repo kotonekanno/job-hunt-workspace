@@ -1,22 +1,23 @@
 export type EssayGroup = {
   id: string;
+  position: number;
   name: string;
 };
 
 export type Essay = {
   id: number;
-  company: string;
+  company?: string;
   groupId: string;
   question: string;
   answer: string;
 };
 
 export const initialEssayGroups: EssayGroup[] = [
-  { id: "motivation", name: "志望動機" },
-  { id: "strengths", name: "長所" },
-  { id: "gakuchika", name: "ガクチカ" },
-  { id: "research", name: "研究" },
-  { id: "unclassified", name: "未分類" },
+  { id: "motivation", position: 1, name: "志望動機" },
+  { id: "strengths", position: 2, name: "長所" },
+  { id: "gakuchika", position: 3, name: "ガクチカ" },
+  { id: "research", position: 4, name: "研究" },
+  { id: "unclassified", position: 5, name: "未分類" },
 ];
 
 export const unclassifiedEssayGroupId = "unclassified";
