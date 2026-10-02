@@ -1,11 +1,8 @@
-import { Extension } from "@tiptap/core";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
-import {
-  Decoration,
-  DecorationSet,
-} from "@tiptap/pm/view";
+import { Extension } from '@tiptap/core';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
 
-declare module "@tiptap/core" {
+declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     searchHighlight: {
       setSearchHighlight: (query: string) => ReturnType;
@@ -17,31 +14,33 @@ type SearchHighlightStorage = {
   query: string;
 };
 
-const searchHighlightPluginKey = new PluginKey("searchHighlight");
+const searchHighlightPluginKey = new PluginKey('searchHighlight');
 
 export const SearchHighlight = Extension.create<
   Record<string, never>,
   SearchHighlightStorage
 >({
-  name: "searchHighlight",
+  name: 'searchHighlight',
 
   addStorage() {
     return {
-      query: "",
+      query: '',
     };
   },
 
   addCommands() {
     return {
-      setSearchHighlight: (query) => ({ dispatch, tr }) => {
-        this.storage.query = query.trim().toLocaleLowerCase();
+      setSearchHighlight:
+        (query) =>
+        ({ dispatch, tr }) => {
+          this.storage.query = query.trim().toLocaleLowerCase();
 
-        if (dispatch) {
-          dispatch(tr.setMeta(searchHighlightPluginKey, query));
-        }
+          if (dispatch) {
+            dispatch(tr.setMeta(searchHighlightPluginKey, query));
+          }
 
-        return true;
-      },
+          return true;
+        },
     };
   },
 
@@ -68,18 +67,17 @@ export const SearchHighlight = Extension.create<
               let matchIndex = text.indexOf(query);
 
               while (matchIndex !== -1) {
-                decorations.push(Decoration.inline(
-                  position + matchIndex,
-                  position + matchIndex + query.length,
-                  {
-                    class: "document-search-highlight",
-                  },
-                ));
-
-                matchIndex = text.indexOf(
-                  query,
-                  matchIndex + query.length,
+                decorations.push(
+                  Decoration.inline(
+                    position + matchIndex,
+                    position + matchIndex + query.length,
+                    {
+                      class: 'document-search-highlight',
+                    },
+                  ),
                 );
+
+                matchIndex = text.indexOf(query, matchIndex + query.length);
               }
             });
 

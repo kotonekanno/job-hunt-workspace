@@ -1,5 +1,5 @@
-import { BulkDeleteButton } from "@/shared/button";
-import { SearchBox } from "@/shared/SearchBox";
+import { BulkDeleteButton } from '@/shared/button';
+import { SearchBox } from '@/shared/SearchBox';
 
 type TaskToolbarProps = {
   companyQuery: string;

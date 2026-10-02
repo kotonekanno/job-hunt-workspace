@@ -1,9 +1,9 @@
-import type { Editor } from "@tiptap/core";
-import Placeholder from "@tiptap/extension-placeholder";
-import { TaskItem, TaskList } from "@tiptap/extension-list";
-import { Markdown } from "@tiptap/markdown";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import type { Editor } from '@tiptap/core';
+import Placeholder from '@tiptap/extension-placeholder';
+import { TaskItem, TaskList } from '@tiptap/extension-list';
+import { Markdown } from '@tiptap/markdown';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import {
   useCallback,
   useEffect,
@@ -11,35 +11,38 @@ import {
   useRef,
   useState,
   type CSSProperties,
-} from "react";
-import type { RichTextEditorProps } from "@/features/companies/ui/documents/RichTextEditor.types";
-import { RichTextShortcuts } from "@/features/companies/ui/documents/RichTextShortcuts";
-import { SearchHighlight } from "@/features/companies/ui/documents/SearchHighlight";
-import { SimpleEditorToolbar } from "@/features/companies/ui/documents/SimpleEditorToolbar";
+} from 'react';
+import type { RichTextEditorProps } from '@/features/companies/ui/documents/RichTextEditor.types';
+import { RichTextShortcuts } from '@/features/companies/ui/documents/RichTextShortcuts';
+import { SearchHighlight } from '@/features/companies/ui/documents/SearchHighlight';
+import { SimpleEditorToolbar } from '@/features/companies/ui/documents/SimpleEditorToolbar';
 
 export function SimpleRichTextEditor({
   value,
   onChange,
-  placeholder = "本文を入力してください",
+  placeholder = '本文を入力してください',
   disabled = false,
   readOnly = false,
   minHeight = 480,
-  className = "",
-  searchQuery = "",
+  className = '',
+  searchQuery = '',
   staticAppearance = false,
 }: RichTextEditorProps) {
   const [isLinkEditing, setIsLinkEditing] = useState(false);
-  const [linkValue, setLinkValue] = useState("");
+  const [linkValue, setLinkValue] = useState('');
   const lastEmittedValue = useRef<string | null>(null);
 
-  const openLinkEditor = useCallback((currentEditor: Editor) => {
-    if (disabled || readOnly) {
-      return;
-    }
+  const openLinkEditor = useCallback(
+    (currentEditor: Editor) => {
+      if (disabled || readOnly) {
+        return;
+      }
 
-    setLinkValue(currentEditor.getAttributes("link").href ?? "");
-    setIsLinkEditing(true);
-  }, [disabled, readOnly]);
+      setLinkValue(currentEditor.getAttributes('link').href ?? '');
+      setIsLinkEditing(true);
+    },
+    [disabled, readOnly],
+  );
 
   const extensions = useMemo(
     () => [
@@ -52,10 +55,10 @@ export function SimpleRichTextEditor({
           enableClickSelection: true,
           autolink: true,
           linkOnPaste: true,
-          defaultProtocol: "https",
+          defaultProtocol: 'https',
           HTMLAttributes: {
-            rel: "noopener noreferrer",
-            target: "_blank",
+            rel: 'noopener noreferrer',
+            target: '_blank',
           },
         },
       }),
@@ -64,7 +67,7 @@ export function SimpleRichTextEditor({
         nested: true,
         a11y: {
           checkboxLabel: (node, checked) =>
-            `${node.textContent || "チェック項目"}を${checked ? "未完了" : "完了"}にする`,
+            `${node.textContent || 'チェック項目'}を${checked ? '未完了' : '完了'}にする`,
         },
       }),
       Markdown,
@@ -83,19 +86,19 @@ export function SimpleRichTextEditor({
     {
       extensions,
       content: value,
-      contentType: "markdown",
+      contentType: 'markdown',
       editable: !disabled && !readOnly,
       immediatelyRender: false,
       shouldRerenderOnTransaction: false,
       editorProps: {
         attributes: {
-          autocomplete: "off",
-          autocorrect: "off",
-          autocapitalize: "off",
-          class: "tiptap-editor-content simple-tiptap-content",
-          role: "textbox",
-          "aria-label": readOnly ? "文書本文" : "文書本文を編集",
-          "aria-multiline": "true",
+          autocomplete: 'off',
+          autocorrect: 'off',
+          autocapitalize: 'off',
+          class: 'tiptap-editor-content simple-tiptap-content',
+          role: 'textbox',
+          'aria-label': readOnly ? '文書本文' : '文書本文を編集',
+          'aria-multiline': 'true',
         },
       },
       onUpdate: ({ editor: currentEditor }) => {
@@ -121,7 +124,7 @@ export function SimpleRichTextEditor({
     }
 
     editor.commands.setContent(value, {
-      contentType: "markdown",
+      contentType: 'markdown',
       emitUpdate: false,
     });
   }, [editor, value]);
@@ -134,17 +137,17 @@ export function SimpleRichTextEditor({
     const href = linkValue.trim();
 
     if (href) {
-      editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+      editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
     } else {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
     }
 
     setIsLinkEditing(false);
   }
 
   function removeLink() {
-    editor?.chain().focus().extendMarkRange("link").unsetLink().run();
-    setLinkValue("");
+    editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+    setLinkValue('');
     setIsLinkEditing(false);
   }
 
@@ -162,7 +165,7 @@ export function SimpleRichTextEditor({
   }
 
   const editorStyle = {
-    "--editor-min-height": `${minHeight}px`,
+    '--editor-min-height': `${minHeight}px`,
   } as CSSProperties;
 
   return (
@@ -172,9 +175,9 @@ export function SimpleRichTextEditor({
         border border-[var(--line)] bg-[var(--panel)]
         text-[var(--text)] shadow-[0_10px_30px_var(--shadow)]
         transition-[border-color,box-shadow]
-        ${staticAppearance ? "" : "focus-within:border-[var(--line-strong)] focus-within:shadow-[0_12px_36px_var(--shadow)]"}
-        ${disabled ? "opacity-55" : ""}
-        ${readOnly ? "tiptap-editor-readonly shadow-none focus-within:border-[var(--line)] focus-within:shadow-none" : ""}
+        ${staticAppearance ? '' : 'focus-within:border-[var(--line-strong)] focus-within:shadow-[0_12px_36px_var(--shadow)]'}
+        ${disabled ? 'opacity-55' : ''}
+        ${readOnly ? 'tiptap-editor-readonly shadow-none focus-within:border-[var(--line)] focus-within:shadow-none' : ''}
         ${className}
       `}
       style={editorStyle}

@@ -1,21 +1,21 @@
-import { useMemo, useState } from "react";
-import { useCompanyDetail } from "@/features/companies/hooks/useCompanyDetail";
+import { useMemo, useState } from 'react';
+import { useCompanyDetail } from '@/features/companies/hooks/useCompanyDetail';
 import {
   type WidgetType,
   widgetLabels,
   widgetOrder,
-} from "@/features/companies/model/companyDetail";
-import { BasicInfoWidget } from "@/features/companies/ui/detail/BasicInfoWidget";
-import { CompanyHeader } from "@/features/companies/ui/detail/CompanyHeader";
-import { DocumentsWidget } from "@/features/companies/ui/detail/DocumentsWidget";
-import { LinksWidget } from "@/features/companies/ui/detail/LinksWidget";
-import { QuickMemoWidget } from "@/features/companies/ui/detail/QuickMemoWidget";
-import { RelatedEventsWidget } from "@/features/companies/ui/detail/RelatedEventsWidget";
-import { RelatedTasksWidget } from "@/features/companies/ui/detail/RelatedTasksWidget";
-import { SelectionWidget } from "@/features/companies/ui/detail/SelectionWidget";
-import { WidgetPicker } from "@/features/companies/ui/detail/WidgetPicker";
-import { BackLink } from "@/shared/BackLink";
-import { DeleteDialog } from "@/shared/dialog";
+} from '@/features/companies/model/companyDetail';
+import { BasicInfoWidget } from '@/features/companies/ui/detail/BasicInfoWidget';
+import { CompanyHeader } from '@/features/companies/ui/detail/CompanyHeader';
+import { DocumentsWidget } from '@/features/companies/ui/detail/DocumentsWidget';
+import { LinksWidget } from '@/features/companies/ui/detail/LinksWidget';
+import { QuickMemoWidget } from '@/features/companies/ui/detail/QuickMemoWidget';
+import { RelatedEventsWidget } from '@/features/companies/ui/detail/RelatedEventsWidget';
+import { RelatedTasksWidget } from '@/features/companies/ui/detail/RelatedTasksWidget';
+import { SelectionWidget } from '@/features/companies/ui/detail/SelectionWidget';
+import { WidgetPicker } from '@/features/companies/ui/detail/WidgetPicker';
+import { BackLink } from '@/shared/BackLink';
+import { DeleteDialog } from '@/shared/dialog';
 
 const allWidgets: WidgetType[] = widgetOrder;
 
@@ -24,9 +24,7 @@ export function CompanyDashboard() {
   const [pendingRemoval, setPendingRemoval] = useState<WidgetType | null>(null);
 
   const hiddenWidgets = useMemo(
-    () => allWidgets.filter(
-      (widget) => !company.widgets.includes(widget),
-    ),
+    () => allWidgets.filter((widget) => !company.widgets.includes(widget)),
     [company.widgets],
   );
 
@@ -34,15 +32,15 @@ export function CompanyDashboard() {
     const requestRemoval = () => setPendingRemoval(widget);
 
     switch (widget) {
-      case "basic-info":
+      case 'basic-info':
         return <BasicInfoWidget key={widget} onRemove={requestRemoval} />;
-      case "links":
+      case 'links':
         return <LinksWidget key={widget} onRemove={requestRemoval} />;
-      case "tasks":
+      case 'tasks':
         return <RelatedTasksWidget key={widget} />;
-      case "events":
+      case 'events':
         return <RelatedEventsWidget key={widget} />;
-      case "documents":
+      case 'documents':
         return (
           <DocumentsWidget
             key={widget}
@@ -53,20 +51,10 @@ export function CompanyDashboard() {
             onDocumentReorder={company.reorderDocuments}
           />
         );
-      case "selection":
-        return (
-          <SelectionWidget
-            key={widget}
-            onRemove={requestRemoval}
-          />
-        );
-      case "note":
-        return (
-          <QuickMemoWidget
-            key={widget}
-            onRemove={requestRemoval}
-          />
-        );
+      case 'selection':
+        return <SelectionWidget key={widget} onRemove={requestRemoval} />;
+      case 'note':
+        return <QuickMemoWidget key={widget} onRemove={requestRemoval} />;
     }
   }
 
@@ -84,15 +72,10 @@ export function CompanyDashboard() {
       <CompanyHeader />
 
       <div className="mt-4">
-        <BackLink to="/companies">
-          企業一覧へ戻る
-        </BackLink>
+        <BackLink to="/companies">企業一覧へ戻る</BackLink>
       </div>
 
-      <WidgetPicker
-        hiddenWidgets={hiddenWidgets}
-        onAdd={company.addWidget}
-      />
+      <WidgetPicker hiddenWidgets={hiddenWidgets} onAdd={company.addWidget} />
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {company.widgets.map(renderWidget)}

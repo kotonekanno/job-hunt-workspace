@@ -1,12 +1,9 @@
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-import type { Task } from "@/features/task/model/task";
-import { CompanyBadge } from "@/shared/badge";
-import {
-  DeleteIconButton,
-  EditIconButton,
-} from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
+import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import type { Task } from '@/features/task/model/task';
+import { CompanyBadge } from '@/shared/badge';
+import { DeleteIconButton, EditIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
 
 type TaskRowProps = {
   task: Task;
@@ -22,14 +19,16 @@ export function TaskRow(props: TaskRowProps) {
   const showCompany = props.showCompany ?? true;
   const showActions = props.showActions ?? true;
   const gridTemplateColumns = [
-    "28px",
-    showCompany ? "minmax(64px, 108px)" : null,
-    "minmax(120px, 1fr)",
-    "108px",
-    showActions ? "36px" : null,
-    showActions ? "36px" : null,
-    "20px",
-  ].filter(Boolean).join(" ");
+    '28px',
+    showCompany ? 'minmax(64px, 108px)' : null,
+    'minmax(120px, 1fr)',
+    '108px',
+    showActions ? '36px' : null,
+    showActions ? '36px' : null,
+    '20px',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <>
@@ -55,18 +54,20 @@ export function TaskRow(props: TaskRowProps) {
             aria-label={`${props.task.title}を完了にする`}
           />
 
-          {showCompany && (
-            props.task.company
-              ? <CompanyBadge company={props.task.company} />
-              : <span aria-hidden="true" />
-          )}
+          {showCompany &&
+            (props.task.company ? (
+              <CompanyBadge company={props.task.company} />
+            ) : (
+              <span aria-hidden="true" />
+            ))}
 
           <span
             className={`
               ml-2 truncate text-sm font-semibold
-              ${props.task.done
-                ? "text-[var(--faint)] line-through"
-                : "text-[var(--text-strong)]"
+              ${
+                props.task.done
+                  ? 'text-[var(--faint)] line-through'
+                  : 'text-[var(--text-strong)]'
               }
             `}
           >
@@ -78,7 +79,7 @@ export function TaskRow(props: TaskRowProps) {
               dateTime={props.task.deadline}
               className="font-mono text-sm font-bold text-[var(--text-strong)]"
             >
-              {props.task.deadline.slice(5).replace("-", "/")}
+              {props.task.deadline.slice(5).replace('-', '/')}
               <span className="ml-1 text-[10px] font-medium text-[var(--muted)]">
                 まで
               </span>

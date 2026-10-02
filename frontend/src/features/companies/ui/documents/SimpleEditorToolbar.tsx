@@ -1,4 +1,4 @@
-import type { Editor } from "@tiptap/core";
+import type { Editor } from '@tiptap/core';
 import {
   ArrowLeft,
   Bold,
@@ -24,17 +24,17 @@ import {
   Underline,
   Undo2,
   type LucideIcon,
-} from "lucide-react";
-import { useEditorState } from "@tiptap/react";
+} from 'lucide-react';
+import { useEditorState } from '@tiptap/react';
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-} from "react";
-import { createPortal } from "react-dom";
-import { Tooltip } from "@/shared/tooltip";
+} from 'react';
+import { createPortal } from 'react-dom';
+import { Tooltip } from '@/shared/tooltip';
 
 type SimpleEditorToolbarProps = {
   editor: Editor;
@@ -96,8 +96,8 @@ function ToolbarButton({
           disabled:cursor-not-allowed disabled:opacity-35
           ${
             active
-              ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-              : "text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text-strong)]"
+              ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+              : 'text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text-strong)]'
           }
         `}
       >
@@ -126,8 +126,7 @@ function ToolbarDropdown({
     }
 
     const rect = trigger.getBoundingClientRect();
-    const maximumLeft =
-      window.innerWidth - dropdownWidth - viewportPadding;
+    const maximumLeft = window.innerWidth - dropdownWidth - viewportPadding;
 
     setPosition({
       left: Math.min(Math.max(rect.left, viewportPadding), maximumLeft),
@@ -141,12 +140,12 @@ function ToolbarDropdown({
     }
 
     updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
 
     return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
     };
   }, [isOpen, updatePosition]);
 
@@ -166,10 +165,10 @@ function ToolbarDropdown({
       }
     }
 
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
 
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
     };
   }, [isOpen]);
 
@@ -190,14 +189,14 @@ function ToolbarDropdown({
             focus-visible:outline-[var(--accent)]
             ${
               active || isOpen
-                ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                : "text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text-strong)]"
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)]'
+                : 'text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text-strong)]'
             }
           `}
         >
           <Icon className="size-4" aria-hidden="true" />
           <ChevronDown
-            className={`size-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
+            className={`size-3 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </button>
@@ -236,8 +235,8 @@ function ToolbarDropdown({
                     px-2.5 py-2 text-left text-xs transition-colors
                     ${
                       option.active
-                        ? "bg-[var(--accent-soft)] font-semibold text-[var(--accent)]"
-                        : "text-[var(--text)] hover:bg-[var(--panel-raised)]"
+                        ? 'bg-[var(--accent-soft)] font-semibold text-[var(--accent)]'
+                        : 'text-[var(--text)] hover:bg-[var(--panel-raised)]'
                     }
                   `}
                 >
@@ -264,10 +263,7 @@ function LinkToolbar({
   onApplyLink,
   onRemoveLink,
   onCloseLink,
-}: Omit<
-  SimpleEditorToolbarProps,
-  "isLinkEditing" | "onOpenLink"
->) {
+}: Omit<SimpleEditorToolbarProps, 'isLinkEditing' | 'onOpenLink'>) {
   return (
     <div className="flex min-w-full items-center gap-2 px-2 py-1.5">
       <ToolbarButton
@@ -284,12 +280,12 @@ function LinkToolbar({
         value={linkValue}
         onChange={(event) => onLinkValueChange(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === "Enter") {
+          if (event.key === 'Enter') {
             event.preventDefault();
             onApplyLink();
           }
 
-          if (event.key === "Escape") {
+          if (event.key === 'Escape') {
             onCloseLink();
           }
         }}
@@ -304,13 +300,9 @@ function LinkToolbar({
         "
       />
 
-      <ToolbarButton
-        label="リンクを適用"
-        icon={Check}
-        onClick={onApplyLink}
-      />
+      <ToolbarButton label="リンクを適用" icon={Check} onClick={onApplyLink} />
 
-      {editor.isActive("link") && (
+      {editor.isActive('link') && (
         <ToolbarButton
           label="リンクを解除"
           icon={Trash2}
@@ -334,21 +326,21 @@ export function SimpleEditorToolbar({
   const state = useEditorState({
     editor,
     selector: ({ editor: currentEditor }) => ({
-      paragraph: currentEditor.isActive("paragraph"),
-      heading1: currentEditor.isActive("heading", { level: 1 }),
-      heading2: currentEditor.isActive("heading", { level: 2 }),
-      heading3: currentEditor.isActive("heading", { level: 3 }),
-      bulletList: currentEditor.isActive("bulletList"),
-      orderedList: currentEditor.isActive("orderedList"),
-      taskList: currentEditor.isActive("taskList"),
-      blockquote: currentEditor.isActive("blockquote"),
-      codeBlock: currentEditor.isActive("codeBlock"),
-      bold: currentEditor.isActive("bold"),
-      italic: currentEditor.isActive("italic"),
-      underline: currentEditor.isActive("underline"),
-      strike: currentEditor.isActive("strike"),
-      code: currentEditor.isActive("code"),
-      link: currentEditor.isActive("link"),
+      paragraph: currentEditor.isActive('paragraph'),
+      heading1: currentEditor.isActive('heading', { level: 1 }),
+      heading2: currentEditor.isActive('heading', { level: 2 }),
+      heading3: currentEditor.isActive('heading', { level: 3 }),
+      bulletList: currentEditor.isActive('bulletList'),
+      orderedList: currentEditor.isActive('orderedList'),
+      taskList: currentEditor.isActive('taskList'),
+      blockquote: currentEditor.isActive('blockquote'),
+      codeBlock: currentEditor.isActive('codeBlock'),
+      bold: currentEditor.isActive('bold'),
+      italic: currentEditor.isActive('italic'),
+      underline: currentEditor.isActive('underline'),
+      strike: currentEditor.isActive('strike'),
+      code: currentEditor.isActive('code'),
+      link: currentEditor.isActive('link'),
       canUndo: currentEditor.can().chain().focus().undo().run(),
       canRedo: currentEditor.can().chain().focus().redo().run(),
     }),
@@ -369,49 +361,46 @@ export function SimpleEditorToolbar({
 
   const headingOptions: DropdownOption[] = [
     {
-      label: "段落",
+      label: '段落',
       icon: Pilcrow,
       active: state.paragraph,
       onSelect: () => editor.chain().focus().setParagraph().run(),
     },
     {
-      label: "見出し1",
+      label: '見出し1',
       icon: Heading1,
       active: state.heading1,
-      onSelect: () =>
-        editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      onSelect: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     },
     {
-      label: "見出し2",
+      label: '見出し2',
       icon: Heading2,
       active: state.heading2,
-      onSelect: () =>
-        editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      onSelect: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
     },
     {
-      label: "見出し3",
+      label: '見出し3',
       icon: Heading3,
       active: state.heading3,
-      onSelect: () =>
-        editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      onSelect: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
     },
   ];
 
   const listOptions: DropdownOption[] = [
     {
-      label: "箇条書き",
+      label: '箇条書き',
       icon: List,
       active: state.bulletList,
       onSelect: () => editor.chain().focus().toggleBulletList().run(),
     },
     {
-      label: "番号付きリスト",
+      label: '番号付きリスト',
       icon: ListOrdered,
       active: state.orderedList,
       onSelect: () => editor.chain().focus().toggleOrderedList().run(),
     },
     {
-      label: "チェックリスト",
+      label: 'チェックリスト',
       icon: ListChecks,
       active: state.taskList,
       onSelect: () => editor.chain().focus().toggleTaskList().run(),
@@ -439,21 +428,13 @@ export function SimpleEditorToolbar({
         <ToolbarDropdown
           label="段落スタイル"
           icon={Heading2}
-          active={
-            state.heading1 ||
-            state.heading2 ||
-            state.heading3
-          }
+          active={state.heading1 || state.heading2 || state.heading3}
           options={headingOptions}
         />
         <ToolbarDropdown
           label="リスト"
           icon={ListTree}
-          active={
-            state.bulletList ||
-            state.orderedList ||
-            state.taskList
-          }
+          active={state.bulletList || state.orderedList || state.taskList}
           options={listOptions}
         />
         <ToolbarButton

@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
-import type { Task } from "@/features/task/model/task";
-import { TaskRow } from "@/features/task/ui/TaskRow";
+import { motion } from 'motion/react';
+import type { Task } from '@/features/task/model/task';
+import { TaskRow } from '@/features/task/ui/TaskRow';
 
 type TaskListProps = {
   tasks: Task[];
@@ -24,7 +24,7 @@ export function TaskList(props: TaskListProps) {
           layout="position"
           transition={{
             layout: {
-              type: "spring",
+              type: 'spring',
               stiffness: 420,
               damping: 34,
               mass: 0.75,

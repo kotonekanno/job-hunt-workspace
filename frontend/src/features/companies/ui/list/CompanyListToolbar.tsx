@@ -1,4 +1,4 @@
-import { SearchBox } from "@/shared/SearchBox";
+import { SearchBox } from '@/shared/SearchBox';
 
 type CompanyListToolbarProps = {
   query: string;

@@ -4,10 +4,10 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+} from 'react';
+import { createPortal } from 'react-dom';
 
-type TooltipSide = "top" | "bottom";
+type TooltipSide = 'top' | 'bottom';
 
 type TooltipProps = {
   content: string;
@@ -23,11 +23,7 @@ type TooltipPosition = {
 const viewportPadding = 8;
 const tooltipGap = 7;
 
-export function Tooltip({
-  content,
-  children,
-  side = "top",
-}: TooltipProps) {
+export function Tooltip({ content, children, side = 'top' }: TooltipProps) {
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -45,13 +41,12 @@ export function Tooltip({
     const tooltipWidth = tooltip.offsetWidth;
     const centeredLeft = triggerRect.left + triggerRect.width / 2;
     const minimumLeft = viewportPadding + tooltipWidth / 2;
-    const maximumLeft =
-      window.innerWidth - viewportPadding - tooltipWidth / 2;
+    const maximumLeft = window.innerWidth - viewportPadding - tooltipWidth / 2;
 
     setPosition({
       left: Math.min(Math.max(centeredLeft, minimumLeft), maximumLeft),
       top:
-        side === "top"
+        side === 'top'
           ? triggerRect.top - tooltipGap
           : triggerRect.bottom + tooltipGap,
     });
@@ -63,12 +58,12 @@ export function Tooltip({
     }
 
     updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
 
     return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
     };
   }, [isOpen, updatePosition]);
 
@@ -91,11 +86,11 @@ export function Tooltip({
             style={{
               left: position?.left ?? 0,
               top: position?.top ?? 0,
-              visibility: position ? "visible" : "hidden",
+              visibility: position ? 'visible' : 'hidden',
               transform:
-                side === "top"
-                  ? "translate(-50%, -100%)"
-                  : "translate(-50%, 0)",
+                side === 'top'
+                  ? 'translate(-50%, -100%)'
+                  : 'translate(-50%, 0)',
             }}
             className="
               ui-floating-surface pointer-events-none fixed z-[100]

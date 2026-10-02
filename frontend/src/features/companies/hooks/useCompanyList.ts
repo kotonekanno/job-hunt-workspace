@@ -1,36 +1,38 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 import {
   initialCompanyList,
   type CompanyListItem,
   type CompanyPriority,
-} from "@/features/companies/model/companyList";
-import type { SelectionStatus } from "@/features/companies/model/selection";
+} from '@/features/companies/model/companyList';
+import type { SelectionStatus } from '@/features/companies/model/selection';
 
 export function useCompanyList() {
   const [companies, setCompanies] = useState(initialCompanyList);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
 
   const visibleCompanies = useMemo(
-    () => companies
-      .filter((company) => company.name
-        .toLowerCase()
-        .includes(query.toLowerCase()))
-      .sort((left, right) => left.position - right.position),
+    () =>
+      companies
+        .filter((company) =>
+          company.name.toLowerCase().includes(query.toLowerCase()),
+        )
+        .sort((left, right) => left.position - right.position),
     [companies, query],
   );
 
-  function addCompany(company: Omit<CompanyListItem, "id" | "position">) {
+  function addCompany(company: Omit<CompanyListItem, 'id' | 'position'>) {
     setCompanies((current) => [
       ...current,
       {
         ...company,
         id: Math.max(0, ...current.map((item) => item.id)) + 1,
-        position: Math.max(
-          0,
-          ...current
-            .filter((item) => item.priority === company.priority)
-            .map((item) => item.position),
-        ) + 1,
+        position:
+          Math.max(
+            0,
+            ...current
+              .filter((item) => item.priority === company.priority)
+              .map((item) => item.position),
+          ) + 1,
       },
     ]);
   }
@@ -39,16 +41,19 @@ export function useCompanyList() {
     companyId: number,
     selectionResult: SelectionStatus,
   ) {
-    setCompanies((current) => current.map((company) =>
-      company.id === companyId
-        ? {
-            ...company,
-            selection: {
-              ...company.selection,
-              status: selectionResult,
-            },
-          }
-        : company));
+    setCompanies((current) =>
+      current.map((company) =>
+        company.id === companyId
+          ? {
+              ...company,
+              selection: {
+                ...company.selection,
+                status: selectionResult,
+              },
+            }
+          : company,
+      ),
+    );
   }
 
   function reorderCompanies(
@@ -60,10 +65,7 @@ export function useCompanyList() {
   ) {
     setCompanies((current) => {
       const priorityByCompanyId = new Map(
-        priorityChanges.map(({ companyId, priority }) => [
-          companyId,
-          priority,
-        ]),
+        priorityChanges.map(({ companyId, priority }) => [companyId, priority]),
       );
       const updatedCompanies = current.map((company) => ({
         ...company,
@@ -74,11 +76,15 @@ export function useCompanyList() {
 
       for (const priority of [0, 1, 2, 3, 4, 5, 6] as CompanyPriority[]) {
         const orderedIdsInPriority = orderedIds.filter((id) =>
-          updatedCompanies.some((company) =>
-            company.id === id && company.priority === priority));
+          updatedCompanies.some(
+            (company) => company.id === id && company.priority === priority,
+          ),
+        );
         const remainingIds = updatedCompanies
-          .filter((company) =>
-            company.priority === priority && !orderedIdSet.has(company.id))
+          .filter(
+            (company) =>
+              company.priority === priority && !orderedIdSet.has(company.id),
+          )
           .sort((left, right) => left.position - right.position)
           .map((company) => company.id);
 

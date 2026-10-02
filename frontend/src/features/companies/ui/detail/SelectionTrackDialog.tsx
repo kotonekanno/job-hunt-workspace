@@ -1,16 +1,16 @@
-import { Plus, Trash2 } from "lucide-react";
-import { useId, useState, type FormEvent } from "react";
+import { Plus, Trash2 } from 'lucide-react';
+import { useId, useState, type FormEvent } from 'react';
 import type {
   SelectionStep,
   Selection,
-} from "@/features/companies/model/selection";
+} from '@/features/companies/model/selection';
 import {
   DeleteDialog,
   DialogActions,
   DialogBase,
   DialogHeader,
-} from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
+} from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
 
 type SelectionTrackDialogProps = {
   track?: Selection;
@@ -20,7 +20,7 @@ type SelectionTrackDialogProps = {
 
 export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
   const titleId = useId();
-  const [title, setTitle] = useState(props.track?.title ?? "");
+  const [title, setTitle] = useState(props.track?.title ?? '');
   const [steps, setSteps] = useState<SelectionStep[]>(
     props.track?.steps
       ? [...props.track.steps].sort((left, right) => left.stepNo - right.stepNo)
@@ -32,16 +32,17 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
     return {
       id: Date.now() + Math.random(),
       stepNo,
-      title: "",
-      heldAt: "",
-      note: "",
-      status: "not_started",
+      title: '',
+      heldAt: '',
+      note: '',
+      status: 'not_started',
     };
   }
 
   function updateStep(id: number, patch: Partial<SelectionStep>) {
-    setSteps((current) => current.map((step) =>
-      step.id === id ? { ...step, ...patch } : step));
+    setSteps((current) =>
+      current.map((step) => (step.id === id ? { ...step, ...patch } : step)),
+    );
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -69,7 +70,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
         className="cyber-cut max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-[var(--line-strong)] bg-[var(--panel)] p-6 shadow-[0_20px_60px_var(--shadow)]"
       >
         <DialogHeader
-          title={props.track ? "選考を編集" : "選考を追加"}
+          title={props.track ? '選考を編集' : '選考を追加'}
           titleId={titleId}
           onClose={props.onClose}
         />
@@ -114,9 +115,11 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                   <input
                     required
                     value={step.title}
-                    onChange={(event) => updateStep(step.id, {
-                      title: event.target.value,
-                    })}
+                    onChange={(event) =>
+                      updateStep(step.id, {
+                        title: event.target.value,
+                      })
+                    }
                     className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
                 </label>
@@ -126,9 +129,11 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                   <input
                     type="date"
                     value={step.heldAt}
-                    onChange={(event) => updateStep(step.id, {
-                      heldAt: event.target.value,
-                    })}
+                    onChange={(event) =>
+                      updateStep(step.id, {
+                        heldAt: event.target.value,
+                      })
+                    }
                     className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
                 </label>
@@ -137,9 +142,11 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                   メモ
                   <textarea
                     value={step.note}
-                    onChange={(event) => updateStep(step.id, {
-                      note: event.target.value,
-                    })}
+                    onChange={(event) =>
+                      updateStep(step.id, {
+                        note: event.target.value,
+                      })
+                    }
                     className="mt-1 min-h-20 w-full resize-y border border-[var(--line)] bg-[var(--panel)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
                   />
                 </label>
@@ -150,10 +157,12 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
 
         <button
           type="button"
-          onClick={() => setSteps((current) => [
-            ...current,
-            createEmptyStep(current.length + 1),
-          ])}
+          onClick={() =>
+            setSteps((current) => [
+              ...current,
+              createEmptyStep(current.length + 1),
+            ])
+          }
           className="mt-3 flex h-9 w-full items-center justify-center gap-2 border border-dashed border-[var(--line-strong)] text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent-soft)]"
         >
           <Plus className="size-3.5" />
@@ -170,12 +179,14 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
       {pendingStepId !== undefined && (
         <DeleteDialog
           title="選考ステップを削除しますか？"
-          text={`「${steps.find((step) => step.id === pendingStepId)?.title || "名称未設定のステップ"}」を削除します。この操作は取り消せません。`}
+          text={`「${steps.find((step) => step.id === pendingStepId)?.title || '名称未設定のステップ'}」を削除します。この操作は取り消せません。`}
           onClose={() => setPendingStepId(undefined)}
           onConfirm={() => {
-            setSteps((current) => current
-              .filter((step) => step.id !== pendingStepId)
-              .map((step, index) => ({ ...step, stepNo: index + 1 })));
+            setSteps((current) =>
+              current
+                .filter((step) => step.id !== pendingStepId)
+                .map((step, index) => ({ ...step, stepNo: index + 1 })),
+            );
             setPendingStepId(undefined);
           }}
         />

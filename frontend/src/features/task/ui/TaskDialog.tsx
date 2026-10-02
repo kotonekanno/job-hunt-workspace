@@ -1,9 +1,9 @@
-import { useState, type FormEvent } from "react";
-import { companyNameOptions } from "@/features/companies/model/companyList";
-import type { Task } from "@/features/task/model/task";
-import { CompanyCombobox } from "@/shared/CompanyCombobox";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
+import { useState, type FormEvent } from 'react';
+import { companyNameOptions } from '@/features/companies/model/companyList';
+import type { Task } from '@/features/task/model/task';
+import { CompanyCombobox } from '@/shared/CompanyCombobox';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
 
 type TaskDialogProps = {
   task?: Task;
@@ -18,19 +18,21 @@ export function TaskDialog({
   onClose,
   onSave,
 }: TaskDialogProps) {
-  const [form, setForm] = useState<Task>(() => task
-    ? {
-        ...task,
-        company: task.company ?? defaultCompany,
-      }
-    : {
-        id: Date.now(),
-        title: "",
-        note: "",
-        deadline: undefined,
-        company: defaultCompany,
-        done: false,
-      });
+  const [form, setForm] = useState<Task>(() =>
+    task
+      ? {
+          ...task,
+          company: task.company ?? defaultCompany,
+        }
+      : {
+          id: Date.now(),
+          title: '',
+          note: '',
+          deadline: undefined,
+          company: defaultCompany,
+          done: false,
+        },
+  );
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,20 +40,23 @@ export function TaskDialog({
     onClose();
   }
 
-  const fieldClassName = "mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]";
+  const fieldClassName =
+    'mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]';
 
   const fields = (
     <>
       <label className="text-xs text-[var(--muted)]">
         企業名
         <CompanyCombobox
-          value={form.company ?? ""}
+          value={form.company ?? ''}
           options={companyNameOptions}
           allowEmpty
-          onValueChange={(company) => setForm({
-            ...form,
-            company: company || undefined,
-          })}
+          onValueChange={(company) =>
+            setForm({
+              ...form,
+              company: company || undefined,
+            })
+          }
           className="mt-1"
         />
       </label>
@@ -60,11 +65,13 @@ export function TaskDialog({
         期限
         <input
           type="date"
-          value={form.deadline ?? ""}
-          onChange={(event) => setForm({
-            ...form,
-            deadline: event.target.value || undefined,
-          })}
+          value={form.deadline ?? ''}
+          onChange={(event) =>
+            setForm({
+              ...form,
+              deadline: event.target.value || undefined,
+            })
+          }
           className={fieldClassName}
         />
       </label>
@@ -75,10 +82,12 @@ export function TaskDialog({
         <input
           required
           value={form.title}
-          onChange={(event) => setForm({
-            ...form,
-            title: event.target.value,
-          })}
+          onChange={(event) =>
+            setForm({
+              ...form,
+              title: event.target.value,
+            })
+          }
           className={fieldClassName}
         />
       </label>
@@ -87,10 +96,12 @@ export function TaskDialog({
         詳細
         <textarea
           value={form.note}
-          onChange={(event) => setForm({
-            ...form,
-            note: event.target.value,
-          })}
+          onChange={(event) =>
+            setForm({
+              ...form,
+              note: event.target.value,
+            })
+          }
           className="mt-1 min-h-28 w-full resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
         />
       </label>
@@ -99,11 +110,11 @@ export function TaskDialog({
 
   return (
     <EditDialog
-      title={task ? "タスクを編集" : "タスクを追加"}
+      title={task ? 'タスクを編集' : 'タスクを追加'}
       subTitle="// TASK_EDITOR"
       onClose={onClose}
       onSubmit={submit}
-      submitText={task ? "保存する" : "追加する"}
+      submitText={task ? '保存する' : '追加する'}
       formClassName="max-w-xl p-6 sm:p-8"
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"

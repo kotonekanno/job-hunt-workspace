@@ -1,30 +1,21 @@
-import {
-  ChevronDown,
-  GitBranch,
-} from "lucide-react";
-import { useState } from "react";
-import { initialSelectionTracks } from "../../model/companyDetail";
+import { ChevronDown, GitBranch } from 'lucide-react';
+import { useState } from 'react';
+import { initialSelectionTracks } from '../../model/companyDetail';
 import {
   type SelectionStatus,
   type Selection,
-} from "@/features/companies/model/selection";
-import { SelectionStepItem } from "@/features/companies/ui/detail/SelectionStepItem";
-import { SelectionTrackDialog } from "@/features/companies/ui/detail/SelectionTrackDialog";
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import {
-  AddButton,
-  DeleteIconButton,
-  EditIconButton,
-} from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
+} from '@/features/companies/model/selection';
+import { SelectionStepItem } from '@/features/companies/ui/detail/SelectionStepItem';
+import { SelectionTrackDialog } from '@/features/companies/ui/detail/SelectionTrackDialog';
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { AddButton, DeleteIconButton, EditIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
 
 type SelectionWidgetProps = {
   onRemove: () => void;
 };
 
-export function SelectionWidget({
-  onRemove,
-}: SelectionWidgetProps) {
+export function SelectionWidget({ onRemove }: SelectionWidgetProps) {
   const [tracks, setTracks] = useState(initialSelectionTracks);
   const [editingTrack, setEditingTrack] = useState<Selection>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,8 +25,9 @@ export function SelectionWidget({
     const exists = tracks.some((item) => item.id === track.id);
 
     if (exists) {
-      setTracks((current) => current.map((item) =>
-        item.id === track.id ? track : item));
+      setTracks((current) =>
+        current.map((item) => (item.id === track.id ? track : item)),
+      );
       return;
     }
 
@@ -48,9 +40,7 @@ export function SelectionWidget({
   }
 
   function removeTrack(trackId: number) {
-    setTracks((current) => current.filter(
-      (track) => track.id !== trackId,
-    ));
+    setTracks((current) => current.filter((track) => track.id !== trackId));
   }
 
   function updateStepResult(
@@ -58,33 +48,33 @@ export function SelectionWidget({
     stepId: number,
     result: SelectionStatus,
   ) {
-    setTracks((current) => current.map((track) =>
-      track.id === trackId
-        ? {
-            ...track,
-            steps: track.steps.map((step) =>
-              step.id === stepId
-                ? { ...step, status: result }
-                : step),
-          }
-        : track));
+    setTracks((current) =>
+      current.map((track) =>
+        track.id === trackId
+          ? {
+              ...track,
+              steps: track.steps.map((step) =>
+                step.id === stepId ? { ...step, status: result } : step,
+              ),
+            }
+          : track,
+      ),
+    );
   }
 
-  function updateStepMemo(
-    trackId: number,
-    stepId: number,
-    memo: string,
-  ) {
-    setTracks((current) => current.map((track) =>
-      track.id === trackId
-        ? {
-            ...track,
-            steps: track.steps.map((step) =>
-              step.id === stepId
-                ? { ...step, note: memo }
-                : step),
-          }
-        : track));
+  function updateStepMemo(trackId: number, stepId: number, memo: string) {
+    setTracks((current) =>
+      current.map((track) =>
+        track.id === trackId
+          ? {
+              ...track,
+              steps: track.steps.map((step) =>
+                step.id === stepId ? { ...step, note: memo } : step,
+              ),
+            }
+          : track,
+      ),
+    );
   }
 
   const addButton = (
@@ -153,18 +143,18 @@ export function SelectionWidget({
                   {[...track.steps]
                     .sort((left, right) => left.stepNo - right.stepNo)
                     .map((step, stepIndex) => (
-                    <SelectionStepItem
-                      key={step.id}
-                      trackName={track.title}
-                      step={step}
-                      index={stepIndex}
-                      onResultChange={(result) => {
-                        updateStepResult(track.id, step.id, result);
-                      }}
-                      onMemoChange={(memo) => {
-                        updateStepMemo(track.id, step.id, memo);
-                      }}
-                    />
+                      <SelectionStepItem
+                        key={step.id}
+                        trackName={track.title}
+                        step={step}
+                        index={stepIndex}
+                        onResultChange={(result) => {
+                          updateStepResult(track.id, step.id, result);
+                        }}
+                        onMemoChange={(memo) => {
+                          updateStepMemo(track.id, step.id, memo);
+                        }}
+                      />
                     ))}
                 </div>
               </div>

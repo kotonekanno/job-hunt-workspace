@@ -1,24 +1,21 @@
-import {
-  CalendarDays,
-  History,
-} from "lucide-react";
-import { useState } from "react";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { getEventSortKey } from "@/features/calendar/lib/eventTime";
-import { EventDialog } from "@/features/calendar/ui/EventDialog";
-import { EventListItem } from "@/features/calendar/ui/EventListItem";
+import { CalendarDays, History } from 'lucide-react';
+import { useState } from 'react';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { getEventSortKey } from '@/features/calendar/lib/eventTime';
+import { EventDialog } from '@/features/calendar/ui/EventDialog';
+import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import {
   companyProfile,
   relatedEvents,
-} from "@/features/companies/model/companyDetail";
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import { AddButton } from "@/shared/button";
+} from '@/features/companies/model/companyDetail';
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { AddButton } from '@/shared/button';
 
 function getTodayKey() {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const date = String(today.getDate()).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const date = String(today.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${date}`;
 }
@@ -32,12 +29,14 @@ export function RelatedEventsWidget() {
   const visibleEvents = [...events]
     .filter((event) => showPastEvents || event.startDate >= todayKey)
     .sort((left, right) =>
-      getEventSortKey(left).localeCompare(getEventSortKey(right)));
+      getEventSortKey(left).localeCompare(getEventSortKey(right)),
+    );
 
-  function saveEvent(event: Omit<CalendarEvent, "id">, id?: number) {
+  function saveEvent(event: Omit<CalendarEvent, 'id'>, id?: number) {
     if (id !== undefined) {
-      setEvents((current) => current.map((item) =>
-        item.id === id ? { ...event, id } : item));
+      setEvents((current) =>
+        current.map((item) => (item.id === id ? { ...event, id } : item)),
+      );
       return;
     }
 
@@ -63,8 +62,8 @@ export function RelatedEventsWidget() {
         onClick={() => setShowPastEvents((current) => !current)}
         className={`inline-flex h-8 cursor-pointer items-center gap-1.5 border px-2.5 text-[10px] font-semibold transition-colors ${
           showPastEvents
-            ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-            : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)] hover:text-[var(--text-strong)]"
+            ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
+            : 'border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)] hover:text-[var(--text-strong)]'
         }`}
       >
         <History className="size-3.5" />

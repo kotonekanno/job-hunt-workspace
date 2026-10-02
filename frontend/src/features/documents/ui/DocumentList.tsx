@@ -1,20 +1,10 @@
-import {
-  ArrowUpRight,
-  FileText,
-  GripVertical,
-} from "lucide-react";
-import {
-  Reorder,
-  useDragControls,
-} from "motion/react";
-import {
-  useState,
-  type PointerEvent,
-} from "react";
-import { Link } from "react-router-dom";
-import type { WorkspaceDocument } from "@/features/documents/model/document";
-import { DeleteIconButton } from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
+import { ArrowUpRight, FileText, GripVertical } from 'lucide-react';
+import { Reorder, useDragControls } from 'motion/react';
+import { useState, type PointerEvent } from 'react';
+import { Link } from 'react-router-dom';
+import type { WorkspaceDocument } from '@/features/documents/model/document';
+import { DeleteIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
 
 type DocumentListProps = {
   documents: WorkspaceDocument[];
@@ -61,10 +51,7 @@ export function DocumentList({
   );
 }
 
-function DocumentListItem({
-  document,
-  onDelete,
-}: DocumentListItemProps) {
+function DocumentListItem({ document, onDelete }: DocumentListItemProps) {
   const dragControls = useDragControls();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -82,7 +69,7 @@ function DocumentListItem({
         layout="position"
         transition={{
           layout: {
-            type: "spring",
+            type: 'spring',
             stiffness: 420,
             damping: 34,
             mass: 0.75,
@@ -91,7 +78,7 @@ function DocumentListItem({
         whileDrag={{
           x: 0,
           zIndex: 20,
-          boxShadow: "0 16px 36px var(--shadow)",
+          boxShadow: '0 16px 36px var(--shadow)',
         }}
         className="ui-panel-interactive group flex min-h-14 list-none items-stretch border border-[var(--line)] bg-[var(--panel)]"
       >

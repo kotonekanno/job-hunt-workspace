@@ -1,15 +1,5 @@
-import {
-  Check,
-  ChevronsUpDown,
-  X,
-} from "lucide-react";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 
 type CompanyComboboxProps = {
   value: string;
@@ -31,12 +21,12 @@ export function CompanyCombobox({
   onValueChange,
   allowEmpty = false,
   required = false,
-  placeholder = "企業名を検索",
-  className = "",
-  emptyLabel = "未選択",
-  invalidMessage = "一覧から項目を選択してください。",
-  noResultsText = "該当する項目はありません",
-  clearAriaLabel = "選択を解除する",
+  placeholder = '企業名を検索',
+  className = '',
+  emptyLabel = '未選択',
+  invalidMessage = '一覧から項目を選択してください。',
+  noResultsText = '該当する項目はありません',
+  clearAriaLabel = '選択を解除する',
 }: CompanyComboboxProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -46,7 +36,8 @@ export function CompanyCombobox({
   const [activeIndex, setActiveIndex] = useState(0);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredOptions = options.filter((option) =>
-    option.toLocaleLowerCase().includes(normalizedQuery));
+    option.toLocaleLowerCase().includes(normalizedQuery),
+  );
 
   useEffect(() => {
     // Keep the editable query in sync when a parent selects a new company.
@@ -65,8 +56,8 @@ export function CompanyCombobox({
     const isEmptyAllowed = allowEmpty && !query && !value;
 
     input.setCustomValidity(
-      hasConfirmedValue && (!required || Boolean(value)) || isEmptyAllowed
-        ? ""
+      (hasConfirmedValue && (!required || Boolean(value))) || isEmptyAllowed
+        ? ''
         : invalidMessage,
     );
   }, [allowEmpty, invalidMessage, query, required, value]);
@@ -87,10 +78,10 @@ export function CompanyCombobox({
       setIsOpen(false);
     }
 
-    document.addEventListener("mousedown", closeOnOutsideMouseDown);
+    document.addEventListener('mousedown', closeOnOutsideMouseDown);
 
     return () => {
-      document.removeEventListener("mousedown", closeOnOutsideMouseDown);
+      document.removeEventListener('mousedown', closeOnOutsideMouseDown);
     };
   }, [value]);
 
@@ -102,43 +93,39 @@ export function CompanyCombobox({
   }
 
   function clearCompany() {
-    onValueChange("");
-    setQuery("");
+    onValueChange('');
+    setQuery('');
     setIsOpen(false);
     inputRef.current?.focus();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "ArrowDown") {
+    if (event.key === 'ArrowDown') {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) => Math.min(
-        current + 1,
-        filteredOptions.length - 1,
-      ));
+      setActiveIndex((current) =>
+        Math.min(current + 1, filteredOptions.length - 1),
+      );
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.key === 'ArrowUp') {
       event.preventDefault();
       setActiveIndex((current) => Math.max(current - 1, 0));
     }
 
-    if (event.key === "Enter" && isOpen && filteredOptions[activeIndex]) {
+    if (event.key === 'Enter' && isOpen && filteredOptions[activeIndex]) {
       event.preventDefault();
       selectCompany(filteredOptions[activeIndex]);
     }
 
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       setQuery(value);
       setIsOpen(false);
     }
   }
 
   return (
-    <div
-      ref={rootRef}
-      className={`relative ${className}`}
-    >
+    <div ref={rootRef} className={`relative ${className}`}>
       <input
         ref={inputRef}
         type="text"
@@ -210,15 +197,13 @@ export function CompanyCombobox({
               onClick={() => selectCompany(option)}
               className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-xs transition-colors ${
                 index === activeIndex
-                  ? "bg-[var(--accent-soft)] text-[var(--text-strong)]"
-                  : "text-[var(--muted)] hover:bg-[var(--panel-raised)]"
+                  ? 'bg-[var(--accent-soft)] text-[var(--text-strong)]'
+                  : 'text-[var(--muted)] hover:bg-[var(--panel-raised)]'
               }`}
             >
               <Check
                 className={`size-3.5 shrink-0 ${
-                  option === value
-                    ? "text-[var(--accent)]"
-                    : "invisible"
+                  option === value ? 'text-[var(--accent)]' : 'invisible'
                 }`}
               />
               <span className="truncate">{option}</span>

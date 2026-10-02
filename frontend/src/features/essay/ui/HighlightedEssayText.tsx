@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment } from 'react';
 
 type HighlightedEssayTextProps = {
   text: string;
@@ -57,7 +57,9 @@ export function HighlightedEssayText({
         <mark className="bg-yellow-300/70 text-stone-900 shadow-[inset_0_-1px_0_rgb(202_138_4_/_80%)]">
           {part.text}
         </mark>
-      ) : part.text}
+      ) : (
+        part.text
+      )}
     </Fragment>
   ));
 }

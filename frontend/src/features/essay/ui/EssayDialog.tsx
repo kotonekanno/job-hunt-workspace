@@ -1,19 +1,19 @@
-import { useState, type FormEvent } from "react";
-import { companyNameOptions } from "@/features/companies/model/companyList";
+import { useState, type FormEvent } from 'react';
+import { companyNameOptions } from '@/features/companies/model/companyList';
 import {
   unclassifiedEssayGroupId,
   type Essay,
   type EssayGroup,
-} from "@/features/essay/model/essay";
-import { EssayGroupCombobox } from "@/features/essay/ui/EssayGroupCombobox";
-import { CompanyCombobox } from "@/shared/CompanyCombobox";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
+} from '@/features/essay/model/essay';
+import { EssayGroupCombobox } from '@/features/essay/ui/EssayGroupCombobox';
+import { CompanyCombobox } from '@/shared/CompanyCombobox';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
 
 type EssayDialogProps = {
   groups: EssayGroup[];
   onClose: () => void;
-  onSave: (essay: Omit<Essay, "id">) => void;
+  onSave: (essay: Omit<Essay, 'id'>) => void;
   essay?: Essay;
   defaultGroupId?: string;
 };
@@ -25,12 +25,12 @@ export function EssayDialog({
   essay,
   defaultGroupId,
 }: EssayDialogProps) {
-  const [company, setCompany] = useState(essay?.company ?? "");
+  const [company, setCompany] = useState(essay?.company ?? '');
   const [groupId, setGroupId] = useState(
     essay?.groupId ?? defaultGroupId ?? unclassifiedEssayGroupId,
   );
-  const [question, setQuestion] = useState(essay?.question ?? "");
-  const [answer, setAnswer] = useState(essay?.answer ?? "");
+  const [question, setQuestion] = useState(essay?.question ?? '');
+  const [answer, setAnswer] = useState(essay?.answer ?? '');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,7 +46,7 @@ export function EssayDialog({
 
   return (
     <EditDialog
-      title={essay ? "ESの文章を編集" : "ESの文章を追加"}
+      title={essay ? 'ESの文章を編集' : 'ESの文章を追加'}
       subTitle="ESSAY ARCHIVE"
       submitText="保存する"
       onClose={onClose}

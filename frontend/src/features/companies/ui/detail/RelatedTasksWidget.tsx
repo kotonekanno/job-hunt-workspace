@@ -1,17 +1,14 @@
-import { ListTodo } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ListTodo } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
   companyProfile,
   relatedTasks,
-} from "@/features/companies/model/companyDetail";
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import type { Task } from "@/features/task/model/task";
-import { TaskDialog } from "@/features/task/ui/TaskDialog";
-import { TaskList } from "@/features/task/ui/TaskList";
-import {
-  AddButton,
-  BulkDeleteButton,
-} from "@/shared/button";
+} from '@/features/companies/model/companyDetail';
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import type { Task } from '@/features/task/model/task';
+import { TaskDialog } from '@/features/task/ui/TaskDialog';
+import { TaskList } from '@/features/task/ui/TaskList';
+import { AddButton, BulkDeleteButton } from '@/shared/button';
 
 export function RelatedTasksWidget() {
   const [tasks, setTasks] = useState<Task[]>(relatedTasks);
@@ -19,27 +16,29 @@ export function RelatedTasksWidget() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const sortedTasks = useMemo(
-    () => [...tasks].sort((left, right) => {
-      const completionOrder = Number(left.done) - Number(right.done);
+    () =>
+      [...tasks].sort((left, right) => {
+        const completionOrder = Number(left.done) - Number(right.done);
 
-      if (completionOrder !== 0) {
-        return completionOrder;
-      }
+        if (completionOrder !== 0) {
+          return completionOrder;
+        }
 
-      return (left.deadline ?? "\uffff").localeCompare(
-        right.deadline ?? "\uffff",
-      );
-    }),
+        return (left.deadline ?? '\uffff').localeCompare(
+          right.deadline ?? '\uffff',
+        );
+      }),
     [tasks],
   );
 
   const completedCount = tasks.filter((task) => task.done).length;
 
   function toggleTask(id: number) {
-    setTasks((current) => current.map((task) =>
-      task.id === id
-        ? { ...task, done: !task.done }
-        : task));
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === id ? { ...task, done: !task.done } : task,
+      ),
+    );
   }
 
   function saveTask(task: Task) {
@@ -50,8 +49,7 @@ export function RelatedTasksWidget() {
         return [...current, task];
       }
 
-      return current.map((item) =>
-        item.id === task.id ? task : item);
+      return current.map((item) => (item.id === task.id ? task : item));
     });
   }
 
@@ -75,16 +73,12 @@ export function RelatedTasksWidget() {
       <BulkDeleteButton
         size="s"
         count={completedCount}
-        onConfirm={() => setTasks((current) => current.filter(
-          (task) => !task.done,
-        ))}
+        onConfirm={() =>
+          setTasks((current) => current.filter((task) => !task.done))
+        }
       />
 
-      <AddButton
-        text="タスクを追加"
-        size="s"
-        onClick={openAddDialog}
-      />
+      <AddButton text="タスクを追加" size="s" onClick={openAddDialog} />
     </div>
   );
 
@@ -101,9 +95,9 @@ export function RelatedTasksWidget() {
           showCompany={false}
           onToggle={toggleTask}
           onEdit={openEditDialog}
-          onDelete={(id) => setTasks((current) => current.filter(
-            (task) => task.id !== id,
-          ))}
+          onDelete={(id) =>
+            setTasks((current) => current.filter((task) => task.id !== id))
+          }
         />
       </WidgetFrame>
 

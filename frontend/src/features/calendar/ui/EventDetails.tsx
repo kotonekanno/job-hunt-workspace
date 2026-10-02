@@ -1,12 +1,9 @@
-import {
-  MapPin,
-  Video,
-} from "lucide-react";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { EventDeleteButton } from "@/features/calendar/ui/EventDeleteButton";
-import { EditIconButton } from "@/shared/button";
+import { MapPin, Video } from 'lucide-react';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { EventDeleteButton } from '@/features/calendar/ui/EventDeleteButton';
+import { EditIconButton } from '@/shared/button';
 
-type EventDetailsSize = "s" | "m";
+type EventDetailsSize = 's' | 'm';
 
 type EventDetailsProps = {
   event: CalendarEvent;
@@ -19,20 +16,20 @@ type EventDetailsProps = {
 
 const sizeStyles = {
   s: {
-    headingGap: "gap-2",
-    time: "w-12 text-[11px]",
-    company: "text-xs",
-    title: "text-[10px]",
-    contentGap: "mt-2.5",
-    memo: "text-[10px] leading-5",
+    headingGap: 'gap-2',
+    time: 'w-12 text-[11px]',
+    company: 'text-xs',
+    title: 'text-[10px]',
+    contentGap: 'mt-2.5',
+    memo: 'text-[10px] leading-5',
   },
   m: {
-    headingGap: "gap-2.5",
-    time: "w-14 text-xs",
-    company: "text-sm",
-    title: "text-[11px]",
-    contentGap: "mt-3",
-    memo: "text-[11px] leading-5",
+    headingGap: 'gap-2.5',
+    time: 'w-14 text-xs',
+    company: 'text-sm',
+    title: 'text-[11px]',
+    contentGap: 'mt-3',
+    memo: 'text-[11px] leading-5',
   },
 } satisfies Record<EventDetailsSize, Record<string, string>>;
 
@@ -45,9 +42,7 @@ export function EventDetails({
   onDelete,
 }: EventDetailsProps) {
   const styles = sizeStyles[size];
-  const FormatIcon = event.isOnline
-    ? Video
-    : MapPin;
+  const FormatIcon = event.isOnline ? Video : MapPin;
 
   return (
     <div>
@@ -58,24 +53,22 @@ export function EventDetails({
           >
             {event.isAllDay ? (
               <>
-                <span className="font-black text-[var(--accent)]">
-                  終日
-                </span>
+                <span className="font-black text-[var(--accent)]">終日</span>
 
                 {event.endDate !== event.startDate && (
                   <span className="mt-1 text-[9px] font-semibold text-[var(--muted)]">
-                    → {event.endDate.slice(5).replace("-", "/")}
+                    → {event.endDate.slice(5).replace('-', '/')}
                   </span>
                 )}
               </>
             ) : (
               <>
                 <span className="font-black text-[var(--accent)]">
-                  {event.startTime ?? "--:--"}
+                  {event.startTime ?? '--:--'}
                 </span>
 
                 <span className="mt-1 font-semibold text-[var(--muted)]">
-                  {event.endTime ?? "--:--"}
+                  {event.endTime ?? '--:--'}
                 </span>
               </>
             )}
@@ -83,23 +76,21 @@ export function EventDetails({
 
           <div className="min-w-0 flex-1">
             {showCompany && (
-              <p
-                className={`truncate text-[var(--muted)] ${styles.title}`}
-              >
+              <p className={`truncate text-[var(--muted)] ${styles.title}`}>
                 {event.company}
               </p>
             )}
 
             <h3
-              className={`truncate font-bold text-[var(--text-strong)] ${showCompany ? "mt-0.5" : ""} ${styles.company}`}
+              className={`truncate font-bold text-[var(--text-strong)] ${showCompany ? 'mt-0.5' : ''} ${styles.company}`}
             >
               {event.title}
             </h3>
           </div>
 
           <span
-            title={event.isOnline ? "オンライン" : "オフライン"}
-            aria-label={event.isOnline ? "オンライン" : "オフライン"}
+            title={event.isOnline ? 'オンライン' : 'オフライン'}
+            aria-label={event.isOnline ? 'オンライン' : 'オフライン'}
             className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel-raised)] text-[var(--accent)]"
           >
             <FormatIcon className="size-3.5" />
@@ -109,7 +100,7 @@ export function EventDetails({
 
       <div className={styles.contentGap}>
         <p className={`text-[var(--text)] ${styles.memo}`}>
-          {event.note || "メモはありません"}
+          {event.note || 'メモはありません'}
         </p>
       </div>
 
@@ -127,11 +118,7 @@ export function EventDetails({
           )}
 
           {onDelete && (
-            <EventDeleteButton
-              event={event}
-              size="s"
-              onDelete={onDelete}
-            />
+            <EventDeleteButton event={event} size="s" onDelete={onDelete} />
           )}
         </div>
       )}

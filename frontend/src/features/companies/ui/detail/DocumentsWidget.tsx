@@ -1,25 +1,13 @@
-import {
-  ChevronDown,
-  FileText,
-  GripVertical,
-} from "lucide-react";
-import {
-  Reorder,
-  useDragControls,
-} from "motion/react";
-import {
-  useState,
-} from "react";
-import type { CompanyDocument } from "@/features/companies/model/companyDetail";
-import { DocumentCreateDialog } from "@/features/companies/ui/detail/DocumentCreateDialog";
-import { RichTextEditor } from "@/features/companies/ui/documents/RichTextEditor";
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import {
-  AddButton,
-  DeleteIconButton,
-} from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
-import { SearchBox } from "@/shared/SearchBox";
+import { ChevronDown, FileText, GripVertical } from 'lucide-react';
+import { Reorder, useDragControls } from 'motion/react';
+import { useState } from 'react';
+import type { CompanyDocument } from '@/features/companies/model/companyDetail';
+import { DocumentCreateDialog } from '@/features/companies/ui/detail/DocumentCreateDialog';
+import { RichTextEditor } from '@/features/companies/ui/documents/RichTextEditor';
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { AddButton, DeleteIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
+import { SearchBox } from '@/shared/SearchBox';
 
 type DocumentsWidgetProps = {
   documents: CompanyDocument[];
@@ -46,8 +34,8 @@ function DocumentAccordion({
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const contentMatches = Boolean(
-    searchQuery.trim()
-    && document.text
+    searchQuery.trim() &&
+    document.text
       .toLocaleLowerCase()
       .includes(searchQuery.trim().toLocaleLowerCase()),
   );
@@ -63,7 +51,7 @@ function DocumentAccordion({
         layout="position"
         transition={{
           layout: {
-            type: "spring",
+            type: 'spring',
             stiffness: 420,
             damping: 34,
             mass: 0.75,
@@ -72,7 +60,7 @@ function DocumentAccordion({
         whileDrag={{
           x: 0,
           zIndex: 20,
-          boxShadow: "0 16px 36px var(--shadow)",
+          boxShadow: '0 16px 36px var(--shadow)',
         }}
         className="list-none"
       >
@@ -129,13 +117,15 @@ function DocumentAccordion({
             <div className="border-t border-[var(--line)] bg-[var(--panel)]">
               <RichTextEditor
                 value={document.text}
-                onChange={(text) => onChange({
-                  ...document,
-                  text,
-                })}
+                onChange={(text) =>
+                  onChange({
+                    ...document,
+                    text,
+                  })
+                }
                 minHeight={280}
                 className="documents-accordion-editor"
-                searchQuery={contentMatches ? searchQuery : ""}
+                searchQuery={contentMatches ? searchQuery : ''}
               />
             </div>
           )}
@@ -165,7 +155,7 @@ export function DocumentsWidget({
   onDocumentReorder,
 }: DocumentsWidgetProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const orderedDocuments = [...documents].sort(
     (left, right) => left.position - right.position,
@@ -173,11 +163,10 @@ export function DocumentsWidget({
   const filteredDocuments = orderedDocuments.filter((document) =>
     `${document.title}\n${document.text}`
       .toLocaleLowerCase()
-      .includes(normalizedQuery));
+      .includes(normalizedQuery),
+  );
 
-  function reorderFilteredDocuments(
-    orderedDocuments: CompanyDocument[],
-  ) {
+  function reorderFilteredDocuments(orderedDocuments: CompanyDocument[]) {
     const visibleIds = new Set(
       filteredDocuments.map((document) => document.id),
     );
@@ -203,7 +192,7 @@ export function DocumentsWidget({
         title="ドキュメント"
         code="DOCUMENTS"
         icon={FileText}
-        action={(
+        action={
           <div className="flex items-center gap-2">
             <SearchBox
               value={query}
@@ -220,7 +209,7 @@ export function DocumentsWidget({
               onClick={() => setIsCreateDialogOpen(true)}
             />
           </div>
-        )}
+        }
         className="lg:col-span-2"
       >
         <Reorder.Group

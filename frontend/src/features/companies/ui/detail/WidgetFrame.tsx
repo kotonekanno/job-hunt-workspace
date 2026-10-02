@@ -1,8 +1,5 @@
-import {
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
-import type { ReactNode } from "react";
+import { Trash2, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 type WidgetFrameProps = {
   title: string;
@@ -19,14 +16,13 @@ export function WidgetFrame(props: WidgetFrameProps) {
   const Icon = props.icon;
 
   return (
-    <section className={`ui-panel cyber-cut border border-[var(--line)] p-5 ${props.className ?? ""}`}>
+    <section
+      className={`ui-panel cyber-cut border border-[var(--line)] p-5 ${props.className ?? ''}`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--line)] pb-3">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center border border-[var(--line-subtle)] bg-[var(--accent-soft)] shadow-[2px_2px_0_var(--line-subtle)]">
-            <Icon
-              aria-hidden="true"
-              className="size-4 text-[var(--accent)]"
-            />
+            <Icon aria-hidden="true" className="size-4 text-[var(--accent)]" />
           </span>
 
           <div>
@@ -57,9 +53,7 @@ export function WidgetFrame(props: WidgetFrameProps) {
         </div>
       </div>
 
-      <div className="mt-4">
-        {props.children}
-      </div>
+      <div className="mt-4">{props.children}</div>
     </section>
   );
 }

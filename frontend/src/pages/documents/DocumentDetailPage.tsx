@@ -1,22 +1,19 @@
-import { FileText } from "lucide-react";
-import { useState } from "react";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import { RichTextEditor } from "@/features/companies/ui/documents/RichTextEditor";
-import { useDocumentArchive } from "@/features/documents/hooks/useDocumentArchive";
-import { BackLink } from "@/shared/BackLink";
-import { DeleteIconButton } from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
-import { SearchBox } from "@/shared/SearchBox";
+import { FileText } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { RichTextEditor } from '@/features/companies/ui/documents/RichTextEditor';
+import { useDocumentArchive } from '@/features/documents/hooks/useDocumentArchive';
+import { BackLink } from '@/shared/BackLink';
+import { DeleteIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
+import { SearchBox } from '@/shared/SearchBox';
 
 export function DocumentDetailPage() {
   const navigate = useNavigate();
   const { documentsId } = useParams();
   const documentArchive = useDocumentArchive();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const document = documentArchive.documents.find(
     (candidate) => candidate.id === Number(documentsId),
   );
@@ -72,10 +69,12 @@ export function DocumentDetailPage() {
       <div className="mt-4">
         <RichTextEditor
           value={document.text}
-          onChange={(text) => documentArchive.updateDocument({
-            ...document,
-            text,
-          })}
+          onChange={(text) =>
+            documentArchive.updateDocument({
+              ...document,
+              text,
+            })
+          }
           placeholder="自由にメモを入力してください"
           minHeight={560}
           className="workspace-document-editor"
@@ -91,7 +90,7 @@ export function DocumentDetailPage() {
           onClose={() => setIsDeleteDialogOpen(false)}
           onConfirm={() => {
             documentArchive.deleteDocument(document.id);
-            navigate("/documents");
+            navigate('/documents');
           }}
         />
       )}

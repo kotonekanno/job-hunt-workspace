@@ -1,33 +1,36 @@
-import { useMemo, useState } from "react";
-import { initialTasks, type Task } from "@/features/task/model/task";
+import { useMemo, useState } from 'react';
+import { initialTasks, type Task } from '@/features/task/model/task';
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [companyQuery, setCompanyQuery] = useState("");
+  const [companyQuery, setCompanyQuery] = useState('');
 
   const visibleTasks = useMemo(() => {
-    const filtered = tasks.filter((task) =>
-      !companyQuery
-      || task.company?.toLowerCase().includes(companyQuery.toLowerCase()));
+    const filtered = tasks.filter(
+      (task) =>
+        !companyQuery ||
+        task.company?.toLowerCase().includes(companyQuery.toLowerCase()),
+    );
 
     return [...filtered].sort((left, right) => {
-      const completionOrder =
-        Number(left.done) - Number(right.done);
+      const completionOrder = Number(left.done) - Number(right.done);
 
       if (completionOrder !== 0) {
         return completionOrder;
       }
 
-      return (left.deadline ?? "\uffff").localeCompare(
-        right.deadline ?? "\uffff",
+      return (left.deadline ?? '\uffff').localeCompare(
+        right.deadline ?? '\uffff',
       );
     });
   }, [tasks, companyQuery]);
 
   function toggleTask(id: number) {
-    setTasks((current) => current
-      .map((task) => task.id === id ? { ...task, done: !task.done } : task)
-      .sort((left, right) => Number(left.done) - Number(right.done)));
+    setTasks((current) =>
+      current
+        .map((task) => (task.id === id ? { ...task, done: !task.done } : task))
+        .sort((left, right) => Number(left.done) - Number(right.done)),
+    );
   }
 
   function saveTask(task: Task) {
@@ -35,7 +38,7 @@ export function useTasks() {
       const exists = current.some((item) => item.id === task.id);
 
       if (exists) {
-        return current.map((item) => item.id === task.id ? task : item);
+        return current.map((item) => (item.id === task.id ? task : item));
       }
 
       return [task, ...current];

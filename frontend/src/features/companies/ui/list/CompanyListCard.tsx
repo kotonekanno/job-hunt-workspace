@@ -1,22 +1,11 @@
-import {
-  ArrowUpRight,
-  GripVertical,
-} from "lucide-react";
-import {
-  Reorder,
-  useDragControls,
-} from "motion/react";
-import type {
-  KeyboardEvent,
-  MouseEvent,
-} from "react";
-import { useNavigate } from "react-router-dom";
-import type { CompanyListItem } from "@/features/companies/model/companyList";
-import type { SelectionStatus } from "@/features/companies/model/selection";
-import { SelectionStepBadge } from "@/features/companies/ui/selection-step-badge";
-import {
-  DeleteIconButton,
-} from "@/shared/button";
+import { ArrowUpRight, GripVertical } from 'lucide-react';
+import { Reorder, useDragControls } from 'motion/react';
+import type { KeyboardEvent, MouseEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { CompanyListItem } from '@/features/companies/model/companyList';
+import type { SelectionStatus } from '@/features/companies/model/selection';
+import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
+import { DeleteIconButton } from '@/shared/button';
 
 type CompanyPriorityCardProps = {
   company: CompanyListItem;
@@ -40,10 +29,8 @@ export function CompanyListCard({
   const dragControls = useDragControls();
   const companyPath = `/companies/${company.id}`;
 
-  const isInteractiveTarget = (target: EventTarget | null) => (
-    target instanceof Element
-    && Boolean(target.closest("[data-card-action]"))
-  );
+  const isInteractiveTarget = (target: EventTarget | null) =>
+    target instanceof Element && Boolean(target.closest('[data-card-action]'));
 
   const openCompany = (event: MouseEvent<HTMLElement>) => {
     if (isInteractiveTarget(event.target)) return;
@@ -53,7 +40,7 @@ export function CompanyListCard({
 
   const openCompanyFromKeyboard = (event: KeyboardEvent<HTMLElement>) => {
     if (event.target !== event.currentTarget) return;
-    if (event.key !== "Enter" && event.key !== " ") return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
 
     event.preventDefault();
     navigate(companyPath);
@@ -70,10 +57,7 @@ export function CompanyListCard({
     >
       <div className="flex items-center gap-2">
         <span className="flex size-7 shrink-0 items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
-          <ArrowUpRight
-            aria-hidden="true"
-            className="size-4"
-          />
+          <ArrowUpRight aria-hidden="true" className="size-4" />
         </span>
 
         <span className="ml-2 min-w-0 flex-1 truncate text-sm font-bold text-[var(--text-strong)] group-hover:text-[var(--accent)]">
@@ -94,11 +78,7 @@ export function CompanyListCard({
 
         {showDelete && (
           <span data-card-action className="inline-flex">
-            <DeleteIconButton
-              size="s"
-              transparent={false}
-              onClick={() => {}}
-            />
+            <DeleteIconButton size="s" transparent={false} onClick={() => {}} />
           </span>
         )}
 
@@ -138,7 +118,7 @@ export function CompanyListCard({
       layout="position"
       transition={{
         layout: {
-          type: "spring",
+          type: 'spring',
           stiffness: 420,
           damping: 34,
           mass: 0.75,
@@ -147,7 +127,7 @@ export function CompanyListCard({
       whileDrag={{
         x: 0,
         zIndex: 20,
-        boxShadow: "0 16px 36px var(--shadow)",
+        boxShadow: '0 16px 36px var(--shadow)',
       }}
       className="w-full list-none"
     >

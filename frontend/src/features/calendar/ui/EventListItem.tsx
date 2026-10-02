@@ -1,12 +1,8 @@
-import {
-  ChevronDown,
-  MapPin,
-  Video,
-} from "lucide-react";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { EventDeleteButton } from "@/features/calendar/ui/EventDeleteButton";
-import { EventDetails } from "@/features/calendar/ui/EventDetails";
-import { EditIconButton } from "@/shared/button";
+import { ChevronDown, MapPin, Video } from 'lucide-react';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { EventDeleteButton } from '@/features/calendar/ui/EventDeleteButton';
+import { EventDetails } from '@/features/calendar/ui/EventDetails';
+import { EditIconButton } from '@/shared/button';
 
 type EventListItemProps = {
   event: CalendarEvent;
@@ -17,10 +13,10 @@ type EventListItemProps = {
 
 function getEventEmphasisClassName(event: CalendarEvent): string {
   if (event.isAttending === false) {
-    return "border-l-[var(--line-strong)] opacity-55";
+    return 'border-l-[var(--line-strong)] opacity-55';
   }
 
-  return "border-l-[var(--accent)]";
+  return 'border-l-[var(--accent)]';
 }
 
 export function EventListItem({
@@ -29,9 +25,7 @@ export function EventListItem({
   onDelete,
   showCompany = true,
 }: EventListItemProps) {
-  const FormatIcon = event.isOnline
-    ? Video
-    : MapPin;
+  const FormatIcon = event.isOnline ? Video : MapPin;
 
   return (
     <details
@@ -41,7 +35,7 @@ export function EventListItem({
         <div className="event-list-schedule flex w-[112px] shrink-0 items-stretch border-r border-[var(--line)] pr-3">
           <div className="flex w-12 shrink-0 items-center justify-center border-r border-[var(--line)] pr-2">
             <p className="font-mono text-xs font-bold text-[var(--text-strong)]">
-              {event.startDate.slice(5).replace("-", "/")}
+              {event.startDate.slice(5).replace('-', '/')}
             </p>
           </div>
 
@@ -54,18 +48,18 @@ export function EventListItem({
 
                 {event.endDate !== event.startDate && (
                   <span className="mt-0.5 text-[8px] font-semibold text-[var(--muted)]">
-                    → {event.endDate.slice(5).replace("-", "/")}
+                    → {event.endDate.slice(5).replace('-', '/')}
                   </span>
                 )}
               </>
             ) : (
               <>
                 <span className="text-[10px] font-black text-[var(--accent)]">
-                  {event.startTime ?? "--:--"}
+                  {event.startTime ?? '--:--'}
                 </span>
 
                 <span className="mt-0.5 text-[10px] font-bold text-[var(--muted)]">
-                  {event.endTime ?? "--:--"}
+                  {event.endTime ?? '--:--'}
                 </span>
               </>
             )}
@@ -79,14 +73,16 @@ export function EventListItem({
             </p>
           )}
 
-          <h3 className={`truncate text-xs font-bold text-[var(--text-strong)] ${showCompany ? "mt-1" : ""}`}>
+          <h3
+            className={`truncate text-xs font-bold text-[var(--text-strong)] ${showCompany ? 'mt-1' : ''}`}
+          >
             {event.title}
           </h3>
         </div>
 
         <span
-          title={event.isOnline ? "オンライン" : "オフライン"}
-          aria-label={event.isOnline ? "オンライン" : "オフライン"}
+          title={event.isOnline ? 'オンライン' : 'オフライン'}
+          aria-label={event.isOnline ? 'オンライン' : 'オフライン'}
           className="flex size-7 shrink-0 items-center justify-center bg-[var(--panel)] text-[var(--accent)]"
         >
           <FormatIcon className="size-3.5" />
@@ -120,11 +116,7 @@ export function EventListItem({
       </summary>
 
       <div className="border-t border-[var(--line)] bg-[var(--panel)] px-4 py-3">
-        <EventDetails
-          event={event}
-          size="m"
-          showHeading={false}
-        />
+        <EventDetails event={event} size="m" showHeading={false} />
       </div>
     </details>
   );

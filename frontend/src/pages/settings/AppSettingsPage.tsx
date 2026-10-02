@@ -1,24 +1,24 @@
-import { InnerHeader } from "@/shared/header";
-import { Bell, Eye, LayoutDashboard, SlidersHorizontal } from "lucide-react";
+import { InnerHeader } from '@/shared/header';
+import { Bell, Eye, LayoutDashboard, SlidersHorizontal } from 'lucide-react';
 
 const settingGroups = [
   {
-    title: "表示設定",
-    description: "一覧画面に表示する情報量を調整します。",
+    title: '表示設定',
+    description: '一覧画面に表示する情報量を調整します。',
     icon: Eye,
-    options: ["コンパクト表示を使用する", "完了済み項目を薄く表示する"],
+    options: ['コンパクト表示を使用する', '完了済み項目を薄く表示する'],
   },
   {
-    title: "ホーム画面",
-    description: "ダッシュボードに表示する内容を選択します。",
+    title: 'ホーム画面',
+    description: 'ダッシュボードに表示する内容を選択します。',
     icon: LayoutDashboard,
-    options: ["直近の予定を表示する", "優先タスクを表示する"],
+    options: ['直近の予定を表示する', '優先タスクを表示する'],
   },
   {
-    title: "通知設定",
-    description: "期限や予定に関する通知を管理します。",
+    title: '通知設定',
+    description: '期限や予定に関する通知を管理します。',
     icon: Bell,
-    options: ["予定の前日に通知する", "タスク期限の当日に通知する"],
+    options: ['予定の前日に通知する', 'タスク期限の当日に通知する'],
   },
 ];
 

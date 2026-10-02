@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import type { ReactNode } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 type DashboardCardProps = {
   title: string;
@@ -17,7 +17,7 @@ export function DashboardCard({
   to,
   linkText,
   children,
-  className = "",
+  className = '',
 }: DashboardCardProps) {
   return (
     <section
@@ -42,9 +42,7 @@ export function DashboardCard({
         </Link>
       </header>
 
-      <div className="p-4">
-        {children}
-      </div>
+      <div className="p-4">{children}</div>
     </section>
   );
 }

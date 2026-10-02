@@ -1,18 +1,11 @@
-import {
-  Check,
-  ChevronDown,
-  X,
-} from "lucide-react";
-import { useState } from "react";
+import { Check, ChevronDown, X } from 'lucide-react';
+import { useState } from 'react';
 import type {
   SelectionStatus,
   SelectionStep,
-} from "@/features/companies/model/selection";
-import { SelectionStepBadge } from "@/features/companies/ui/selection-step-badge";
-import {
-  EditIconButton,
-  IconActionButton,
-} from "@/shared/button";
+} from '@/features/companies/model/selection';
+import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
+import { EditIconButton, IconActionButton } from '@/shared/button';
 
 type SelectionStepItemProps = {
   trackName: string;
@@ -51,7 +44,7 @@ export function SelectionStepItem({
     <details className="group/step relative">
       <summary className="relative grid min-h-12 cursor-pointer list-none grid-cols-[minmax(0,1fr)_64px_72px_14px] items-center gap-2 border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-2 transition-colors hover:border-[var(--line-strong)] [&::-webkit-details-marker]:hidden">
         <span className="absolute top-1/2 -left-[35px] z-10 flex size-7 -translate-y-1/2 items-center justify-center border-2 border-[var(--panel)] bg-[var(--accent)] font-mono text-[8px] font-black text-[var(--accent-contrast)] shadow-[0_2px_6px_var(--shadow)]">
-          {String(index + 1).padStart(2, "0")}
+          {String(index + 1).padStart(2, '0')}
         </span>
 
         <span className="min-w-0 truncate pl-1 text-xs font-bold text-[var(--text-strong)]">
@@ -62,9 +55,7 @@ export function SelectionStepItem({
           dateTime={step.heldAt}
           className="flex w-16 shrink-0 items-center justify-start font-mono text-[11px] font-black text-[var(--text-strong)]"
         >
-          {step.heldAt
-            ? step.heldAt.slice(5).replace("-", "/")
-            : "--/--"}
+          {step.heldAt ? step.heldAt.slice(5).replace('-', '/') : '--/--'}
         </time>
 
         <span
@@ -125,14 +116,11 @@ export function SelectionStepItem({
             value={memoDraft}
             onChange={(event) => setMemoDraft(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Escape") {
+              if (event.key === 'Escape') {
                 cancelEditingMemo();
               }
 
-              if (
-                event.key === "Enter"
-                && (event.metaKey || event.ctrlKey)
-              ) {
+              if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
                 saveMemo();
               }
             }}
@@ -141,11 +129,11 @@ export function SelectionStepItem({
             placeholder="詳細を入力"
           />
         ) : (
-          <p className={`min-h-8 whitespace-pre-wrap text-[11px] leading-5 ${
-            step.note
-              ? "text-[var(--muted)]"
-              : "text-[var(--faint)]"
-          }`}>
+          <p
+            className={`min-h-8 whitespace-pre-wrap text-[11px] leading-5 ${
+              step.note ? 'text-[var(--muted)]' : 'text-[var(--faint)]'
+            }`}
+          >
             {step.note}
           </p>
         )}

@@ -1,24 +1,16 @@
-import {
-  Check,
-  ChevronDown,
-  Copy,
-  FilePenLine,
-} from "lucide-react";
-import { useState } from "react";
-import type {
-  Essay,
-  EssayGroup,
-} from "@/features/essay/model/essay";
-import { EssayGroupMoveDialog } from "@/features/essay/ui/EssayGroupMoveDialog";
-import { HighlightedEssayText } from "@/features/essay/ui/HighlightedEssayText";
-import { CompanyBadge } from "@/shared/badge";
+import { Check, ChevronDown, Copy, FilePenLine } from 'lucide-react';
+import { useState } from 'react';
+import type { Essay, EssayGroup } from '@/features/essay/model/essay';
+import { EssayGroupMoveDialog } from '@/features/essay/ui/EssayGroupMoveDialog';
+import { HighlightedEssayText } from '@/features/essay/ui/HighlightedEssayText';
+import { CompanyBadge } from '@/shared/badge';
 import {
   DeleteIconButton,
   EditIconButton,
   IconActionButton,
-} from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
-import { Select } from "@/shared/select";
+} from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
+import { Select } from '@/shared/select';
 
 const collapsedAnswerLength = 220;
 
@@ -46,7 +38,7 @@ export function EssayList({
   onEdit,
   onDelete,
   onGroupChange,
-  searchQuery = "",
+  searchQuery = '',
 }: EssayListProps) {
   if (essays.length === 0) {
     return (
@@ -91,14 +83,13 @@ function EssayListItem({
   const isLongAnswer = essay.answer.length > collapsedAnswerLength;
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
   const answerMatchesQuery = Boolean(
-    normalizedQuery
-    && essay.answer.toLocaleLowerCase().includes(normalizedQuery),
+    normalizedQuery &&
+    essay.answer.toLocaleLowerCase().includes(normalizedQuery),
   );
-  const visibleAnswer = isLongAnswer
-    && !isAnswerExpanded
-    && !answerMatchesQuery
-    ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
-    : essay.answer;
+  const visibleAnswer =
+    isLongAnswer && !isAnswerExpanded && !answerMatchesQuery
+      ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
+      : essay.answer;
   const currentGroup = groups.find((group) => group.id === essay.groupId);
   const pendingGroup = groups.find((group) => group.id === pendingGroupId);
 
@@ -155,10 +146,7 @@ function EssayListItem({
               QUESTION
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
-              <HighlightedEssayText
-                text={essay.question}
-                query={searchQuery}
-              />
+              <HighlightedEssayText text={essay.question} query={searchQuery} />
             </p>
           </section>
 
@@ -171,10 +159,10 @@ function EssayListItem({
                 icon={isCopied ? Check : Copy}
                 size="s"
                 transparent={false}
-                ariaLabel={isCopied ? "コピーしました" : "回答をコピー"}
-                tooltip={isCopied ? "コピーしました" : "回答をコピー"}
+                ariaLabel={isCopied ? 'コピーしました' : '回答をコピー'}
+                tooltip={isCopied ? 'コピーしました' : '回答をコピー'}
                 onClick={copyAnswer}
-                iconClassName={isCopied ? "size-3 text-emerald-500" : undefined}
+                iconClassName={isCopied ? 'size-3 text-emerald-500' : undefined}
               />
             </div>
 
@@ -192,10 +180,10 @@ function EssayListItem({
                   />
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-[var(--accent)]">
-                  {isAnswerExpanded ? "折りたたむ" : "全文を表示"}
+                  {isAnswerExpanded ? '折りたたむ' : '全文を表示'}
                   <ChevronDown
                     className={`size-3.5 transition-transform ${
-                      isAnswerExpanded ? "rotate-180" : ""
+                      isAnswerExpanded ? 'rotate-180' : ''
                     }`}
                   />
                 </span>
@@ -210,7 +198,6 @@ function EssayListItem({
             )}
           </section>
         </div>
-
       </article>
 
       {isDeleteDialogOpen && (

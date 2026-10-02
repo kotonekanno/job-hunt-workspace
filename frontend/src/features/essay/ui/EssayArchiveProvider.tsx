@@ -1,23 +1,18 @@
-import {
-  useState,
-  type ReactNode,
-} from "react";
-import { EssayArchiveContext } from "@/features/essay/model/EssayArchiveContext";
+import { useState, type ReactNode } from 'react';
+import { EssayArchiveContext } from '@/features/essay/model/EssayArchiveContext';
 import {
   initialEssayGroups,
   initialEssays,
   type Essay,
   type EssayGroup,
   unclassifiedEssayGroupId,
-} from "@/features/essay/model/essay";
+} from '@/features/essay/model/essay';
 
 type EssayArchiveProviderProps = {
   children: ReactNode;
 };
 
-export function EssayArchiveProvider({
-  children,
-}: EssayArchiveProviderProps) {
+export function EssayArchiveProvider({ children }: EssayArchiveProviderProps) {
   const [essays, setEssays] = useState(initialEssays);
   const [groups, setGroups] = useState(
     [...initialEssayGroups].sort(
@@ -25,39 +20,28 @@ export function EssayArchiveProvider({
     ),
   );
 
-  function addEssay(essay: Omit<Essay, "id">) {
-    setEssays((current) => [
-      { ...essay, id: Date.now() },
-      ...current,
-    ]);
+  function addEssay(essay: Omit<Essay, 'id'>) {
+    setEssays((current) => [{ ...essay, id: Date.now() }, ...current]);
   }
 
-  function updateEssay(
-    essayId: number,
-    essay: Omit<Essay, "id">,
-  ) {
-    setEssays((current) => current.map((currentEssay) => (
-      currentEssay.id === essayId
-        ? { ...essay, id: essayId }
-        : currentEssay
-    )));
+  function updateEssay(essayId: number, essay: Omit<Essay, 'id'>) {
+    setEssays((current) =>
+      current.map((currentEssay) =>
+        currentEssay.id === essayId ? { ...essay, id: essayId } : currentEssay,
+      ),
+    );
   }
 
   function deleteEssay(essayId: number) {
-    setEssays((current) => current.filter(
-      (essay) => essay.id !== essayId,
-    ));
+    setEssays((current) => current.filter((essay) => essay.id !== essayId));
   }
 
   function addGroup(name: string) {
     const group: EssayGroup = {
       id: `group-${Date.now()}`,
-      position: groups.find(
-        (item) => item.id === unclassifiedEssayGroupId,
-      )?.position ?? Math.max(
-        0,
-        ...groups.map((item) => item.position),
-      ) + 1,
+      position:
+        groups.find((item) => item.id === unclassifiedEssayGroupId)?.position ??
+        Math.max(0, ...groups.map((item) => item.position)) + 1,
       name,
     };
 
@@ -66,13 +50,14 @@ export function EssayArchiveProvider({
         (item) => item.id === unclassifiedEssayGroupId,
       );
 
-      const nextGroups = unclassifiedIndex === -1
-        ? [...current, group]
-        : [
-            ...current.slice(0, unclassifiedIndex),
-            group,
-            ...current.slice(unclassifiedIndex),
-          ];
+      const nextGroups =
+        unclassifiedIndex === -1
+          ? [...current, group]
+          : [
+              ...current.slice(0, unclassifiedIndex),
+              group,
+              ...current.slice(unclassifiedIndex),
+            ];
 
       return nextGroups.map((item, index) => ({
         ...item,
@@ -83,11 +68,11 @@ export function EssayArchiveProvider({
   }
 
   function updateGroup(groupId: string, name: string) {
-    setGroups((current) => current.map((group) => (
-      group.id === groupId
-        ? { ...group, name }
-        : group
-    )));
+    setGroups((current) =>
+      current.map((group) =>
+        group.id === groupId ? { ...group, name } : group,
+      ),
+    );
   }
 
   function deleteGroup(groupId: string) {
@@ -95,14 +80,18 @@ export function EssayArchiveProvider({
       return;
     }
 
-    setGroups((current) => current
-      .filter((group) => group.id !== groupId)
-      .map((group, index) => ({ ...group, position: index + 1 })));
-    setEssays((current) => current.map((essay) => (
-      essay.groupId === groupId
-        ? { ...essay, groupId: unclassifiedEssayGroupId }
-        : essay
-    )));
+    setGroups((current) =>
+      current
+        .filter((group) => group.id !== groupId)
+        .map((group, index) => ({ ...group, position: index + 1 })),
+    );
+    setEssays((current) =>
+      current.map((essay) =>
+        essay.groupId === groupId
+          ? { ...essay, groupId: unclassifiedEssayGroupId }
+          : essay,
+      ),
+    );
   }
 
   function reorderGroups(orderedGroupIds: string[]) {
@@ -113,10 +102,10 @@ export function EssayArchiveProvider({
         .filter((groupId) => groupId !== unclassifiedEssayGroupId)
         .map((groupId) => groupsById.get(groupId))
         .filter((group): group is EssayGroup => Boolean(group));
-      const remainingGroups = current.filter((group) => (
-        group.id !== unclassifiedEssayGroupId
-        && !requestedIds.has(group.id)
-      ));
+      const remainingGroups = current.filter(
+        (group) =>
+          group.id !== unclassifiedEssayGroupId && !requestedIds.has(group.id),
+      );
       const unclassifiedGroup = groupsById.get(unclassifiedEssayGroupId);
 
       return [

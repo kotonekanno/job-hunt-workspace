@@ -1,16 +1,16 @@
-import { NotebookTabs } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useDocumentArchive } from "@/features/documents/hooks/useDocumentArchive";
-import type { WorkspaceDocument } from "@/features/documents/model/document";
-import { DocumentList } from "@/features/documents/ui/DocumentList";
-import { DocumentCreateDialog } from "@/features/companies/ui/detail/DocumentCreateDialog";
-import { FloatingAddButton } from "@/shared/button";
-import { InnerHeader } from "@/shared/header";
-import { SearchBox } from "@/shared/SearchBox";
+import { NotebookTabs } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useDocumentArchive } from '@/features/documents/hooks/useDocumentArchive';
+import type { WorkspaceDocument } from '@/features/documents/model/document';
+import { DocumentList } from '@/features/documents/ui/DocumentList';
+import { DocumentCreateDialog } from '@/features/companies/ui/detail/DocumentCreateDialog';
+import { FloatingAddButton } from '@/shared/button';
+import { InnerHeader } from '@/shared/header';
+import { SearchBox } from '@/shared/SearchBox';
 
 export function DocumentsPage() {
   const documentArchive = useDocumentArchive();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const filteredDocuments = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -21,16 +21,16 @@ export function DocumentsPage() {
       );
     }
 
-    return documentArchive.documents.filter((document) => (
-      `${document.title}\n${document.text}`
-        .toLocaleLowerCase()
-        .includes(normalizedQuery)
-    )).sort((left, right) => left.position - right.position);
+    return documentArchive.documents
+      .filter((document) =>
+        `${document.title}\n${document.text}`
+          .toLocaleLowerCase()
+          .includes(normalizedQuery),
+      )
+      .sort((left, right) => left.position - right.position);
   }, [documentArchive.documents, query]);
 
-  function reorderFilteredDocuments(
-    orderedDocuments: WorkspaceDocument[],
-  ) {
+  function reorderFilteredDocuments(orderedDocuments: WorkspaceDocument[]) {
     const visibleIds = new Set(
       filteredDocuments.map((document) => document.id),
     );

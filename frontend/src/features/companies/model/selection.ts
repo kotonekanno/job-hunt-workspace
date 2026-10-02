@@ -1,9 +1,8 @@
-
 export type SelectionStatus =
-  | "not_started" // 未受験
-  | "pending"     // 結果待ち
-  | "passed"      // 合格
-  | "failed";     // 不合格
+  | 'not_started' // 未受験
+  | 'pending' // 結果待ち
+  | 'passed' // 合格
+  | 'failed'; // 不合格
 
 export type SelectionStep = {
   id: number;
@@ -25,4 +24,4 @@ export type CurrentSelection = {
   title: string;
   step: string;
   status: SelectionStatus;
-}
+};

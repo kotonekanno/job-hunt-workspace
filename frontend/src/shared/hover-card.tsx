@@ -5,14 +5,11 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+} from 'react';
+import { createPortal } from 'react-dom';
 
 type HoverCardPlacement =
-  | "bottom-start"
-  | "bottom-end"
-  | "top-start"
-  | "top-end";
+  'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 
 type HoverCardProps = {
   trigger: ReactNode;
@@ -37,8 +34,8 @@ export function HoverCard({
   trigger,
   children,
   sizeClassName,
-  triggerClassName = "inline-block",
-  placement = "bottom-start",
+  triggerClassName = 'inline-block',
+  placement = 'bottom-start',
   offset = 2,
   hoverCloseDelay = 80,
   openOnHover = true,
@@ -87,16 +84,14 @@ export function HoverCard({
     const cardWidth = cardElement?.offsetWidth ?? 0;
     const cardHeight = cardElement?.offsetHeight ?? 0;
 
-    const isTop = placement.startsWith("top");
-    const isEnd = placement.endsWith("end");
+    const isTop = placement.startsWith('top');
+    const isEnd = placement.endsWith('end');
 
     setPosition({
       top: isTop
         ? triggerRect.top - cardHeight - offset
         : triggerRect.bottom + offset,
-      left: isEnd
-        ? triggerRect.right - cardWidth
-        : triggerRect.left,
+      left: isEnd ? triggerRect.right - cardWidth : triggerRect.left,
     });
   }, [offset, placement]);
 
@@ -109,12 +104,12 @@ export function HoverCard({
   useEffect(() => {
     if (!isVisible) return;
 
-    window.addEventListener("scroll", updatePosition, true);
-    window.addEventListener("resize", updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
 
     return () => {
-      window.removeEventListener("scroll", updatePosition, true);
-      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
     };
   }, [isVisible, updatePosition]);
 
@@ -126,9 +121,10 @@ export function HoverCard({
 
       if (!(target instanceof Node)) return;
       if (
-        target instanceof Element
-        && target.closest('[role="dialog"], [role="alertdialog"]')
-      ) return;
+        target instanceof Element &&
+        target.closest('[role="dialog"], [role="alertdialog"]')
+      )
+        return;
       if (triggerRef.current?.contains(target)) return;
       if (cardRef.current?.contains(target)) return;
 
@@ -136,14 +132,10 @@ export function HoverCard({
       setIsHovered(false);
     }
 
-    document.addEventListener("mousedown", handleOutsideMouseDown, true);
+    document.addEventListener('mousedown', handleOutsideMouseDown, true);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleOutsideMouseDown,
-        true,
-      );
+      document.removeEventListener('mousedown', handleOutsideMouseDown, true);
     };
   }, [isPinned]);
 
@@ -156,7 +148,7 @@ export function HoverCard({
       <div
         ref={triggerRef}
         className={triggerClassName}
-        role={openOnHover ? undefined : "button"}
+        role={openOnHover ? undefined : 'button'}
         tabIndex={openOnHover ? undefined : 0}
         aria-expanded={openOnHover ? undefined : isPinned}
         onMouseEnter={openOnHover ? handleMouseEnter : undefined}
@@ -167,7 +159,7 @@ export function HoverCard({
             return;
           }
 
-          if (event.key !== "Enter" && event.key !== " ") {
+          if (event.key !== 'Enter' && event.key !== ' ') {
             return;
           }
 

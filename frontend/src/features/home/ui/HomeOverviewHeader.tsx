@@ -1,8 +1,5 @@
-import {
-  ArrowUpRight,
-  type LucideIcon,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowUpRight, type LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 type OverviewItem = {
   label: string;
@@ -17,23 +14,12 @@ type HomeOverviewHeaderProps = {
   items: OverviewItem[];
 };
 
-const weekdayLabels = [
-  "SUN",
-  "MON",
-  "TUE",
-  "WED",
-  "THU",
-  "FRI",
-  "SAT",
-];
+const weekdayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-export function HomeOverviewHeader({
-  date,
-  items,
-}: HomeOverviewHeaderProps) {
+export function HomeOverviewHeader({ date, items }: HomeOverviewHeaderProps) {
   const currentDate = new Date(`${date}T00:00:00`);
-  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const day = String(currentDate.getDate()).padStart(2, "0");
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
   const weekday = weekdayLabels[currentDate.getDay()];
 
   return (

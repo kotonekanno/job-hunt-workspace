@@ -1,26 +1,17 @@
-import {
-  Check,
-  NotebookPen,
-  X,
-} from "lucide-react";
-import { useState } from "react";
+import { Check, NotebookPen, X } from 'lucide-react';
+import { useState } from 'react';
 
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import {
-  EditIconButton,
-  IconActionButton,
-} from "@/shared/button";
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { EditIconButton, IconActionButton } from '@/shared/button';
 
 type QuickMemoWidgetProps = {
   onRemove: () => void;
 };
 
 const initialMemo =
-  "最終面接では、プロダクトの今後の展開と配属後の役割を確認する。";
+  '最終面接では、プロダクトの今後の展開と配属後の役割を確認する。';
 
-export function QuickMemoWidget({
-  onRemove,
-}: QuickMemoWidgetProps) {
+export function QuickMemoWidget({ onRemove }: QuickMemoWidgetProps) {
   const [memo, setMemo] = useState(initialMemo);
   const [draft, setDraft] = useState(initialMemo);
   const [isEditing, setIsEditing] = useState(false);
@@ -82,14 +73,11 @@ export function QuickMemoWidget({
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Escape") {
+            if (event.key === 'Escape') {
               cancelEditing();
             }
 
-            if (
-              event.key === "Enter" &&
-              (event.metaKey || event.ctrlKey)
-            ) {
+            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
               saveMemo();
             }
           }}
@@ -102,12 +90,11 @@ export function QuickMemoWidget({
           <p
             className={
               memo
-                ? "whitespace-pre-wrap text-sm leading-7 text-[var(--text)]"
-                : "whitespace-pre-wrap text-sm leading-7 text-[var(--muted)]"
+                ? 'whitespace-pre-wrap text-sm leading-7 text-[var(--text)]'
+                : 'whitespace-pre-wrap text-sm leading-7 text-[var(--muted)]'
             }
           >
-            {memo ||
-              "メモはまだありません。編集ボタンから入力できます。"}
+            {memo || 'メモはまだありません。編集ボタンから入力できます。'}
           </p>
         </div>
       )}

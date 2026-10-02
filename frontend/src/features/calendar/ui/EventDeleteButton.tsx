@@ -1,8 +1,8 @@
-import { useState, type MouseEvent } from "react";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { DeleteIconButton } from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
-import type { Size } from "@/shared/shared-type";
+import { useState, type MouseEvent } from 'react';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { DeleteIconButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
+import type { Size } from '@/shared/shared-type';
 
 type EventDeleteButtonProps = {
   event: CalendarEvent;

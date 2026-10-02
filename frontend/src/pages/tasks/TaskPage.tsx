@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useTasks } from "@/features/task/hooks/useTasks";
-import type { Task } from "@/features/task/model/task";
-import { TaskDialog } from "@/features/task/ui/TaskDialog";
-import { TaskList } from "@/features/task/ui/TaskList";
-import { TaskToolbar } from "@/features/task/ui/TaskToolbar";
-import { FloatingAddButton } from "@/shared/button";
-import { InnerHeader } from "@/shared/header";
-import { Clipboard } from "lucide-react";
+import { useState } from 'react';
+import { useTasks } from '@/features/task/hooks/useTasks';
+import type { Task } from '@/features/task/model/task';
+import { TaskDialog } from '@/features/task/ui/TaskDialog';
+import { TaskList } from '@/features/task/ui/TaskList';
+import { TaskToolbar } from '@/features/task/ui/TaskToolbar';
+import { FloatingAddButton } from '@/shared/button';
+import { InnerHeader } from '@/shared/header';
+import { Clipboard } from 'lucide-react';
 
 export function TaskPage() {
   const tasks = useTasks();
@@ -53,10 +53,7 @@ export function TaskPage() {
         </div>
       </div>
 
-      <FloatingAddButton
-        text="タスクを追加"
-        onClick={openAddDialog}
-      />
+      <FloatingAddButton text="タスクを追加" onClick={openAddDialog} />
 
       {isDialogOpen && (
         <TaskDialog

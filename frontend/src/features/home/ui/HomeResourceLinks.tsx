@@ -1,25 +1,21 @@
-import {
-  ArrowUpRight,
-  FilePenLine,
-  NotebookTabs,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowUpRight, FilePenLine, NotebookTabs } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const resourceLinks = [
   {
-    title: "ES文章ストック",
-    label: "ESSAY ARCHIVE",
-    description: "設問と回答を、質問のジャンルごとに整理する",
-    action: "文章ストックを開く",
-    to: "/essays",
+    title: 'ES文章ストック',
+    label: 'ESSAY ARCHIVE',
+    description: '設問と回答を、質問のジャンルごとに整理する',
+    action: '文章ストックを開く',
+    to: '/essays',
     icon: FilePenLine,
   },
   {
-    title: "ドキュメント",
-    label: "DOCUMENTS",
-    description: "就活プランや面接対策を、自由なメモにまとめる",
-    action: "ドキュメントを開く",
-    to: "/documents",
+    title: 'ドキュメント',
+    label: 'DOCUMENTS',
+    description: '就活プランや面接対策を、自由なメモにまとめる',
+    action: 'ドキュメントを開く',
+    to: '/documents',
     icon: NotebookTabs,
   },
 ];

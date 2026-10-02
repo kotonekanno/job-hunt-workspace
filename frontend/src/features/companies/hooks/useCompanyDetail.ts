@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   initialDocuments,
   widgetOrder,
   type CompanyDocument,
   type WidgetType,
-} from "@/features/companies/model/companyDetail";
+} from '@/features/companies/model/companyDetail';
 
 export function useCompanyDetail() {
   const [widgets, setWidgets] = useState<WidgetType[]>([
-    "documents",
-    "basic-info",
-    "links",
-    "selection",
-    "note",
-    "events",
-    "tasks",
+    'documents',
+    'basic-info',
+    'links',
+    'selection',
+    'note',
+    'events',
+    'tasks',
   ]);
   const [documents, setDocuments] = useState<CompanyDocument[]>(
     [...initialDocuments].sort((left, right) => left.position - right.position),
@@ -37,8 +37,9 @@ export function useCompanyDetail() {
   }
 
   function saveDocument(document: CompanyDocument) {
-    setDocuments((current) => current.map((item) =>
-      item.id === document.id ? document : item));
+    setDocuments((current) =>
+      current.map((item) => (item.id === document.id ? document : item)),
+    );
   }
 
   function addDocument(title: string) {
@@ -46,27 +47,28 @@ export function useCompanyDetail() {
       ...current,
       {
         id: Math.max(0, ...current.map((document) => document.id)) + 1,
-        position: Math.max(0, ...current.map((document) => document.position)) + 1,
+        position:
+          Math.max(0, ...current.map((document) => document.position)) + 1,
         title,
-        text: "",
+        text: '',
       },
     ]);
   }
 
   function deleteDocument(id: number) {
-    setDocuments((current) => current.filter(
-      (document) => document.id !== id,
-    ));
+    setDocuments((current) => current.filter((document) => document.id !== id));
   }
 
   function reorderDocuments(orderedIds: number[]) {
-    setDocuments((current) => orderedIds
-      .map((id) => current.find((document) => document.id === id))
-      .filter((document): document is CompanyDocument => Boolean(document))
-      .map((document, index) => ({
-        ...document,
-        position: index + 1,
-      })));
+    setDocuments((current) =>
+      orderedIds
+        .map((id) => current.find((document) => document.id === id))
+        .filter((document): document is CompanyDocument => Boolean(document))
+        .map((document, index) => ({
+          ...document,
+          position: index + 1,
+        })),
+    );
   }
 
   return {

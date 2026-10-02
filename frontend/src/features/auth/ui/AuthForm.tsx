@@ -5,11 +5,11 @@ import {
   LockKeyhole,
   Mail,
   ShieldCheck,
-} from "lucide-react";
-import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+} from 'lucide-react';
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-type AuthMode = "login" | "register";
+type AuthMode = 'login' | 'register';
 
 type AuthFormProps = {
   mode: AuthMode;
@@ -17,35 +17,35 @@ type AuthFormProps = {
 
 const content = {
   login: {
-    label: "ACCOUNT ACCESS",
-    title: "ログイン",
-    description: "登録したメールアドレスとパスワードを入力してください。",
-    submitText: "ログインする",
-    footerText: "アカウントをお持ちでない方",
-    footerLinkText: "新規登録",
-    footerLink: "/register",
+    label: 'ACCOUNT ACCESS',
+    title: 'ログイン',
+    description: '登録したメールアドレスとパスワードを入力してください。',
+    submitText: 'ログインする',
+    footerText: 'アカウントをお持ちでない方',
+    footerLinkText: '新規登録',
+    footerLink: '/register',
   },
   register: {
-    label: "CREATE ACCOUNT",
-    title: "新規登録",
-    description: "メールアドレスとパスワードでアカウントを作成します。",
-    submitText: "アカウントを作成",
-    footerText: "すでにアカウントをお持ちの方",
-    footerLinkText: "ログイン",
-    footerLink: "/login",
+    label: 'CREATE ACCOUNT',
+    title: '新規登録',
+    description: 'メールアドレスとパスワードでアカウントを作成します。',
+    submitText: 'アカウントを作成',
+    footerText: 'すでにアカウントをお持ちの方',
+    footerLinkText: 'ログイン',
+    footerLink: '/login',
   },
 } satisfies Record<AuthMode, Record<string, string>>;
 
 export function AuthForm({ mode }: AuthFormProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const pageContent = content[mode];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate("/");
+    navigate('/');
   };
 
   return (
@@ -117,10 +117,12 @@ export function AuthForm({ mode }: AuthFormProps) {
               <span className="relative mt-2 block">
                 <LockKeyhole className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--faint)]" />
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   required
                   minLength={8}
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  autoComplete={
+                    mode === 'login' ? 'current-password' : 'new-password'
+                  }
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="8文字以上"
@@ -130,7 +132,9 @@ export function AuthForm({ mode }: AuthFormProps) {
                   type="button"
                   onClick={() => setShowPassword((isVisible) => !isVisible)}
                   className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center text-[var(--faint)] transition-colors hover:text-[var(--accent)]"
-                  aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示する"}
+                  aria-label={
+                    showPassword ? 'パスワードを隠す' : 'パスワードを表示する'
+                  }
                 >
                   {showPassword ? (
                     <EyeOff className="size-4" />

@@ -1,19 +1,10 @@
-import {
-  Check,
-  X,
-} from "lucide-react";
-import {
-  useState,
-  type FormEvent,
-  type KeyboardEvent,
-} from "react";
-import {
-  companyProfile,
-} from "@/features/companies/model/companyDetail";
-import type { SelectionStatus } from "@/features/companies/model/selection";
-import { EditIconButton } from "@/shared/button";
-import { PriorityBadge } from "../priority-badge";
-import { SelectionStepBadge } from "../selection-step-badge";
+import { Check, X } from 'lucide-react';
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { companyProfile } from '@/features/companies/model/companyDetail';
+import type { SelectionStatus } from '@/features/companies/model/selection';
+import { EditIconButton } from '@/shared/button';
+import { PriorityBadge } from '../priority-badge';
+import { SelectionStepBadge } from '../selection-step-badge';
 
 export function CompanyHeader() {
   const [companyName, setCompanyName] = useState(companyProfile.name);
@@ -46,7 +37,7 @@ export function CompanyHeader() {
   }
 
   function handleNameKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       event.preventDefault();
       cancelEditingName();
     }
@@ -54,10 +45,7 @@ export function CompanyHeader() {
 
   return (
     <header className="ui-panel cyber-cut flex flex-wrap items-center gap-4 border border-[var(--line)] p-5 sm:p-6">
-      <PriorityBadge
-        priority={2}
-        size="m"
-      />
+      <PriorityBadge priority={2} size="m" />
 
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {isEditingName ? (
@@ -116,7 +104,6 @@ export function CompanyHeader() {
         size="l"
         onResultChange={setSelectionResult}
       />
-
     </header>
   );
 }
