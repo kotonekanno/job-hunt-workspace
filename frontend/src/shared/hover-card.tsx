@@ -186,7 +186,7 @@ export function HoverCard({
               }
             }}
             className={`
-              ui-floating-surface fixed z-[9999] cursor-default
+              ui-floating-surface fixed z-[9999] cursor-default transition-none
               animate-in p-3 text-left fade-in zoom-in-95 duration-150
               ${sizeClassName}
             `}

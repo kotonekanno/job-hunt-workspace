@@ -65,7 +65,11 @@ export function MainLayout() {
   const protectedLayoutContext: ProtectedLayoutOutletContext = {
     isSidebarOpen: isProtectedPage && isSidebarOpen,
     toggleSidebar: () => setIsSidebarOpen((isOpen) => !isOpen),
-    closeSidebar: () => setIsSidebarOpen(false),
+    closeSidebar: () => {
+      if (!window.matchMedia(sidebarBreakpointQuery).matches) {
+        setIsSidebarOpen(false);
+      }
+    },
   };
 
   return (
