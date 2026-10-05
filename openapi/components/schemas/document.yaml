@@ -7,14 +7,12 @@ DocumentTitle:
   type: string
   minLength: 1
   maxLength: 50
-  example: 面接対策
 
 DocumentText:
   description: Markdown形式の文書
   type: string
   minLength: 0
   maxLength: 50000
-  example: 志望動機と自己PRを整理する。
 
 
 # ====================
@@ -39,10 +37,6 @@ DocumentListItem:
     - id
     - position
     - title
-  example:
-    id: 1
-    position: 1000
-    title: 面接対策
 
 Document:
   description: 文書の内容
@@ -57,7 +51,9 @@ Document:
     - text
   example:
     title: 面接対策
-    text: 志望動機と自己PRを整理する。
+    text: '# 株式会社サンプル
+
+      事業内容と志望理由を整理する。'
 
 
 # ====================
@@ -65,13 +61,13 @@ Document:
 # ====================
 
 GetDocumentsResponse:
-  description: 文書一覧の取得結果
+  description: 文書一覧の取得結果。
   type: object
   required:
     - documents
   properties:
     documents:
-      description: 文書の一覧。該当する文書がない場合は空配列
+      description: 文書の一覧（該当する文書がない場合は空配列）
       type: array
       items:
         $ref: '#/DocumentListItem'
@@ -82,21 +78,23 @@ GetDocumentsResponse:
         title: 面接対策
 
 CreateDocumentRequest:
-  description: 新規文書の登録内容
+  description: 新規文書の作成内容。
   type: object
-  required:
-    - title
   properties:
     title:
       $ref: '#/DocumentTitle'
+  required:
+    - title
   example:
     title: 面接対策
 
 UpdateDocumentRequest:
-  description: 文書の部分更新内容。省略した項目は変更しない
+  description: 文書の部分更新内容。更新する項目のみ指定する。
   type: object
   properties:
     title:
       $ref: '#/DocumentTitle'
     text:
       $ref: '#/DocumentText'
+  example:
+    title: 面接対策

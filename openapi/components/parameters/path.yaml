@@ -1,5 +1,4 @@
 CompanyId:
-  description: 企業ID
   name: companyId
   in: path
   required: true
@@ -7,11 +6,8 @@ CompanyId:
     description: 企業ID
     type: integer
     format: int32
-    example: 1
-  example: 1
 
 BasicInfoId:
-  description: 基本情報ID
   name: basicInfoId
   in: path
   required: true
@@ -19,59 +15,17 @@ BasicInfoId:
     description: 基本情報ID
     type: integer
     format: int32
-    example: 1
-  example: 1
-
-EssayGroupId:
-  description: ESグループID
-  name: essayGroupId
-  in: path
-  required: true
-  schema:
-    description: ESグループID
-    type: integer
-    format: int32
-    example: 1
-  example: 1
-
-EssayId:
-  description: ESのID
-  name: essayId
-  in: path
-  required: true
-  schema:
-    description: ESのID
-    type: integer
-    format: int32
-    example: 1
-  example: 1
-
-DocumentId:
-  description: 文書ID
-  name: documentId
-  in: path
-  required: true
-  schema:
-    description: 文書ID
-    type: integer
-    format: int32
-    example: 1
-  example: 1
 
 ActivityId:
-  description: 活動履歴ID
   name: activityId
   in: path
   required: true
   schema:
-    description: 活動履歴ID
+    description: やりとり履歴ID
     type: integer
     format: int32
-    example: 1
-  example: 1
 
 SelectionId:
-  description: 選考ID
   name: selectionId
   in: path
   required: true
@@ -79,8 +33,15 @@ SelectionId:
     description: 選考ID
     type: integer
     format: int32
-    example: 1
-  example: 1
+
+SelectionStepId:
+  name: selectionStepId
+  in: path
+  required: true
+  schema:
+    description: 選考ステップID
+    type: integer
+    format: int32
 
 EventId:
   description: イベントID
@@ -91,8 +52,6 @@ EventId:
     description: イベントID
     type: integer
     format: int32
-    example: 1
-  example: 1
 
 TaskId:
   description: タスクID
@@ -103,5 +62,30 @@ TaskId:
     description: タスクID
     type: integer
     format: int32
-    example: 1
-  example: 1
+
+EssayGroupId:
+  name: essayGroupId
+  in: path
+  required: true
+  schema:
+    description: ESグループID
+    type: integer
+    format: int32
+
+EssayId:
+  name: essayId
+  in: path
+  required: true
+  schema:
+    description: ESのID
+    type: integer
+    format: int32
+
+DocumentId:
+  name: documentId
+  in: path
+  required: true
+  schema:
+    description: 文書ID
+    type: integer
+    format: int32

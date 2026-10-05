@@ -1,12 +1,13 @@
+# /documents/{documentId}
 parameters:
   - $ref: ../components/parameters/path.yaml#/DocumentId
 
 get:
-  description: 指定した文書のタイトルと本文を返す。
+  description: 指定した文書を返す。
   tags:
     - Documents
   operationId: getDocumentById
-  summary: 文書を取得する
+  summary: 文書を取得
   responses:
     '200':
       description: 文書の取得に成功。
@@ -16,13 +17,12 @@ get:
             $ref: ../components/schemas/document.yaml#/Document
 
 patch:
-  description: 指定した文書のタイトルまたは本文を更新する。更新する項目のみ指定する。
+  description: 指定した文書のタイトルまたは本文を更新する。
   tags:
     - Documents
   operationId: patchDocument
-  summary: 文書を更新する
+  summary: 文書を部分更新
   requestBody:
-    description: 更新する項目のみ指定する。
     required: true
     content:
       application/json:
@@ -37,7 +37,7 @@ delete:
   tags:
     - Documents
   operationId: deleteDocument
-  summary: 文書を削除する
+  summary: 文書を削除
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

@@ -1,27 +1,28 @@
+# /events
+
 get:
   description: 指定した年月のイベント一覧を返す。年月を省略した場合は現在の年月を対象とする。
   tags:
     - Events
   operationId: getEvents
-  summary: 指定した月の予定を取得する
+  summary: イベント一覧を取得
   parameters:
     - $ref: ../components/parameters/query.yaml#/EventMonth
   responses:
     '200':
-      description: 取得に成功。
+      description: イベント一覧の取得に成功。
       content:
         application/json:
           schema:
             $ref: ../components/schemas/event.yaml#/GetEventsResponse
 
 post:
-  description: イベントを登録し、作成したイベントのIDを返す。
+  description: イベントを新規作成する。
   tags:
     - Events
   operationId: createEvent
-  summary: イベントを作成する
+  summary: イベントを追加
   requestBody:
-    description: 登録内容。
     required: true
     content:
       application/json:
@@ -29,17 +30,16 @@ post:
           $ref: ../components/schemas/event.yaml#/CreateEventRequest
   responses:
     '201':
-      description: 作成に成功。
+      description: イベントの新規作成に成功。作成したイベントのIDを返す。
       content:
         application/json:
           schema:
-            description: 作成したリソースの識別情報。
             type: object
             required:
               - eventId
             properties:
               eventId:
-                description: 作成したイベントのID。
+                description: イベントID
                 type: integer
                 format: int32
             example:

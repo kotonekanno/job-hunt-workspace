@@ -7,7 +7,6 @@ TaskTitle:
   type: string
   minLength: 1
   maxLength: 200
-  example: エントリーシートを提出する
 
 TaskNote:
   description: タスクの詳細メモ
@@ -15,7 +14,6 @@ TaskNote:
   nullable: true
   minLength: 0
   maxLength: 2000
-  example: 事前に提出書類を確認する。
 
 
 # ====================
@@ -53,13 +51,6 @@ Task:
     - note
     - deadline
     - done
-  example:
-    id: 1
-    companyId: 1
-    title: エントリーシートを提出する
-    note: 事前に提出書類を確認する。
-    deadline: '2026-10-15T18:00:00+09:00'
-    done: false
 
 
 # ====================
@@ -67,11 +58,11 @@ Task:
 # ====================
 
 GetTaskResponse:
-  description: タスク一覧の取得結果
+  description: タスク一覧の取得結果。
   type: object
   properties:
     tasks:
-      description: タスクの一覧。該当するタスクがない場合は空配列
+      description: タスク一覧（該当するタスクがない場合は空配列）
       type: array
       items:
         $ref: '#/Task'
@@ -83,11 +74,11 @@ GetTaskResponse:
         companyId: 1
         title: エントリーシートを提出する
         note: 事前に提出書類を確認する。
-        deadline: '2026-10-15T18:00:00+09:00'
+        deadline: 2026-10-15T18:00:00+09:00
         done: false
 
 CreateTaskRequest:
-  description: 新規タスクの登録内容
+  description: 新規タスクの作成内容。
   type: object
   properties:
     companyId:
@@ -100,7 +91,7 @@ CreateTaskRequest:
     note:
       $ref: '#/TaskNote'
     deadline:
-      description: 期限。タイムゾーン情報を含む日時
+      description: 期限
       type: string
       format: date-time
       nullable: true
@@ -111,29 +102,42 @@ CreateTaskRequest:
     companyId: 1
     title: エントリーシートを提出する
     note: 事前に提出書類を確認する。
-    deadline: '2026-10-15T10:00:00+09:00'
+    deadline: 2026-10-15T10:00:00+09:00
 
 UpdateTaskRequest:
-  description: タスクの更新内容。更新する項目のみ指定する
+  description: タスクの部分更新内容。更新する項目のみ指定する。
   type: object
   properties:
     companyId:
-      description: 関連する企業のID。nullを指定すると企業との紐付けを解除する
+      description: 関連する企業のID
       type: integer
       format: int32
       nullable: true
-      example: 1
     title:
       $ref: '#/TaskTitle'
     note:
       $ref: '#/TaskNote'
     deadline:
-      description: 期限。タイムゾーン情報を含む日時。nullを指定すると期限を解除する。
+      description: 期限
       type: string
       format: date-time
       nullable: true
-      example: '2026-10-15T10:00:00+09:00'
     done:
-      description: trueの場合は完了、falseの場合は未完了
+      description: true：完了 / false：未完了
       type: boolean
-      example: false
+
+BulkDeleteTasksRequest:
+  description: 一括削除するタスク。
+  type: object
+  properties:
+    taskIds:
+      description: 削除するタスクのID
+      type: array
+      items:
+        type: integer
+        format: int32
+  required:
+    - taskIds
+  example:
+    taskIds:
+      - 1

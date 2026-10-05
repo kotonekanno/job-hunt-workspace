@@ -1,0 +1,26 @@
+# /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}
+parameters:
+  - $ref: ../components/parameters/path.yaml#/CompanyId
+  - $ref: ../components/parameters/path.yaml#/SelectionId
+  - $ref: ../components/parameters/path.yaml#/SelectionStepId
+
+put:
+  description: 指定した選考ステップの状態を更新する。これより前のステップの状態をすべてPASSED、後のステップの状態をすべてNOT_STARTEDに更新する。
+  tags:
+    - Selections
+  operationId: putSelectionStepStatus
+  summary: 選考ステップの状態を更新
+  requestBody:
+    content:
+      application/json:
+        schema:
+          properties:
+            status:
+              $ref: ../components/schemas/selection.yaml#/SelectionStatus
+          required:
+            - status
+          example:
+            status: NOT_STARTED
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

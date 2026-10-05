@@ -1,9 +1,11 @@
+# /tasks
+
 get:
-  description: 登録されているタスクの一覧を返す。
+  description: タスク一覧を返す。
   tags:
     - Tasks
   operationId: getTasks
-  summary: タスク一覧を取得する
+  summary: タスク一覧を取得
   responses:
     '200':
       description: タスク一覧の取得に成功。
@@ -13,13 +15,12 @@ get:
             $ref: ../components/schemas/task.yaml#/GetTaskResponse
 
 post:
-  description: タスクを登録し、作成したタスクのIDを返す。
+  description: タスクを新規作成する。
   tags:
     - Tasks
   operationId: createTask
-  summary: タスクを新規作成する
+  summary: タスクを追加
   requestBody:
-    description: 作成するタスクの内容。
     required: true
     content:
       application/json:
@@ -27,17 +28,16 @@ post:
           $ref: ../components/schemas/task.yaml#/CreateTaskRequest
   responses:
     '201':
-      description: タスクの作成に成功。
+      description: タスクの新規作成に成功。作成したタスクのIDを返す。
       content:
         application/json:
           schema:
-            description: リクエストまたはレスポンスのデータ。
             type: object
             required:
               - taskId
             properties:
               taskId:
-                description: 作成したタスクのID。
+                description: タスクID
                 type: integer
                 format: int32
             example:

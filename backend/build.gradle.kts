@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.1.0"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.openapi.generator") version "7.25.0"
 }
 
 group = "com.kotonekanno"
@@ -42,4 +43,22 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+openApiGenerate {
+    generatorName.set("spring")
+    inputSpec.set("$rootDir/../openapi/dist/openapi.yaml")
+    outputDir.set("$buildDir/generated/openapi")
+
+    apiPackage.set("com.example.api")
+    modelPackage.set("com.example.api.model")
+
+    configOptions.set(
+        mapOf(
+            "interfaceOnly" to "true",
+            "useSpringBoot3" to "true",
+            "useTags" to "true",
+            "openApiNullable" to "false"
+        )
+    )
 }

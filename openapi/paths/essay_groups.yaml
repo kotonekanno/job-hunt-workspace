@@ -1,25 +1,26 @@
+# /essay-groups
+
 get:
-  description: 設問グループの表示順と、各グループに属するESの件数を返す。
+  description: ESグループ一覧を返す。
   tags:
     - Essays
   operationId: getEssayGroups
-  summary: ES設問グループ一覧を取得する
+  summary: ESグループ一覧を取得
   responses:
     '200':
-      description: ES設問グループ一覧の取得に成功。
+      description: ESグループ一覧の取得に成功。
       content:
         application/json:
           schema:
             $ref: ../components/schemas/essay.yaml#/GetEssayGroupsResponse
 
 post:
-  description: ESの設問グループを登録し、作成したグループのIDを返す。
+  description: ESグループを新規作成する。
   tags:
     - Essays
   operationId: createEssayGroup
-  summary: ESグループを作成
+  summary: ESグループを追加
   requestBody:
-    description: 作成する設問グループの内容。
     required: true
     content:
       application/json:
@@ -27,17 +28,16 @@ post:
           $ref: ../components/schemas/essay.yaml#/CreateEssayGroupRequest
   responses:
     '201':
-      description: ES設問グループの作成に成功。
+      description: ESグループの新規作成に成功。作成したESグループのIDを返す。
       content:
         application/json:
           schema:
-            description: リクエストまたはレスポンスのデータ。
             type: object
             required:
               - essayGroupId
             properties:
               essayGroupId:
-                description: 作成した設問グループのID。
+                description: ESグループID
                 type: integer
                 format: int32
             example:

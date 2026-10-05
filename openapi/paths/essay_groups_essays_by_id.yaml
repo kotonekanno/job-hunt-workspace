@@ -1,30 +1,39 @@
+# /essay-groups/{essayGroupId}/essays/{essayId}
 parameters:
   - $ref: ../components/parameters/path.yaml#/EssayGroupId
   - $ref: ../components/parameters/path.yaml#/EssayId
 
 patch:
-  description: 指定した設問グループのESを部分更新する。
+  description: 指定したESを部分更新する。
   tags:
     - Essays
   operationId: patchEssay
-  summary: ESを更新する
+  summary: ESを部分更新
   requestBody:
-    description: 更新する項目のみ指定する。
     required: true
     content:
       application/json:
         schema:
           $ref: ../components/schemas/essay.yaml#/UpdateEssayRequest
+        examples:
+          updateEssayAnswer:
+            summary: ES回答を編集
+            value:
+              answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
+          unlinkCompany:
+            summary: 関連する企業を削除
+            value:
+              companyId: null
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
 
 delete:
-  description: 指定した設問グループに属するESを削除する。
+  description: 指定したESを削除する。
   tags:
     - Essays
   operationId: deleteEssay
-  summary: ESを削除する
+  summary: ESを削除
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

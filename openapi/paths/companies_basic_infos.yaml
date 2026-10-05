@@ -1,14 +1,14 @@
+# /companies/{companyId}/basic-infos
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
 
 post:
-  description: 指定した企業の基本情報を1項目登録する。
+  description: 指定した企業の基本情報を新規作成する。
   tags:
-    - Companies
+    - BasicInfos
   operationId: createCompanyBasicInfo
-  summary: 企業の基本情報を追加する
+  summary: 基本情報を追加
   requestBody:
-    description: 登録内容。
     required: true
     content:
       application/json:
@@ -16,17 +16,16 @@ post:
           $ref: ../components/schemas/company.yaml#/CreateCompanyBasicInfoRequest
   responses:
     '201':
-      description: 作成に成功。
+      description: 基本情報の作成に成功。作成した基本情報のIDを返す。
       content:
         application/json:
           schema:
-            description: 作成したリソースの識別情報。
             type: object
             required:
               - basicInfoId
             properties:
               basicInfoId:
-                description: 作成した基本情報のID。
+                description: 基本情報ID。
                 type: integer
                 format: int32
             example:

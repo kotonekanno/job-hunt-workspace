@@ -1,15 +1,16 @@
+# /companies/{companyId}/activities/{activityId}
+
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
   - $ref: ../components/parameters/path.yaml#/ActivityId
 
 patch:
-  description: 指定した活動履歴を部分更新する。
+  description: 指定したやりとり履歴を部分更新する。
   tags:
-    - Companies
+    - Activities
   operationId: patchCompanyActivity
-  summary: 企業の活動履歴を更新する
+  summary: やりとり履歴を部分更新
   requestBody:
-    description: 更新する項目のみ指定する。
     required: true
     content:
       application/json:
@@ -20,11 +21,11 @@ patch:
       $ref: ../components/responses/common.yaml#/NoContent
 
 delete:
-  description: 指定した企業の活動履歴を1件削除する。
+  description: 指定したやりとり履歴を削除する。
   tags:
-    - Companies
+    - Activities
   operationId: deleteCompanyActivity
-  summary: 企業の活動履歴を削除する
+  summary: やりとり履歴を削除
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

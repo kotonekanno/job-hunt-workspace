@@ -12,64 +12,129 @@ security:
   - BearerAuth: []
 
 tags:
-  - description: 企業管理API
-    name: Companies
-  - description: 選考状況API
-    name: Selections
-  - description: カレンダーAPI
-    name: Events
-  - description: タスクAPI
-    name: Tasks
-  - description: ES管理API
-    name: Essays
-  - description: ドキュメントAPI
-    name: Documents
+  - name: Companies
+    description: 企業管理
+
+  - name: Selections
+    description: 企業の選考状況
+
+  - name: BasicInfos
+    description: 企業の基本情報
+
+  - name: Activities
+    description: 企業とのやりとり履歴
+
+  - name: Events
+    description: カレンダー
+
+  - name: Tasks
+    description: タスク
+
+  - name: Essays
+    description: ES蓄積
+
+  - name: Documents
+    description: ドキュメント
+
+x-tagGroups:
+  - name: COMPANIES
+    tags:
+      - Companies
+      - Selections
+      - BasicInfos
+      - Activities
+  - name: Events
+    tags:
+      - Events
+  - name: TASKS
+    tags:
+      - Tasks
+  - name: ESSAYS
+    tags:
+      - Essays
+  - name: DOCUMENTS
+    tags:
+      - Documents
 
 paths:
   /companies:
     $ref: ./paths/companies.yaml
+
   /companies/{companyId}:
     $ref: ./paths/companies_by_id.yaml
+
   /companies/{companyId}/priority:
     $ref: ./paths/companies_priority.yaml
+
   /companies/{companyId}/document:
     $ref: ./paths/companies_document.yaml
+
   /companies/{companyId}/basic_infos:
     $ref: ./paths/companies_basic_infos.yaml
+
   /companies/{companyId}/basic_infos/{basicInfoId}:
     $ref: ./paths/companies_basic_infos_by_id.yaml
+
   /companies/{companyId}/activities:
     $ref: ./paths/companies_activities.yaml
+
   /companies/{companyId}/activities/{activityId}:
     $ref: ./paths/companies_activities_by_id.yaml
+
   /companies/{companyId}/selections:
-    $ref: ./paths/companies_selections.yaml
+    $ref: ./paths/selections.yaml
+
   /companies/{companyId}/selections/{selectionId}:
-    $ref: ./paths/companies_selections_by_id.yaml
+    $ref: ./paths/selections_by_id.yaml
+
+  /companies/{companyId}/selections/{selectionId}/is-active:
+    $ref: ./paths/selections_is_active.yaml
+  
+  /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
+    $ref: ./paths/selections_steps_by_id.yaml
+
+  /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}/status:
+    $ref: ./paths/selections_steps_status.yaml
+
   /companies/{companyId}/widgets:
     $ref: ./paths/companies_widgets.yaml
+
   /events:
     $ref: ./paths/events.yaml
+
   /events/{eventId}:
     $ref: ./paths/events_by_id.yaml
+
   /tasks:
     $ref: ./paths/tasks.yaml
+
   /tasks/{taskId}:
     $ref: ./paths/tasks_by_id.yaml
-  /essays:
-    $ref: ./paths/essays.yaml
-  /essays/{essayGroupId}:
-    $ref: ./paths/essays_by_group_id.yaml
-  /essays/{essayGroupId}/{essayId}:
-    $ref: ./paths/essays_group_by_id.yaml
+
+  /tasks/bulk-delete:
+    $ref: ./paths/tasks_bulk_delete.yaml
+    
+  /essay-groups:
+    $ref: ./paths/essay_groups.yaml
+
+  /essay-groups/{essayGroupId}:
+    $ref: ./paths/essay_groups_by_id.yaml
+
+  /essay-groups/{essayGroupId}/essays:
+    $ref: ./paths/essay_groups_essays.yaml
+
+  /essay-groups/{essayGroupId}/essays/{essayId}:
+    $ref: ./paths/essay_groups_essays_by_id.yaml
+
   /documents:
     $ref: ./paths/documents.yaml
+
   /documents/{documentId}:
     $ref: ./paths/documents_by_id.yaml
 
 components:
   securitySchemes:
     BearerAuth:
-      description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。対象の全APIで必須。
+      description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。
       type: http
       scheme: bearer

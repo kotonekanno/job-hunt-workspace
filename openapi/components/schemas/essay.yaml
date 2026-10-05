@@ -3,24 +3,22 @@
 # ====================
 
 EssayGroupName:
-  description: 設問グループ名
+  description: ESグループ名
   type: string
   minLength: 1
   maxLength: 50
 
 EssayQuestion:
-    description: ESの設問
-    type: string
-    minLength: 1
-    maxLength: 1000
-    example: 学生時代に力を入れたことを教えてください。
+  description: ESの設問
+  type: string
+  minLength: 1
+  maxLength: 1000
 
 EssayAnswer: 
   description: 設問に対する回答
   type: string
   minLength: 0
   maxLength: 5000
-  example: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
 
 
 # ====================
@@ -28,21 +26,21 @@ EssayAnswer:
 # ====================
 
 EssayGroupListItem:
-  description: ES設問グループ一覧の1件分の情報
+  description: ESグループ一覧の1件分の情報
   type: object
   properties:
     id:
-      description: 設問グループID
+      description: ESグループID
       type: integer
       format: int32
     position:
-      description: 設問グループの表示順
+      description: ESグループの表示順
       type: integer
       format: int32
     name:
       $ref: '#/EssayGroupName'
     quantity:
-      description: グループに属するESの件数
+      description: ESグループに属するESの件数
       type: integer
       minimum: 0
   required:
@@ -50,11 +48,6 @@ EssayGroupListItem:
     - position
     - name
     - quantity
-  example:
-    id: 1
-    position: 1000
-    name: 学生時代に力を入れたこと
-    quantity: 1
 
 Essay:
   description: ESの設問と回答
@@ -64,9 +57,8 @@ Essay:
       description: ESのID
       type: integer
       format: int32
-      example: 1
     companyName:
-      $ref: './company.yaml#/NullableCompanyName'
+      $ref: ./company.yaml#/NullableCompanyName
     question:
       $ref: '#/EssayQuestion'
     answer:
@@ -75,11 +67,6 @@ Essay:
     - id
     - question
     - answer
-  example:
-    id: 1
-    companyName: サンプル株式会社
-    question: 学生時代に力を入れたことを教えてください。
-    answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
 
 
 # ====================
@@ -87,11 +74,11 @@ Essay:
 # ====================
 
 GetEssayGroupsResponse:
-  description: ES設問グループ一覧の取得結果
+  description: ESグループ一覧の取得結果。
   type: object
   properties:
     essayGroups:
-      description: 設問グループの一覧。該当するグループがない場合は空配列
+      description: ESグループ一覧（該当するグループがない場合は空配列）
       type: array
       items:
         $ref: '#/EssayGroupListItem'
@@ -101,11 +88,11 @@ GetEssayGroupsResponse:
     essayGroups:
       - id: 1
         position: 1000
-        name: 学生時代に力を入れたこと
+        name: ガクチカ
         quantity: 1
 
 CreateEssayGroupRequest:
-  description: 新規ES設問グループの登録内容
+  description: 新規ESグループの作成内容。
   type: object
   properties:
     name:
@@ -113,14 +100,14 @@ CreateEssayGroupRequest:
   required:
     - name
   example:
-    name: 学生時代に力を入れたこと
+    name: ガクチカ
 
 GetEssaysResponse:
-  description: 指定した設問グループのES一覧の取得結果
+  description: 指定したESグループのES一覧の取得結果
   type: object
   properties:
     essays:
-      description: 設問グループに属するESの一覧。該当するESがない場合は空配列
+      description: ESの一覧（該当するESがない場合は空配列）
       type: array
       items:
         $ref: '#/Essay'
@@ -134,7 +121,7 @@ GetEssaysResponse:
         answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
 
 CreateEssayRequest:
-  description: ESの設問と回答の登録内容
+  description: 新規ESの作成内容。
   type: object
   properties:
     companyId:
@@ -155,7 +142,7 @@ CreateEssayRequest:
     answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
 
 UpdateEssayRequest:
-  description: ESの設問と回答の部分更新内容。省略した項目は変更しない
+  description: ESの設問と回答の部分更新内容。更新する項目のみ指定する。
   type: object
   properties:
     companyId:
