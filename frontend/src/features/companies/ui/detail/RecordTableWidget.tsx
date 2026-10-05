@@ -4,6 +4,7 @@ import { InlineRecordRow } from '@/features/companies/ui/detail/InlineRecordRow'
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { OutlineAddButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
+import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
 type RecordTableWidgetProps = {
   title: string;
@@ -63,40 +64,44 @@ export function RecordTableWidget({
           />
         }
       >
-        <table
-          aria-label={title}
-          className="w-full table-fixed border-collapse"
-        >
-          <colgroup>
-            <col className="w-[30%]" />
-            <col />
-            <col className="w-[72px]" />
-          </colgroup>
-          <tbody>
-            {records.map((record) => (
-              <InlineRecordRow
-                key={record.id}
-                label={record.label}
-                value={record.value}
-                isNew={record.isNew}
-                labelName={labelName}
-                valueName={valueName}
-                renderValue={renderValue}
-                onSave={(label, value) =>
-                  setRecords((current) =>
-                    current.map((item) =>
-                      item.id === record.id
-                        ? { ...item, label, value, isNew: false }
-                        : item,
-                    ),
-                  )
-                }
-                onCancelNew={() => removeRecord(record.id)}
-                onDelete={() => setDeletingId(record.id)}
-              />
-            ))}
-          </tbody>
-        </table>
+        {records.length === 0 ? (
+          <WidgetEmptyState text="基本情報のレコードを追加しましょう" />
+        ) : (
+          <table
+            aria-label={title}
+            className="w-full table-fixed border-collapse"
+          >
+            <colgroup>
+              <col className="w-[30%]" />
+              <col />
+              <col className="w-[72px]" />
+            </colgroup>
+            <tbody>
+              {records.map((record) => (
+                <InlineRecordRow
+                  key={record.id}
+                  label={record.label}
+                  value={record.value}
+                  isNew={record.isNew}
+                  labelName={labelName}
+                  valueName={valueName}
+                  renderValue={renderValue}
+                  onSave={(label, value) =>
+                    setRecords((current) =>
+                      current.map((item) =>
+                        item.id === record.id
+                          ? { ...item, label, value, isNew: false }
+                          : item,
+                      ),
+                    )
+                  }
+                  onCancelNew={() => removeRecord(record.id)}
+                  onDelete={() => setDeletingId(record.id)}
+                />
+              ))}
+            </tbody>
+          </table>
+        )}
       </WidgetFrame>
       {deletingRecord && (
         <DeleteDialog

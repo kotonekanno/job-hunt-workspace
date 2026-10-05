@@ -5,7 +5,7 @@ import {
   type Essay,
   type EssayGroup,
 } from '@/features/essay/model/essay';
-import { DeleteIconButton, EditIconButton } from '@/shared/button';
+import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 
 type EssayGroupListProps = {
   groups: EssayGroup[];
@@ -67,17 +67,10 @@ export function EssayGroupList({
 
               {canManage && (
                 <div className="absolute right-4 top-4 flex items-center gap-1.5 bg-[var(--panel)] pl-2">
-                  <EditIconButton
-                    size="s"
-                    transparent={false}
-                    ariaLabel={`${group.name}を編集`}
-                    onClick={() => onEditGroup(group)}
-                  />
-                  <DeleteIconButton
-                    size="s"
-                    transparent={false}
-                    ariaLabel={`${group.name}を削除`}
-                    onClick={() => onDeleteGroup(group)}
+                  <EditDeleteMenu
+                    label={group.name}
+                    onEdit={() => onEditGroup(group)}
+                    onDelete={() => onDeleteGroup(group)}
                   />
                 </div>
               )}

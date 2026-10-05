@@ -93,11 +93,7 @@ export function HomeDashboard() {
             {initialCompanyList
               .filter((company) => company.priority === 1)
               .map((company) => (
-                <CompanyListCard
-                  key={company.id}
-                  company={company}
-                  showDelete={false}
-                />
+                <CompanyListCard key={company.id} company={company} />
               ))}
           </div>
         </DashboardCard>

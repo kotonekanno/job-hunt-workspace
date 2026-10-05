@@ -1,3 +1,5 @@
+import { useParams } from 'react-router-dom';
+import { useMockActivities } from '@/features/companies/model/companyMockStore';
 import { Building2, MessageSquareText } from 'lucide-react';
 import {
   Fragment,
@@ -7,7 +9,6 @@ import {
   useState,
 } from 'react';
 import {
-  initialActivities,
   type ActivitySender,
   type CompanyActivity,
 } from '@/features/companies/model/activity';
@@ -32,9 +33,17 @@ const timeFormatter = new Intl.DateTimeFormat('ja-JP', {
   minute: '2-digit',
 });
 
-export function ActivitiesWidget() {
-  const [activities, setActivities] =
-    useState<CompanyActivity[]>(initialActivities);
+export function ActivitiesWidget({
+  readOnly = false,
+  targetCompanyId,
+}: {
+  readOnly?: boolean;
+  targetCompanyId?: number;
+}) {
+  const { companyId } = useParams();
+  const [activities, setActivities] = useMockActivities(
+    targetCompanyId ?? Number(companyId),
+  );
   const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: false });
   const [editing, setEditing] = useState<{
     activity: CompanyActivity;
@@ -89,14 +98,8 @@ export function ActivitiesWidget() {
     ]);
   }
 
-  return (
-    <WidgetFrame
-      title="やりとり履歴"
-      code="ACTIVITIES"
-      icon={MessageSquareText}
-      className="flex h-[600px] min-w-0 flex-col lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:h-auto lg:min-h-[520px]"
-      contentClassName="flex min-h-0 flex-1 flex-col"
-    >
+  const content = (
+    <>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden border border-[var(--line-strong)] bg-[var(--panel-raised)]">
         <div className="relative min-h-0 flex-1 basis-0">
           <div
@@ -158,20 +161,22 @@ export function ActivitiesWidget() {
                         <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                           {activity.text}
                         </p>
-                        <ActivityMessageMenu
-                          sender={activity.sender}
-                          onSenderChange={(sender) =>
-                            setActivities((current) =>
-                              current.map((item) =>
-                                item.id === activity.id
-                                  ? { ...item, sender }
-                                  : item,
-                              ),
-                            )
-                          }
-                          onEdit={(field) => setEditing({ activity, field })}
-                          onDelete={() => setDeleting(activity)}
-                        />
+                        {!readOnly && (
+                          <ActivityMessageMenu
+                            sender={activity.sender}
+                            onSenderChange={(sender) =>
+                              setActivities((current) =>
+                                current.map((item) =>
+                                  item.id === activity.id
+                                    ? { ...item, sender }
+                                    : item,
+                                ),
+                              )
+                            }
+                            onEdit={(field) => setEditing({ activity, field })}
+                            onDelete={() => setDeleting(activity)}
+                          />
+                        )}
                       </div>
                       <time
                         dateTime={activity.sentAt}
@@ -200,7 +205,7 @@ export function ActivitiesWidget() {
             />
           )}
         </div>
-        <ActivityComposer onSend={sendMessage} />
+        {!readOnly && <ActivityComposer onSend={sendMessage} />}
       </div>
       {editing && (
         <ActivityEditDialog
@@ -228,6 +233,23 @@ export function ActivitiesWidget() {
           }}
         />
       )}
+    </>
+  );
+  if (readOnly)
+    return (
+      <div className="flex h-[360px] max-h-[60vh] min-w-0 flex-col">
+        {content}
+      </div>
+    );
+  return (
+    <WidgetFrame
+      title="やりとり履歴"
+      code="ACTIVITIES"
+      icon={MessageSquareText}
+      className="flex h-[600px] min-w-0 flex-col lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:h-auto lg:min-h-[520px]"
+      contentClassName="flex min-h-0 flex-1 flex-col"
+    >
+      {content}
     </WidgetFrame>
   );
 }

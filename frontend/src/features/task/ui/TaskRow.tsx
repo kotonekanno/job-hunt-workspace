@@ -2,7 +2,7 @@ import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { Task } from '@/features/task/model/task';
 import { CompanyBadge } from '@/shared/badge';
-import { DeleteIconButton, EditIconButton } from '@/shared/button';
+import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
 import { MemoPanel } from '@/shared/MemoPanel';
 
@@ -24,7 +24,6 @@ export function TaskRow(props: TaskRowProps) {
     showCompany ? 'minmax(64px, 108px)' : null,
     'minmax(120px, 1fr)',
     '108px',
-    showActions ? '36px' : null,
     showActions ? '36px' : null,
     '20px',
   ]
@@ -92,27 +91,11 @@ export function TaskRow(props: TaskRowProps) {
           )}
 
           {showActions && (
-            <>
-              <EditIconButton
-                size="m"
-                transparent={false}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  props.onEdit?.(props.task);
-                }}
-              />
-
-              <DeleteIconButton
-                size="m"
-                transparent={false}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setIsDeleteDialogOpen(true);
-                }}
-              />
-            </>
+            <EditDeleteMenu
+              label={props.task.title}
+              onEdit={() => props.onEdit?.(props.task)}
+              onDelete={() => setIsDeleteDialogOpen(true)}
+            />
           )}
 
           <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />

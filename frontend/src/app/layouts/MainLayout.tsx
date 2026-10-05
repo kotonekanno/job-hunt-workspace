@@ -96,7 +96,7 @@ export function MainLayout() {
             )}
 
             <Link
-              to="/"
+              to="/home"
               className="flex min-w-0 items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] ml-2"
               aria-label="極・就活管理 ホーム"
             >

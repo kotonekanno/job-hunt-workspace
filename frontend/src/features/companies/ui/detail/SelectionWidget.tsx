@@ -11,6 +11,7 @@ import { AddButton } from '@/shared/button';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog, EditDialog } from '@/shared/dialog';
 import { SelectionProgressMenu } from '@/features/companies/ui/detail/SelectionProgressMenu';
+import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
 type SelectionWidgetProps = {
   onRemove: () => void;
@@ -68,6 +69,9 @@ export function SelectionWidget({
         onRemove={onRemove}
       >
         <div className="space-y-3">
+          {tracks.length === 0 && (
+            <WidgetEmptyState text="選考を追加して、選考状況を記録しましょう" />
+          )}
           {tracks.map((track) => (
             <details
               key={track.id}

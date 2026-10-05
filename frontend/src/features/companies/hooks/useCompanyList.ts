@@ -1,13 +1,17 @@
+import {
+  useMockCompanies,
+  setMockCompanies,
+} from '@/features/companies/model/companyMockStore';
 import { useMemo, useState } from 'react';
 import {
-  initialCompanyList,
   type CompanyListItem,
   type CompanyPriority,
 } from '@/features/companies/model/companyList';
 import type { SelectionStatus } from '@/features/companies/model/selection';
 
 export function useCompanyList() {
-  const [companies, setCompanies] = useState(initialCompanyList);
+  const companies = useMockCompanies();
+  const setCompanies = setMockCompanies;
   const [query, setQuery] = useState('');
 
   const visibleCompanies = useMemo(
@@ -43,7 +47,7 @@ export function useCompanyList() {
   ) {
     setCompanies((current) =>
       current.map((company) =>
-        company.id === companyId
+        company.id === companyId && company.selection
           ? {
               ...company,
               selection: {

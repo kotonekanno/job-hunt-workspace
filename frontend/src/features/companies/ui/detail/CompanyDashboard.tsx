@@ -1,3 +1,9 @@
+import { useNavigate, useParams } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
+import {
+  deleteMockCompany,
+  useMockCompanies,
+} from '@/features/companies/model/companyMockStore';
 import { useSelectionProgress } from '@/features/companies/hooks/useSelectionProgress';
 import { SelectionProgressDialog } from '@/features/companies/ui/detail/SelectionProgressDialog';
 import { useMemo, useState } from 'react';
@@ -22,6 +28,12 @@ const allWidgets: WidgetType[] = widgetOrder;
 
 export function CompanyDashboard() {
   const company = useCompanyDetail();
+  const { companyId } = useParams();
+  const companyRecord = useMockCompanies().find(
+    (item) => item.id === Number(companyId),
+  );
+  const navigate = useNavigate();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const selection = useSelectionProgress();
   const active = selection.tracks.find((track) => track.isActive);
   const current = active?.steps.find((step) => step.id === active.currentStep);
@@ -83,6 +95,8 @@ export function CompanyDashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl">
       <CompanyHeader
+        key={companyId}
+        name={companyRecord?.name}
         selection={
           active && current
             ? {
@@ -115,10 +129,31 @@ export function CompanyDashboard() {
         {company.widgets.map(renderWidget)}
       </div>
 
+      <div className="mt-8 flex justify-center border-t border-[var(--line)] pt-5">
+        <button
+          type="button"
+          onClick={() => setIsDeleteOpen(true)}
+          className="flex cursor-pointer items-center gap-2 border border-rose-500/40 px-4 py-2 text-xs text-rose-500 hover:bg-rose-500/10"
+        >
+          <Trash2 className="size-4" />
+          企業を削除
+        </button>
+      </div>
+      {isDeleteOpen && (
+        <DeleteDialog
+          title="企業を削除しますか？"
+          text="この企業と、企業に紐づくデータを削除します。この操作は取り消せません。"
+          onClose={() => setIsDeleteOpen(false)}
+          onConfirm={() => {
+            deleteMockCompany(Number(companyId));
+            navigate('/companies');
+          }}
+        />
+      )}
       {pendingRemoval && (
         <DeleteDialog
           title="ウィジェットを削除しますか？"
-          text={`「${widgetLabels[pendingRemoval]}」をこの画面から削除します。`}
+          text={`「${widgetLabels[pendingRemoval]}」と、ウィジェット内のデータをすべて削除します。この操作は取り消せません。`}
           onClose={() => setPendingRemoval(null)}
           onConfirm={confirmRemoval}
         />

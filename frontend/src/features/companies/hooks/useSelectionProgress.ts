@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { initialSelectionTracks } from '@/features/companies/model/companyDetail';
+import { useParams } from 'react-router-dom';
+import { useMockSelections } from '@/features/companies/model/companyMockStore';
 import type {
   Selection,
   SelectionStatus,
@@ -10,9 +11,8 @@ import {
 } from '@/features/companies/lib/selectionProgress';
 
 export function useSelectionProgress() {
-  const [tracks, setTracks] = useState(() =>
-    initialSelectionTracks.map(normalizeSelection),
-  );
+  const { companyId } = useParams();
+  const [tracks, setTracks] = useMockSelections(Number(companyId));
   const [pendingChange, setPendingChange] = useState<{
     before: Selection;
     after: Selection;

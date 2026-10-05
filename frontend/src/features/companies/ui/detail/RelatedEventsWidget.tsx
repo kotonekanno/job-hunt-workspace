@@ -10,6 +10,7 @@ import {
 } from '@/features/companies/model/companyDetail';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { AddButton } from '@/shared/button';
+import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
 function getTodayKey() {
   const today = new Date();
@@ -95,14 +96,17 @@ export function RelatedEventsWidget() {
               key={event.id}
               event={event}
               onEdit={openEditDialog}
+              onDelete={(id) =>
+                setEvents((current) =>
+                  current.filter((event) => event.id !== id),
+                )
+              }
               showCompany={false}
             />
           ))}
 
           {visibleEvents.length === 0 && (
-            <p className="ui-empty-state border border-dashed border-[var(--line)] py-8 text-center text-xs text-[var(--faint)]">
-              表示できる予定はありません
-            </p>
+            <WidgetEmptyState text="表示できる予定はありません" />
           )}
         </div>
       </WidgetFrame>

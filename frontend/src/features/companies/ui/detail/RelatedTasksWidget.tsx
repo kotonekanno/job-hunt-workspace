@@ -9,6 +9,7 @@ import type { Task } from '@/features/task/model/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { AddButton, BulkDeleteButton } from '@/shared/button';
+import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
 export function RelatedTasksWidget() {
   const [tasks, setTasks] = useState<Task[]>(relatedTasks);
@@ -91,15 +92,19 @@ export function RelatedTasksWidget() {
         action={actions}
         contentClassName="overflow-x-auto"
       >
-        <TaskList
-          tasks={sortedTasks}
-          showCompany={false}
-          onToggle={toggleTask}
-          onEdit={openEditDialog}
-          onDelete={(id) =>
-            setTasks((current) => current.filter((task) => task.id !== id))
-          }
-        />
+        {sortedTasks.length === 0 ? (
+          <WidgetEmptyState text="表示できるタスクはありません" />
+        ) : (
+          <TaskList
+            tasks={sortedTasks}
+            showCompany={false}
+            onToggle={toggleTask}
+            onEdit={openEditDialog}
+            onDelete={(id) =>
+              setTasks((current) => current.filter((task) => task.id !== id))
+            }
+          />
+        )}
       </WidgetFrame>
 
       {isDialogOpen && (

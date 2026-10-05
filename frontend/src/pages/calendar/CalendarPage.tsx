@@ -37,7 +37,7 @@ export function CalendarPage() {
         onNextMonth={() => calendar.moveMonth(1)}
         onToday={calendar.goToToday}
       />
-      <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_434px]">
         <CalendarMonth
           days={calendar.days}
           events={calendar.events}

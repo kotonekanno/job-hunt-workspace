@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
-import type { Essay } from '@/features/essay/model/essay';
 import { EssayDialog } from '@/features/essay/ui/EssayDialog';
 import { EssayGroupHeader } from '@/features/essay/ui/EssayGroupHeader';
 import { EssayList } from '@/features/essay/ui/EssayList';
@@ -14,7 +13,6 @@ export function EssayGroupPage() {
   const essayArchive = useEssayArchive();
   const [query, setQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingEssay, setEditingEssay] = useState<Essay | null>(null);
   const group = essayArchive.groups.find(
     (candidate) => candidate.id === groupId,
   );
@@ -31,7 +29,7 @@ export function EssayGroupPage() {
 
     return groupEssays.filter((essay) =>
       [essay.company, essay.question, essay.answer].some((value) =>
-        value.toLocaleLowerCase().includes(normalizedQuery),
+        (value ?? '').toLocaleLowerCase().includes(normalizedQuery),
       ),
     );
   }, [groupEssays, query]);
@@ -59,7 +57,7 @@ export function EssayGroupPage() {
         <EssayList
           essays={filteredEssays}
           groups={essayArchive.groups}
-          onEdit={setEditingEssay}
+          onSave={(essay) => essayArchive.updateEssay(essay.id, essay)}
           onDelete={essayArchive.deleteEssay}
           onGroupChange={(essay, nextGroupId) =>
             essayArchive.updateEssay(essay.id, {
@@ -82,15 +80,6 @@ export function EssayGroupPage() {
           defaultGroupId={group.id}
           onClose={() => setIsAddDialogOpen(false)}
           onSave={essayArchive.addEssay}
-        />
-      )}
-
-      {editingEssay && (
-        <EssayDialog
-          groups={essayArchive.groups}
-          essay={editingEssay}
-          onClose={() => setEditingEssay(null)}
-          onSave={(essay) => essayArchive.updateEssay(editingEssay.id, essay)}
         />
       )}
     </div>

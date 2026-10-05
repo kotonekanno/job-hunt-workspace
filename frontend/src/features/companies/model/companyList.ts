@@ -7,12 +7,12 @@ export type CompanyListItem = {
   name: string;
   priority: CompanyPriority;
   position: number;
-  selection: CurrentSelection;
+  selection: CurrentSelection | null;
 };
 
 export const priorities: CompanyPriority[] = [1, 2, 3, 4, 5];
 
-export const secondaryPriorities: CompanyPriority[] = [6, 0];
+export const secondaryPriorities: CompanyPriority[] = [0, 6];
 
 export const initialCompanyList: CompanyListItem[] = [
   {

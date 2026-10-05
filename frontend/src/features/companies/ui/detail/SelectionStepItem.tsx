@@ -24,7 +24,7 @@ export function SelectionStepItem({
 }: SelectionStepItemProps) {
   return (
     <details
-      open
+      open={isCurrent}
       className="group/step relative"
       aria-current={isCurrent ? 'step' : undefined}
     >

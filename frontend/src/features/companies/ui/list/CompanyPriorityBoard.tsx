@@ -1,3 +1,4 @@
+import { Archive } from 'lucide-react';
 import { Reorder } from 'motion/react';
 import { useMemo } from 'react';
 import type { SelectionStatus } from '@/features/companies/model/selection';
@@ -65,7 +66,8 @@ export function CompanyPriorityBoard({
   onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
   const priorityOrder = initialPriorityOrder;
-  const { isDragSessionActive, startDragSession, endDragSession } = useListDragSession();
+  const { isDragSessionActive, startDragSession, endDragSession } =
+    useListDragSession();
 
   const boardItemIds = useMemo(
     () =>
@@ -153,7 +155,11 @@ export function CompanyPriorityBoard({
               >
                 <div className="flex min-w-0 items-baseline gap-3">
                   <p className="shrink-0 font-mono text-[7px] tracking-[0.16em] opacity-60">
-                    PRIORITY
+                    {priority === 6 ? (
+                      <Archive aria-label="アーカイブ" className="size-4" />
+                    ) : (
+                      'PRIORITY'
+                    )}
                   </p>
 
                   <h2 className="truncate text-sm font-black">
