@@ -41,6 +41,10 @@ post:
       application/json:
         schema:
           $ref: ../components/schemas/selection.yaml#/CreateSelectionStepRequest
-    responses:
-      '201':
-        $ref: ../components/schemas/selection.yaml#/CreateSelectionStepResponse
+  responses:
+    '201':
+      description: 選考ステップの作成に成功。作成した選考ステップのIDと並び順を返す。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/selection.yaml#/CreateSelectionStepResponse

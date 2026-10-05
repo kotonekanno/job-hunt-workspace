@@ -17,9 +17,11 @@ patch:
           $ref: ../components/schemas/essay.yaml#/UpdateEssayRequest
         examples:
           updateEssayAnswer:
+            summary: ES回答を編集
             value:
               answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
           unlinkCompany:
+            summary: 関連する企業を削除
             value:
               companyId: null
   responses:

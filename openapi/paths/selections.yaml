@@ -16,7 +16,7 @@ post:
           $ref: ../components/schemas/selection.yaml#/CreateSelectionRequest
   responses:
     '201':
-      description: 選考の新規作成に成功。
+      description: 選考の新規作成に成功。作成した選考・選考ステップのIDおよび並び順を返す。
       content:
         application/json:
           schema:

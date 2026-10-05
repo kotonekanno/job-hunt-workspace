@@ -39,7 +39,7 @@ SelectionStepId:
   in: path
   required: true
   schema:
-    decription: 選考ステップID
+    description: 選考ステップID
     type: integer
     format: int32
 

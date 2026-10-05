@@ -9,7 +9,8 @@ post:
   requestBody:
     content:
       application/json:
-        $ref: ../components/schemas/task.yaml#/BulkDeleteTasksRequest
+        schema:
+          $ref: ../components/schemas/task.yaml#/BulkDeleteTasksRequest
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

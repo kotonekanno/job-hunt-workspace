@@ -15,7 +15,7 @@ patch:
           $ref: ../components/schemas/task.yaml#/UpdateTaskRequest
         examples:
           updateTaskNote:
-            summary: メモを更新
+            summary: メモを編集
             value:
               note: 事前に提出書類を確認する。
           unlinkCompany:
@@ -41,7 +41,7 @@ delete:
   tags:
     - Tasks
   operationId: deleteTask
-  summary: タスクを削除する
+  summary: タスクを削除
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

@@ -8,16 +8,17 @@ put:
   tags:
     - Selections
   operationId: putSelectionIsActive
-  summary: 
+  summary: 進行中の選考を更新
   requestBody:
     content:
       application/json:
-        properties:
-          isActive:
-            descriptions: true：進行中の選考（一つの企業に対し一つのみ）
-            type: boolean
-        required:
-          - isActive
-    responses:
-      '204':
-        $ref: ../components/responses/common.yaml#/NoContent
+        schema:
+          properties:
+            isActive:
+              description: true：進行中の選考（一つの企業に対し一つのみ）
+              type: boolean
+          required:
+            - isActive
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

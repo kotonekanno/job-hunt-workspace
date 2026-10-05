@@ -13,13 +13,14 @@ put:
   requestBody:
     content:
       application/json:
-        properties:
-          status:
-            $ref: ../components/schemas/selection.yaml#/SelectionStatus
-        required:
-          - status
-        example:
-          status: NOT_STARTED
-    responses:
-      '204':
-        $ref: ../components/responses/common.yaml#/NoContent
+        schema:
+          properties:
+            status:
+              $ref: ../components/schemas/selection.yaml#/SelectionStatus
+          required:
+            - status
+          example:
+            status: NOT_STARTED
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

@@ -5,7 +5,7 @@ get:
   tags:
     - Events
   operationId: getEvents
-  summary: 指定した月のイベント一覧を取得
+  summary: イベント一覧を取得
   parameters:
     - $ref: ../components/parameters/query.yaml#/EventMonth
   responses:

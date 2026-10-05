@@ -14,18 +14,25 @@ security:
 tags:
   - name: Companies
     description: 企業管理
+
   - name: Selections
     description: 企業の選考状況
+
   - name: BasicInfos
     description: 企業の基本情報
+
   - name: Activities
     description: 企業とのやりとり履歴
+
   - name: Events
-    descriptoin: カレンダー
+    description: カレンダー
+
   - name: Tasks
     description: タスク
+
   - name: Essays
-    decription: ES蓄積
+    description: ES蓄積
+
   - name: Documents
     description: ドキュメント
 
@@ -101,12 +108,12 @@ paths:
   /tasks:
     $ref: ./paths/tasks.yaml
 
-  /tasks/buld-delete:
-    $ref: ./paths/tasks_bulk_delete.yaml
-    
   /tasks/{taskId}:
     $ref: ./paths/tasks_by_id.yaml
 
+  /tasks/bulk-delete:
+    $ref: ./paths/tasks_bulk_delete.yaml
+    
   /essay-groups:
     $ref: ./paths/essay_groups.yaml
 

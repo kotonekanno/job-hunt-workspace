@@ -17,11 +17,11 @@ tags:
   - name: Activities
     description: 企業とのやりとり履歴
   - name: Events
-    descriptoin: カレンダー
+    description: カレンダー
   - name: Tasks
     description: タスク
   - name: Essays
-    decription: ES蓄積
+    description: ES蓄積
   - name: Documents
     description: ドキュメント
 paths:
@@ -297,7 +297,7 @@ paths:
               $ref: '#/components/schemas/CreateSelectionRequest'
       responses:
         '201':
-          description: 選考の新規作成に成功。
+          description: 選考の新規作成に成功。作成した選考・選考ステップのIDおよび並び順を返す。
           content:
             application/json:
               schema:
@@ -342,9 +342,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateSelectionStepRequest'
-        responses:
-          '201':
-            $ref: ../components/schemas/selection.yaml#/CreateSelectionStepResponse
+      responses:
+        '201':
+          description: 選考ステップの作成に成功。作成した選考ステップのIDと並び順を返す。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSelectionStepResponse'
   /companies/{companyId}/selections/{selectionId}/is-active:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -354,19 +358,20 @@ paths:
       tags:
         - Selections
       operationId: putSelectionIsActive
-      summary: null
+      summary: 進行中の選考を更新
       requestBody:
         content:
           application/json:
-            properties:
-              isActive:
-                descriptions: true：進行中の選考（一つの企業に対し一つのみ）
-                type: boolean
-            required:
-              - isActive
-        responses:
-          '204':
-            $ref: ../components/responses/common.yaml#/NoContent
+            schema:
+              properties:
+                isActive:
+                  description: true：進行中の選考（一つの企業に対し一つのみ）
+                  type: boolean
+              required:
+                - isActive
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -386,10 +391,14 @@ paths:
               $ref: '#/components/schemas/UpdateSelectionStepRequest'
             examples:
               reorderSteps:
-                position: 1500
+                summary: 選考ステップの順序を更新
+                value:
+                  position: 1500
               updateStep:
-                name: 二次面接
-                note: 事前に提出書類を確認する。
+                summary: 選考ステップを更新
+                value:
+                  name: 二次面接
+                  note: 事前に提出書類を確認する。
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
@@ -416,16 +425,17 @@ paths:
       requestBody:
         content:
           application/json:
-            properties:
-              status:
-                $ref: ../components/schemas/selection.yaml#/SelectionStatus
-            required:
-              - status
-            example:
-              status: NOT_STARTED
-        responses:
-          '204':
-            $ref: ../components/responses/common.yaml#/NoContent
+            schema:
+              properties:
+                status:
+                  $ref: '#/components/schemas/SelectionStatus'
+              required:
+                - status
+              example:
+                status: NOT_STARTED
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
   /companies/{companyId}/widgets:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -459,7 +469,7 @@ paths:
       tags:
         - Events
       operationId: getEvents
-      summary: 指定した月のイベント一覧を取得
+      summary: イベント一覧を取得
       parameters:
         - $ref: '#/components/parameters/EventMonth'
       responses:
@@ -575,33 +585,6 @@ paths:
                     format: int32
                 example:
                   taskId: 1
-  /tasks/buld-delete:
-    post:
-      description: 指定したタスクを一括削除する。
-      tags:
-        - Tasks
-      operationId: bulkDeleteTasks
-      summary: タスクを一括削除
-      requestBody:
-        content:
-          application/json:
-            description: 一括削除するタスク。
-            type: object
-            properties:
-              taskIds:
-                description: 削除するタスクのID
-                type: array
-                items:
-                  type: integer
-                  format: int32
-            required:
-              - taskIds
-            example:
-              taskIds:
-                - 1
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
   /tasks/{taskId}:
     parameters:
       - $ref: '#/components/parameters/TaskId'
@@ -618,7 +601,7 @@ paths:
               $ref: '#/components/schemas/UpdateTaskRequest'
             examples:
               updateTaskNote:
-                summary: メモを更新
+                summary: メモを編集
                 value:
                   note: 事前に提出書類を確認する。
               unlinkCompany:
@@ -643,6 +626,21 @@ paths:
         - Tasks
       operationId: deleteTask
       summary: タスクを削除する
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /tasks/bulk-delete:
+    post:
+      description: 指定したタスクを一括削除する。
+      tags:
+        - Tasks
+      operationId: bulkDeleteTasks
+      summary: タスクを一括削除
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteTasksRequest'
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
@@ -762,9 +760,11 @@ paths:
               $ref: '#/components/schemas/UpdateEssayRequest'
             examples:
               updateEssayAnswer:
+                summary: ES回答を編集
                 value:
                   answer: 学内イベントの運営を担当し、参加者の満足度向上に取り組みました。
               unlinkCompany:
+                summary: 関連する企業を削除
                 value:
                   companyId: null
       responses:
@@ -1731,6 +1731,21 @@ components:
         done:
           description: true：完了 / false：未完了
           type: boolean
+    BulkDeleteTasksRequest:
+      description: 一括削除するタスク。
+      type: object
+      properties:
+        taskIds:
+          description: 削除するタスクのID
+          type: array
+          items:
+            type: integer
+            format: int32
+      required:
+        - taskIds
+      example:
+        taskIds:
+          - 1
     EssayGroupName:
       description: ESグループ名
       type: string
@@ -1977,7 +1992,7 @@ components:
       in: path
       required: true
       schema:
-        decription: 選考ステップID
+        description: 選考ステップID
         type: integer
         format: int32
     EventMonth:

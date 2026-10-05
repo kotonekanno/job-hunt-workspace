@@ -18,10 +18,14 @@ patch:
           $ref: ../components/schemas/selection.yaml#/UpdateSelectionStepRequest
         examples:
           reorderSteps:
-            position: 1500
+            summary: 選考ステップの順序を更新
+            value:
+              position: 1500
           updateStep:
-            name: 二次面接
-            note: 事前に提出書類を確認する。
+            summary: 選考ステップを更新
+            value:
+              name: 二次面接
+              note: 事前に提出書類を確認する。
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
