@@ -46,3 +46,4 @@
 ## 各種ドキュメント
 
 - [データベース設計](docs/db-design.md)
+- [API設計](https://kotonekanno.github.io/job-hunt-workspace)

@@ -11,7 +11,7 @@
 
     "openapi:lint": "redocly lint ../openapi/openapi.yaml",
     "openapi:bundle": "redocly bundle ../openapi/openapi.yaml -o ../openapi/dist/openapi.yaml",
-    "openapi:docs": "redocly build-docs ../openapi/dist/openapi.yaml -o ../openapi/dist/api-docs.html",
+    "openapi:docs": "redocly build-docs ../openapi/dist/openapi.yaml -o ../openapi/docs/index.html",
     "openapi:build": "npm run openapi:lint && npm run openapi:bundle && npm run openapi:docs",
 
     "api:generate": "orval"
