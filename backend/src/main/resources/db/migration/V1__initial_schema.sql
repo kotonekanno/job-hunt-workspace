@@ -31,6 +31,9 @@ CREATE TABLE essay_groups (
   CONSTRAINT uq_essay_groups_user_position UNIQUE (user_id, position)
 );
 
+CREATE INDEX idx_essay_groups_user_position
+ON essay_groups(user_id, position);
+
 -- companies
 CREATE TABLE companies (
   id SERIAL PRIMARY KEY,
@@ -38,11 +41,9 @@ CREATE TABLE companies (
   position INT NOT NULL,
   name TEXT NOT NULL,
   priority SMALLINT NOT NULL,
-  widget_basic_info BOOLEAN NOT NULL DEFAULT FALSE,
-  widget_links BOOLEAN NOT NULL DEFAULT FALSE,
-  widget_selection BOOLEAN NOT NULL DEFAULT FALSE,
-  widget_note BOOLEAN NOT NULL DEFAULT FALSE,
-  note TEXT,
+  show_basic_info_widget BOOLEAN NOT NULL DEFAULT FALSE,
+  show_selection_widget BOOLEAN NOT NULL DEFAULT FALSE,
+  document TEXT,
   CONSTRAINT fk_companies_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT uq_companies_id_user UNIQUE (id, user_id),
   CONSTRAINT uq_companies_user_name UNIQUE (user_id, name),
@@ -50,24 +51,10 @@ CREATE TABLE companies (
   CONSTRAINT chk_companies_priority CHECK(priority BETWEEN 0 AND 6)
 );
 
-CREATE INDEX idx_companies
-ON companies(user_id);
+CREATE INDEX idx_companies_user_priority_position
+ON companies(user_id, priority, position);
 
--- company_documents
-CREATE TABLE company_documents (
-  id SERIAL PRIMARY KEY,
-  company_id INT NOT NULL,
-  position INT NOT NULL,
-  title TEXT NOT NULL,
-  text TEXT NOT NULL,
-  CONSTRAINT fk_company_documents_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
-  CONSTRAINT uq_company_documents_company_position UNIQUE (company_id, position)
-);
-
-CREATE INDEX idx_company_documents
-ON company_documents(company_id);
-
--- company_infos
+-- company_basic_infos
 CREATE TABLE company_basic_infos (
   id SERIAL PRIMARY KEY,
   company_id INT NOT NULL,
@@ -78,22 +65,21 @@ CREATE TABLE company_basic_infos (
   CONSTRAINT uq_company_basic_infos_company_position UNIQUE (company_id, position)
 );
 
-CREATE INDEX idx_company_basic_infos
-ON company_basic_infos(company_id);
+CREATE INDEX idx_company_basic_infos_company_position
+ON company_basic_infos(company_id, position);
 
--- company_urls
-CREATE TABLE company_urls (
+-- company_activities
+CREATE TABLE company_activities (
   id SERIAL PRIMARY KEY,
   company_id INT NOT NULL,
-  position INT NOT NULL,
-  url TEXT NOT NULL,
-  description TEXT NOT NULL,
-  CONSTRAINT fk_company_urls_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
-  CONSTRAINT uq_company_urls_company_position UNIQUE (company_id, position)
+  occurred_at TIMESTAMPTZ NOT NULL,
+  by_user BOOLEAN NOT NULL,
+  text TEXT NOT NULL,
+  CONSTRAINT fk_company_activities_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_company_urls
-ON company_urls(company_id);
+CREATE INDEX idk_company_activities_company_occurred_at
+ON company_activities(company_id, occurred_at);
 
 -- selections
 CREATE TABLE selections (
@@ -101,10 +87,11 @@ CREATE TABLE selections (
   company_id INT NOT NULL,
   title TEXT NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT FALSE,
-  CONSTRAINT fk_selections_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE
+  CONSTRAINT fk_selections_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
+  CONSTRAINT uq_
 );
 
-CREATE INDEX idx_selections
+CREATE INDEX idx_selections_company
 ON selections(company_id);
 
 CREATE UNIQUE INDEX uq_selections_active_company
@@ -115,18 +102,24 @@ WHERE is_active = TRUE;
 CREATE TABLE selection_steps (
   id SERIAL PRIMARY KEY,
   selection_id INT NOT NULL,
-  step_no SMALLINT NOT NULL,
-  title TEXT NOT NULL,
-  held_at TIMESTAMPTZ,
-  note TEXT,
+  position INT NOT NULL,
   status TEXT NOT NULL,
+  name TEXT NOT NULL,
+  note TEXT,
   CONSTRAINT fk_selection_steps_selections FOREIGN KEY(selection_id) REFERENCES selections(id) ON DELETE CASCADE,
   CONSTRAINT uq_selections_steps_selection_step_no UNIQUE (selection_id, step_no),
-  CONSTRAINT chk_selection_steps_status CHECK (status IN ('not_started', 'pending', 'passed', 'failed'))
+  CONSTRAINT chk_selection_steps_status CHECK (status IN ('NOT_STARTED', 'PENDING', 'PASSED', 'FAILED'))
 );
 
-CREATE INDEX idx_selection_steps
-ON selection_steps(selection_id);
+CREATE INDEX idx_selection_steps_selection_position
+ON selection_steps(selection_id, position);
+
+ALTER TABLE companies
+ADD COLUMN current_selection_id INT,
+ADD CONSTRAINT fk_companies_current_selection
+    FOREIGN KEY (current_selection_id)
+    REFERENCES selection(id)
+    ON DELETE CASCADE;
 
 -- events
 CREATE TABLE events (
@@ -145,7 +138,7 @@ CREATE TABLE events (
   is_attending BOOLEAN DEFAULT TRUE,
   CONSTRAINT fk_events_users FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_events_company_owner FOREIGN KEY(company_id, user_id) REFERENCES companies(id, user_id) ON DELETE CASCADE,
-  CONSTRAINT chk_events_category CHECK (category IN ('session', 'chat', 'interview', 'internship', 'other')),
+  CONSTRAINT chk_events_category CHECK (category IN ('SESSION', 'CHAT', 'INTERVIEW', 'INTERNSHIP', 'OTHER')),
   CONSTRAINT chk_events_date CHECK (end_date >= start_date),
   CONSTRAINT chk_events_datetime CHECK (end_time > start_time),
   CONSTRAINT chk_events_all_day CHECK (
@@ -167,11 +160,17 @@ CREATE TABLE events (
   )
 );
 
-CREATE INDEX idx_events
-ON events(user_id);
+CREATE INDEX idx_events_user_start_time
+ON events(user_id, start_time);
 
-CREATE INDEX idx_events_company_owner
-ON events(company_id, user_id);
+CREATE INDEX idx_events_user_start_date
+ON events(company_id, start_date);
+
+CREATE INDEX idx_events_company_start_time
+ON events(company_id, start_time);
+
+CREATE INDEX idx_events_company_start_date
+ON events(company_id, start_date);
 
 -- tasks
 CREATE TABLE tasks (
@@ -186,14 +185,11 @@ CREATE TABLE tasks (
   CONSTRAINT fk_tasks_company_owner FOREIGN KEY(company_id, user_id) REFERENCES companies(id, user_id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tasks
-ON tasks(user_id);
-
 CREATE INDEX idx_tasks_user_deadline
 ON tasks(user_id, deadline);
 
-CREATE INDEX idx_tasks_company_owner
-ON tasks(company_id, user_id);
+CREATE INDEX idx_tasks_company_deadline
+ON tasks(company_id, deadline);
 
 -- essays
 CREATE TABLE essays (
@@ -208,17 +204,10 @@ CREATE TABLE essays (
   CONSTRAINT fk_essays_group_owner FOREIGN KEY(essay_group_id, user_id) REFERENCES essay_groups(id, user_id) ON DELETE RESTRICT
 );
 
-CREATE INDEX idx_essays
-ON essays(user_id);
-
-CREATE INDEX idx_essays_company_owner
-ON essays(company_id, user_id);
-
-CREATE INDEX idx_essays_group_owner
-ON essays(essay_group_id, user_id);
+CREATE INDEX idx_essays_essay_group
+ON essays(essay_group_id);
 
 -- documents
-
 CREATE TABLE documents (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
@@ -229,5 +218,5 @@ CREATE TABLE documents (
   CONSTRAINT uq_documents_user_position UNIQUE (user_id, position)
 );
 
-CREATE INDEX idx_documents
-ON documents(user_id);
+CREATE INDEX idx_documents_user_position
+ON documents(user_id, position);

@@ -1,3 +1,13 @@
+### 環境構築
+
+```bash
+cd frontend/
+npm run api:generate
+cd ../backend/
+./gradlew openApiGenerate
+```
+
+
 ### OpenAPI変更後
 
 以下を`frontend/` で実行
@@ -20,4 +30,11 @@
 4. フロントエンドにAPIクライアントを生成
    ```bash
    npm run api:generate
+   ```
+
+5. バックエンドで型を生成
+
+   ```bash
+   cd ../backend/
+   ./gradlew openApiGenerate
    ```

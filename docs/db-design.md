@@ -56,9 +56,8 @@ erDiagram
     INT position
     TEXT name
     SMALLINT priority
-    BOOLEAN widget_basic_info
-    BOOLEAN widget_activity
-    BOOLEAN widget_selection
+    BOOLEAN show_basic_info_widget
+    BOOLEAN show_selection_widget
     TEXT document
   }
 
@@ -88,11 +87,11 @@ erDiagram
   selection_steps {
     SERIAL id
     INT selection_id
-    SMALLINT step_no
+    INT position
     TEXT name
+    TEXT status
     TIMESTAMPTZ held_at
     TEXT note
-    TEXT status
   }
 
   events {
@@ -208,15 +207,15 @@ erDiagram
 | position       | INT          | NO   | 表示順             |
 | name           | TEXT         | NO   | 企業名             |
 | priority       | SMALLINT     | NO   | 志望度             |
-| widget_basic_info | BOOLEAN   | NO   | 基本情報ウィジェットの表示／非表示 |
-| widget_activity | BOOLEAN   | NO   | やりとり履歴ウィジェットの表示／非表示 |
-| widget_selection | BOOLEAN    | NO   | 選考状況ウィジェットの表示／非表示 |
+| current_selection_id | INT    | NO   | 進行中の選考ID     |
+| show_basic_info_widget | BOOLEAN   | NO   | 基本情報ウィジェットの表示／非表示 |
+| show_selection_widget | BOOLEAN    | NO   | 選考状況ウィジェットの表示／非表示 |
 | document       | TEXT         | YES  | Markdown形式の文書 |
 
 - priority
   - BETWEEN 0 AND 6
   - 0: 未分類, 1-5: 第n志望, 6: アーカイブ
-- widget_*
+- show_*_widget
   - trueならばウィジェットを表示する
   - DEFAULT FALSE
   - 参照：実装時にはトランザクションを利用
@@ -226,12 +225,13 @@ erDiagram
 
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
+  - current_seleciton_id: selections.id(ON DELETE CASCADE)
 - UNIQUE
   - id, user_id
   - user_id, name
   - user_id, priority, position
 - INDEX
-  - user_id
+  - user_id, priority, position
 
 ## company_basic_infos
 
@@ -253,7 +253,7 @@ erDiagram
 - UNIQUE
   - company_id, position
 - INDEX
-  - company_id
+  - company_id, position
 
 ## company_activities
 
@@ -273,7 +273,7 @@ erDiagram
 - FOREIGN
   - company_id: companies.id(ON DELETE CASCADE)
 - INDEX
-  - company_id
+  - company_id, occurred_at
 
 ## selections
 
@@ -294,7 +294,9 @@ erDiagram
 
 - FOREIGN
   - company_id: companies.id(ON DELETE CASCADE)
-- UNIQUE
+- INDEX
+  - company_id
+- UNIQUE INDEX
   - selections(company_id) WHERE is_active = TRUE
 
 ## selection_steps
@@ -305,11 +307,10 @@ erDiagram
 | -------------- | ------------ | ---- | ------------------ |
 | id             | SERIAL       | NO   | 選考ステップID     |
 | selection_id   | INT          | NO   | 選考ID             |
-| step_no        | SMALLINT     | NO   | 選考ステップの順序 |
-| name           | TEXT         | NO   | 選考ステップ名(一次面接、書類選考など)|
-| held_at        | TIMESTAMPTZ  | YES  | 開催日時           |
-| note           | TEXT         | YES  | 詳細情報メモ       |
+| position       | INT          | NO   | 選考ステップの順序 |
 | status         | TEXT         | NO   | 選考状況           |
+| name           | TEXT         | NO   | 選考ステップ名(一次面接、書類選考など)|
+| note           | TEXT         | YES  | 詳細情報メモ       |
 
 - status
   - NOT_STARTED(未受験) | PENDING(結果待ち) | PASSED(合格) | FAILED(不合格)
@@ -321,9 +322,9 @@ erDiagram
 - FOREIGN
   - selection_id: selections.id(ON DELETE CASCADE)
 - UNIQUE
-  - selection_id, step_no
+  - selection_id, position
 - INDEX
-  - selection_id
+  - selection_id, position
 
 ## events
 
@@ -366,8 +367,10 @@ erDiagram
   - end_date >= start_date
   - end_time > start_time
 - INDEX
-  - user_id
-  - company_id, user_id
+  - user_id, start_time
+  - user_id, start_date
+  - company_id, start_time
+  - company_id, start_date
 
 ## tasks
 
@@ -390,9 +393,8 @@ erDiagram
   - user_id: users.id(ON DELETE CASCADE)
   - company_id, user_id: companies(id, user_id)(ON DELETE CASCADE)
 - INDEX
-  - user_id
   - user_id, deadline
-  - company_id, user_id
+  - company_id, deadline
 
 ## essays
 
@@ -415,9 +417,7 @@ erDiagram
   - company_id, user_id: companies(id, user_id)(ON DELETE CASCADE)
   - essay_group_id, user_id: essay_groups(id, user_id)(ON DELETE RESTRICT)
 - INDEX
-  - user_id
-  - company_id, user_id
-  - essay_group_id, user_id
+  - essay_group_id
 
 ## essay_groups
 
@@ -439,6 +439,8 @@ erDiagram
   - id, user_id
   - user_id, name
   - user_id, position
+- INDEX
+  - user_id, position
 
 ## documents
 
@@ -458,4 +460,4 @@ erDiagram
 - UNIQUE
   - user_id, position
 - INDEX
-  - user_id
+  - user_id, position
