@@ -19,7 +19,6 @@ EventTitle:
   type: string
   minLength: 1
   maxLength: 100
-  example: 企業説明会
 
 EventNote:
   description: イベントの詳細メモ
@@ -27,7 +26,6 @@ EventNote:
   nullable: true
   minLength: 0
   maxLength: 2000
-  example: 事前に提出書類を確認する。
 
 
 # ====================
@@ -43,7 +41,7 @@ Event:
       type: integer
       format: int32
     companyName:
-      $ref: './company.yaml#/NullableCompanyName'
+      $ref: ./company.yaml#/NullableCompanyName
     category:
       $ref: '#/EventCategory'
     title:
@@ -87,19 +85,6 @@ Event:
     - note
     - isAllDay
     - isOnline
-  example:
-    id: 1
-    companyName: 株式会社サンプル
-    category: SESSION
-    title: 企業説明会
-    note: 事前に提出書類を確認する。
-    isAllDay: false
-    startDay: null
-    endDay: null
-    startTime: '2026-10-15T10:00:00+09:00'
-    endTime: '2026-10-15T11:00:00+09:00'
-    isOnline: true
-    isAttending: true
 
 
 # ====================
@@ -107,11 +92,11 @@ Event:
 # ====================
 
 GetEventsResponse:
-  description: 指定した月のイベント一覧の取得結果
+  description: 指定した月のイベント一覧の取得結果。
   type: object
   properties:
     events:
-      description: イベントの一覧。該当するイベントがない場合は空配列
+      description: イベント一覧（該当するイベントがない場合は空配列）
       type: array
       items:
         $ref: '#/Event'
@@ -127,13 +112,13 @@ GetEventsResponse:
         isAllDay: false
         startDay: null
         endDay: null
-        startTime: '2026-10-15T10:00:00+09:00'
-        endTime: '2026-10-15T11:00:00+09:00'
+        startTime: 2026-10-15T10:00:00+09:00
+        endTime: 2026-10-15T11:00:00+09:00
         isOnline: true
         isAttending: true
 
 CreateEventRequest:
-  description: イベントの登録内容。終了日は開始日以降、終了日時は開始日時より後とする
+  description: 新規イベントの作成内容。使用しないプロパティはnullにする。
   type: object
   properties:
     companyId:
@@ -148,44 +133,60 @@ CreateEventRequest:
     note:
       $ref: '#/EventNote'
     isAllDay:
-      description: 終日予定の場合はtrue
+      description: true：終日予定（startDayとendDayを使用） / false：時間指定の予定（startTimeとendTimeを使用）
       type: boolean
     startDay:
-      description: 終日予定の開始日。時間指定の予定ではnull
+      description: 終日予定の開始日（時間指定の予定ではnull）
       type: string
       format: date
       nullable: true
     endDay:
-      description: 終日予定の終了日。開始日以降の日付。同日の指定も可能。時間指定の予定ではnull
+      description: 終日予定の終了日（開始日以降。時間指定の予定ではnull）
       type: string
       format: date
       nullable: true
     startTime:
-      description: 時間指定の予定の開始日時。終日予定ではnull。タイムゾーン情報を含む日時
+      description: 時間指定の予定の開始日時（終日予定ではnull）
       type: string
       format: date-time
       nullable: true
     endTime:
-      description: 時間指定の予定の終了日時。開始日時より後であること。終日予定ではnull。タイムゾーン情報を含む日時
+      description: 時間指定の予定の終了日時（開始日時より後。終日予定ではnull）
       type: string
       format: date-time
       nullable: true
     isOnline:
-      description: オンライン開催の場合はtrue、オフライン開催の場合はfalse
+      description: true：オンライン開催 / false：オフライン開催
       type: boolean
     isAttending:
-      description: 参加する場合はtrue。SESSION、INTERNSHIP、OTHERで使用し、CHAT、INTERVIEWでは省略またはnull。使用する種類で省略した場合はtrue
+      description: true：参加確定（SESSION / INTERNSHIP / OTHERで使用、CHAT / INTERVIEWではnull）
       type: boolean
       nullable: true
   required:
     - title
     - category
     - isAllDay
+    - startDay
+    - endDay
+    - startTime
+    - endTime
     - isOnline
+    - isAttending
+  example:
+    companyName: 株式会社サンプル
+    category: SESSION
+    title: 企業説明会
+    note: 事前に提出書類を確認する。
+    isAllDay: false
+    startDay: null
+    endDay: null
+    startTime: 2026-10-15T10:00:00+09:00
+    endTime: 2026-10-15T11:00:00+09:00
+    isOnline: true
+    isAttending: true
 
 UpdateEventRequest:
-  description: イベントの部分更新内容。更新後のイベントは、終日ならstartDayとendDay、時間指定ならstartTimeとendTimeが必要。使用しない日付・日時はnullにする。終了日は開始日以降、終了日時は開始日時より後とする。
-    省略した項目は変更しない。
+  description: イベントの部分更新内容。使用しないプロパティはnullにする。更新する項目のみ指定する。
   type: object
   properties:
     companyId:
@@ -193,7 +194,6 @@ UpdateEventRequest:
       type: integer
       format: int32
       nullable: true
-      example: 1
     category:
       $ref: '#/EventCategory'
     title:
@@ -201,39 +201,32 @@ UpdateEventRequest:
     note:
       $ref: '#/EventNote'
     isAllDay:
-      description: 終日予定の場合はtrue。trueではstartDayとendDay、falseではstartTimeとendTimeを使用する
+      description: true：終日予定（startDayとendDayを使用） / false：時間指定の予定（startTimeとendTimeを使用）
       type: boolean
-      example: false
     startDay:
-      description: 終日予定の開始日。時間指定の予定ではnull
+      description: 終日予定の開始日（時間指定の予定ではnull）
       type: string
       format: date
       nullable: true
-      example: '2026-10-15'
     endDay:
-      description: 終日予定の終了日。開始日以降の日付。同日の指定も可能。時間指定の予定ではnull
+      description: 終日予定の終了日（開始日以降。時間指定の予定ではnull）
       type: string
       format: date
       nullable: true
-      example: '2026-10-15'
     startTime:
-      description: 時間指定の予定の開始日時。終日予定ではnull。 タイムゾーン情報を含む日時
+      description: 時間指定の予定の開始日時（終日予定ではnull）
       type: string
       format: date-time
       nullable: true
-      example: '2026-10-15T10:00:00+09:00'
     endTime:
-      description: 時間指定の予定の終了日時。開始日時より後であること。終日予定ではnull。 タイムゾーン情報を含む日時
+      description: 時間指定の予定の終了日時（開始日時より後。終日予定ではnull）
       type: string
       format: date-time
       nullable: true
-      example: '2026-10-15T11:00:00+09:00'
     isOnline:
-      description: オンライン開催の場合はtrue、オフライン開催の場合はfalse
+      description: true：オンライン開催 / false：オフライン開催
       type: boolean
-      example: true
     isAttending:
-      description: 参加する場合はtrue。SESSION、INTERNSHIP、OTHERで使用し、CHAT、INTERVIEWでは省略またはnull
+      description: true：参加確定（SESSION / INTERNSHIP / OTHERで使用、CHAT / INTERVIEWではnull）
       type: boolean
       nullable: true
-      example: true

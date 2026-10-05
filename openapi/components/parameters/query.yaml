@@ -9,5 +9,4 @@ EventMonth:
     pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
     minLength: 7
     maxLength: 7
-    example: 2026-10
   example: 2026-10

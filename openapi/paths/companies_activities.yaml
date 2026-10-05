@@ -1,14 +1,15 @@
+# /companies/{companyId}/activities
+
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
 
 post:
-  description: 指定した企業とのやり取りを登録する。企業ごとに複数件登録できる。
+  description: 指定した企業とのやりとり履歴を新規作成する。
   tags:
-    - Companies
+    - Activities
   operationId: createCompanyActivity
-  summary: 企業の活動履歴を追加する
+  summary: やりとり履歴を追加
   requestBody:
-    description: 登録内容。
     required: true
     content:
       application/json:
@@ -16,18 +17,17 @@ post:
           $ref: ../components/schemas/company.yaml#/CreateCompanyActivityRequest
   responses:
     '201':
-      description: 作成に成功。
+      description: やりとり履歴の作成に成功。作成したやりとり履歴のIDを返す。
       content:
         application/json:
           schema:
-            description: 作成したリソースの識別情報。
             type: object
-            required:
-              - activityId
             properties:
               activityId:
-                description: 作成した活動履歴のID。
+                description: やりとり履歴ID
                 type: integer
                 format: int32
+            required:
+              - activityId
             example:
               activityId: 1

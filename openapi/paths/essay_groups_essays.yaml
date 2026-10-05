@@ -1,0 +1,32 @@
+# /essay-groups/{essayGroupId}/essays
+parameters:
+  - $ref: ../components/parameters/path.yaml#/EssayGroupId
+
+post:
+  description: 指定したESグループに属するESを新規作成する。
+  tags:
+    - Essays
+  operationId: createEssay
+  summary: ESを追加
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/essay.yaml#/CreateEssayRequest
+  responses:
+    '201':
+      description: ESの新規作成に成功。作成したESのIDを返す。
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - essayId
+            properties:
+              essayId:
+                description: ESのID
+                type: integer
+                format: int32
+            example:
+              essayId: 1

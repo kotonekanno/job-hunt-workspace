@@ -1,0 +1,15 @@
+# /tasks/bulk-delete
+
+post:
+  description: 指定したタスクを一括削除する。
+  tags:
+    - Tasks
+  operationId: bulkDeleteTasks
+  summary: タスクを一括削除
+  requestBody:
+    content:
+      application/json:
+        $ref: ../components/schemas/task.yaml#/BulkDeleteTasksRequest
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent

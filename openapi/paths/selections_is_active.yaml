@@ -1,0 +1,23 @@
+# /companies/{companyId}/selections/{selectionId}/is-active
+parameters:
+  - $ref: ../components/parameters/path.yaml#/CompanyId
+  - $ref: ../components/parameters/path.yaml#/SelectionId
+
+put:
+  description: 指定した選考が進行中かどうかを更新する。他の選考が進行中に設定されている場合、解除する。
+  tags:
+    - Selections
+  operationId: putSelectionIsActive
+  summary: 
+  requestBody:
+    content:
+      application/json:
+        properties:
+          isActive:
+            descriptions: true：進行中の選考（一つの企業に対し一つのみ）
+            type: boolean
+        required:
+          - isActive
+    responses:
+      '204':
+        $ref: ../components/responses/common.yaml#/NoContent

@@ -1,9 +1,11 @@
+# /companies
+
 get:
-  description: 企業名、志望度、表示順と現在の選考状況を返す。
+  description: 企業一覧を返す。
   tags:
     - Companies
   operationId: getCompanies
-  summary: 企業一覧を取得する
+  summary: 企業一覧を取得
   responses:
     '200':
       description: 企業一覧の取得に成功。
@@ -13,13 +15,12 @@ get:
             $ref: ../components/schemas/company.yaml#/GetCompaniesResponse
 
 post:
-  description: 企業名と志望度を登録し、作成した企業のIDを返す。
+  description: 企業を新規作成する。
   tags:
     - Companies
   operationId: createCompany
-  summary: 企業を新規作成する
+  summary: 企業を追加
   requestBody:
-    description: 作成する企業の内容。
     required: true
     content:
       application/json:
@@ -27,17 +28,16 @@ post:
           $ref: ../components/schemas/company.yaml#/CreateCompanyRequest
   responses:
     '201':
-      description: 企業の新規作成に成功
+      description: 企業の新規作成に成功。作成した企業のIDを返す。
       content:
         application/json:
           schema:
-            description: リクエストまたはレスポンスのデータ。
             type: object
             required:
               - companyId
             properties:
               companyId:
-                description: 作成した企業のID。
+                description: 企業ID
                 type: integer
                 format: int32
             example:

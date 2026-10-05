@@ -1,19 +1,39 @@
+# /companies/{companyId}/priority
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
 
 patch:
-  description: 指定した志望度内の、前後の企業IDで示した位置へ移動する。前後のIDを両方省略した場合は末尾に追加する。
+  description: 企業を指定した志望度・並び順へ移動する。
   tags:
     - Companies
   operationId: patchCompanyPriority
-  summary: 企業の志望度と並び順を更新する
+  summary: 企業の志望度・並び順を更新
   requestBody:
-    description: 更新内容。
     required: true
     content:
       application/json:
         schema:
           $ref: ../components/schemas/company.yaml#/UpdateCompanyPriorityRequest
+        examples:
+          reorderInListView:
+            summary: 企業一覧画面で更新
+            value:
+              priority: 3
+              previousCompanyId: 1
+              nextCompanyId: 2
+          moveToTop:
+            summary: 志望度の先頭に移動
+            value:
+              priority: 3
+              previousCompanyId: null
+              nextCompanyId: 2
+          reorderInSingleView:
+            summary: 企業詳細画面で更新
+            value:
+              priority: 3
+              previousCompanyId: null
+              nextCompanyId: null
+
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
