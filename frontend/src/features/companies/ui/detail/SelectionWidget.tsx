@@ -1,3 +1,5 @@
+import { SelectionManageDialog } from '@/features/companies/ui/detail/SelectionManageDialog';
+import { SelectionStepDialog } from '@/features/companies/ui/detail/SelectionStepDialog';
 import { ChevronDown, GitBranch } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -34,7 +36,20 @@ export function SelectionWidget({
   setActive,
   updateStepResult,
 }: SelectionWidgetProps) {
-  const [editingTrack, setEditingTrack] = useState<Selection>();
+  const [editingTrackId, setEditingTrackId] = useState<number>();
+  const editingTrack = tracks.find((track) => track.id === editingTrackId);
+  const [editingStep, setEditingStep] = useState<{
+    trackId: number;
+    stepId: number;
+  }>();
+  const [deletingStep, setDeletingStep] = useState<{
+    trackId: number;
+    stepId: number;
+  }>();
+  const stepTrack = tracks.find((track) => track.id === editingStep?.trackId);
+  const selectedStep = stepTrack?.steps.find(
+    (step) => step.id === editingStep?.stepId,
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pendingTrack, setPendingTrack] = useState<Selection>();
   const [pendingActive, setPendingActive] = useState<Selection>();
@@ -44,8 +59,7 @@ export function SelectionWidget({
   const activeTrack = tracks.find((track) => track.isActive);
 
   function openEditDialog(track: Selection) {
-    setEditingTrack(track);
-    setIsDialogOpen(true);
+    setEditingTrackId(track.id);
   }
 
   const addButton = (
@@ -53,7 +67,6 @@ export function SelectionWidget({
       text="選考を追加"
       size="s"
       onClick={() => {
-        setEditingTrack(undefined);
         setIsDialogOpen(true);
       }}
     />
@@ -132,6 +145,15 @@ export function SelectionWidget({
                         step={step}
                         index={stepIndex}
                         isCurrent={track.currentStep === step.id}
+                        onEdit={() =>
+                          setEditingStep({ trackId: track.id, stepId: step.id })
+                        }
+                        onDelete={() =>
+                          setDeletingStep({
+                            trackId: track.id,
+                            stepId: step.id,
+                          })
+                        }
                         onResultChange={(result) => {
                           updateStepResult(track.id, step.id, result);
                         }}
@@ -146,12 +168,53 @@ export function SelectionWidget({
 
       {isDialogOpen && (
         <SelectionTrackDialog
-          track={editingTrack}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveTrack}
         />
       )}
 
+      {editingTrack && (
+        <SelectionManageDialog
+          track={editingTrack}
+          onSave={saveTrack}
+          onClose={() => setEditingTrackId(undefined)}
+        />
+      )}
+      {selectedStep && stepTrack && (
+        <SelectionStepDialog
+          step={selectedStep}
+          onClose={() => setEditingStep(undefined)}
+          onSave={(updated) =>
+            saveTrack({
+              ...stepTrack,
+              steps: stepTrack.steps.map((step) =>
+                step.id === updated.id ? updated : step,
+              ),
+            })
+          }
+        />
+      )}
+      {deletingStep && (
+        <DeleteDialog
+          title="選考ステップを削除しますか？"
+          text="この選考ステップとメモを削除します。この操作は取り消せません。"
+          onClose={() => setDeletingStep(undefined)}
+          onConfirm={() => {
+            const track = tracks.find(
+              (item) => item.id === deletingStep.trackId,
+            );
+            if (track)
+              saveTrack({
+                ...track,
+                steps: [...track.steps]
+                  .sort((a, b) => a.stepNo - b.stepNo)
+                  .filter((step) => step.id !== deletingStep.stepId)
+                  .map((step, index) => ({ ...step, stepNo: index + 1 })),
+              });
+            setDeletingStep(undefined);
+          }}
+        />
+      )}
       {pendingActive && (
         <EditDialog
           title="進行中の選考を変更しますか？"

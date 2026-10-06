@@ -1,3 +1,4 @@
+import { SelectionStepFields } from '@/features/companies/ui/detail/SelectionStepFields';
 import { Plus, Trash2 } from 'lucide-react';
 import { useId, useState, type FormEvent } from 'react';
 import type {
@@ -109,48 +110,12 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
                 </button>
               </div>
 
-              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_150px]">
-                <label className="text-xs text-[var(--muted)]">
-                  選考ステップの名前
-                  <RequiredMark />
-                  <input
-                    required
-                    value={step.title}
-                    onChange={(event) =>
-                      updateStep(step.id, {
-                        title: event.target.value,
-                      })
-                    }
-                    className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
-                  />
-                </label>
-
-                <label className="text-xs text-[var(--muted)]">
-                  日付
-                  <input
-                    type="date"
-                    value={step.heldAt}
-                    onChange={(event) =>
-                      updateStep(step.id, {
-                        heldAt: event.target.value,
-                      })
-                    }
-                    className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
-                  />
-                </label>
-
-                <label className="text-xs text-[var(--muted)] sm:col-span-2">
-                  メモ
-                  <textarea
-                    value={step.note}
-                    onChange={(event) =>
-                      updateStep(step.id, {
-                        note: event.target.value,
-                      })
-                    }
-                    className="mt-1 min-h-20 w-full resize-y border border-[var(--line)] bg-[var(--panel)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
-                  />
-                </label>
+              <div className="mt-3">
+                <SelectionStepFields
+                  title={step.title}
+                  note={step.note}
+                  onChange={(patch) => updateStep(step.id, patch)}
+                />
               </div>
             </div>
           ))}

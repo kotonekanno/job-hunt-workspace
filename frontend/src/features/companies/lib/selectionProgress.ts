@@ -28,5 +28,7 @@ export function normalizeSelection(track: Selection): Selection {
     steps.find((step) => step.id === track.currentStep) ??
     steps.find((step) => step.status !== 'passed') ??
     steps.at(-1);
-  return current ? changeCurrentStep(track, current.id, current.status) : track;
+  return current
+    ? changeCurrentStep(track, current.id, current.status)
+    : { ...track, currentStep: 0, isActive: false };
 }
