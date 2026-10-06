@@ -2,7 +2,7 @@ package com.kotonekanno.job_hunt_workspace.entities;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,5 +26,5 @@ public class User {
   private Boolean isVerified = false;
 
   @Column(name = "deleted_at")
-  private LocalDateTime deletedAt;
+  private OffsetDateTime deletedAt;
 }

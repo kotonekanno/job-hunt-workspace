@@ -15,14 +15,14 @@ import lombok.Setter;
 public class Company {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Column(nullable = false)
-  private int priority = 0;
+  private short priority = 0;
 
   @Column(nullable = false)
   private int position;

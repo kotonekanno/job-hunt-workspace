@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "tasks")
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Task {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
@@ -28,7 +28,7 @@ public class Task {
 
   private String note;
 
-  private LocalDateTime deadline;
+  private LocalDate deadline;
 
   @Column(nullable = false)
   private boolean done = false;

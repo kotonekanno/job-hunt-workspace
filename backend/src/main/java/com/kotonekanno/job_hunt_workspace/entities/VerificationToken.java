@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name="verification_tokens")
@@ -24,5 +24,5 @@ public class VerificationToken {
   private User user;
 
   @Column(name="expires_at", nullable = false)
-  private LocalDateTime expiresAt;
+  private OffsetDateTime expiresAt;
 }

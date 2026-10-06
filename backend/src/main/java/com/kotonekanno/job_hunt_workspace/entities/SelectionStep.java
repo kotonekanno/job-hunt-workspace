@@ -15,7 +15,7 @@ import lombok.Setter;
 public class SelectionStep {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
   @ManyToOne
   @JoinColumn(name = "selection_id", nullable = false)
@@ -25,10 +25,11 @@ public class SelectionStep {
   private int position;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private SelectionStatus status = SelectionStatus.NOT_STARTED;
 
   @Column(nullable = false)
   private String name;
 
-  private String text;
+  private String note;
 }

@@ -90,7 +90,6 @@ erDiagram
     INT position
     TEXT name
     TEXT status
-    TIMESTAMPTZ held_at
     TEXT note
   }
 
@@ -116,7 +115,7 @@ erDiagram
     INT company_id
     TEXT title
     TEXT note
-    TIMESTAMPTZ deadline
+    DATE deadline
     BOOLEAN done
   }
 
@@ -224,7 +223,6 @@ erDiagram
 
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
-  - current_seleciton_id: selections.id(ON DELETE CASCADE)
 - UNIQUE
   - user_id, priority, position
 - INDEX
@@ -346,8 +344,9 @@ erDiagram
 - category
   - SESSION(説明会) | CHAT(カジュアル面談) | INTERVIEW(面接) | INTERNSHIP(インターン) | OTHER(その他)
 - is_all_day
-  - trueならばstart_date, end_dateを使用
-  - falseならばstart_time, end_timeを使用
+  - trueならばstart_date, end_dateを使用し、start_time, end_timeはNULLとする
+  - falseならばstart_time, end_timeを使用し、start_date, end_dateはNULLとする
+  - DEFAULT FALSE
 - is_online
   - DEFAULT TRUE
 - is_attending
@@ -380,7 +379,7 @@ erDiagram
 | company_id     | INT          | YES  | 企業ID             |
 | title          | TEXT         | NO   | タスク概要         |
 | note           | TEXT         | YES  | タスク詳細         |
-| deadline       | TIMESTAMPTZ  | YES  | 期限               |
+| deadline       | DATE  | YES  | 期限               |
 | done           | BOOLEAN      | NO   | 完了／未完了       |
 
 <!-- omit in toc -->

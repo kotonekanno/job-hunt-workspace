@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "events")
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Event {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
@@ -26,6 +26,7 @@ public class Event {
   private Company company;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   EventCategory eventCategory = EventCategory.OTHER;
 
   @Column(nullable = false)
@@ -43,10 +44,10 @@ public class Event {
   private LocalDate endDate;
 
   @Column(name = "start_time")
-  private LocalDateTime startTime;
+  private OffsetDateTime startTime;
 
   @Column(name = "end_time")
-  private LocalDateTime endTime;
+  private OffsetDateTime endTime;
 
   @Column(name = "is_online", nullable = false)
   private boolean isOnline = true;
