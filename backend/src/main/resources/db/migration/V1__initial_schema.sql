@@ -38,9 +38,9 @@ ON essay_groups(user_id, position);
 CREATE TABLE companies (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
+  priority SMALLINT NOT NULL,
   position INT NOT NULL,
   name TEXT NOT NULL,
-  priority SMALLINT NOT NULL,
   show_basic_info_widget BOOLEAN NOT NULL DEFAULT FALSE,
   show_selection_widget BOOLEAN NOT NULL DEFAULT FALSE,
   document TEXT,
@@ -112,13 +112,6 @@ CREATE TABLE selection_steps (
 
 CREATE INDEX idx_selection_steps_selection_position
 ON selection_steps(selection_id, position);
-
-ALTER TABLE companies
-ADD COLUMN current_selection_id INT,
-ADD CONSTRAINT fk_companies_current_selection
-    FOREIGN KEY (current_selection_id)
-    REFERENCES selection(id)
-    ON DELETE CASCADE;
 
 -- events
 CREATE TABLE events (
@@ -197,7 +190,7 @@ CREATE TABLE essays (
   company_id INT,
   essay_group_id INT NOT NULL,
   question TEXT NOT NULL,
-  answer TEXT NOT NULL,
+  answer TEXT,
   CONSTRAINT fk_essays_users FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_essays_company_owner FOREIGN KEY(company_id, user_id) REFERENCES companies(id, user_id) ON DELETE CASCADE,
   CONSTRAINT fk_essays_group_owner FOREIGN KEY(essay_group_id, user_id) REFERENCES essay_groups(id, user_id) ON DELETE RESTRICT

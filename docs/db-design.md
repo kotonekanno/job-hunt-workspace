@@ -204,10 +204,9 @@ erDiagram
 | -------------- | ------------ | ---- | ------------------ |
 | id             | SERIAL       | NO   | 企業ID             |
 | user_id        | INT          | NO   | ユーザーID         |
+| priority       | SMALLINT     | NO   | 志望度             |
 | position       | INT          | NO   | 表示順             |
 | name           | TEXT         | NO   | 企業名             |
-| priority       | SMALLINT     | NO   | 志望度             |
-| current_selection_id | INT    | NO   | 進行中の選考ID     |
 | show_basic_info_widget | BOOLEAN   | NO   | 基本情報ウィジェットの表示／非表示 |
 | show_selection_widget | BOOLEAN    | NO   | 選考状況ウィジェットの表示／非表示 |
 | document       | TEXT         | YES  | Markdown形式の文書 |
@@ -227,8 +226,6 @@ erDiagram
   - user_id: users.id(ON DELETE CASCADE)
   - current_seleciton_id: selections.id(ON DELETE CASCADE)
 - UNIQUE
-  - id, user_id
-  - user_id, name
   - user_id, priority, position
 - INDEX
   - user_id, priority, position
@@ -243,7 +240,7 @@ erDiagram
 | company_id     | INT          | NO   | 企業ID             |
 | position       | INT          | NO   | 表示順             |
 | title          | TEXT         | NO   | 項目名             |
-| text           | TEXT         | NO   | 内容               |
+| text           | TEXT         | YES  | 内容               |
 
 <!-- omit in toc -->
 #### 制約
@@ -265,7 +262,7 @@ erDiagram
 | company_id     | INT          | NO   | 企業ID             |
 | occurred_at    | TIMESTAMPTZ  | NO   | 日付               |
 | by_user        | BOOLEAN      | NO   | trueならばユーザー側からのやり取り |
-| text           | TEXT         | NO   | 内容               |
+| text           | TEXT         | YES   | 内容               |
 
 <!-- omit in toc -->
 #### 制約
@@ -407,7 +404,7 @@ erDiagram
 | company_id        | INT          | YES  | 企業ID             |
 | essay_group_id    | INT          | NO   | 設問グループID     |
 | question          | TEXT         | NO   | 設問               |
-| answer            | TEXT         | NO   | 回答               |
+| answer            | TEXT         | YES  | 回答               |
 
 <!-- omit in toc -->
 #### 制約
@@ -436,7 +433,6 @@ erDiagram
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
 - UNIQUE
-  - id, user_id
   - user_id, name
   - user_id, position
 - INDEX
