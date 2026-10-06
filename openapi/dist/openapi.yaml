@@ -39,6 +39,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCompaniesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: 企業を新規作成する。
       tags:
@@ -67,6 +71,14 @@ paths:
                     format: int32
                 example:
                   companyId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -83,6 +95,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCompanyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
       description: 指定した企業の情報を部分更新する。
       tags:
@@ -98,6 +120,18 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定した企業を削除する。
       tags:
@@ -107,6 +141,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/priority:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -144,13 +188,23 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/document:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
     put:
       description: 指定した企業の文書を置き換える。
       tags:
-        - Company
+        - Companies
       operationId: putCompanyDocument
       summary: 企業の文書を更新
       requestBody:
@@ -162,6 +216,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/basic_infos:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -193,6 +257,16 @@ paths:
                     format: int32
                 example:
                   basicInfoId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/basic_infos/{basicInfoId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -212,6 +286,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定した基本情報を削除する。
       tags:
@@ -221,6 +305,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/activities:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -252,6 +346,16 @@ paths:
                   - activityId
                 example:
                   activityId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/activities/{activityId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -271,6 +375,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定したやりとり履歴を削除する。
       tags:
@@ -280,6 +394,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/selections:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -302,6 +426,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateSelectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/selections/{selectionId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -321,6 +455,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定した選考を削除する。
       tags:
@@ -330,6 +474,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: 指定した選考の選考ステップを新規作成する。
       tags:
@@ -349,6 +503,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateSelectionStepResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/selections/{selectionId}/is-active:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -363,6 +527,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 isActive:
                   description: true：進行中の選考（一つの企業に対し一つのみ）
@@ -372,13 +537,23 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
       - $ref: '#/components/parameters/SelectionId'
       - $ref: '#/components/parameters/SelectionStepId'
     patch:
-      description: 指定した選考ステップの情報を部分更新する。位置を変更した場合、currentStepより前の
+      description: 指定した選考ステップの情報を部分更新する。位置を変更した場合、currentStepより前の選考ステップはPASSED、後の選考ステップはNOT_STARTEDとなる。
       tags:
         - Selections
       operationId: patchSelectionStep
@@ -402,6 +577,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定した選考ステップを削除する。currentStepを削除した場合、その直後の選考ステップがcurrentStepとなる。
       tags:
@@ -411,6 +596,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}/status:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -426,6 +621,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 status:
                   $ref: '#/components/schemas/SelectionStatus'
@@ -436,6 +632,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/widgets:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -463,6 +669,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /events:
     get:
       description: 指定した年月のイベント一覧を返す。年月を省略した場合は現在の年月を対象とする。
@@ -479,6 +695,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEventsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: イベントを新規作成する。
       tags:
@@ -507,6 +729,16 @@ paths:
                     format: int32
                 example:
                   eventId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /events/{eventId}:
     parameters:
       - $ref: '#/components/parameters/EventId'
@@ -534,6 +766,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定したイベントを削除する。
       tags:
@@ -543,6 +785,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /tasks:
     get:
       description: タスク一覧を返す。
@@ -557,6 +809,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetTaskResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: タスクを新規作成する。
       tags:
@@ -585,6 +841,16 @@ paths:
                     format: int32
                 example:
                   taskId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /tasks/{taskId}:
     parameters:
       - $ref: '#/components/parameters/TaskId'
@@ -620,15 +886,35 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定したタスクを削除する。
       tags:
         - Tasks
       operationId: deleteTask
-      summary: タスクを削除する
+      summary: タスクを削除
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /tasks/bulk-delete:
     post:
       description: 指定したタスクを一括削除する。
@@ -644,6 +930,14 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /essay-groups:
     get:
       description: ESグループ一覧を返す。
@@ -658,6 +952,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEssayGroupsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: ESグループを新規作成する。
       tags:
@@ -686,6 +984,14 @@ paths:
                     format: int32
                 example:
                   essayGroupId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /essay-groups/{essayGroupId}:
     parameters:
       - $ref: '#/components/parameters/EssayGroupId'
@@ -702,6 +1008,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetEssaysResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定したESグループを削除する。属するESは未分類へ移動する。
       tags:
@@ -711,6 +1027,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /essay-groups/{essayGroupId}/essays:
     parameters:
       - $ref: '#/components/parameters/EssayGroupId'
@@ -742,6 +1068,16 @@ paths:
                     format: int32
                 example:
                   essayId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /essay-groups/{essayGroupId}/essays/{essayId}:
     parameters:
       - $ref: '#/components/parameters/EssayGroupId'
@@ -770,6 +1106,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定したESを削除する。
       tags:
@@ -779,6 +1125,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /documents:
     get:
       description: 文書一覧を返す。
@@ -793,6 +1149,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetDocumentsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       description: 文書を新規作成する。
       tags:
@@ -821,6 +1181,12 @@ paths:
                     format: int32
                 example:
                   documentId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /documents/{documentId}:
     parameters:
       - $ref: '#/components/parameters/DocumentId'
@@ -837,6 +1203,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
       description: 指定した文書のタイトルまたは本文を更新する。
       tags:
@@ -852,6 +1228,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
       description: 指定した文書を削除する。
       tags:
@@ -861,6 +1247,16 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     BearerAuth:
@@ -1441,7 +1837,7 @@ components:
             name: 一次面接
             note: 事前に提出書類を確認する。
     CreateSelectionStepResponse:
-      description: 作成した選考ステップの識別情報。selectionIdとstepNoの組でステップを特定する
+      description: 作成した選考ステップの識別情報。
       type: object
       properties:
         selectionId:
@@ -1505,7 +1901,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CreateSelectionStepRequest'
-      example: null
     UpdateSelectionStepRequest:
       description: 選考ステップの部分更新内容。更新する項目のみ指定する。
       type: object
@@ -1609,7 +2004,7 @@ components:
         - isOnline
         - isAttending
       example:
-        companyName: 株式会社サンプル
+        companyId: 1
         category: SESSION
         title: 企業説明会
         note: 事前に提出書類を確認する。
@@ -1954,6 +2349,21 @@ components:
           $ref: '#/components/schemas/DocumentText'
       example:
         title: 面接対策
+  responses:
+    Unauthorized:
+      description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。
+    InternalServerError:
+      description: サーバー内部で予期しないエラーが発生した。
+    BadRequest:
+      description: リクエストの形式または値が不正。
+    Conflict:
+      description: 登録済みのリソースと競合する。
+    Forbidden:
+      description: 指定したリソースに対する操作権限がない。
+    NotFound:
+      description: 指定したリソースまたは関連付け先のリソースが存在しない。
+    NoContent:
+      description: 処理に成功。レスポンスボディは返さない。
   parameters:
     CompanyId:
       name: companyId
@@ -2049,9 +2459,6 @@ components:
         description: 文書ID
         type: integer
         format: int32
-  responses:
-    NoContent:
-      description: 処理に成功。レスポンスボディは返さない。
 x-tagGroups:
   - name: COMPANIES
     tags:

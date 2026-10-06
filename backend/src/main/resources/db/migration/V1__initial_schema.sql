@@ -88,7 +88,6 @@ CREATE TABLE selections (
   title TEXT NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT FALSE,
   CONSTRAINT fk_selections_companies FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
-  CONSTRAINT uq_
 );
 
 CREATE INDEX idx_selections_company

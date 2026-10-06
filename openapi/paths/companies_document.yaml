@@ -5,7 +5,7 @@ parameters:
 put:
   description: 指定した企業の文書を置き換える。
   tags:
-    - Company
+    - Companies
   operationId: putCompanyDocument
   summary: 企業の文書を更新
   requestBody:
@@ -17,3 +17,13 @@ put:
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

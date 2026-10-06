@@ -189,7 +189,6 @@ UpdateSelectionRequest:
       type: array
       items:
         $ref: '#/CreateSelectionStepRequest'
-  example:
 
 CreateSelectionStepRequest:
   description: 新規選考ステップの作成内容。
@@ -208,7 +207,7 @@ CreateSelectionStepRequest:
     - name
 
 CreateSelectionStepResponse:
-  description: 作成した選考ステップの識別情報。selectionIdとstepNoの組でステップを特定する
+  description: 作成した選考ステップの識別情報。
   type: object
   properties:
     selectionId:
