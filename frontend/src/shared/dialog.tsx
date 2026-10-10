@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 type DialogBaseProps = {
   children: ReactNode;
   onClose: () => void;
+  suspended?: boolean;
 };
 
 type DialogHeaderProps = {
@@ -42,27 +43,39 @@ type EditDialogProps = {
   titleClassName?: string;
 };
 
-export function DialogBase({ children, onClose }: DialogBaseProps) {
+export function DialogBase({
+  children,
+  onClose,
+  suspended = false,
+}: DialogBaseProps) {
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (suspended) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
 
-    document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', closeOnEscape);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', closeOnEscape);
     };
-  }, [onClose]);
+  }, [onClose, suspended]);
 
   return createPortal(
     <div
+      inert={suspended}
+      aria-hidden={suspended || undefined}
       className="fixed inset-0 z-[10000] flex animate-in items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm fade-in duration-150"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (!suspended && event.target === event.currentTarget) onClose();
       }}
     >
       {children}
