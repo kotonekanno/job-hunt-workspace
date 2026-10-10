@@ -1,0 +1,49 @@
+# ====================
+# Value Types
+# ====================
+
+Email:
+  description: メールアドレス
+  type: string
+  format: email
+
+Password:
+  description: パスワード
+  type: string
+  format: password
+  writeOnly: true
+
+AccessToken:
+  description: AuthorizationヘッダーにBearer形式で指定するアクセストークン
+  type: string
+
+
+# ====================
+# Request / Response
+# ====================
+
+AuthRequest:
+  description: アカウント登録・ログインに使用する認証情報。
+  type: object
+  properties:
+    email:
+      $ref: '#/Email'
+    password:
+      $ref: '#/Password'
+  required:
+    - email
+    - password
+  example:
+    email: user@example.com
+    password: SamplePassword123!
+
+AccessTokenResponse:
+  description: ログイン・アクセストークン更新の結果。リフレッシュトークンはレスポンスボディに含めない。
+  type: object
+  properties:
+    accessToken:
+      $ref: '#/AccessToken'
+  required:
+    - accessToken
+  example:
+    accessToken: example-access-token

@@ -1,0 +1,23 @@
+# /auth/refresh
+
+post:
+  description: refreshToken Cookieを使用してアクセストークンを再発行する。リフレッシュトークンは更新しない。
+  tags:
+    - Authentication
+  operationId: refresh
+  summary: アクセストークンを更新
+  security:
+    - RefreshTokenAuth: []
+  responses:
+    '200':
+      description: アクセストークンの再発行に成功。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/auth.yaml#/AccessTokenResponse
+    '401':
+      description: リフレッシュトークンが指定されていない、無効、または有効期限切れ。
+    '404':
+      description: ユーザーが存在しない、またはアカウントが未認証。
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

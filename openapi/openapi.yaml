@@ -36,6 +36,9 @@ tags:
   - name: Documents
     description: ドキュメント
 
+  - name: Authentication
+    description: 認証
+
 x-tagGroups:
   - name: COMPANIES
     tags:
@@ -55,6 +58,9 @@ x-tagGroups:
   - name: DOCUMENTS
     tags:
       - Documents
+  - name: AUTH
+    tags:
+      - Authentication
 
 paths:
   /companies:
@@ -132,9 +138,29 @@ paths:
   /documents/{documentId}:
     $ref: ./paths/documents_by_id.yaml
 
+  /auth/register:
+    $ref: ./paths/auth_register.yaml
+
+  /auth/login:
+    $ref: ./paths/auth_login.yaml
+
+  /auth/logout:
+    $ref: ./paths/auth_logout.yaml
+
+  /auth/refresh:
+    $ref: ./paths/auth_refresh.yaml
+
+  /auth/me:
+    $ref: ./paths/auth_me.yaml
+
 components:
   securitySchemes:
     BearerAuth:
       description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。
       type: http
       scheme: bearer
+    RefreshTokenAuth:
+      description: ログイン時に設定されるHttpOnly Cookieのリフレッシュトークンを使用する。
+      type: apiKey
+      in: cookie
+      name: refreshToken

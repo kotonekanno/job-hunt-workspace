@@ -24,6 +24,8 @@ tags:
     description: ES蓄積
   - name: Documents
     description: ドキュメント
+  - name: Authentication
+    description: 認証
 paths:
   /companies:
     get:
@@ -1257,12 +1259,144 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /auth/register:
+    post:
+      description: アカウントを新規作成する。
+      tags:
+        - Authentication
+      operationId: register
+      summary: アカウントを登録
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '201':
+          description: アカウントの新規作成に成功。作成したユーザーのIDを返す。
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - userId
+                properties:
+                  userId:
+                    description: ユーザーID
+                    type: integer
+                    format: int32
+                example:
+                  userId: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/login:
+    post:
+      description: メールアドレスとパスワードでログインする。アクセストークンを返し、リフレッシュトークンをHttpOnly Cookieに設定する。
+      tags:
+        - Authentication
+      operationId: login
+      summary: ログイン
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: ログインに成功。
+          headers:
+            Set-Cookie:
+              description: refreshToken Cookieを設定する。Secure・SameSite・有効期間は環境設定に従う。
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: パスワードが正しくない。
+        '403':
+          description: アカウントが未認証。
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/logout:
+    post:
+      description: リフレッシュトークンのCookieを削除してログアウトする。クライアントは保持しているアクセストークンも破棄する。発行済みのトークン自体は失効しない。
+      tags:
+        - Authentication
+      operationId: logout
+      summary: ログアウト
+      responses:
+        '204':
+          description: ログアウトに成功。レスポンスボディは返さない。
+          headers:
+            Set-Cookie:
+              description: refreshToken Cookieを空にし、Max-Age=0で削除する。Secure・SameSiteは環境設定に従う。
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/refresh:
+    post:
+      description: refreshToken Cookieを使用してアクセストークンを再発行する。リフレッシュトークンは更新しない。
+      tags:
+        - Authentication
+      operationId: refresh
+      summary: アクセストークンを更新
+      security:
+        - RefreshTokenAuth: []
+      responses:
+        '200':
+          description: アクセストークンの再発行に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        '401':
+          description: リフレッシュトークンが指定されていない、無効、または有効期限切れ。
+        '404':
+          description: ユーザーが存在しない、またはアカウントが未認証。
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/me:
+    get:
+      description: アクセストークンによる認証状態を確認する。ユーザー情報は返さない。
+      tags:
+        - Authentication
+      operationId: getCurrentUser
+      summary: 認証状態を確認
+      responses:
+        '200':
+          description: 認証状態の確認に成功。レスポンスボディは返さない。
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     BearerAuth:
       description: AuthorizationヘッダーにBearer形式のアクセストークンを指定する。
       type: http
       scheme: bearer
+    RefreshTokenAuth:
+      description: ログイン時に設定されるHttpOnly Cookieのリフレッシュトークンを使用する。
+      type: apiKey
+      in: cookie
+      name: refreshToken
   schemas:
     CompanyName:
       description: 企業名
@@ -2349,6 +2483,42 @@ components:
           $ref: '#/components/schemas/DocumentText'
       example:
         title: 面接対策
+    Email:
+      description: メールアドレス
+      type: string
+      format: email
+    Password:
+      description: パスワード
+      type: string
+      format: password
+      writeOnly: true
+    AuthRequest:
+      description: アカウント登録・ログインに使用する認証情報。
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+        password:
+          $ref: '#/components/schemas/Password'
+      required:
+        - email
+        - password
+      example:
+        email: user@example.com
+        password: SamplePassword123!
+    AccessToken:
+      description: AuthorizationヘッダーにBearer形式で指定するアクセストークン
+      type: string
+    AccessTokenResponse:
+      description: ログイン・アクセストークン更新の結果。リフレッシュトークンはレスポンスボディに含めない。
+      type: object
+      properties:
+        accessToken:
+          $ref: '#/components/schemas/AccessToken'
+      required:
+        - accessToken
+      example:
+        accessToken: example-access-token
   responses:
     Unauthorized:
       description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。
@@ -2478,3 +2648,6 @@ x-tagGroups:
   - name: DOCUMENTS
     tags:
       - Documents
+  - name: AUTH
+    tags:
+      - Authentication

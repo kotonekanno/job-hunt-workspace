@@ -1,5 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/job_hunt_workspace
-    username: postgres
-    password: postgres
