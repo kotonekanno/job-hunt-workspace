@@ -4,7 +4,7 @@ parameters:
   - $ref: ../components/parameters/path.yaml#/SelectionId
 
 patch:
-  description: 指定した選考を部分更新する。selectionStepsを指定した場合は、指定された配列で選考ステップ全体を置き換える。
+  description: 指定した選考を部分更新する。
   tags:
     - Selections
   operationId: patchSelection
@@ -14,7 +14,12 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../components/schemas/selection.yaml#/UpdateSelectionRequest
+          type: object
+          properties:
+            title:
+              $ref: ../components/schemas/selection.yaml#/SelectionTitle
+          required:
+            - title
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
@@ -54,7 +59,7 @@ post:
   tags:
     - Selections
   operationId: createSelectionStep
-  summary: 選考ステップの追加
+  summary: 選考ステップを追加
   requestBody:
     required: true
     content:

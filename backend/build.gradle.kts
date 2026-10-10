@@ -69,6 +69,7 @@ openApiGenerate {
             "openApiNullable" to "false"
         )
     )
+    cleanupOutput.set(true)
 }
 
 sourceSets {

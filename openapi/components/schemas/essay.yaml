@@ -102,6 +102,23 @@ CreateEssayGroupRequest:
   example:
     name: ガクチカ
 
+UpdateEssayGroupRequest:
+  description: ESグループの部分更新内容。
+  type: object
+  properties:
+    name:
+      $ref: '#/EssayGroupName'
+    previousEssayGroupId:
+      description: 移動後の前隣のESグループのID（先頭に置く場合はnull）
+      type: integer
+      format: int32
+      nullable: true
+    nextEssayGrouppId:
+      description: 移動後の後ろ隣のESグループのID（末尾に置く場合はnull）
+      type: integer
+      format: int32
+      nullable: true
+
 GetEssaysResponse:
   description: 指定したESグループのES一覧の取得結果
   type: object

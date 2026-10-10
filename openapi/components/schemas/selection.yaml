@@ -178,18 +178,6 @@ CreateSelectionResponse:
       - selectionId: 1
         position: 1000
 
-UpdateSelectionRequest:
-  description: 選考の部分更新内容。更新する項目のみ指定する。
-  type: object
-  properties:
-    title:
-      $ref: '#/SelectionTitle'
-    selectionSteps:
-      description: 指定した配列で選考ステップ全体を置き換える。各要素は作成時と同じ形式。空配列の場合は全ステップを削除し、項目を省略した場合は変更しない。stepNoは同じ選考内で一意
-      type: array
-      items:
-        $ref: '#/CreateSelectionStepRequest'
-
 CreateSelectionStepRequest:
   description: 新規選考ステップの作成内容。
   type: object

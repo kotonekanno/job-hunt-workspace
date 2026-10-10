@@ -2,19 +2,31 @@
 parameters:
   - $ref: ../components/parameters/path.yaml#/EssayGroupId
 
-get:
-  description: 指定したESグループのES一覧を返す。
+patch:
+  description: 指定したESグループを部分更新する。
   tags:
     - Essays
-  operationId: getEssaysByGroupId
-  summary: ES一覧を取得
+  operationId: patchEssayGroup
+  summary: ESグループを部分更新
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/essay.yaml#/UpdateEssayGroupRequest
+        examples:
+          reorderEssayGroups:
+            summary: ESグループの並び順を変更
+            value:
+              previousEssayGroupId: 1
+              nextEssayGrouppId: 2
+          updateEssayGroupName:
+            summary: ESグループの名前を変更
+            value:
+              name: "ガクチカ"
   responses:
-    '200':
-      description: ES一覧の取得に成功。
-      content:
-        application/json:
-          schema:
-            $ref: ../components/schemas/essay.yaml#/GetEssaysResponse
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
     '400':
       $ref: ../components/responses/common.yaml#/BadRequest
     '401':
@@ -35,6 +47,30 @@ delete:
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
+
+get:
+  description: 指定したESグループのES一覧を返す。
+  tags:
+    - Essays
+  operationId: getEssaysByGroupId
+  summary: ES一覧を取得
+  responses:
+    '200':
+      description: ES一覧の取得に成功。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/essay.yaml#/GetEssaysResponse
     '400':
       $ref: ../components/responses/common.yaml#/BadRequest
     '401':

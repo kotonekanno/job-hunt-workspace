@@ -13,7 +13,12 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../components/schemas/document.yaml#/DocumentText'
+          type: object
+          properties:
+            document:
+              $ref: '../components/schemas/document.yaml#/DocumentText'
+          required:
+            - document
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

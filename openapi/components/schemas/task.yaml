@@ -57,7 +57,7 @@ Task:
 # Request / Response
 # ====================
 
-GetTaskResponse:
+GetTasksResponse:
   description: タスク一覧の取得結果。
   type: object
   properties:
