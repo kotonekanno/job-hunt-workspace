@@ -592,6 +592,24 @@
     visibility: visible;
   }
 
+  .company-document-editor {
+    display: flex;
+    flex-direction: column;
+    max-height: max(12rem, calc(100dvh - 10rem));
+  }
+
+  .company-document-editor .simple-editor-toolbar {
+    position: relative;
+    top: auto;
+    flex-shrink: 0;
+  }
+
+  .company-document-editor .simple-editor-content-shell {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
   .documents-accordion-editor,
   .documents-accordion-editor:focus-within {
     border: 0;

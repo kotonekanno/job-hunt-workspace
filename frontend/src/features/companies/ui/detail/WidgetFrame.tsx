@@ -31,7 +31,7 @@ export function WidgetFrame(props: WidgetFrameProps) {
             aria-label={`${props.title}の表示を切り替え`}
             aria-expanded={props.expanded}
             aria-controls={props.contentId}
-            className="absolute inset-0 cursor-pointer transition-colors hover:bg-[var(--accent-soft)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
+            className="absolute inset-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
           />
         )}
         <div

@@ -46,7 +46,7 @@ export function DocumentsWidget({
         onChange={(text) => onDocumentChange({ ...document, text })}
         placeholder="企業研究や面接対策を自由に入力してください"
         minHeight={400}
-        className="workspace-document-editor"
+        className="workspace-document-editor company-document-editor"
         staticAppearance
         searchQuery={query}
       />
