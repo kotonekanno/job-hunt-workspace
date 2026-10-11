@@ -1,12 +1,21 @@
 EventMonth:
-  description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
+  description: 取得対象の年月（YYYY-MM）。省略した場合は現在の年月。
   name: month
   in: query
   required: false
   schema:
-    description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
     type: string
     pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
     minLength: 7
     maxLength: 7
   example: 2026-10
+
+PageNumber:
+  description: ページ番号（0始まり）。省略した場合は0。
+  name: page
+  in: query
+  required: false
+  schema:
+    type: integer
+    minimum: 0
+    default: 0

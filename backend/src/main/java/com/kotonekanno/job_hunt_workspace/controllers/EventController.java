@@ -17,7 +17,8 @@ public class EventController {
   // イベント一覧を取得
   @GetMapping
   public ResponseEntity<GetEventsResponse> getEvents(
-      @AuthenticationPrincipal Integer userId
+      @AuthenticationPrincipal Integer userId,
+      @RequestParam(defaultValue = "") String month
   ) {}
 
   // イベントを追加

@@ -294,7 +294,7 @@ UpdateCompanyWidgetRequest:
       type: boolean
 
 CreateCompanyBasicInfoRequest:
-  description: 基本情報の登録内容
+  description: 基本情報の登録内容。
   type: object
   properties:
     title:
@@ -318,6 +318,15 @@ UpdateCompanyBasicInfoRequest:
       $ref: '#/BasicInfoText'
   example:
     text: 300人
+
+GetCompanyActivitiesResponse:
+  description: やりとり履歴の内容。20件ずつ取得する。
+  type: object
+  properties:
+    activities:
+      type: array
+      items:
+        $ref: '#/Activity'
 
 CreateCompanyActivityRequest:
   description: 新規やりとり履歴の作成内容。

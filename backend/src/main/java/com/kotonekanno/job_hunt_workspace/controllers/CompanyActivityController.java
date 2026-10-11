@@ -1,6 +1,7 @@
 package com.kotonekanno.job_hunt_workspace.controllers;
 
 import com.example.api.model.CreateCompanyActivityRequest;
+import com.example.api.model.GetCompanyActivitiesResponse;
 import com.example.api.model.UpdateCompanyActivityRequest;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
@@ -19,6 +20,14 @@ public class CompanyActivityController {
       @AuthenticationPrincipal Integer userId,
       @PathVariable Integer companyId,
       @Valid @RequestBody CreateCompanyActivityRequest request
+  ) {}
+
+  // やりとり履歴を取得
+  @GetMapping
+  public ResponseEntity<GetCompanyActivitiesResponse> getCompanyActivities(
+      @AuthenticationPrincipal Integer userId,
+      @PathVariable Integer companyId,
+      @RequestParam(defaultValue = "0") Integer page
   ) {}
 
   // やりとり履歴を部分更新

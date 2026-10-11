@@ -363,6 +363,31 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    get:
+      description: 指定したページのやりとりを20件取得する。
+      tags:
+        - Activities
+      operationId: getCompanyActivity
+      summary: やりとり履歴を取得
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+      responses:
+        '201':
+          description: やりとり履歴の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCompanyActivitiesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}/activities/{activityId}:
     parameters:
       - $ref: '#/components/parameters/CompanyId'
@@ -1921,7 +1946,7 @@ components:
       required:
         - priority
     CreateCompanyBasicInfoRequest:
-      description: 基本情報の登録内容
+      description: 基本情報の登録内容。
       type: object
       properties:
         title:
@@ -1944,6 +1969,14 @@ components:
           $ref: '#/components/schemas/BasicInfoText'
       example:
         text: 300人
+    GetCompanyActivitiesResponse:
+      description: やりとり履歴の内容。20件ずつ取得する。
+      type: object
+      properties:
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
     CreateCompanyActivityRequest:
       description: 新規やりとり履歴の作成内容。
       type: object
@@ -2601,6 +2634,15 @@ components:
         description: 基本情報ID
         type: integer
         format: int32
+    PageNumber:
+      description: ページ番号（0始まり）。省略した場合は0。
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
     ActivityId:
       name: activityId
       in: path
@@ -2626,12 +2668,11 @@ components:
         type: integer
         format: int32
     EventMonth:
-      description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
+      description: 取得対象の年月（YYYY-MM）。省略した場合は現在の年月。
       name: month
       in: query
       required: false
       schema:
-        description: 取得対象の年月。YYYY-MM形式。省略した場合は現在の年月。
         type: string
         pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
         minLength: 7
