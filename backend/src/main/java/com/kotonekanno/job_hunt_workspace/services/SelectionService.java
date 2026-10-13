@@ -165,9 +165,8 @@ public class SelectionService {
       selectionStep.setNote(request.getNote());
     }
 
-    return new CreateSelectionStep201Response(
-        selectionStepRepository.save(selectionStep).getId()
-    );
+    return new CreateSelectionStep201Response()
+        .selectionStepId(selectionStepRepository.save(selectionStep).getId());
   }
 
   // 選考ステップを部分更新
@@ -214,7 +213,7 @@ public class SelectionService {
   ) {
     SelectionStep selectionStep = selectionStepRepository
         .findById_AndSelection_Company_User_Id(selectionStepId, userId)
-            .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
+        .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
 
     SelectionStep previousSelectionStep = null;
 
@@ -268,6 +267,7 @@ public class SelectionService {
   }
 
   // 選考ステップの並び順を計算する
+  @Transactional
   private int calcSelectionStepPosition(
       Integer selectionId,
       Integer selectionStepId,

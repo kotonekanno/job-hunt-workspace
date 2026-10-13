@@ -68,9 +68,8 @@ EssayGroupId:
   in: path
   required: true
   schema:
-    description: ESグループID
-    type: integer
-    format: int32
+    description: ESグループIDまたはunclassified
+    type: string
 
 EssayId:
   name: essayId

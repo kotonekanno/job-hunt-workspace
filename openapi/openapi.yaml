@@ -129,6 +129,9 @@ paths:
   /essay-groups/{essayGroupId}:
     $ref: ./paths/essay_groups_by_id.yaml
 
+  /essay-groups/{essayGroupId}/position:
+    $ref: ./paths/essay_groups_position.yaml
+
   /essay-groups/{essayGroupId}/essays:
     $ref: ./paths/essay_groups_essays.yaml
 

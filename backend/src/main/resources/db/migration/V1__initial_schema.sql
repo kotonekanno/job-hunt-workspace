@@ -185,12 +185,12 @@ CREATE TABLE essays (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
   company_id INT,
-  essay_group_id INT NOT NULL,
+  essay_group_id INT,
   question TEXT NOT NULL,
   answer TEXT,
-  CONSTRAINT fk_essays_users FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CONSTRAINT fk_essays_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE CASCADE,
-  CONSTRAINT fk_essays_group FOREIGN KEY(essay_group_id) REFERENCES essay_groups(id) ON DELETE RESTRICT
+  CONSTRAINT fk_essays_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_essays_company FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE SET NULL,
+  CONSTRAINT fk_essays_group FOREIGN KEY(essay_group_id) REFERENCES essay_groups(id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_essays_essay_group

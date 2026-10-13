@@ -1123,6 +1123,40 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /essay-groups/{essayGroupId}/position:
+    parameters:
+      - $ref: '#/components/parameters/EssayGroupId'
+    put:
+      description: ESグループの並び順を更新する。
+      tags:
+        - Essays
+      operationId: reorderEssayGroup
+      summary: ESグループの並び順を更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nextEssayGroupId:
+                  description: 移動先の1個後ろのESグループのID（null：末尾に移動）
+                  type: integer
+                  format: int32
+                  nullable: true
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /essay-groups/{essayGroupId}/essays:
     parameters:
       - $ref: '#/components/parameters/EssayGroupId'
@@ -2319,6 +2353,7 @@ components:
           description: ESグループID
           type: integer
           format: int32
+          nullable: true
         name:
           $ref: '#/components/schemas/EssayGroupName'
         quantity:
@@ -2645,9 +2680,8 @@ components:
       in: path
       required: true
       schema:
-        description: ESグループID
-        type: integer
-        format: int32
+        description: ESグループIDまたはunclassified
+        type: string
     EssayId:
       name: essayId
       in: path

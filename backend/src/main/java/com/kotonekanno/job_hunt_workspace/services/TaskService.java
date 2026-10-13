@@ -3,6 +3,7 @@ package com.kotonekanno.job_hunt_workspace.services;
 import com.example.api.model.*;
 import com.kotonekanno.job_hunt_workspace.dtos.task.TaskPatchRequest;
 import com.kotonekanno.job_hunt_workspace.entities.Task;
+import com.kotonekanno.job_hunt_workspace.entities.User;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.AccessDeniedException;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.TaskRepository;

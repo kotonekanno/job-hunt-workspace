@@ -33,6 +33,7 @@ EssayGroupListItem:
       description: ESグループID
       type: integer
       format: int32
+      nullable: true
     name:
       $ref: '#/EssayGroupName'
     quantity:

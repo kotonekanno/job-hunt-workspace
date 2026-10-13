@@ -5,8 +5,8 @@ parameters:
 put:
   description: ESグループの並び順を更新する。
   tags:
-    - Selections
-  operationId: reorderSelectionStep
+    - Essays
+  operationId: reorderEssayGroup
   summary: ESグループの並び順を更新
   requestBody:
     required: true
@@ -15,8 +15,8 @@ put:
         schema:
           type: object
           properties:
-            previousEssayGroupId:
-              description: 移動先の1個前のESグループのID（null：先頭に移動）
+            nextEssayGroupId:
+              description: 移動先の1個後ろのESグループのID（null：末尾に移動）
               type: integer
               format: int32
               nullable: true

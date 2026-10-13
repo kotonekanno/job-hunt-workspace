@@ -401,7 +401,7 @@ erDiagram
 | id                | SERIAL       | NO   | エントリーシートID |
 | user_id           | INT          | NO   | ユーザーID         |
 | company_id        | INT          | YES  | 企業ID             |
-| essay_group_id    | INT          | NO   | 設問グループID     |
+| essay_group_id    | INT          | YES  | 設問グループID     |
 | question          | TEXT         | NO   | 設問               |
 | answer            | TEXT         | YES  | 回答               |
 
@@ -410,8 +410,8 @@ erDiagram
 
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
-  - company_id, user_id: companies(id, user_id)(ON DELETE CASCADE)
-  - essay_group_id, user_id: essay_groups(id, user_id)(ON DELETE RESTRICT)
+  - company_id: companies.id(ON DELETE SET NULL)
+  - essay_group_id: essay_groups.id(ON DELETE SET NULL)
 - INDEX
   - essay_group_id
 
