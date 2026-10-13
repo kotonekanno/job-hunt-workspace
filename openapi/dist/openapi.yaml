@@ -1499,7 +1499,7 @@ components:
       minLength: 1
       maxLength: 50
     SelectionStepName:
-      description: 現在の選考ステップ名
+      description: 選考ステップ名
       type: string
       minLength: 1
       maxLength: 50
@@ -1799,19 +1799,16 @@ components:
           description: タスクID
           type: integer
           format: int32
-        companyId:
-          description: 関連する企業のID。企業に紐付かない場合はnull
-          type: integer
-          format: int32
-          nullable: true
+        companyName:
+          $ref: '#/components/schemas/CompanyName'
         title:
           $ref: '#/components/schemas/TaskTitle'
         note:
           $ref: '#/components/schemas/TaskNote'
         deadline:
-          description: 期限。タイムゾーン情報を含む日時
+          description: 期限の日付（YYYY-MM-DD）
           type: string
-          format: date-time
+          format: date
           nullable: true
         done:
           description: trueの場合は完了、falseの場合は未完了
@@ -1916,10 +1913,10 @@ components:
             isAttending: true
         tasks:
           - id: 1
-            companyId: 1
+            companyName: 株式会社サンプル
             title: エントリーシートを提出する
             note: 事前に提出書類を確認する。
-            deadline: '2026-10-15T18:00:00+09:00'
+            deadline: '2026-10-15'
             done: false
     UpdateCompanyRequest:
       description: 企業の部分更新内容。
@@ -2242,10 +2239,10 @@ components:
       example:
         tasks:
           - id: 1
-            companyId: 1
+            companyName: 株式会社サンプル
             title: エントリーシートを提出する
             note: 事前に提出書類を確認する。
-            deadline: '2026-10-15T18:00:00+09:00'
+            deadline: '2026-10-15'
             done: false
     CreateTaskRequest:
       description: 新規タスクの作成内容。
@@ -2261,9 +2258,9 @@ components:
         note:
           $ref: '#/components/schemas/TaskNote'
         deadline:
-          description: 期限
+          description: 期限の日付（YYYY-MM-DD）
           type: string
-          format: date-time
+          format: date
           nullable: true
       required:
         - title
@@ -2272,7 +2269,7 @@ components:
         companyId: 1
         title: エントリーシートを提出する
         note: 事前に提出書類を確認する。
-        deadline: '2026-10-15T10:00:00+09:00'
+        deadline: '2026-10-15'
     UpdateTaskRequest:
       description: タスクの部分更新内容。更新する項目のみ指定する。
       type: object
@@ -2287,9 +2284,9 @@ components:
         note:
           $ref: '#/components/schemas/TaskNote'
         deadline:
-          description: 期限
+          description: 期限の日付（YYYY-MM-DD）
           type: string
-          format: date-time
+          format: date
           nullable: true
         done:
           description: true：完了 / false：未完了

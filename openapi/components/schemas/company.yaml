@@ -241,10 +241,10 @@ GetCompanyResponse:
         isAttending: true
     tasks:
       - id: 1
-        companyId: 1
+        companyName: 株式会社サンプル
         title: エントリーシートを提出する
         note: 事前に提出書類を確認する。
-        deadline: 2026-10-15T18:00:00+09:00
+        deadline: '2026-10-15'
         done: false
 
 UpdateCompanyRequest:
