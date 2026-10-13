@@ -9,7 +9,7 @@ SelectionTitle:
   maxLength: 50
 
 SelectionStepName:
-  description: 現在の選考ステップ名
+  description: 選考ステップ名
   type: string
   minLength: 1
   maxLength: 50
@@ -64,16 +64,11 @@ SelectionStepRequest:
   description: 選考ステップ（作成）
   type: object
   properties:
-    position:
-      description: 選考ステップの順序
-      type: integer
-      format: int32
     name:
       $ref: '#/SelectionStepName'
     note:
       $ref: '#/SelectionStepNote'
   required:
-    - position
     - name
 
 SelectionStepResponse:
@@ -84,10 +79,6 @@ SelectionStepResponse:
       description: 選考ステップID
       type: integer
       format: int32
-    position:
-      description: 選考ステップの順序
-      type: integer
-      format: int32
     status:
       $ref: '#/SelectionStatus'
     name:
@@ -96,7 +87,6 @@ SelectionStepResponse:
       $ref: '#/SelectionStepNote'
   required:
     - id
-    - position
     - status
     - name
 
@@ -152,8 +142,7 @@ CreateSelectionRequest:
   example:
     title: 本選考
     steps:
-      - position: 1000
-        name: 一次面接
+      - name: 一次面接
         note: 事前に提出書類を確認する。
 
 CreateSelectionResponse:
@@ -164,64 +153,45 @@ CreateSelectionResponse:
       description: 作成した選考のID
       type: integer
       format: int32
-    selectionSteps:
-      description: 作成した選考ステップの順序
+    selectionStepIds:
+      description: 作成した選考ステップのID
       type: array
       items:
-        $ref: '#/CreateSelectionStepResponse'
+        type: integer
+        format: int32
   required:
     - selectionId
-    - selectionSteps
+    - selectionStepIds
   example:
     selectionId: 1
-    selectionSteps:
-      - selectionId: 1
-        position: 1000
+    selectionStepIds:
+      - 1
 
 CreateSelectionStepRequest:
   description: 新規選考ステップの作成内容。
   type: object
   properties:
-    position:
-      description: 選考ステップの順序
+    previousSelectionStepId:
+      description: 1個前の選考ステップのID（先頭の場合はnull）
       type: integer
       format: int32
+      nullable: true
     name:
       $ref: '#/SelectionStepName'
     note:
       $ref: '#/SelectionStepNote'
   required:
-    - position
+    - previousSelectionStepId
     - name
-
-CreateSelectionStepResponse:
-  description: 作成した選考ステップの識別情報。
-  type: object
-  properties:
-    selectionId:
-      description: 選考ID
-      type: integer
-      format: int32
-    position:
-      description: 選考ステップの順序
-      type: integer
-      format: int32
-  required:
-    - selectionId
-    - position
-  example:
-    selectionId: 1
-    position: 1000
 
 UpdateSelectionStepRequest:
   description: 選考ステップの部分更新内容。更新する項目のみ指定する。
   type: object
   properties:
-    position:
-      description: 選考ステップの順序
-      type: integer
-      format: int32
     name:
       $ref: '#/SelectionStepName'
     note:
       $ref: '#/SelectionStepNote'
+  example:
+    name: 二次面接
+    note: 事前に提出書類を確認する。

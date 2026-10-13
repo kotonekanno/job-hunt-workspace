@@ -33,10 +33,6 @@ EssayGroupListItem:
       description: ESグループID
       type: integer
       format: int32
-    position:
-      description: ESグループの表示順
-      type: integer
-      format: int32
     name:
       $ref: '#/EssayGroupName'
     quantity:
@@ -45,7 +41,6 @@ EssayGroupListItem:
       minimum: 0
   required:
     - id
-    - position
     - name
     - quantity
 
@@ -87,7 +82,6 @@ GetEssayGroupsResponse:
   example:
     essayGroups:
       - id: 1
-        position: 1000
         name: ガクチカ
         quantity: 1
 
@@ -108,16 +102,8 @@ UpdateEssayGroupRequest:
   properties:
     name:
       $ref: '#/EssayGroupName'
-    previousEssayGroupId:
-      description: 移動後の前隣のESグループのID（先頭に置く場合はnull）
-      type: integer
-      format: int32
-      nullable: true
-    nextEssayGrouppId:
-      description: 移動後の後ろ隣のESグループのID（末尾に置く場合はnull）
-      type: integer
-      format: int32
-      nullable: true
+  example:
+    name: ガクチカ
 
 GetEssaysResponse:
   description: 指定したESグループのES一覧の取得結果

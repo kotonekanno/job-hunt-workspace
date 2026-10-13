@@ -72,7 +72,13 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../components/schemas/selection.yaml#/CreateSelectionStepResponse
+            description: 作成した選考ステップのID
+            type: object
+            properties:
+              selectionStepId:
+                description: 選考ID
+                type: integer
+                format: int32
     '400':
       $ref: ../components/responses/common.yaml#/BadRequest
     '401':

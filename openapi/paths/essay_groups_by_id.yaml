@@ -14,16 +14,6 @@ patch:
       application/json:
         schema:
           $ref: ../components/schemas/essay.yaml#/UpdateEssayGroupRequest
-        examples:
-          reorderEssayGroups:
-            summary: ESグループの並び順を変更
-            value:
-              previousEssayGroupId: 1
-              nextEssayGrouppId: 2
-          updateEssayGroupName:
-            summary: ESグループの名前を変更
-            value:
-              name: "ガクチカ"
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent

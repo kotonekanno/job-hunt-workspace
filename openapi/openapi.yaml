@@ -99,6 +99,9 @@ paths:
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
     $ref: ./paths/selections_steps_by_id.yaml
 
+  /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}/position:
+    $ref: ./paths/selections_steps_position.yaml
+
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}/status:
     $ref: ./paths/selections_steps_status.yaml
 

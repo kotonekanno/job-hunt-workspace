@@ -57,17 +57,12 @@ CompanyListItem:
       $ref: '#/CompanyName'
     priority:
       $ref: '#/CompanyPriority'
-    position:
-      description: 同じ志望度内での表示順
-      type: integer
-      format: int32
     currentSelection:
       $ref: ./selection.yaml#/CurrentSelection
   required:
     - id
     - name
     - priority
-    - position
     - currentSelection
 
 BasicInfo:
@@ -78,17 +73,12 @@ BasicInfo:
       description: 基本情報ID
       type: integer
       format: int32
-    position:
-      description: 同じ志望度内での表示順
-      type: integer
-      format: int32
     title:
       $ref: '#/BasicInfoTitle'
     text:
       $ref: '#/BasicInfoText'
   required:
     - id
-    - position
     - title
     - text
 
@@ -135,7 +125,6 @@ GetCompaniesResponse:
       - id: 1
         name: 株式会社サンプル
         priority: 3
-        position: 1000
         currentSelection:
           title: 本選考
           step:
@@ -219,7 +208,6 @@ GetCompanyResponse:
     showSelectionWidget: true
     basicInfos:
       - id: 1
-        position: 1000
         title: 従業員数
         text: 200人
     activities:
@@ -231,7 +219,6 @@ GetCompanyResponse:
         title: インターン選考
         steps:
           - id: 1
-            position: 1000
             status: PENDING
             name: 一次面接
             note: 事前に志望理由を整理する。
@@ -276,7 +263,7 @@ UpdateCompanyPriorityRequest:
     priority:
       $ref: '#/CompanyPriority'
     nextCompanyId:
-      description: 移動後の後ろ隣の企業のID（末尾に置く場合はnull）
+      description: 移動後の1個後ろの企業のID（末尾に置く場合はnull）
       type: integer
       format: int32
       nullable: true

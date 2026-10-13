@@ -1,9 +1,9 @@
 package com.kotonekanno.job_hunt_workspace.controllers;
 
-import com.example.api.model.PutSelectionIsActiveRequest;
 import com.example.api.model.PutSelectionStepStatusRequest;
+import com.example.api.model.ReorderSelectionStepRequest;
 import com.example.api.model.UpdateSelectionStepRequest;
-import com.kotonekanno.job_hunt_workspace.services.CompanySelectionStepService;
+import com.kotonekanno.job_hunt_workspace.services.SelectionService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}")
 public class CompanySelectionStepController {
 
-  private final CompanySelectionStepService service;
+  private final SelectionService service;
 
-  public CompanySelectionStepController(CompanySelectionStepService service) {
+  public CompanySelectionStepController(SelectionService service) {
     this.service = service;
   }
 
@@ -28,7 +28,7 @@ public class CompanySelectionStepController {
       @PathVariable Integer selectionStepId,
       @Valid @RequestBody UpdateSelectionStepRequest request
   ) {
-   service.update(userId, selectionStepId, request);
+   service.updateSelectionStep(userId, selectionStepId, request);
    return ResponseEntity.noContent().build();
   }
 
@@ -38,7 +38,18 @@ public class CompanySelectionStepController {
       @AuthenticationPrincipal Integer userId,
       @PathVariable Integer selectionStepId
   ) {
-    service.delete(userId, selectionStepId);
+    service.deleteSelectionStep(userId, selectionStepId);
+    return ResponseEntity.noContent().build();
+  }
+
+  // 選考ステップの並び順を更新
+  @PutMapping("/position")
+  public ResponseEntity<Void> updateSelectionStepPosition(
+      @AuthenticationPrincipal Integer userId,
+      @PathVariable Integer selectionId,
+      @Valid @RequestBody ReorderSelectionStepRequest request
+  ) {
+    service.reorderSelectionSteps(userId, selectionId, request);
     return ResponseEntity.noContent().build();
   }
 
@@ -49,7 +60,7 @@ public class CompanySelectionStepController {
       @PathVariable Integer selectionStepId,
       @Valid @RequestBody PutSelectionStepStatusRequest request
   ) {
-    service.updateStatus(userId, selectionStepId, request);
+    service.updateSelectionStepStatus(userId, selectionStepId, request);
     return ResponseEntity.noContent().build();
   }
 }
