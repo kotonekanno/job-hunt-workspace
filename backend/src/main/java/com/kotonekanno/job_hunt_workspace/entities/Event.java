@@ -1,6 +1,6 @@
 package com.kotonekanno.job_hunt_workspace.entities;
 
-import com.kotonekanno.job_hunt_workspace.enums.EventCategory;
+import com.example.api.model.EventCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,7 @@ public class Event {
   @JoinColumn(name = "company_id")
   private Company company;
 
-  @Column(nullable = false)
+  @Column(name = "category", nullable = false)
   @Enumerated(EnumType.STRING)
   EventCategory eventCategory = EventCategory.OTHER;
 
@@ -52,6 +52,6 @@ public class Event {
   @Column(name = "is_online", nullable = false)
   private boolean isOnline = true;
 
-  @Column(name = "is_attending", nullable = false)
-  private boolean isAttending = true;
+  @Column(name = "is_attending")
+  private Boolean isAttending = true;
 }
