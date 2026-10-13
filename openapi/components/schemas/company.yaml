@@ -78,12 +78,17 @@ BasicInfo:
       description: 基本情報ID
       type: integer
       format: int32
+    position:
+      description: 同じ志望度内での表示順
+      type: integer
+      format: int32
     title:
       $ref: '#/BasicInfoTitle'
     text:
       $ref: '#/BasicInfoText'
   required:
     - id
+    - position
     - title
     - text
 
@@ -214,6 +219,7 @@ GetCompanyResponse:
     showSelectionWidget: true
     basicInfos:
       - id: 1
+        position: 1000
         title: 従業員数
         text: 200人
     activities:
@@ -264,16 +270,11 @@ UpdateCompanyRequest:
     name: 株式会社サンプル
 
 UpdateCompanyPriorityRequest:
-  description: 企業の志望度・並び順の更新内容。前後の企業IDによって並び順を指定する。前後の企業IDを両方省略した場合は、指定した志望度の末尾に追加する。
+  description: 企業の志望度・並び順の更新内容。後ろの企業IDによって並び順を指定する。後ろの企業IDを省略した場合は、指定した志望度の末尾に追加する。
   type: object
   properties:
     priority:
       $ref: '#/CompanyPriority'
-    previousCompanyId:
-      description: 移動後の前隣の企業のID（先頭に置く場合はnull）
-      type: integer
-      format: int32
-      nullable: true
     nextCompanyId:
       description: 移動後の後ろ隣の企業のID（末尾に置く場合はnull）
       type: integer

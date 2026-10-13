@@ -11,7 +11,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import com.kotonekanno.job_hunt_workspace.services.application.AuthService;
+import com.kotonekanno.job_hunt_workspace.services.AuthService;
 
 @RestController
 @RequestMapping("/auth")

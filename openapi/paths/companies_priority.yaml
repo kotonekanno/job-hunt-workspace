@@ -19,19 +19,11 @@ patch:
             summary: 企業一覧画面で更新
             value:
               priority: 3
-              previousCompanyId: 1
               nextCompanyId: 2
           moveToTop:
-            summary: 志望度の先頭に移動
+            summary: 志望度の末尾に移動／企業詳細画面で更新
             value:
               priority: 3
-              previousCompanyId: null
-              nextCompanyId: 2
-          reorderInSingleView:
-            summary: 企業詳細画面で更新
-            value:
-              priority: 3
-              previousCompanyId: null
               nextCompanyId: null
 
   responses:

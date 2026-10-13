@@ -1,4 +1,4 @@
-package com.kotonekanno.job_hunt_workspace.services.application;
+package com.kotonekanno.job_hunt_workspace.services;
 
 import com.example.api.model.AccessTokenResponse;
 import com.example.api.model.AuthRequest;
