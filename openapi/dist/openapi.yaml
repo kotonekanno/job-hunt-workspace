@@ -1974,21 +1974,15 @@ components:
       description: 新規やりとり履歴の作成内容。
       type: object
       properties:
-        occurredAt:
-          description: やりとりが発生した日時
-          type: string
-          format: date-time
         byUser:
           description: true：ユーザー側から / false：企業側から
           type: boolean
         text:
           $ref: '#/components/schemas/ActivityText'
       required:
-        - occurredAt
         - byUser
         - text
       example:
-        occurredAt: '2026-10-15T10:00:00+09:00'
         byUser: true
         text: 説明会の案内を受け取った。
     UpdateCompanyActivityRequest:
