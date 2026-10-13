@@ -2,7 +2,6 @@ package com.kotonekanno.job_hunt_workspace.controllers;
 
 import com.example.api.model.CreateCompanyBasicInfo201Response;
 import com.example.api.model.CreateCompanyBasicInfoRequest;
-import com.example.api.model.PatchCompanyBasicInfoPositionRequest;
 import com.example.api.model.UpdateCompanyBasicInfoRequest;
 import com.kotonekanno.job_hunt_workspace.services.CompanyBasicInfoService;
 import jakarta.validation.Valid;

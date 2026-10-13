@@ -1,6 +1,6 @@
 package com.kotonekanno.job_hunt_workspace.entities;
 
-import com.kotonekanno.job_hunt_workspace.enums.SelectionStatus;
+import com.example.api.model.SelectionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
