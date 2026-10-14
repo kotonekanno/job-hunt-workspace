@@ -1,5 +1,6 @@
 package com.kotonekanno.job_hunt_workspace.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,14 +29,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     String header = request.getHeader("Authorization");
 
-    if (header != null && header.startsWith("Bearer ")) {
+    if (header != null && header.startsWith("Bearer ")
+        && SecurityContextHolder.getContext().getAuthentication() == null) {
       String token = header.substring(7);
 
-      boolean valid = jwtUtil.validate(token);
-
-      if (valid && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-        Integer userId = jwtUtil.extractUserId(token);
+      try {
+        Integer userId = jwtUtil.extractAccessTokenUserId(token);
 
         var auth = new UsernamePasswordAuthenticationToken(
             userId,
@@ -44,6 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
         );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
+      } catch (JwtException | IllegalArgumentException e) {
+        // 無効なトークンでは認証せず、後続の認可処理に委ねる。
       }
     }
 

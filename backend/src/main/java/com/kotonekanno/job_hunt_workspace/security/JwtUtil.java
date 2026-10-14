@@ -47,22 +47,12 @@ public class JwtUtil {
         .compact();
   }
 
-  public Integer extractUserId(String token) {
-    return Integer.parseInt(Jwts.parserBuilder()
-        .setSigningKey(getKey())
-        .build()
-        .parseClaimsJws(token)
-        .getBody()
-        .getSubject());
-  }
-
-  public boolean validate(String token) {
-    try {
-      extractUserId(token);
-      return true;
-    } catch (Exception e) {
-      return false;
+  public Integer extractAccessTokenUserId(String token) {
+    Claims claims = parseToken(token);
+    if (!"access".equals(claims.get("type"))) {
+      throw new UnsupportedJwtException("Expected an access token");
     }
+    return Integer.valueOf(claims.getSubject());
   }
 
   public Claims parseToken(String token) {
