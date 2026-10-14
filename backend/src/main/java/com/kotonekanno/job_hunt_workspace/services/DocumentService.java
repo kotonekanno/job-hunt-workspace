@@ -144,7 +144,7 @@ public class DocumentService {
     // 新規作成／末尾に移動した場合
     if (nextDocument == null) {
       Integer previousPosition = repository
-          .findMaxPositionByUser_Id(userId)
+          .findMaxPositionByUserId(userId)
           .orElse(null);
 
       // ドキュメントがまだ存在しない場合

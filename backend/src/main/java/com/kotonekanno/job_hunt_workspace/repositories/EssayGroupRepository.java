@@ -23,9 +23,9 @@ public interface EssayGroupRepository extends JpaRepository<EssayGroup, Integer>
 
   // 指定したユーザーで最も大きいpositionの値を返す
   @Query("""
-    SELECT MAX(c.position)
-    FROM Company c
-    WHERE c.user.id = :userId
+    SELECT MAX(eg.position)
+    FROM EssayGroup eg
+    WHERE eg.user.id = :userId
     """)
   Optional<Integer> findMaxPositionByUser_Id(
       @Param("userId") Integer userId

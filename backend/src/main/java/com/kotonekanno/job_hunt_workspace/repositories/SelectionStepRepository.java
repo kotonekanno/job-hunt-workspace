@@ -6,7 +6,6 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,9 +19,9 @@ public interface SelectionStepRepository extends JpaRepository<SelectionStep, In
       Integer userId
   );
 
-  // 指定した選考のうち先頭のステップのpositionの値を返す
+  // 指定した選考のうち末尾のステップのpositionの値を返す
   @Query("""
-      SELECT MIN(ss.position)
+      SELECT MAX(ss.position)
       FROM SelectionStep ss
       WHERE ss.selection.id = :selectionId
       """)

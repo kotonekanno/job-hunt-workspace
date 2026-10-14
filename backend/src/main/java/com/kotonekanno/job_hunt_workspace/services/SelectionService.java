@@ -294,7 +294,7 @@ public class SelectionService {
 
     // 先頭に追加・移動した場合
     if (previousPosition == null) {
-      return nextPosition + 1000;
+      return nextPosition - 1000;
     }
 
     // 2つの要素の間に追加・移動した場合

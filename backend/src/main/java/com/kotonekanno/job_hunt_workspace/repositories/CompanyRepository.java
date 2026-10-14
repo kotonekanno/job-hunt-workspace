@@ -40,6 +40,7 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
       """)
   Optional<Integer> findPreviousPosition(
       Integer userId,
+      Integer priority,
       Integer position,
       Integer excludeId
   );

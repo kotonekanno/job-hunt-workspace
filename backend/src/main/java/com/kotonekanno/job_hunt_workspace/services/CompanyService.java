@@ -379,6 +379,7 @@ public class CompanyService {
 
     Integer previousPosition = companyRepository.findPreviousPosition(
         userId,
+        priority,
         nextPosition,
         companyId
     ).orElse(null);

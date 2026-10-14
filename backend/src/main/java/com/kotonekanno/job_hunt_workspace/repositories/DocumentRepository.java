@@ -4,6 +4,7 @@ import com.kotonekanno.job_hunt_workspace.entities.Document;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,11 +19,18 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
   Optional<Document> findByIdAndUser_Id(Integer documentId, Integer userId);
 
   // 指定したユーザーで最大のpositionの値を返す
-  Optional<Integer> findMaxPositionByUser_Id(Integer userId);
+  @Query("""
+    SELECT MAX(d.position)
+    FROM Document d
+    WHERE d.user.id = :userId
+    """)
+  Optional<Integer> findMaxPositionByUserId(
+      @Param("userId") Integer userId
+  );
 
   // 指定したドキュメントの次に小さいpositionの値を返す
   @Query("""
-      SELECt MAX(d.position)
+      SELECT MAX(d.position)
       FROM Document d
       WHERE d.user.id = :userId
         AND d.position < :position
