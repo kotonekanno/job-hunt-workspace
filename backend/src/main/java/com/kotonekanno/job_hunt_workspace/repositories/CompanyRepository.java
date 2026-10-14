@@ -32,7 +32,7 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
   // 指定した企業と同じ志望度内で次に小さいpositionの値を返す
   @Query("""
       SELECT MAX(c.position)
-      FROM Compoany c
+      FROM Company c
       WHERE c.user.id = :userId
         AND c.position < :position
         AND (:excludeId IS NULL OR c.id <> : excludeId)

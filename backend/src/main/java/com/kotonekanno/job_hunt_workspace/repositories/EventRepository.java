@@ -44,13 +44,13 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     FROM Event e
     WHERE e.company.id = :companyId
       AND (
-          (e.isAllDay = true AND e.endDay >= :today)
+          (e.isAllDay = true AND e.endDate >= :today)
           OR
           (e.isAllDay = false AND e.endTime >= :startOfToday)
       )
     ORDER BY
         CASE
-            WHEN e.isAllDay = true THEN e.startDay
+            WHEN e.isAllDay = true THEN e.startDate
             ELSE CAST(e.startTime AS LocalDate)
         END ASC
     """)

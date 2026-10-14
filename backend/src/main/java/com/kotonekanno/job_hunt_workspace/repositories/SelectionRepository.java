@@ -15,7 +15,7 @@ import java.util.Optional;
 @NullMarked
 @Repository
 public interface SelectionRepository extends JpaRepository<Selection, Integer> {
-  Optional<Selection> findById_Company_User_Id(
+  Optional<Selection> findByIdAndCompany_User_Id(
       Integer id,
       Integer user_id
   );

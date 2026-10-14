@@ -89,7 +89,7 @@ public class SelectionService {
       PatchSelectionRequest request
   ) {
     Selection selection = selectionRepository
-        .findById_Company_User_Id(selectionId, userId)
+        .findByIdAndCompany_User_Id(selectionId, userId)
         .orElseThrow(() -> new NotFoundException("Selection not found"));
 
     selection.setTitle(request.getTitle());
@@ -102,7 +102,7 @@ public class SelectionService {
       Integer selectionId
   ) {
     Selection selection = selectionRepository
-        .findById_Company_User_Id(selectionId, userId)
+        .findByIdAndCompany_User_Id(selectionId, userId)
         .orElseThrow(() -> new NotFoundException("Selection not found"));
 
     selectionRepository.delete(selection);
@@ -115,7 +115,7 @@ public class SelectionService {
       PutSelectionIsActiveRequest request
   ) {
     Selection selection = selectionRepository
-        .findById_Company_User_Id(selectionId, userId)
+        .findByIdAndCompany_User_Id(selectionId, userId)
         .orElseThrow(() -> new NotFoundException("Selection not found"));
 
     boolean isActive = request.getIsActive();
@@ -142,7 +142,7 @@ public class SelectionService {
       CreateSelectionStepRequest request
   ) {
     Selection selection = selectionRepository
-        .findById_Company_User_Id(selectionId, userId)
+        .findByIdAndCompany_User_Id(selectionId, userId)
         .orElseThrow(() -> new NotFoundException("Selection not found"));
 
     SelectionStep previousSelectionStep = selectionStepRepository

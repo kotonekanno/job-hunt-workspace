@@ -40,7 +40,7 @@ public class EssayGroupController {
   }
 
   // ESグループを部分更新
-  @PatchMapping("{/essayGroupId}")
+  @PatchMapping("/{essayGroupId}")
   public ResponseEntity<Void> updateEssayGroup(
       @AuthenticationPrincipal Integer userId,
       @PathVariable String essayGroupId,
