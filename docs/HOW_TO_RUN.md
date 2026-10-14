@@ -7,6 +7,20 @@ cd ../backend/
 ./gradlew openApiGenerate
 ```
 
+### Dockerでバックエンドをビルド
+
+OpenAPI定義も使用するため、リポジトリのルートで実行する。
+
+```bash
+docker compose build backend
+# Dockerを直接使用する場合
+docker build -f backend/Dockerfile -t job-hunt-workspace-backend .
+```
+
+Docker内ではGradle Wrapperを使ってOpenAPIのコード生成と`bootJar`を実行する。
+ビルド対象は`backend/Dockerfile.dockerignore`で制限し、環境変数ファイルや
+ローカルのビルド成果物は送信しない。
+
 
 ### OpenAPI変更後
 

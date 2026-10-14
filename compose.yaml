@@ -23,7 +23,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
 
     container_name: job-hunt-workspace-backend
 
