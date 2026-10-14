@@ -1,13 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
-import {
-  deleteMockCompany,
-  useMockCompanies,
-} from '@/features/companies/model/companyMockStore';
-import { useSelectionProgress } from '@/features/companies/hooks/useSelectionProgress';
-import { SelectionProgressDialog } from '@/features/companies/ui/detail/SelectionProgressDialog';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useCompanyDetail } from '@/features/companies/hooks/useCompanyDetail';
+import { useCompanySelections } from '@/features/companies/hooks/useCompanySelections';
+import {
+  selectionStatusForApi,
+  selectionStatusForDisplay,
+} from '@/features/companies/lib/selectionStatusPresentation';
 import {
   type WidgetType,
   widgetLabels,
@@ -24,29 +23,57 @@ import { WidgetPicker } from '@/features/companies/ui/detail/WidgetPicker';
 import { BackLink } from '@/shared/BackLink';
 import { DeleteDialog } from '@/shared/dialog';
 
-const allWidgets: WidgetType[] = widgetOrder;
-
 export function CompanyDashboard() {
-  const company = useCompanyDetail();
   const { companyId } = useParams();
-  const companyRecord = useMockCompanies().find(
-    (item) => item.id === Number(companyId),
+  return (
+    <CompanyDashboardContent key={companyId} companyId={Number(companyId)} />
   );
+}
+function CompanyDashboardContent({ companyId }: { companyId: number }) {
+  const company = useCompanyDetail(companyId);
+  const selections = useCompanySelections(companyId, company.setData);
   const navigate = useNavigate();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const selection = useSelectionProgress();
-  const active = selection.tracks.find((track) => track.isActive);
-  const current = active?.steps.find((step) => step.id === active.currentStep);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<WidgetType | null>(null);
-
-  const hiddenWidgets = useMemo(
-    () => allWidgets.filter((widget) => !company.widgets.includes(widget)),
-    [company.widgets],
+  const [actionError, setActionError] = useState('');
+  const data = company.data;
+  const active = data?.selections?.find(
+    (track) => track.id === data.activeSelectionId,
   );
+  const current = active?.steps.find(
+    (step) => step.id === active.currentStepId,
+  );
+  const hiddenWidgets = widgetOrder.filter(
+    (widget) => !company.widgets.includes(widget),
+  );
+  async function run(operation: () => Promise<void>) {
+    setActionError('');
+    try {
+      await operation();
+    } catch {
+      setActionError('処理に失敗しました。もう一度お試しください。');
+    }
+  }
+  if (!data)
+    return (
+      <div className="mx-auto w-full max-w-7xl">
+        <BackLink to="/companies">企業一覧へ戻る</BackLink>
+        {company.isLoading ? (
+          <p role="status" className="mt-4 text-sm text-[var(--muted)]">
+            企業情報を読み込み中…
+          </p>
+        ) : (
+          <p role="alert" className="mt-4 text-sm text-rose-500">
+            {company.error}
+          </p>
+        )}
+      </div>
+    );
 
   function renderWidget(widget: WidgetType) {
+    if (!data) return null;
     const requestRemoval = () => setPendingRemoval(widget);
-
     switch (widget) {
       case 'basic-info':
         return (
@@ -54,20 +81,14 @@ export function CompanyDashboard() {
             key={widget}
             className="min-w-0 lg:col-start-1 lg:row-start-2 [&>section]:h-full"
           >
-            <BasicInfoWidget onRemove={requestRemoval} />
+            <BasicInfoWidget
+              records={data.basicInfos ?? []}
+              onCreate={company.createBasicInfo}
+              onUpdate={company.updateBasicInfo}
+              onDelete={company.removeBasicInfo}
+              onRemove={requestRemoval}
+            />
           </div>
-        );
-      case 'tasks':
-        return <RelatedTasksWidget key={widget} />;
-      case 'events':
-        return <RelatedEventsWidget key={widget} />;
-      case 'documents':
-        return (
-          <DocumentsWidget
-            key={widget}
-            document={company.document}
-            onDocumentChange={company.saveDocument}
-          />
         );
       case 'selection':
         return (
@@ -75,60 +96,97 @@ export function CompanyDashboard() {
             key={widget}
             className="min-w-0 lg:col-start-1 lg:row-start-3 [&>section]:h-full"
           >
-            <SelectionWidget onRemove={requestRemoval} {...selection} />
+            <SelectionWidget
+              tracks={data.selections ?? []}
+              activeSelectionId={data.activeSelectionId}
+              actions={selections}
+              onRemove={requestRemoval}
+            />
           </div>
         );
+      case 'documents':
+        return (
+          <DocumentsWidget
+            key={widget}
+            document={data.document}
+            onDocumentChange={company.saveDocument}
+          />
+        );
       case 'activities':
-        return <ActivitiesWidget key={widget} />;
+        return (
+          <ActivitiesWidget
+            key={widget}
+            activities={data.activities}
+            onSend={company.sendActivity}
+            onUpdate={company.updateActivity}
+            onDelete={company.removeActivity}
+            onLoadOlder={company.loadOlderActivities}
+            hasMore={company.hasMoreActivities}
+            isLoadingOlder={company.isLoadingActivities}
+          />
+        );
+      case 'events':
+        return (
+          <RelatedEventsWidget
+            key={widget}
+            events={data.events}
+            companyName={data.name}
+          />
+        );
+      case 'tasks':
+        return (
+          <RelatedTasksWidget
+            key={widget}
+            tasks={data.tasks}
+            companyName={data.name}
+          />
+        );
     }
   }
-
-  function confirmRemoval() {
-    if (!pendingRemoval) {
-      return;
-    }
-
-    company.removeWidget(pendingRemoval);
-    setPendingRemoval(null);
-  }
-
   return (
     <div className="mx-auto w-full max-w-7xl">
       <CompanyHeader
-        key={companyId}
-        name={companyRecord?.name}
+        name={data.name}
+        priority={company.priority}
+        onNameChange={company.rename}
+        onPriorityChange={company.changePriority}
         selection={
-          active && current
+          company.priority !== 7 && active && current
             ? {
                 title: active.title,
-                step: current.title,
-                status: current.status,
+                step: current.name,
+                status: selectionStatusForDisplay[current.status],
               }
             : undefined
         }
         onResultChange={(result) => {
           if (active && current)
-            selection.updateStepResult(active.id, current.id, result);
+            void run(() =>
+              selections.updateStatus(
+                active.id,
+                current.id,
+                selectionStatusForApi[result],
+              ),
+            );
         }}
       />
-      {selection.pendingChange && (
-        <SelectionProgressDialog
-          {...selection.pendingChange}
-          onClose={selection.cancelChange}
-          onConfirm={selection.confirmChange}
-        />
+      {(company.error || actionError) && (
+        <p role="alert" className="mt-4 text-sm text-rose-500">
+          {company.error || actionError}
+        </p>
       )}
-
       <div className="mt-4">
         <BackLink to="/companies">企業一覧へ戻る</BackLink>
       </div>
-
-      <WidgetPicker hiddenWidgets={hiddenWidgets} onAdd={company.addWidget} />
-
+      <WidgetPicker
+        hiddenWidgets={hiddenWidgets}
+        onAdd={(widget) => {
+          void run(() => company.setWidget(widget, true));
+        }}
+      />
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {company.widgets.map(renderWidget)}
       </div>
-
       <div className="mt-8 flex justify-center border-t border-[var(--line)] pt-5">
         <button
           type="button"
@@ -145,17 +203,30 @@ export function CompanyDashboard() {
           text="この企業と、企業に紐づくデータを削除します。この操作は取り消せません。"
           onClose={() => setIsDeleteOpen(false)}
           onConfirm={() => {
-            deleteMockCompany(Number(companyId));
-            navigate('/companies');
+            if (isDeleting) return;
+            setIsDeleting(true);
+            void run(async () => {
+              try {
+                await company.removeCompany();
+                navigate('/companies');
+              } finally {
+                setIsDeleting(false);
+              }
+            });
           }}
         />
       )}
       {pendingRemoval && (
         <DeleteDialog
           title="ウィジェットを削除しますか？"
-          text={`「${widgetLabels[pendingRemoval]}」と、ウィジェット内のデータをすべて削除します。この操作は取り消せません。`}
+          text={`「${widgetLabels[pendingRemoval]}」を非表示にします。`}
           onClose={() => setPendingRemoval(null)}
-          onConfirm={confirmRemoval}
+          onConfirm={() => {
+            void run(async () => {
+              await company.setWidget(pendingRemoval, false);
+              setPendingRemoval(null);
+            });
+          }}
         />
       )}
     </div>

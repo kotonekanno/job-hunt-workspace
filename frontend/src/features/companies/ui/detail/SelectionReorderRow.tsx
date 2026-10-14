@@ -1,6 +1,6 @@
 import { Reorder, useDragControls } from 'motion/react';
 import { Trash2 } from 'lucide-react';
-import type { SelectionStep } from '@/features/companies/model/selection';
+import type { SelectionStepResponse as SelectionStep } from '@/api/generated/models';
 import { DragHandle } from '@/shared/DragHandle';
 
 export function SelectionReorderRow({
@@ -32,11 +32,11 @@ export function SelectionReorderRow({
         STEP {index + 1}
       </span>
       <span className="min-w-0 flex-1 truncate text-sm font-bold text-[var(--text)]">
-        {step.title}
+        {step.name}
       </span>
       <button
         type="button"
-        aria-label={`${step.title}を削除`}
+        aria-label={`${step.name}を削除`}
         onClick={onDelete}
         className="flex size-8 cursor-pointer items-center justify-center text-[var(--muted)] hover:bg-rose-500/10 hover:text-rose-500"
       >
@@ -44,7 +44,7 @@ export function SelectionReorderRow({
       </button>
       <DragHandle
         title="ドラッグして並べ替え"
-        label={`${step.title}を並べ替え`}
+        label={`${step.name}を並べ替え`}
         onPointerDown={(event) => {
           event.preventDefault();
           controls.start(event);

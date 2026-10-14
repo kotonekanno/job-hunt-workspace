@@ -1,10 +1,9 @@
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { ChevronDown } from 'lucide-react';
 
-import type {
-  SelectionStatus,
-  SelectionStep,
-} from '@/features/companies/model/selection';
+import type { SelectionStepResponse as SelectionStep } from '@/api/generated/models';
+import type { SelectionStatus } from '@/features/companies/model/selection';
+import { selectionStatusForDisplay } from '@/features/companies/lib/selectionStatusPresentation';
 import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
 import { MemoPanel } from '@/shared/MemoPanel';
 
@@ -41,7 +40,7 @@ export function SelectionStepItem({
         </span>
 
         <span className="min-w-0 truncate pl-1 text-[13px] font-bold text-[var(--text-strong)]">
-          {step.title}
+          {step.name}
         </span>
 
         <span
@@ -53,8 +52,8 @@ export function SelectionStepItem({
         >
           <SelectionStepBadge
             title={trackName}
-            step={step.title}
-            result={step.status}
+            step={step.name}
+            result={selectionStatusForDisplay[step.status]}
             size="s"
             showContext={false}
             compactMenu
@@ -62,16 +61,12 @@ export function SelectionStepItem({
           />
         </span>
 
-        <EditDeleteMenu
-          label={step.title}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <EditDeleteMenu label={step.name} onEdit={onEdit} onDelete={onDelete} />
         <ChevronDown className="size-3 text-[var(--faint)] transition-transform duration-200 group-open/step:rotate-180" />
       </summary>
 
       <div className="border-x border-b border-[var(--line)]">
-        <MemoPanel text={step.note} recessed />
+        <MemoPanel text={step.note ?? ''} recessed />
       </div>
     </details>
   );

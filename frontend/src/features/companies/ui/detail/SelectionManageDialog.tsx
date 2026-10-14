@@ -1,41 +1,71 @@
-import { Fragment, useId, useState } from 'react';
+import { Fragment, useId, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Reorder } from 'motion/react';
-import type {
-  Selection,
-  SelectionStep,
-} from '@/features/companies/model/selection';
+import type { Selection, SelectionStepResponse } from '@/api/generated/models';
+import type { CompanySelectionActions } from '@/features/companies/hooks/useCompanySelections';
 import { SelectionReorderRow } from '@/features/companies/ui/detail/SelectionReorderRow';
 import { SelectionStepDialog } from '@/features/companies/ui/detail/SelectionStepDialog';
 import { DeleteDialog, DialogBase, DialogHeader } from '@/shared/dialog';
 
 export function SelectionManageDialog({
   track,
-  onSave,
+  actions,
   onClose,
 }: {
   track: Selection;
-  onSave: (track: Selection) => void;
+  actions: CompanySelectionActions;
   onClose: () => void;
 }) {
   const titleId = useId();
   const [draftTitle, setDraftTitle] = useState(track.title);
-  const [addingAt, setAddingAt] = useState<number>();
-  const [deleting, setDeleting] = useState<SelectionStep>();
+  const [addingBefore, setAddingBefore] = useState<number | null | undefined>();
+  const [deleting, setDeleting] = useState<SelectionStepResponse>();
+  const [order, setOrder] = useState<number[]>();
+  const orderRef = useRef<number[] | undefined>(undefined);
+  const draggingId = useRef<number | undefined>(undefined);
   const [dragging, setDragging] = useState(false);
-  const steps = [...track.steps].sort((a, b) => a.stepNo - b.stepNo);
-  function saveSteps(next: SelectionStep[]) {
-    onSave({
-      ...track,
-      steps: next.map((step, index) => ({ ...step, stepNo: index + 1 })),
-    });
+  const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const steps = order
+    ? order.flatMap((id) => track.steps.filter((step) => step.id === id))
+    : track.steps;
+  async function run(operation: () => Promise<void>) {
+    if (isSaving) return;
+    setIsSaving(true);
+    setError('');
+    try {
+      await operation();
+    } catch {
+      setError('選考情報を保存できませんでした。');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+  async function finishDrag() {
+    setDragging(false);
+    const ids = orderRef.current;
+    const movedId = draggingId.current;
+    draggingId.current = undefined;
+    if (
+      ids &&
+      movedId !== undefined &&
+      ids.some((id, index) => id !== track.steps[index]?.id)
+    ) {
+      const index = ids.indexOf(movedId);
+      await run(() =>
+        actions.reorderStep(track.id, movedId, ids[index + 1] ?? null),
+      );
+    }
+    orderRef.current = undefined;
+    setOrder(undefined);
   }
   function addButton(index: number) {
     return (
       <button
         type="button"
+        disabled={isSaving}
         aria-label={`ステップ${index + 1}の位置に追加`}
-        onClick={() => setAddingAt(index)}
+        onClick={() => setAddingBefore(steps[index]?.id ?? null)}
         className="flex h-8 w-full cursor-pointer items-center justify-center text-[var(--faint)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
       >
         <Plus className="size-4" />
@@ -46,13 +76,13 @@ export function SelectionManageDialog({
     <>
       <DialogBase
         onClose={onClose}
-        suspended={addingAt !== undefined || !!deleting}
+        suspended={addingBefore !== undefined || !!deleting}
       >
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="ui-dialog-surface max-h-[90vh] overflow-y-auto w-full max-w-xl border border-[var(--line-strong)] p-6"
+          className="ui-dialog-surface max-h-[90vh] w-full max-w-xl overflow-y-auto border border-[var(--line-strong)] p-6"
         >
           <DialogHeader
             title="選考を編集"
@@ -60,21 +90,24 @@ export function SelectionManageDialog({
             titleId={titleId}
             onClose={onClose}
           />
+          {error && (
+            <p role="alert" className="mt-3 text-sm text-rose-500">
+              {error}
+            </p>
+          )}
           <form
             className="mt-4 flex items-end gap-2"
             onSubmit={(event) => {
               event.preventDefault();
-              const title = draftTitle.trim();
-              if (title) {
-                onSave({ ...track, title });
-                setDraftTitle(title);
-              }
+              if (draftTitle.trim() && draftTitle.trim() !== track.title)
+                void run(() => actions.rename(track.id, draftTitle.trim()));
             }}
           >
             <label className="min-w-0 flex-1 text-xs text-[var(--muted)]">
               選考タイトル
               <input
                 required
+                maxLength={50}
                 value={draftTitle}
                 onChange={(event) => setDraftTitle(event.target.value)}
                 className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
@@ -82,8 +115,12 @@ export function SelectionManageDialog({
             </label>
             <button
               type="submit"
-              disabled={!draftTitle.trim() || draftTitle.trim() === track.title}
-              className="h-10 cursor-pointer border border-[var(--accent)] bg-[var(--accent-soft)] px-4 text-xs font-bold text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)] disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={
+                isSaving ||
+                !draftTitle.trim() ||
+                draftTitle.trim() === track.title
+              }
+              className="h-10 cursor-pointer border border-[var(--accent)] bg-[var(--accent-soft)] px-4 text-xs font-bold text-[var(--accent)] disabled:opacity-40"
             >
               タイトルを保存
             </button>
@@ -93,12 +130,13 @@ export function SelectionManageDialog({
           </p>
           <Reorder.Group
             as="div"
-            layoutScroll
             axis="y"
             values={steps.map((step) => step.id)}
-            onReorder={(ids) =>
-              saveSteps(ids.map((id) => steps.find((step) => step.id === id)!))
-            }
+            onReorder={(ids) => {
+              if (isSaving) return;
+              orderRef.current = ids;
+              setOrder(ids);
+            }}
             data-drag-session={dragging}
             className="mt-3 max-h-[60vh] overflow-y-auto"
             style={{ position: 'relative' }}
@@ -110,8 +148,13 @@ export function SelectionManageDialog({
                   step={step}
                   index={index}
                   onDelete={() => setDeleting(step)}
-                  onDragStart={() => setDragging(true)}
-                  onDragEnd={() => setDragging(false)}
+                  onDragStart={() => {
+                    draggingId.current = step.id;
+                    setDragging(true);
+                  }}
+                  onDragEnd={() => {
+                    void finishDrag();
+                  }}
                 />
               </Fragment>
             ))}
@@ -119,26 +162,27 @@ export function SelectionManageDialog({
           </Reorder.Group>
         </div>
       </DialogBase>
-      {addingAt !== undefined && (
+      {addingBefore !== undefined && (
         <SelectionStepDialog
-          onClose={() => setAddingAt(undefined)}
-          onSave={(step) =>
-            saveSteps([
-              ...steps.slice(0, addingAt),
-              step,
-              ...steps.slice(addingAt),
-            ])
+          onClose={() => setAddingBefore(undefined)}
+          onSave={(request) =>
+            actions.createStep(track.id, {
+              ...request,
+              nextSelectionStepId: addingBefore,
+            })
           }
         />
       )}
       {deleting && (
         <DeleteDialog
           title="選考ステップを削除しますか？"
-          text={`「${deleting.title}」を削除します。この操作は取り消せません。`}
+          text={`「${deleting.name}」を削除します。`}
           onClose={() => setDeleting(undefined)}
           onConfirm={() => {
-            saveSteps(steps.filter((step) => step.id !== deleting.id));
-            setDeleting(undefined);
+            void run(async () => {
+              await actions.removeStep(track.id, deleting.id);
+              setDeleting(undefined);
+            });
           }}
         />
       )}

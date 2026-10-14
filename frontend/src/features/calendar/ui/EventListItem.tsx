@@ -1,18 +1,19 @@
 import { ChevronDown, MapPin, Video } from 'lucide-react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import type { Event as ApiEvent } from '@/api/generated/models';
 import { useState } from 'react';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
 import { MemoPanel } from '@/shared/MemoPanel';
 
-type EventListItemProps = {
-  event: CalendarEvent;
-  onEdit?: (event: CalendarEvent) => void;
+type EventListItemProps<T extends CalendarEvent | ApiEvent> = {
+  event: T;
+  onEdit?: (event: T) => void;
   onDelete?: (eventId: number) => void;
   showCompany?: boolean;
 };
 
-function getEventEmphasisClassName(event: CalendarEvent): string {
+function getEventEmphasisClassName(event: CalendarEvent | ApiEvent): string {
   if (event.isAttending === false) {
     return 'border-l-[var(--line-strong)] opacity-55';
   }
@@ -20,13 +21,46 @@ function getEventEmphasisClassName(event: CalendarEvent): string {
   return 'border-l-[var(--accent)]';
 }
 
-export function EventListItem({
+export function EventListItem<T extends CalendarEvent | ApiEvent>({
   event,
   onEdit,
   onDelete,
   showCompany = true,
-}: EventListItemProps) {
+}: EventListItemProps<T>) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const localDate = (value?: string | null) =>
+    value ? new Date(value).toLocaleDateString('sv-SE') : '';
+  const localTime = (value?: string | null) =>
+    value
+      ? new Date(value).toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '--:--';
+  const startDate =
+    'startDate' in event
+      ? event.startDate
+      : event.isAllDay
+        ? (event.startDay ?? '')
+        : localDate(event.startTime);
+  const endDate =
+    'endDate' in event
+      ? event.endDate
+      : event.isAllDay
+        ? (event.endDay ?? '')
+        : localDate(event.endTime);
+  const startTime =
+    'startDate' in event
+      ? (event.startTime ?? '--:--')
+      : localTime(event.startTime);
+  const endTime =
+    'endDate' in event ? (event.endTime ?? '--:--') : localTime(event.endTime);
+  const companyName =
+    'companyName' in event
+      ? event.companyName
+      : 'company' in event
+        ? event.company
+        : undefined;
   const FormatIcon = event.isOnline ? Video : MapPin;
 
   return (
@@ -38,7 +72,7 @@ export function EventListItem({
           <div className="event-list-schedule flex w-[112px] shrink-0 items-stretch border-r border-[var(--line)] pr-3">
             <div className="flex w-12 shrink-0 items-center justify-center border-r border-[var(--line)] pr-2">
               <p className="font-mono text-xs font-bold text-[var(--text-strong)]">
-                {event.startDate.slice(5).replace('-', '/')}
+                {startDate.slice(5).replace('-', '/')}
               </p>
             </div>
 
@@ -49,20 +83,20 @@ export function EventListItem({
                     終日
                   </span>
 
-                  {event.endDate !== event.startDate && (
+                  {endDate !== startDate && (
                     <span className="mt-0.5 text-[8px] font-semibold text-[var(--muted)]">
-                      → {event.endDate.slice(5).replace('-', '/')}
+                      → {endDate.slice(5).replace('-', '/')}
                     </span>
                   )}
                 </>
               ) : (
                 <>
                   <span className="text-[10px] font-black text-[var(--accent)]">
-                    {event.startTime ?? '--:--'}
+                    {startTime}
                   </span>
 
                   <span className="mt-0.5 text-[10px] font-bold text-[var(--muted)]">
-                    {event.endTime ?? '--:--'}
+                    {endTime}
                   </span>
                 </>
               )}
@@ -72,7 +106,7 @@ export function EventListItem({
           <div className="min-w-0 flex-1">
             {showCompany && (
               <p className="truncate text-[10px] text-[var(--muted)]">
-                {event.company}
+                {companyName}
               </p>
             )}
 

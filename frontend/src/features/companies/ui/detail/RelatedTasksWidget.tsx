@@ -1,18 +1,21 @@
 import { ListTodo } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import {
-  companyProfile,
-  relatedTasks,
-} from '@/features/companies/model/companyDetail';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
-import type { Task } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models';
+import type { Task as TaskForm } from '@/features/task/model/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { AddButton, BulkDeleteButton } from '@/shared/button';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
-export function RelatedTasksWidget() {
-  const [tasks, setTasks] = useState<Task[]>(relatedTasks);
+export function RelatedTasksWidget({
+  tasks: initialTasks,
+  companyName,
+}: {
+  tasks: Task[];
+  companyName: string;
+}) {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<Task>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -42,7 +45,19 @@ export function RelatedTasksWidget() {
     );
   }
 
-  function saveTask(task: Task) {
+  function saveTask(form: TaskForm) {
+    const task: Task = {
+      id: form.id,
+      title: form.title,
+      note: form.note,
+      deadline: form.deadline ?? null,
+      done: form.done,
+      companyName,
+    };
+    saveTaskState(task);
+  }
+
+  function saveTaskState(task: Task) {
     setTasks((current) => {
       const taskExists = current.some((item) => item.id === task.id);
 
@@ -109,8 +124,19 @@ export function RelatedTasksWidget() {
 
       {isDialogOpen && (
         <TaskDialog
-          task={editingTask}
-          defaultCompany={companyProfile.name}
+          task={
+            editingTask
+              ? {
+                  id: editingTask.id,
+                  title: editingTask.title,
+                  note: editingTask.note,
+                  deadline: editingTask.deadline ?? undefined,
+                  done: editingTask.done,
+                  company: companyName,
+                }
+              : undefined
+          }
+          defaultCompany={companyName}
           onClose={closeDialog}
           onSave={saveTask}
         />

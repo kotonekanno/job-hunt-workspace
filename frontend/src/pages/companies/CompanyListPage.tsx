@@ -26,6 +26,16 @@ export function CompanyListPage() {
         />
       </div>
 
+      {companyList.error && (
+        <p role="alert" className="mt-4 text-sm text-rose-500">
+          {companyList.error}
+        </p>
+      )}
+      {companyList.isLoading && (
+        <p role="status" className="mt-4 text-sm text-[var(--muted)]">
+          企業一覧を読み込み中…
+        </p>
+      )}
       <div className="mt-5">
         <CompanyPriorityBoard
           companies={companyList.companies}

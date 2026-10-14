@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
   BriefcaseBusiness,
   ChevronDown,
@@ -37,6 +38,7 @@ function getInitialTheme(): Theme {
 
 export function MainLayout() {
   const location = useLocation();
+  const auth = useAuth();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.matchMedia(sidebarBreakpointQuery).matches,
@@ -136,14 +138,16 @@ export function MainLayout() {
             <details className="group relative">
               <summary className="ui-control flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 hover:border-[var(--line)] hover:bg-[var(--panel-raised)] [&::-webkit-details-marker]:hidden">
                 <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)]">
-                  YM
+                  {auth.status === 'authenticated' ? 'IN' : '—'}
                 </span>
                 <span className="hidden text-left lg:block">
                   <span className="block text-xs font-semibold text-[var(--text-strong)]">
-                    山田みらい
+                    {auth.status === 'authenticated' ? 'ログイン中' : 'ゲスト'}
                   </span>
                   <span className="block font-mono text-[9px] tracking-wider text-[var(--muted)]">
-                    USER_01 / ONLINE
+                    {auth.status === 'authenticated'
+                      ? 'AUTHENTICATED'
+                      : 'ACCOUNT ACCESS'}
                   </span>
                 </span>
                 <ChevronDown

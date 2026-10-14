@@ -6,8 +6,8 @@ export const priorityStyle: Record<CompanyPriority, string> = {
   3: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
   4: 'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]',
   5: 'border-[var(--line)] bg-transparent text-[var(--faint)]',
-  0: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
-  6: 'border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75',
+  6: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
+  7: 'border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75',
 };
 
 export const priorityLabels: Record<CompanyPriority, string> = {
@@ -16,6 +16,6 @@ export const priorityLabels: Record<CompanyPriority, string> = {
   3: '第3志望',
   4: '第4志望',
   5: '第5志望',
-  0: '未分類',
-  6: 'アーカイブ',
+  6: '未分類',
+  7: 'アーカイブ',
 };

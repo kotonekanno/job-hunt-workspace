@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyList';
+import { companyNameOptions } from '@/features/companies/model/companyMockData';
 import {
   unclassifiedEssayGroupId,
   type Essay,

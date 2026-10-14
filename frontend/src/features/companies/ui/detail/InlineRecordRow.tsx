@@ -10,7 +10,10 @@ type InlineRecordRowProps = {
   labelName: string;
   valueName: string;
   renderValue?: (value: string) => ReactNode;
-  onSave: (label: string, value: string) => void;
+  onSave: (label: string, value: string) => void | Promise<void>;
+  allowEmptyValue?: boolean;
+  labelMaxLength?: number;
+  valueMaxLength?: number;
   onCancelNew: () => void;
   onDelete: () => void;
 };
@@ -41,7 +44,11 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
   const [isEditing, setIsEditing] = useState(Boolean(props.isNew));
   const [label, setLabel] = useState(props.label);
   const [value, setValue] = useState(props.value);
-  const canSave = Boolean(label.trim() && value.trim());
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const canSave =
+    !isSaving &&
+    Boolean(label.trim() && (props.allowEmptyValue || value.trim()));
 
   function startEditing() {
     setLabel(props.label);
@@ -49,10 +56,18 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
     setIsEditing(true);
   }
 
-  function save() {
+  async function save() {
     if (!canSave) return;
-    props.onSave(label.trim(), value.trim());
-    setIsEditing(false);
+    setIsSaving(true);
+    setError('');
+    try {
+      await props.onSave(label.trim(), value.trim());
+      setIsEditing(false);
+    } catch {
+      setError('保存できませんでした。');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function cancel() {
@@ -84,6 +99,7 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
           <input
             autoFocus
             aria-label={props.labelName}
+            maxLength={props.labelMaxLength}
             value={label}
             onChange={(event) => setLabel(event.target.value)}
             onKeyDown={onKeyDown}
@@ -99,6 +115,7 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
         {isEditing ? (
           <input
             aria-label={props.valueName}
+            maxLength={props.valueMaxLength}
             value={value}
             onChange={(event) => setValue(event.target.value)}
             onKeyDown={onKeyDown}
@@ -113,6 +130,11 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
         )}
       </td>
       <td className="py-2 align-middle">
+        {error && (
+          <span role="alert" title={error} className="text-xs text-rose-500">
+            保存失敗
+          </span>
+        )}
         <div className="flex h-8 w-[72px] items-center justify-end gap-2">
           {isEditing ? (
             <InlineEditActions

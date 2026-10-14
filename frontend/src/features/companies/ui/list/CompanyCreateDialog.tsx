@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import type { CreateCompanyRequest } from '@/api/generated/models';
+import { useRef, useState, type FormEvent } from 'react';
 import {
   priorities,
   secondaryPriorities,
-  type CompanyListItem,
   type CompanyPriority,
 } from '@/features/companies/model/companyList';
 import { EditDialog } from '@/shared/dialog';
@@ -11,25 +11,33 @@ import { Select, type SelectOption } from '@/shared/select';
 
 type CompanyCreateDialogProps = {
   onClose: () => void;
-  onSave: (company: Omit<CompanyListItem, 'id' | 'order'>) => void;
+  onSave: (company: CreateCompanyRequest) => Promise<void>;
 };
 
 export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
   const [name, setName] = useState('');
   const [priority, setPriority] = useState<CompanyPriority>(3);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const savingRef = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    props.onSave({
-      name,
-      priority,
-      selection: {
-        title: '本選考',
-        step: '書類選考',
-        status: 'not_started',
-      },
-    });
-    props.onClose();
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setIsSaving(true);
+    setError('');
+    try {
+      await props.onSave({ name, priority });
+      props.onClose();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : '企業を追加できませんでした。',
+      );
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
   }
 
   const fieldClassName =
@@ -41,7 +49,7 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
     })),
     ...secondaryPriorities.map((item) => ({
       value: item,
-      label: item === 0 ? '未分類' : 'アーカイブ',
+      label: item === 6 ? '未分類' : 'アーカイブ',
     })),
   ];
 
@@ -51,13 +59,20 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
       subTitle="// COMPANY_EDITOR"
       onClose={props.onClose}
       onSubmit={submit}
+      submitText={isSaving ? '追加中…' : '追加する'}
     >
       <>
+        {error && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <label className="block text-xs text-[var(--muted)]">
           会社名
           <RequiredMark />
           <input
             required
+            maxLength={50}
             value={name}
             onChange={(event) => setName(event.target.value)}
             className={fieldClassName}

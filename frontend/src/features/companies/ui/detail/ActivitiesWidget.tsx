@@ -1,5 +1,8 @@
-import { useParams } from 'react-router-dom';
-import { useMockActivities } from '@/features/companies/model/companyMockStore';
+import type {
+  Activity,
+  CreateCompanyActivityRequest,
+  UpdateCompanyActivityRequest,
+} from '@/api/generated/models';
 import { Building2, MessageSquareText } from 'lucide-react';
 import {
   Fragment,
@@ -8,10 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  type ActivitySender,
-  type CompanyActivity,
-} from '@/features/companies/model/activity';
+import type { ActivitySender } from '@/features/companies/model/activity';
 import { ActivityComposer } from '@/features/companies/ui/detail/ActivityComposer';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { cn } from '@/lib/utils';
@@ -34,24 +34,32 @@ const timeFormatter = new Intl.DateTimeFormat('ja-JP', {
 });
 
 export function ActivitiesWidget({
-  readOnly = false,
-  targetCompanyId,
+  activities,
+  onSend,
+  onUpdate,
+  onDelete,
+  onLoadOlder,
+  hasMore,
+  isLoadingOlder,
 }: {
-  readOnly?: boolean;
-  targetCompanyId?: number;
+  activities: Activity[];
+  onSend: (request: CreateCompanyActivityRequest) => Promise<void>;
+  onUpdate: (id: number, patch: UpdateCompanyActivityRequest) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+  onLoadOlder: () => Promise<void>;
+  hasMore: boolean;
+  isLoadingOlder: boolean;
 }) {
-  const { companyId } = useParams();
-  const [activities, setActivities] = useMockActivities(
-    targetCompanyId ?? Number(companyId),
-  );
+  const [error, setError] = useState('');
+  const prependRef = useRef<{ height: number; top: number } | null>(null);
   const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: false });
   const [editing, setEditing] = useState<{
-    activity: CompanyActivity;
+    activity: Activity;
     field: ActivityEditField;
   }>();
-  const [deleting, setDeleting] = useState<CompanyActivity>();
+  const [deleting, setDeleting] = useState<Activity>();
   const orderedActivities = [...activities].sort(
-    (a, b) => Date.parse(a.sentAt) - Date.parse(b.sentAt),
+    (a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt),
   );
   const scrollToEndRef = useRef(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -72,7 +80,13 @@ export function ActivitiesWidget({
 
   useLayoutEffect(() => {
     const viewport = scrollRef.current;
-    if (viewport && scrollToEndRef.current)
+    if (viewport && prependRef.current) {
+      viewport.scrollTop =
+        prependRef.current.top +
+        viewport.scrollHeight -
+        prependRef.current.height;
+      prependRef.current = null;
+    } else if (viewport && scrollToEndRef.current)
       viewport.scrollTop = viewport.scrollHeight;
     scrollToEndRef.current = false;
     updateScrollEdges();
@@ -85,17 +99,23 @@ export function ActivitiesWidget({
     return () => observer.disconnect();
   }, [updateScrollEdges]);
 
-  function sendMessage(text: string, sender: ActivitySender) {
+  async function sendMessage(text: string, sender: ActivitySender) {
+    await onSend({ text, byUser: sender === 'user' });
     scrollToEndRef.current = true;
-    setActivities((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        sender,
-        text,
-        sentAt: new Date().toISOString(),
-      },
-    ]);
+  }
+  async function loadOlder() {
+    const viewport = scrollRef.current;
+    if (!viewport || !hasMore || isLoadingOlder) return;
+    prependRef.current = {
+      height: viewport.scrollHeight,
+      top: viewport.scrollTop,
+    };
+    try {
+      await onLoadOlder();
+    } catch {
+      prependRef.current = null;
+      setError('過去のやりとりを取得できませんでした。');
+    }
   }
 
   const content = (
@@ -108,27 +128,45 @@ export function ActivitiesWidget({
             aria-label="やりとり履歴"
             aria-live="polite"
             tabIndex={0}
-            onScroll={updateScrollEdges}
+            onScroll={() => {
+              updateScrollEdges();
+              if ((scrollRef.current?.scrollTop ?? 1) <= 1) void loadOlder();
+            }}
             className="h-full overflow-y-auto p-3 sm:p-4"
           >
             <div
               ref={contentRef}
               className="flex min-h-full flex-col justify-end gap-4"
             >
+              {error && (
+                <p role="alert" className="text-xs text-rose-500">
+                  {error}
+                </p>
+              )}
+              {hasMore && (
+                <button
+                  type="button"
+                  disabled={isLoadingOlder}
+                  className="cursor-pointer text-xs text-[var(--accent)]"
+                  onClick={() => void loadOlder()}
+                >
+                  {isLoadingOlder ? '読み込み中…' : '過去のやりとりを読み込む'}
+                </button>
+              )}
               {orderedActivities.map((activity, index) => {
-                const date = new Date(activity.sentAt);
+                const date = new Date(activity.occurredAt);
                 const previous = orderedActivities[index - 1];
                 const showDate =
                   !previous ||
                   dateFormatter.format(date) !==
-                    dateFormatter.format(new Date(previous.sentAt));
-                const fromCompany = activity.sender === 'company';
+                    dateFormatter.format(new Date(previous.occurredAt));
+                const fromCompany = !activity.byUser;
                 return (
                   <Fragment key={activity.id}>
                     {showDate && (
                       <div className="flex justify-center py-1">
                         <time
-                          dateTime={activity.sentAt}
+                          dateTime={activity.occurredAt}
                           className="rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-1 text-[10px] text-[var(--muted)]"
                         >
                           {dateFormatter.format(date)}
@@ -161,25 +199,23 @@ export function ActivitiesWidget({
                         <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                           {activity.text}
                         </p>
-                        {!readOnly && (
+                        {
                           <ActivityMessageMenu
-                            sender={activity.sender}
-                            onSenderChange={(sender) =>
-                              setActivities((current) =>
-                                current.map((item) =>
-                                  item.id === activity.id
-                                    ? { ...item, sender }
-                                    : item,
-                                ),
-                              )
-                            }
+                            sender={activity.byUser ? 'user' : 'company'}
+                            onSenderChange={(sender) => {
+                              void onUpdate(activity.id, {
+                                byUser: sender === 'user',
+                              }).catch(() =>
+                                setError('送信者を変更できませんでした。'),
+                              );
+                            }}
                             onEdit={(field) => setEditing({ activity, field })}
                             onDelete={() => setDeleting(activity)}
                           />
-                        )}
+                        }
                       </div>
                       <time
-                        dateTime={activity.sentAt}
+                        dateTime={activity.occurredAt}
                         className="shrink-0 pb-1 font-mono text-[9px] text-[var(--faint)]"
                       >
                         {timeFormatter.format(date)}
@@ -205,19 +241,13 @@ export function ActivitiesWidget({
             />
           )}
         </div>
-        {!readOnly && <ActivityComposer onSend={sendMessage} />}
+        <ActivityComposer onSend={sendMessage} />
       </div>
       {editing && (
         <ActivityEditDialog
           {...editing}
           onClose={() => setEditing(undefined)}
-          onSave={(updated) =>
-            setActivities((current) =>
-              current.map((activity) =>
-                activity.id === updated.id ? updated : activity,
-              ),
-            )
-          }
+          onSave={(patch) => onUpdate(editing.activity.id, patch)}
         />
       )}
       {deleting && (
@@ -225,22 +255,18 @@ export function ActivitiesWidget({
           title="メッセージを削除しますか？"
           text={`「${deleting.text}」を削除します。`}
           onClose={() => setDeleting(undefined)}
-          onConfirm={() => {
-            setActivities((current) =>
-              current.filter((activity) => activity.id !== deleting.id),
-            );
-            setDeleting(undefined);
+          onConfirm={async () => {
+            try {
+              await onDelete(deleting.id);
+              setDeleting(undefined);
+            } catch {
+              setError('メッセージを削除できませんでした。');
+            }
           }}
         />
       )}
     </>
   );
-  if (readOnly)
-    return (
-      <div className="flex h-[360px] max-h-[60vh] min-w-0 flex-col">
-        {content}
-      </div>
-    );
   return (
     <WidgetFrame
       title="やりとり履歴"

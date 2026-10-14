@@ -1,88 +1,81 @@
-import { SelectionManageDialog } from '@/features/companies/ui/detail/SelectionManageDialog';
-import { SelectionStepDialog } from '@/features/companies/ui/detail/SelectionStepDialog';
 import { ChevronDown, GitBranch } from 'lucide-react';
 import { useState } from 'react';
-import {
-  type SelectionStatus,
-  type Selection,
-} from '@/features/companies/model/selection';
+import type {
+  Selection,
+  SelectionStepResponse,
+  UpdateSelectionStepRequest,
+} from '@/api/generated/models';
+import type { CompanySelectionActions } from '@/features/companies/hooks/useCompanySelections';
+import { selectionStatusForApi } from '@/features/companies/lib/selectionStatusPresentation';
 import { SelectionStepItem } from '@/features/companies/ui/detail/SelectionStepItem';
 import { SelectionTrackDialog } from '@/features/companies/ui/detail/SelectionTrackDialog';
+import { SelectionManageDialog } from '@/features/companies/ui/detail/SelectionManageDialog';
+import { SelectionStepDialog } from '@/features/companies/ui/detail/SelectionStepDialog';
+import { SelectionProgressMenu } from '@/features/companies/ui/detail/SelectionProgressMenu';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { AddButton } from '@/shared/button';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog, EditDialog } from '@/shared/dialog';
-import { SelectionProgressMenu } from '@/features/companies/ui/detail/SelectionProgressMenu';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
-type SelectionWidgetProps = {
-  onRemove: () => void;
-  tracks: Selection[];
-  saveTrack: (track: Selection) => void;
-  removeTrack: (id: number) => void;
-  setActive: (id: number) => void;
-  updateStepResult: (
-    trackId: number,
-    stepId: number,
-    result: SelectionStatus,
-  ) => void;
-};
-
 export function SelectionWidget({
-  onRemove,
   tracks,
-  saveTrack,
-  removeTrack,
-  setActive,
-  updateStepResult,
-}: SelectionWidgetProps) {
-  const [editingTrackId, setEditingTrackId] = useState<number>();
-  const editingTrack = tracks.find((track) => track.id === editingTrackId);
+  activeSelectionId,
+  actions,
+  onRemove,
+}: {
+  tracks: Selection[];
+  activeSelectionId?: number | null;
+  actions: CompanySelectionActions;
+  onRemove: () => void;
+}) {
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingId, setEditingId] = useState<number>();
+  const editingTrack = tracks.find((track) => track.id === editingId);
   const [editingStep, setEditingStep] = useState<{
     trackId: number;
-    stepId: number;
+    step: SelectionStepResponse;
   }>();
   const [deletingStep, setDeletingStep] = useState<{
     trackId: number;
-    stepId: number;
+    step: SelectionStepResponse;
   }>();
-  const stepTrack = tracks.find((track) => track.id === editingStep?.trackId);
-  const selectedStep = stepTrack?.steps.find(
-    (step) => step.id === editingStep?.stepId,
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [pendingTrack, setPendingTrack] = useState<Selection>();
+  const [deletingTrack, setDeletingTrack] = useState<Selection>();
   const [pendingActive, setPendingActive] = useState<Selection>();
-  const [expandedIds, setExpandedIds] = useState(() =>
-    tracks.filter((track) => track.isActive).map((track) => track.id),
+  const [error, setError] = useState('');
+  const [expandedIds, setExpandedIds] = useState<number[]>(
+    activeSelectionId == null ? [] : [activeSelectionId],
   );
-  const activeTrack = tracks.find((track) => track.isActive);
-
-  function openEditDialog(track: Selection) {
-    setEditingTrackId(track.id);
+  async function run(operation: () => Promise<void>) {
+    setError('');
+    try {
+      await operation();
+    } catch {
+      setError('選考情報を保存できませんでした。');
+    }
   }
-
-  const addButton = (
-    <AddButton
-      text="選考を追加"
-      size="s"
-      onClick={() => {
-        setIsDialogOpen(true);
-      }}
-    />
-  );
-
   return (
     <>
       <WidgetFrame
         title="選考状況"
         code="SELECTION_PROCESS"
         icon={GitBranch}
-        action={addButton}
         onRemove={onRemove}
+        action={
+          <AddButton
+            text="選考を追加"
+            size="s"
+            onClick={() => setIsCreating(true)}
+          />
+        }
       >
+        {error && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <div className="space-y-3">
-          {tracks.length === 0 && (
+          {!tracks.length && (
             <WidgetEmptyState text="選考を追加して、選考状況を記録しましょう" />
           )}
           {tracks.map((track) => (
@@ -96,122 +89,138 @@ export function SelectionWidget({
                     ? current.includes(track.id)
                       ? current
                       : [...current, track.id]
-                    : current.includes(track.id)
-                      ? current.filter((id) => id !== track.id)
-                      : current,
+                    : current.filter((id) => id !== track.id),
                 );
               }}
-              className="group border border-[var(--line)] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] transition-[border-color,box-shadow] open:border-[var(--line-strong)] hover:border-[var(--accent)] hover:shadow-[0_5px_16px_var(--shadow)]"
+              className="group border border-[var(--line)] bg-[var(--panel-raised)] shadow-[0_3px_12px_var(--shadow)] open:border-[var(--line-strong)] hover:border-[var(--accent)]"
             >
               <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-3.5 py-2.5 [&::-webkit-details-marker]:hidden">
                 <SelectionProgressMenu
                   title={track.title}
-                  isActive={track.isActive}
+                  isActive={track.id === activeSelectionId}
                   onChange={() => {
-                    if (!track.isActive && activeTrack) setPendingActive(track);
-                    else setActive(track.id);
+                    if (
+                      track.id !== activeSelectionId &&
+                      activeSelectionId != null
+                    )
+                      setPendingActive(track);
+                    else
+                      void run(() =>
+                        actions.setActive(
+                          track.id,
+                          track.id !== activeSelectionId,
+                        ),
+                      );
                   }}
                 />
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-[15px] font-black text-[var(--text-strong)]">
                     {track.title}
                   </h3>
-                  {track.isActive && (
+                  {track.id === activeSelectionId && (
                     <p className="mt-0.5 font-mono text-[9px] font-semibold tracking-widest text-[var(--accent)]">
                       IN PROGRESS
                     </p>
                   )}
                 </div>
-
-                <span className="ml-auto shrink-0 font-mono text-xs font-semibold tracking-[0.08em] text-[var(--muted)]">
+                <span className="ml-auto shrink-0 font-mono text-xs text-[var(--muted)]">
                   {track.steps.length} STEPS
                 </span>
                 <EditDeleteMenu
                   label={track.title}
-                  onEdit={() => openEditDialog(track)}
-                  onDelete={() => setPendingTrack(track)}
+                  onEdit={() => setEditingId(track.id)}
+                  onDelete={() => setDeletingTrack(track)}
                 />
-                <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
+                <ChevronDown className="size-4 text-[var(--faint)] transition-transform group-open:rotate-180" />
               </summary>
-
               <div className="border-t border-[var(--line)] bg-[var(--panel)] px-3 py-4">
                 <div className="relative ml-3 space-y-2 border-l-2 border-[var(--accent-soft)] pl-5">
-                  {[...track.steps]
-                    .sort((left, right) => left.stepNo - right.stepNo)
-                    .map((step, stepIndex) => (
-                      <SelectionStepItem
-                        key={step.id}
-                        trackName={track.title}
-                        step={step}
-                        index={stepIndex}
-                        isCurrent={track.currentStep === step.id}
-                        onEdit={() =>
-                          setEditingStep({ trackId: track.id, stepId: step.id })
-                        }
-                        onDelete={() =>
-                          setDeletingStep({
-                            trackId: track.id,
-                            stepId: step.id,
-                          })
-                        }
-                        onResultChange={(result) => {
-                          updateStepResult(track.id, step.id, result);
-                        }}
-                      />
-                    ))}
+                  {track.steps.map((step, index) => (
+                    <SelectionStepItem
+                      key={step.id}
+                      trackName={track.title}
+                      step={step}
+                      index={index}
+                      isCurrent={track.currentStepId === step.id}
+                      onEdit={() => setEditingStep({ trackId: track.id, step })}
+                      onDelete={() =>
+                        setDeletingStep({ trackId: track.id, step })
+                      }
+                      onResultChange={(result) => {
+                        void run(() =>
+                          actions.updateStatus(
+                            track.id,
+                            step.id,
+                            selectionStatusForApi[result],
+                          ),
+                        );
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             </details>
           ))}
         </div>
       </WidgetFrame>
-
-      {isDialogOpen && (
+      {isCreating && (
         <SelectionTrackDialog
-          onClose={() => setIsDialogOpen(false)}
-          onSave={saveTrack}
+          onClose={() => setIsCreating(false)}
+          onSave={actions.create}
         />
       )}
-
       {editingTrack && (
         <SelectionManageDialog
           track={editingTrack}
-          onSave={saveTrack}
-          onClose={() => setEditingTrackId(undefined)}
+          actions={actions}
+          onClose={() => setEditingId(undefined)}
         />
       )}
-      {selectedStep && stepTrack && (
+      {editingStep && (
         <SelectionStepDialog
-          step={selectedStep}
+          step={editingStep.step}
           onClose={() => setEditingStep(undefined)}
-          onSave={(updated) =>
-            saveTrack({
-              ...stepTrack,
-              steps: stepTrack.steps.map((step) =>
-                step.id === updated.id ? updated : step,
-              ),
-            })
-          }
+          onSave={async (request) => {
+            const patch: UpdateSelectionStepRequest = {};
+            if (request.name !== editingStep.step.name)
+              patch.name = request.name;
+            if (request.note !== editingStep.step.note)
+              patch.note = request.note;
+            if (Object.keys(patch).length)
+              await actions.updateStep(
+                editingStep.trackId,
+                editingStep.step.id,
+                patch,
+              );
+          }}
         />
       )}
       {deletingStep && (
         <DeleteDialog
           title="選考ステップを削除しますか？"
-          text="この選考ステップとメモを削除します。この操作は取り消せません。"
+          text="この選考ステップとメモを削除します。"
           onClose={() => setDeletingStep(undefined)}
           onConfirm={() => {
-            const track = tracks.find(
-              (item) => item.id === deletingStep.trackId,
-            );
-            if (track)
-              saveTrack({
-                ...track,
-                steps: [...track.steps]
-                  .sort((a, b) => a.stepNo - b.stepNo)
-                  .filter((step) => step.id !== deletingStep.stepId)
-                  .map((step, index) => ({ ...step, stepNo: index + 1 })),
-              });
-            setDeletingStep(undefined);
+            void run(async () => {
+              await actions.removeStep(
+                deletingStep.trackId,
+                deletingStep.step.id,
+              );
+              setDeletingStep(undefined);
+            });
+          }}
+        />
+      )}
+      {deletingTrack && (
+        <DeleteDialog
+          title="選考を削除しますか？"
+          text={`「${deletingTrack.title}」と含まれる選考ステップを削除します。`}
+          onClose={() => setDeletingTrack(undefined)}
+          onConfirm={() => {
+            void run(async () => {
+              await actions.remove(deletingTrack.id);
+              setDeletingTrack(undefined);
+            });
           }}
         />
       )}
@@ -222,27 +231,16 @@ export function SelectionWidget({
           onClose={() => setPendingActive(undefined)}
           onSubmit={(event) => {
             event.preventDefault();
-            setActive(pendingActive.id);
-            setPendingActive(undefined);
+            void run(async () => {
+              await actions.setActive(pendingActive.id, true);
+              setPendingActive(undefined);
+            });
           }}
         >
-          <p className="text-sm leading-6 text-[var(--text)]">
-            進行中の選考を「{activeTrack?.title}」から「{pendingActive.title}
-            」に変更します。「{activeTrack?.title}」は進行中の選考から外れます。
+          <p className="text-sm text-[var(--text)]">
+            進行中の選考を「{pendingActive.title}」に変更します。
           </p>
         </EditDialog>
-      )}
-
-      {pendingTrack && (
-        <DeleteDialog
-          title="選考を削除しますか？"
-          text={`「${pendingTrack.title}」と含まれる選考ステップを削除します。この操作は取り消せません。`}
-          onClose={() => setPendingTrack(undefined)}
-          onConfirm={() => {
-            removeTrack(pendingTrack.id);
-            setPendingTrack(undefined);
-          }}
-        />
       )}
     </>
   );

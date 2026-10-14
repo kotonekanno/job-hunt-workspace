@@ -32,8 +32,8 @@ const priorityTextStyles: Record<CompanyPriority, string> = {
   3: 'text-[var(--text-strong)]',
   4: 'text-[var(--muted)]',
   5: 'text-[var(--faint)]',
-  6: 'text-[var(--faint)] opacity-75',
-  0: 'text-[var(--muted)]',
+  7: 'text-[var(--faint)] opacity-75',
+  6: 'text-[var(--muted)]',
 };
 
 function getPriorityItemId(priority: CompanyPriority) {
@@ -49,7 +49,9 @@ function getPriorityFromItemId(itemId: string): CompanyPriority | undefined {
     return undefined;
   }
 
-  return Number(itemId.replace('priority-', '')) as CompanyPriority;
+  return initialPriorityOrder.find(
+    (priority) => getPriorityItemId(priority) === itemId,
+  );
 }
 
 function getCompanyIdFromItemId(itemId: string): number | undefined {
@@ -125,9 +127,9 @@ export function CompanyPriorityBoard({
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
-          const laneCompanies = companies
-            .filter((company) => company.priority === priority)
-            .sort((left, right) => left.position - right.position);
+          const laneCompanies = companies.filter(
+            (company) => company.priority === priority,
+          );
 
           return [
             <Reorder.Item
@@ -143,7 +145,7 @@ export function CompanyPriorityBoard({
                   mass: 0.75,
                 },
               }}
-              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 0 ? 'pt-6' : ''}`}
+              className={`w-full list-none pt-3 first:pt-0 ${priority === 7 || priority === 7 ? 'pt-6' : ''}`}
             >
               <div
                 className={`
@@ -155,7 +157,7 @@ export function CompanyPriorityBoard({
               >
                 <div className="flex min-w-0 items-baseline gap-3">
                   <p className="shrink-0 font-mono text-[7px] tracking-[0.16em] opacity-60">
-                    {priority === 6 ? (
+                    {priority === 7 ? (
                       <Archive aria-label="アーカイブ" className="size-4" />
                     ) : (
                       'PRIORITY'

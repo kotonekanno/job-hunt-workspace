@@ -1,22 +1,29 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { Task } from '@/features/task/model/task';
+import type { Task as ApiTask } from '@/api/generated/models';
 import { CompanyBadge } from '@/shared/badge';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
 import { MemoPanel } from '@/shared/MemoPanel';
 
-type TaskRowProps = {
-  task: Task;
+type TaskRowProps<T extends Task | ApiTask> = {
+  task: T;
   showCompany?: boolean;
   showActions?: boolean;
   onToggle: (id: number) => void;
-  onEdit?: (task: Task) => void;
+  onEdit?: (task: T) => void;
   onDelete?: (id: number) => void;
 };
 
-export function TaskRow(props: TaskRowProps) {
+export function TaskRow<T extends Task | ApiTask>(props: TaskRowProps<T>) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const companyName =
+    'companyName' in props.task
+      ? props.task.companyName
+      : 'company' in props.task
+        ? props.task.company
+        : undefined;
   const showCompany = props.showCompany ?? true;
   const showActions = props.showActions ?? true;
   const gridTemplateColumns = [
@@ -55,8 +62,8 @@ export function TaskRow(props: TaskRowProps) {
           />
 
           {showCompany &&
-            (props.task.company ? (
-              <CompanyBadge company={props.task.company} />
+            (companyName ? (
+              <CompanyBadge company={companyName} />
             ) : (
               <span aria-hidden="true" />
             ))}

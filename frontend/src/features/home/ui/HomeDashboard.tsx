@@ -2,7 +2,7 @@ import { Building2, CalendarDays, FilePenLine, ListTodo } from 'lucide-react';
 import { calendarEvents } from '@/features/calendar/model/calendar';
 import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
-import { initialCompanyList } from '@/features/companies/model/companyList';
+import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
 import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
 import { initialEssays } from '@/features/essay/model/essay';
 import { DashboardCard } from '@/features/home/ui/DashboardCard';
@@ -21,21 +21,17 @@ const upcomingEvents = calendarEvents
   )
   .slice(0, 3);
 
-const activeCompanies = initialCompanyList.filter(
-  (company) => company.priority !== 6,
-);
-
-const summaryItems = [
+const summaryItems = (activeCompanyCount: number) => [
   {
     label: '管理中の企業',
-    value: activeCompanies.length,
+    value: activeCompanyCount,
     unit: '社',
     icon: Building2,
     to: '/companies',
   },
   {
     label: '未完了タスク',
-    value: initialTasks.filter((task) => !task.completed).length,
+    value: initialTasks.filter((task) => !task.done).length,
     unit: '件',
     icon: ListTodo,
     to: '/tasks',
@@ -57,17 +53,24 @@ const summaryItems = [
 ];
 
 export function HomeDashboard() {
+  const companyList = useCompanyList();
   const taskArchive = useTasks();
   const pendingTasks = taskArchive.tasks
-    .filter((task) => !task.completed)
+    .filter((task) => !task.done)
     .sort((first, second) =>
-      (first.dueDate ?? '\uffff').localeCompare(second.dueDate ?? '\uffff'),
+      (first.deadline ?? '\uffff').localeCompare(second.deadline ?? '\uffff'),
     )
     .slice(0, 4);
 
   return (
     <div className="space-y-5">
-      <HomeOverviewHeader date={today} items={summaryItems} />
+      <HomeOverviewHeader
+        date={today}
+        items={summaryItems(
+          companyList.allCompanies.filter((company) => company.priority !== 7)
+            .length,
+        )}
+      />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <DashboardCard
@@ -90,7 +93,7 @@ export function HomeDashboard() {
           linkText="企業一覧"
         >
           <div className="grid gap-2">
-            {initialCompanyList
+            {companyList.companies
               .filter((company) => company.priority === 1)
               .map((company) => (
                 <CompanyListCard key={company.id} company={company} />

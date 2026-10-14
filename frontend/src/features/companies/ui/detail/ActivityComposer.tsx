@@ -5,10 +5,12 @@ import { useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import type { ActivitySender } from '@/features/companies/model/activity';
 
 type ActivityComposerProps = {
-  onSend: (text: string, sender: ActivitySender) => void;
+  onSend: (text: string, sender: ActivitySender) => Promise<void>;
 };
 
 export function ActivityComposer({ onSend }: ActivityComposerProps) {
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
   const [sender, setSender] = useState<ActivitySender>('user');
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -34,12 +36,20 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
     return () => observer.disconnect();
   }, [draft]);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!draft.trim()) return;
-    onSend(draft.trim(), sender);
-    setDraft('');
-    inputRef.current?.focus();
+    if (isSending || !draft.trim()) return;
+    setIsSending(true);
+    setError('');
+    try {
+      await onSend(draft.trim(), sender);
+      setDraft('');
+      inputRef.current?.focus();
+    } catch {
+      setError('送信できませんでした。入力内容を確認して再送してください。');
+    } finally {
+      setIsSending(false);
+    }
   }
 
   return (
@@ -47,11 +57,18 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
       onSubmit={submit}
       className="flex shrink-0 items-end gap-2 border-t border-[var(--line)] bg-[var(--panel)] p-3"
     >
+      {error && (
+        <span role="alert" className="text-xs text-rose-500">
+          {error}
+        </span>
+      )}
       <textarea
         ref={inputRef}
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         rows={1}
+        maxLength={500}
+        disabled={isSending}
         aria-label="やりとり内容"
         placeholder="やりとりを入力…"
         className="max-h-40 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-[9px] text-xs leading-5 text-[var(--text)] placeholder:text-[var(--faint)] focus:border-[var(--accent)]"
@@ -89,7 +106,7 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
       </DropdownMenu.Root>
       <button
         type="submit"
-        disabled={!draft.trim()}
+        disabled={isSending || !draft.trim()}
         aria-label="送信"
         className="ui-control flex size-10 shrink-0 cursor-pointer items-center justify-center bg-[var(--accent)] text-[var(--accent-contrast)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
       >

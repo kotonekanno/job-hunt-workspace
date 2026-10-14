@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
-import { companyProfile } from '@/features/companies/model/companyDetail';
+import type { CompanyPriority } from '@/api/generated/models';
 import type {
   CurrentSelection,
   SelectionStatus,
@@ -10,15 +10,23 @@ import { PriorityBadge } from '../priority-badge';
 import { SelectionStepBadge } from '../selection-step-badge';
 
 export function CompanyHeader({
-  name = companyProfile.name,
+  name,
+  priority,
+  onNameChange,
+  onPriorityChange,
   selection,
   onResultChange,
 }: {
-  name?: string;
+  name: string;
+  priority: CompanyPriority | null;
+  onNameChange: (name: string) => Promise<void>;
+  onPriorityChange: (priority: CompanyPriority) => Promise<void>;
   selection?: CurrentSelection;
   onResultChange: (result: SelectionStatus) => void;
 }) {
-  const [companyName, setCompanyName] = useState(name);
+  const companyName = name;
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const [draftName, setDraftName] = useState(name);
   const [isEditingName, setIsEditingName] = useState(false);
   function startEditingName() {
@@ -26,16 +34,25 @@ export function CompanyHeader({
     setIsEditingName(true);
   }
 
-  function saveCompanyName(event: FormEvent<HTMLFormElement>) {
+  async function saveCompanyName(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextName = draftName.trim();
 
     if (!nextName) return;
 
-    setCompanyName(nextName);
-    setDraftName(nextName);
-    setIsEditingName(false);
+    if (isSaving) return;
+    setIsSaving(true);
+    setError('');
+    try {
+      if (nextName !== name) await onNameChange(nextName);
+      setDraftName(nextName);
+      setIsEditingName(false);
+    } catch {
+      setError('企業名を保存できませんでした。');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function cancelEditingName() {
@@ -52,7 +69,21 @@ export function CompanyHeader({
 
   return (
     <header className="ui-panel cyber-cut flex flex-wrap items-center gap-4 border border-[var(--line)] p-5 sm:p-6">
-      <PriorityBadge priority={2} size="m" />
+      <PriorityBadge
+        priority={priority}
+        size="m"
+        onChange={(next) => {
+          if (next !== null && next !== priority)
+            void onPriorityChange(next).catch(() =>
+              setError('志望度を保存できませんでした。'),
+            );
+        }}
+      />
+      {error && (
+        <p role="alert" className="text-xs text-rose-500">
+          {error}
+        </p>
+      )}
 
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {isEditingName ? (
@@ -62,6 +93,7 @@ export function CompanyHeader({
           >
             <input
               autoFocus
+              maxLength={50}
               value={draftName}
               onChange={(event) => setDraftName(event.target.value)}
               onKeyDown={handleNameKeyDown}
@@ -70,7 +102,7 @@ export function CompanyHeader({
             />
 
             <InlineEditActions
-              disabled={!draftName.trim()}
+              disabled={isSaving || !draftName.trim()}
               saveLabel="企業名を保存"
               cancelLabel="企業名の編集をキャンセル"
               onCancel={cancelEditingName}

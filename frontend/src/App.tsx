@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { initializeSession } from '@/features/auth/api/session';
+import { RequireAuth } from '@/features/auth/ui/RequireAuth';
 import { Route, Routes } from 'react-router-dom';
 import { MainLayout } from './app/layouts/MainLayout';
 import { ProtectedLayout } from './app/layouts/ProtectedLayout';
@@ -18,6 +21,9 @@ import { DocumentsPage } from './pages/documents/DocumentsPage';
 import { DocumentDetailPage } from './pages/documents/DocumentDetailPage';
 
 function App() {
+  useEffect(() => {
+    void initializeSession();
+  }, []);
   return (
     <DocumentArchiveProvider>
       <EssayArchiveProvider>
@@ -26,7 +32,13 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            <Route element={<ProtectedLayout />}>
+            <Route
+              element={
+                <RequireAuth>
+                  <ProtectedLayout />
+                </RequireAuth>
+              }
+            >
               <Route path="/home" element={<HomePage />} />
               <Route path="/companies" element={<CompanyListPage />} />
               <Route

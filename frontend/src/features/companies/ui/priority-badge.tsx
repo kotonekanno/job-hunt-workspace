@@ -2,7 +2,7 @@ import { Archive, Check, CircleOff } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Size } from '@/shared/shared-type';
-import type { CompanyPriority } from '../model/companyList';
+import type { CompanyPriority } from '@/api/generated/models';
 
 type PriorityBadgeProps = {
   priority: number | null;
@@ -11,12 +11,13 @@ type PriorityBadgeProps = {
 };
 
 const priorityTexts = [
-  '未分類',
+  '',
   '第１志望',
   '第２志望',
   '第３志望',
   '第４志望',
   '第５志望',
+  '未分類',
   'アーカイブ',
 ] as const;
 
@@ -43,32 +44,32 @@ const priorityOptions = [
   },
   {
     label: '未分類',
-    value: 0,
+    value: 6,
   },
   {
     label: 'アーカイブ',
-    value: 6,
+    value: 7,
   },
 ] as const;
 
 const colorStyle: Record<CompanyPriority, string> = {
-  0: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
+  6: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
   1: 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)]',
   2: 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]',
   3: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
   4: 'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]',
   5: 'border-[var(--line)] bg-transparent text-[var(--faint)]',
-  6: 'border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75',
+  7: 'border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75',
 };
 
 const hoverColorStyle: Record<CompanyPriority, string> = {
-  0: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  6: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
   1: 'hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
   2: 'hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]',
   3: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
   4: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
   5: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
-  6: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] hover:opacity-100',
+  7: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] hover:opacity-100',
 };
 
 export function PriorityBadge({
@@ -86,9 +87,9 @@ export function PriorityBadge({
   });
 
   const normalizedPriority: CompanyPriority =
-    priority === null ? 0 : (priority as CompanyPriority);
+    priority !== null && priority >= 1 && priority <= 7 ? priority : 6;
 
-  const text = priorityTexts[normalizedPriority];
+  const text = priority === null ? '—' : priorityTexts[normalizedPriority];
   const badgeStyle = colorStyle[normalizedPriority];
   const badgeHoverStyle = hoverColorStyle[normalizedPriority];
   const sizeStyle =
@@ -164,6 +165,7 @@ export function PriorityBadge({
     <div ref={containerRef} className="relative inline-flex shrink-0">
       <button
         type="button"
+        disabled={priority === null}
         onClick={() => setIsOpen((current) => !current)}
         className={`flex cursor-pointer items-center justify-center border font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${badgeStyle} ${badgeHoverStyle} ${sizeStyle}`}
         aria-haspopup="listbox"
@@ -192,8 +194,8 @@ export function PriorityBadge({
             <div className="mt-1 space-y-0.5">
               {priorityOptions.map((option) => {
                 const isSelected = priority === option.value;
-                const isArchive = option.value === 6;
-                const isUnassigned = option.value === 0;
+                const isArchive = option.value === 7;
+                const isUnassigned = option.value === 6;
 
                 const OptionIcon = isArchive
                   ? Archive

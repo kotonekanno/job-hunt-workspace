@@ -6,8 +6,10 @@ import {
   Mail,
   ShieldCheck,
 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useRef, useState, type FormEvent } from 'react';
+import type { AuthRequest } from '@/api/generated/models';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 type AuthMode = 'login' | 'register';
 
@@ -38,15 +40,52 @@ const content = {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const auth = useAuth();
+  const saving = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const requestedPath = searchParams.get('returnTo');
+  const returnTo =
+    requestedPath?.startsWith('/') &&
+    !requestedPath.startsWith('//') &&
+    !requestedPath.includes('\\') &&
+    !/^\/(login|register)(?:[/?#]|$)/.test(requestedPath)
+      ? requestedPath
+      : '/home';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const pageContent = content[mode];
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/home');
+    if (saving.current || auth.status === 'loading') return;
+    saving.current = true;
+    setIsSubmitting(true);
+    setError('');
+    const request: AuthRequest = { email: email.trim(), password };
+    try {
+      if (mode === 'login') {
+        await auth.signIn(request);
+        navigate(returnTo, { replace: true });
+      } else {
+        await auth.signUp(request);
+        navigate('/login?registered=1', { replace: true });
+      }
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : '処理に失敗しました。もう一度お試しください。',
+      );
+    } finally {
+      saving.current = false;
+      setIsSubmitting(false);
+    }
   };
+  if (auth.status === 'authenticated')
+    return <Navigate to={returnTo} replace />;
 
   return (
     <div className="ui-panel ui-panel-accentless mx-auto grid w-full max-w-5xl overflow-hidden border border-[var(--line-strong)] md:grid-cols-[0.82fr_1.18fr]">
@@ -92,6 +131,21 @@ export function AuthForm({ mode }: AuthFormProps) {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            {error && (
+              <p role="alert" className="text-sm text-rose-500">
+                {error}
+              </p>
+            )}
+            {mode === 'login' && searchParams.get('registered') === '1' && (
+              <p role="status" className="text-sm text-[var(--accent)]">
+                登録が完了しました。ログインしてください。
+              </p>
+            )}
+            {auth.status === 'loading' && (
+              <p role="status" className="text-xs text-[var(--muted)]">
+                認証状態を確認中…
+              </p>
+            )}
             <label className="block">
               <span className="text-xs font-bold text-[var(--text-strong)]">
                 メールアドレス
@@ -119,13 +173,12 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  minLength={8}
                   autoComplete={
                     mode === 'login' ? 'current-password' : 'new-password'
                   }
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="8文字以上"
+                  placeholder="パスワード"
                   className="ui-field h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-11 pl-10 text-sm text-[var(--text)] outline-none placeholder:text-[var(--faint)]"
                 />
                 <button
@@ -143,16 +196,14 @@ export function AuthForm({ mode }: AuthFormProps) {
                   )}
                 </button>
               </span>
-              <span className="mt-1.5 block text-[9px] text-[var(--faint)]">
-                8文字以上で入力してください
-              </span>
             </label>
 
             <button
               type="submit"
+              disabled={isSubmitting || auth.status === 'loading'}
               className="ui-control cyber-cut-sm flex h-11 w-full cursor-pointer items-center justify-center gap-2 border border-[var(--accent)] bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)] shadow-[0_4px_16px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
             >
-              {pageContent.submitText}
+              {isSubmitting ? '処理中…' : pageContent.submitText}
               <ArrowRight className="size-3.5" />
             </button>
           </form>

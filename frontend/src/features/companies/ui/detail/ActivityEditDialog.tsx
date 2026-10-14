@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { CompanyActivity } from '@/features/companies/model/activity';
+import type {
+  Activity,
+  UpdateCompanyActivityRequest,
+} from '@/api/generated/models';
 import type { ActivityEditField } from '@/features/companies/ui/detail/ActivityMessageMenu';
 import { EditDialog } from '@/shared/dialog';
 
@@ -11,14 +14,16 @@ export function ActivityEditDialog({
   onSave,
   onClose,
 }: {
-  activity: CompanyActivity;
+  activity: Activity;
   field: ActivityEditField;
-  onSave: (activity: CompanyActivity) => void;
+  onSave: (patch: UpdateCompanyActivityRequest) => Promise<void>;
   onClose: () => void;
 }) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const [text, setText] = useState(activity.text);
   const [sentAt] = useState(() => {
-    const date = new Date(activity.sentAt);
+    const date = new Date(activity.occurredAt);
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
@@ -30,44 +35,60 @@ export function ActivityEditDialog({
       title={`${labels[field]}を編集`}
       submitText="保存する"
       onClose={onClose}
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        if (field === 'text' && !text.trim()) return;
+        if (isSaving || (field === 'text' && !text.trim())) return;
         const patch =
           field === 'text'
             ? { text: text.trim() }
             : {
-                sentAt: new Date(
+                occurredAt: new Date(
                   String(new FormData(event.currentTarget).get('sentAt')),
                 ).toISOString(),
               };
-        onSave({ ...activity, ...patch });
-        onClose();
+        setIsSaving(true);
+        setError('');
+        try {
+          await onSave(patch);
+          onClose();
+        } catch {
+          setError('メッセージを保存できませんでした。');
+        } finally {
+          setIsSaving(false);
+        }
       }}
     >
-      <label className="block text-xs text-[var(--muted)]">
-        {labels[field]}
-        {field === 'text' && (
-          <textarea
-            autoFocus
-            required
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            rows={4}
-            className={inputStyle}
-          />
+      <>
+        {error && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error}
+          </p>
         )}
-        {field === 'sentAt' && (
-          <input
-            autoFocus
-            required
-            type="datetime-local"
-            name="sentAt"
-            defaultValue={sentAt}
-            className={inputStyle}
-          />
-        )}
-      </label>
+        <label className="block text-xs text-[var(--muted)]">
+          {labels[field]}
+          {field === 'text' && (
+            <textarea
+              autoFocus
+              required
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              rows={4}
+              maxLength={500}
+              className={inputStyle}
+            />
+          )}
+          {field === 'sentAt' && (
+            <input
+              autoFocus
+              required
+              type="datetime-local"
+              name="sentAt"
+              defaultValue={sentAt}
+              className={inputStyle}
+            />
+          )}
+        </label>
+      </>
     </EditDialog>
   );
 }

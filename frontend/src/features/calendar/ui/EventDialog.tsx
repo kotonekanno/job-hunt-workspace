@@ -13,7 +13,7 @@ import {
   type CalendarEvent,
   type EventCategory,
 } from '@/features/calendar/model/calendar';
-import { companyNameOptions } from '@/features/companies/model/companyList';
+import { companyNameOptions } from '@/features/companies/model/companyMockData';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';

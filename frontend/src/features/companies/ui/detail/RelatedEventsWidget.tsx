@@ -1,13 +1,9 @@
 import { CalendarDays, History } from 'lucide-react';
 import { useState } from 'react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
-import { getEventSortKey } from '@/features/calendar/lib/eventTime';
+import type { Event, EventCategory } from '@/api/generated/models';
 import { EventDialog } from '@/features/calendar/ui/EventDialog';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
-import {
-  companyProfile,
-  relatedEvents,
-} from '@/features/companies/model/companyDetail';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { AddButton } from '@/shared/button';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
@@ -21,37 +17,91 @@ function getTodayKey() {
   return `${year}-${month}-${date}`;
 }
 
-export function RelatedEventsWidget() {
-  const [events, setEvents] = useState<CalendarEvent[]>(relatedEvents);
+export function RelatedEventsWidget({
+  events: initialEvents,
+  companyName,
+}: {
+  events: Event[];
+  companyName: string;
+}) {
+  const [events, setEvents] = useState<Event[]>(initialEvents);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | undefined>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const todayKey = getTodayKey();
   const visibleEvents = [...events]
-    .filter((event) => showPastEvents || event.startDate >= todayKey)
+    .filter(
+      (event) =>
+        showPastEvents ||
+        (event.startDay ?? event.startTime?.slice(0, 10) ?? '') >= todayKey,
+    )
     .sort((left, right) =>
-      getEventSortKey(left).localeCompare(getEventSortKey(right)),
+      (left.startDay ?? left.startTime ?? '').localeCompare(
+        right.startDay ?? right.startTime ?? '',
+      ),
     );
 
-  function saveEvent(event: Omit<CalendarEvent, 'id'>, id?: number) {
-    if (id !== undefined) {
-      setEvents((current) =>
-        current.map((item) => (item.id === id ? { ...event, id } : item)),
-      );
-      return;
-    }
-
-    setEvents((current) => [
-      ...current,
-      {
-        ...event,
-        id: Math.max(0, ...current.map((item) => item.id)) + 1,
-      },
-    ]);
+  const categoryForApi: Record<CalendarEvent['category'], EventCategory> = {
+    session: 'SESSION',
+    interview: 'INTERVIEW',
+    chat: 'CHAT',
+    internship: 'INTERNSHIP',
+    other: 'OTHER',
+  };
+  const categoryForForm: Record<EventCategory, CalendarEvent['category']> = {
+    SESSION: 'session',
+    INTERVIEW: 'interview',
+    CHAT: 'chat',
+    INTERNSHIP: 'internship',
+    OTHER: 'other',
+  };
+  function saveEvent(form: Omit<CalendarEvent, 'id'>, id?: number) {
+    const event: Event = {
+      id: id ?? Math.max(0, ...events.map((item) => item.id)) + 1,
+      companyName,
+      category: categoryForApi[form.category],
+      title: form.title,
+      note: form.note,
+      isAllDay: form.isAllDay,
+      isOnline: form.isOnline,
+      isAttending: form.isAttending,
+      startDay: form.isAllDay ? form.startDate : null,
+      endDay: form.isAllDay ? form.endDate : null,
+      startTime: form.isAllDay
+        ? null
+        : new Date(
+            `${form.startDate}T${form.startTime ?? '00:00'}`,
+          ).toISOString(),
+      endTime: form.isAllDay
+        ? null
+        : new Date(`${form.endDate}T${form.endTime ?? '00:00'}`).toISOString(),
+    };
+    setEvents((current) =>
+      id === undefined
+        ? [...current, event]
+        : current.map((item) => (item.id === id ? event : item)),
+    );
   }
-
-  function openEditDialog(event: CalendarEvent) {
-    setEditingEvent(event);
+  function openEditDialog(event: Event) {
+    const start = event.startTime ? new Date(event.startTime) : undefined;
+    const end = event.endTime ? new Date(event.endTime) : undefined;
+    const time = (date?: Date) =>
+      date?.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    // The dialog owns a date/time form; API data remains in its generated shape.
+    setEditingEvent({
+      id: event.id,
+      company: companyName,
+      category: categoryForForm[event.category],
+      title: event.title,
+      note: event.note,
+      isAllDay: event.isAllDay,
+      isOnline: event.isOnline,
+      isAttending: event.isAttending ?? undefined,
+      startDate: event.startDay ?? start?.toLocaleDateString('sv-SE') ?? '',
+      endDate: event.endDay ?? end?.toLocaleDateString('sv-SE') ?? '',
+      startTime: time(start),
+      endTime: time(end),
+    });
     setIsDialogOpen(true);
   }
 
@@ -114,7 +164,7 @@ export function RelatedEventsWidget() {
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}
-          defaultCompany={companyProfile.name}
+          defaultCompany={companyName}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveEvent}
         />
