@@ -9,6 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': { target: 'http://localhost:8080', changeOrigin: true },
+      '^/(tasks|essay-groups|documents)(/|$)': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        bypass: (request) => {
+          if (request.headers.accept?.includes('text/html'))
+            return '/index.html';
+        },
+      },
       '/companies': {
         target: 'http://localhost:8080',
         changeOrigin: true,

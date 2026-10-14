@@ -1,18 +1,17 @@
 import { motion } from 'motion/react';
 import type { Task } from '@/features/task/model/task';
-import type { Task as ApiTask } from '@/api/generated/models';
 import { TaskRow } from '@/features/task/ui/TaskRow';
 
-type TaskListProps<T extends Task | ApiTask> = {
+type TaskListProps<T extends Task> = {
   tasks: T[];
   showCompany?: boolean;
   showActions?: boolean;
   onToggle: (id: number) => void;
   onEdit?: (task: T) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number) => void | Promise<void>;
 };
 
-export function TaskList<T extends Task | ApiTask>(props: TaskListProps<T>) {
+export function TaskList<T extends Task>(props: TaskListProps<T>) {
   if (props.tasks.length === 0) {
     return null;
   }

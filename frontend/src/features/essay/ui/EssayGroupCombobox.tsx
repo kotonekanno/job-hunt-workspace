@@ -1,4 +1,4 @@
-import type { EssayGroup } from '@/features/essay/model/essay';
+import { essayGroupPath, type EssayGroup } from '@/features/essay/model/essay';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 
 type EssayGroupComboboxProps = {
@@ -14,7 +14,8 @@ export function EssayGroupCombobox({
   onValueChange,
   className = '',
 }: EssayGroupComboboxProps) {
-  const selectedName = groups.find((group) => group.id === value)?.name ?? '';
+  const selectedName =
+    groups.find((group) => essayGroupPath(group.id) === value)?.name ?? '';
   const groupNames = groups.map((group) => group.name);
 
   return (
@@ -24,7 +25,7 @@ export function EssayGroupCombobox({
       required
       onValueChange={(name) => {
         const group = groups.find((candidate) => candidate.name === name);
-        if (group) onValueChange(group.id);
+        if (group) onValueChange(essayGroupPath(group.id));
       }}
       placeholder="質問の性質を検索"
       invalidMessage="登録済みの質問の性質から選択してください。"

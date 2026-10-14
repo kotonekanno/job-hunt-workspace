@@ -4,12 +4,11 @@ import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
 import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
-import { initialEssays } from '@/features/essay/model/essay';
+import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
 import { DashboardCard } from '@/features/home/ui/DashboardCard';
 import { HomeOverviewHeader } from '@/features/home/ui/HomeOverviewHeader';
 import { HomeResourceLinks } from '@/features/home/ui/HomeResourceLinks';
 import { useTasks } from '@/features/task/hooks/useTasks';
-import { initialTasks } from '@/features/task/model/task';
 import { TaskList } from '@/features/task/ui/TaskList';
 
 const today = '2026-07-12';
@@ -21,7 +20,11 @@ const upcomingEvents = calendarEvents
   )
   .slice(0, 3);
 
-const summaryItems = (activeCompanyCount: number) => [
+const summaryItems = (
+  activeCompanyCount: number,
+  pendingTaskCount: number,
+  essayCount: number,
+) => [
   {
     label: '管理中の企業',
     value: activeCompanyCount,
@@ -31,7 +34,7 @@ const summaryItems = (activeCompanyCount: number) => [
   },
   {
     label: '未完了タスク',
-    value: initialTasks.filter((task) => !task.done).length,
+    value: pendingTaskCount,
     unit: '件',
     icon: ListTodo,
     to: '/tasks',
@@ -45,7 +48,7 @@ const summaryItems = (activeCompanyCount: number) => [
   },
   {
     label: 'ESストック',
-    value: initialEssays.length,
+    value: essayCount,
     unit: '件',
     icon: FilePenLine,
     to: '/essays',
@@ -55,6 +58,7 @@ const summaryItems = (activeCompanyCount: number) => [
 export function HomeDashboard() {
   const companyList = useCompanyList();
   const taskArchive = useTasks();
+  const essayArchive = useEssayArchive();
   const pendingTasks = taskArchive.tasks
     .filter((task) => !task.done)
     .sort((first, second) =>
@@ -69,6 +73,8 @@ export function HomeDashboard() {
         items={summaryItems(
           companyList.allCompanies.filter((company) => company.priority !== 7)
             .length,
+          taskArchive.allTasks.filter((task) => !task.done).length,
+          essayArchive.groups.reduce((sum, group) => sum + group.quantity, 0),
         )}
       />
 

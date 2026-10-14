@@ -9,13 +9,19 @@ export function InlineEssayField({
   onSave,
   children,
   action,
+  allowEmpty = false,
+  maxLength,
 }: {
   label: string;
   value: string;
-  onSave: (value: string) => void;
+  onSave: (value: string) => Promise<void>;
+  allowEmpty?: boolean;
+  maxLength?: number;
   children: ReactNode;
   action?: ReactNode;
 }) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [height, setHeight] = useState(0);
@@ -31,10 +37,23 @@ export function InlineEssayField({
             <InlineEditActions
               saveLabel={`${label}を保存`}
               cancelLabel={`${label}の編集をキャンセル`}
-              disabled={!draft.trim()}
-              onSave={() => {
-                onSave(draft.trim());
-                setEditing(false);
+              disabled={isSaving || (!allowEmpty && !draft.trim())}
+              onSave={async () => {
+                if (isSaving) return;
+                setIsSaving(true);
+                setError('');
+                try {
+                  await onSave(draft);
+                  setEditing(false);
+                } catch (cause) {
+                  setError(
+                    cause instanceof Error
+                      ? cause.message
+                      : '保存できませんでした。',
+                  );
+                } finally {
+                  setIsSaving(false);
+                }
               }}
               onCancel={() => setEditing(false)}
             />
@@ -59,10 +78,16 @@ export function InlineEssayField({
           )}
         </div>
       </div>
+      {error && (
+        <p role="alert" className="text-sm text-rose-500">
+          {error}
+        </p>
+      )}
       <div ref={contentRef} className="mt-2">
         {editing ? (
           <InlineTextarea
             initialHeight={height}
+            maxLength={maxLength}
             autoFocus
             aria-label={label}
             value={draft}

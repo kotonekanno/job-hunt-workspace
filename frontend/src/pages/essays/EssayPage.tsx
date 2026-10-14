@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
 import {
   unclassifiedEssayGroupId,
+  essayGroupPath,
   type EssayGroup,
 } from '@/features/essay/model/essay';
 import { EssayDialog } from '@/features/essay/ui/EssayDialog';
@@ -32,7 +33,9 @@ export function EssayPage() {
 
         <button
           type="button"
-          onClick={() => setIsReorderDialogOpen(true)}
+          onClick={() => {
+            if (!essayArchive.isLoading) setIsReorderDialogOpen(true);
+          }}
           className="absolute right-0 top-0 inline-flex h-9 cursor-pointer items-center gap-2 border border-[var(--line)] bg-[var(--panel)] px-3 text-[10px] font-bold text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           <ArrowUpDown className="size-3.5" />
@@ -40,9 +43,18 @@ export function EssayPage() {
         </button>
       </div>
 
+      {essayArchive.error && (
+        <p role="alert" className="my-3 text-sm text-rose-500">
+          {essayArchive.error}
+        </p>
+      )}
+      {essayArchive.isLoading && (
+        <p role="status" className="my-3 text-sm text-[var(--muted)]">
+          ESグループを読み込み中…
+        </p>
+      )}
       <EssayGroupList
         groups={essayArchive.groups}
-        essays={essayArchive.essays}
         onAddGroup={() => setIsGroupDialogOpen(true)}
         onEditGroup={setEditingGroup}
         onDeleteGroup={setDeletingGroup}
@@ -73,7 +85,9 @@ export function EssayPage() {
         <EssayGroupDialog
           groupName={editingGroup.name}
           onClose={() => setEditingGroup(null)}
-          onSave={(name) => essayArchive.updateGroup(editingGroup.id, name)}
+          onSave={(name) =>
+            essayArchive.updateGroup(essayGroupPath(editingGroup.id), name)
+          }
         />
       )}
 
@@ -82,8 +96,8 @@ export function EssayPage() {
           title={`「${deletingGroup.name}」を削除しますか？`}
           text="このジャンルに含まれるESは削除されず、「未分類」へ移動します。"
           onClose={() => setDeletingGroup(null)}
-          onConfirm={() => {
-            essayArchive.deleteGroup(deletingGroup.id);
+          onConfirm={async () => {
+            await essayArchive.deleteGroup(essayGroupPath(deletingGroup.id));
             setDeletingGroup(null);
           }}
         />

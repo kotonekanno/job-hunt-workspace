@@ -5,7 +5,7 @@ type TaskToolbarProps = {
   companyQuery: string;
   completedCount: number;
   onCompanyQueryChange: (value: string) => void;
-  onDeleteCompleted: () => void;
+  onDeleteCompleted: () => Promise<void>;
 };
 
 export function TaskToolbar(props: TaskToolbarProps) {

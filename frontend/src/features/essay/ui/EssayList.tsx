@@ -1,31 +1,34 @@
 import { InlineEssayField } from '@/features/essay/ui/InlineEssayField';
 import { Check, ChevronDown, Copy, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
-import type { Essay, EssayGroup } from '@/features/essay/model/essay';
-import { EssayGroupMoveDialog } from '@/features/essay/ui/EssayGroupMoveDialog';
+import {
+  essayGroupPath,
+  type Essay,
+  type EssayGroup,
+} from '@/features/essay/model/essay';
+import type { UpdateEssayRequest } from '@/api/generated/models';
 import { HighlightedEssayText } from '@/features/essay/ui/HighlightedEssayText';
 import { CompanyBadge } from '@/shared/badge';
 import { DeleteIconButton, IconActionButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
-import { Select } from '@/shared/select';
 
 const collapsedAnswerLength = 220;
 
 type EssayListProps = {
   essays: Essay[];
   groups: EssayGroup[];
-  onSave: (essay: Essay) => void;
-  onDelete: (essayId: number) => void;
-  onGroupChange: (essay: Essay, groupId: string) => void;
+  onSave: (essayId: number, patch: UpdateEssayRequest) => Promise<void>;
+  onDelete: (essayId: number) => Promise<void>;
+  groupId: string;
   searchQuery?: string;
 };
 
 type EssayListItemProps = {
   essay: Essay;
   groups: EssayGroup[];
-  onSave: (essay: Essay) => void;
-  onDelete: (essayId: number) => void;
-  onGroupChange: (essay: Essay, groupId: string) => void;
+  onSave: (essayId: number, patch: UpdateEssayRequest) => Promise<void>;
+  onDelete: (essayId: number) => Promise<void>;
+  groupId: string;
   searchQuery: string;
 };
 
@@ -34,7 +37,7 @@ export function EssayList({
   groups,
   onSave,
   onDelete,
-  onGroupChange,
+  groupId,
   searchQuery = '',
 }: EssayListProps) {
   if (essays.length === 0) {
@@ -57,7 +60,7 @@ export function EssayList({
           groups={groups}
           onSave={onSave}
           onDelete={onDelete}
-          onGroupChange={onGroupChange}
+          groupId={groupId}
           searchQuery={searchQuery}
         />
       ))}
@@ -70,12 +73,11 @@ function EssayListItem({
   groups,
   onSave,
   onDelete,
-  onGroupChange,
+  groupId,
   searchQuery,
 }: EssayListItemProps) {
   const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const isLongAnswer = essay.answer.length > collapsedAnswerLength;
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
@@ -87,8 +89,9 @@ function EssayListItem({
     isLongAnswer && !isAnswerExpanded && !answerMatchesQuery
       ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
       : essay.answer;
-  const currentGroup = groups.find((group) => group.id === essay.groupId);
-  const pendingGroup = groups.find((group) => group.id === pendingGroupId);
+  const currentGroup = groups.find(
+    (group) => essayGroupPath(group.id) === groupId,
+  );
 
   async function copyAnswer() {
     await navigator.clipboard.writeText(essay.answer);
@@ -101,27 +104,18 @@ function EssayListItem({
       <article className="ui-panel-interactive border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)]">
         <div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
           <div className="min-w-0 flex-1">
-            {essay.company && (
+            {essay.companyName && (
               <CompanyBadge
-                company={essay.company}
+                company={essay.companyName}
                 className="inline-block max-w-full px-2"
               />
             )}
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            <Select
-              value={essay.groupId}
-              options={groups.map((group) => ({
-                value: group.id,
-                label: group.name,
-              }))}
-              onValueChange={(groupId) => {
-                if (groupId !== essay.groupId) setPendingGroupId(groupId);
-              }}
-              aria-label="質問の性質を変更"
-              className="h-7 max-w-40 py-0 text-[10px] font-bold"
-            />
+            <span className="border border-[var(--line)] px-2 py-1 text-[10px] font-bold text-[var(--muted)]">
+              {currentGroup?.name}
+            </span>
             <DeleteIconButton
               size="s"
               transparent={false}
@@ -135,7 +129,8 @@ function EssayListItem({
           <InlineEssayField
             label="QUESTION"
             value={essay.question}
-            onSave={(question) => onSave({ ...essay, question })}
+            maxLength={1000}
+            onSave={(question) => onSave(essay.id, { question })}
           >
             <p className="whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
               <HighlightedEssayText text={essay.question} query={searchQuery} />
@@ -144,7 +139,9 @@ function EssayListItem({
           <InlineEssayField
             label="ANSWER"
             value={essay.answer}
-            onSave={(answer) => onSave({ ...essay, answer })}
+            maxLength={5000}
+            allowEmpty
+            onSave={(answer) => onSave(essay.id, { answer })}
             action={
               <IconActionButton
                 icon={isCopied ? Check : Copy}
@@ -194,21 +191,9 @@ function EssayListItem({
           title="ESを削除しますか？"
           text={`「${essay.question}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={() => {
-            onDelete(essay.id);
+          onConfirm={async () => {
+            await onDelete(essay.id);
             setIsDeleteDialogOpen(false);
-          }}
-        />
-      )}
-
-      {currentGroup && pendingGroup && (
-        <EssayGroupMoveDialog
-          currentGroupName={currentGroup.name}
-          nextGroupName={pendingGroup.name}
-          onClose={() => setPendingGroupId(null)}
-          onConfirm={() => {
-            onGroupChange(essay, pendingGroup.id);
-            setPendingGroupId(null);
           }}
         />
       )}

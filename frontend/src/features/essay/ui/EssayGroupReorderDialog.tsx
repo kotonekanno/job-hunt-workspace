@@ -1,16 +1,13 @@
 import { GripVertical, Lock } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import { useState, type FormEvent, type PointerEvent } from 'react';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { type EssayGroup } from '@/features/essay/model/essay';
 import { EditDialog } from '@/shared/dialog';
 
 type EssayGroupReorderDialogProps = {
   groups: EssayGroup[];
   onClose: () => void;
-  onSave: (orderedGroupIds: string[]) => void;
+  onSave: (orderedGroupIds: number[]) => Promise<void>;
 };
 
 type ReorderableGroupRowProps = {
@@ -22,22 +19,32 @@ export function EssayGroupReorderDialog({
   onClose,
   onSave,
 }: EssayGroupReorderDialogProps) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const [orderedGroups, setOrderedGroups] = useState(
-    groups
-      .filter((group) => group.id !== unclassifiedEssayGroupId)
-      .sort((left, right) => left.position - right.position),
+    groups.filter((group) => group.id !== null),
   );
-  const unclassifiedGroup = groups.find(
-    (group) => group.id === unclassifiedEssayGroupId,
-  );
+  const unclassifiedGroup = groups.find((group) => group.id === null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave([
-      ...orderedGroups.map((group) => group.id),
-      ...(unclassifiedGroup ? [unclassifiedGroup.id] : []),
-    ]);
-    onClose();
+    if (isSaving) return;
+    setIsSaving(true);
+    setError('');
+    try {
+      await onSave(
+        orderedGroups.flatMap((group) => (group.id === null ? [] : [group.id])),
+      );
+      onClose();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : '並べ替えを保存できませんでした。',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -50,6 +57,11 @@ export function EssayGroupReorderDialog({
       formClassName="max-w-lg p-6"
     >
       <div>
+        {error && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <p className="mb-3 text-xs leading-5 text-[var(--muted)]">
           右端のハンドルをドラッグして表示順を変更できます。
         </p>

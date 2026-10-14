@@ -1,18 +1,33 @@
 import { createContext } from 'react';
-import type { Essay, EssayGroup } from '@/features/essay/model/essay';
+import type {
+  Essay,
+  EssayGroupListItem,
+  CreateEssayRequest,
+  UpdateEssayRequest,
+} from '@/api/generated/models';
 
 export type EssayArchiveValue = {
-  essays: Essay[];
-  groups: EssayGroup[];
-  addEssay: (essay: Omit<Essay, 'id'>) => void;
-  updateEssay: (essayId: number, essay: Omit<Essay, 'id'>) => void;
-  deleteEssay: (essayId: number) => void;
-  addGroup: (name: string) => EssayGroup;
-  updateGroup: (groupId: string, name: string) => void;
-  deleteGroup: (groupId: string) => void;
-  reorderGroups: (orderedGroupIds: string[]) => void;
+  groups: EssayGroupListItem[];
+  essaysByGroup: Map<string, Essay[]>;
+  isLoading: boolean;
+  error: string;
+  loadEssays: (groupId: string, signal?: AbortSignal) => Promise<void>;
+  addEssay: (
+    groupId: string,
+    request: CreateEssayRequest,
+    companyName?: string,
+  ) => Promise<void>;
+  updateEssay: (
+    groupId: string,
+    essayId: number,
+    patch: UpdateEssayRequest,
+  ) => Promise<void>;
+  deleteEssay: (groupId: string, essayId: number) => Promise<void>;
+  addGroup: (name: string) => Promise<void>;
+  updateGroup: (groupId: string, name: string) => Promise<void>;
+  deleteGroup: (groupId: string) => Promise<void>;
+  reorderGroups: (ids: number[]) => Promise<void>;
 };
-
 export const EssayArchiveContext = createContext<EssayArchiveValue | null>(
   null,
 );

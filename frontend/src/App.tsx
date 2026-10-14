@@ -48,10 +48,13 @@ function App() {
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/tasks" element={<TaskPage />} />
               <Route path="/essays" element={<EssayPage />} />
-              <Route path="/essays/:groupId" element={<EssayGroupPage />} />
+              <Route
+                path="/essays/:essayGroupId"
+                element={<EssayGroupPage />}
+              />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route
-                path="/documents/:documentsId"
+                path="/documents/:documentId"
                 element={<DocumentDetailPage />}
               />
               <Route path="/settings" element={<SettingsPage />} />

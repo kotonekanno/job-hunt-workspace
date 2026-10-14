@@ -138,6 +138,7 @@ function CompanyDashboardContent({ companyId }: { companyId: number }) {
           <RelatedTasksWidget
             key={widget}
             tasks={data.tasks}
+            companyId={companyId}
             companyName={data.name}
           />
         );

@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyMockData';
+import { useCompanyOptions } from '@/features/companies/hooks/useCompanyOptions';
+import type { CreateEssayRequest } from '@/api/generated/models';
 import {
   unclassifiedEssayGroupId,
-  type Essay,
   type EssayGroup,
 } from '@/features/essay/model/essay';
 import { EssayGroupCombobox } from '@/features/essay/ui/EssayGroupCombobox';
@@ -13,8 +13,11 @@ import { RequiredMark } from '@/shared/form';
 type EssayDialogProps = {
   groups: EssayGroup[];
   onClose: () => void;
-  onSave: (essay: Omit<Essay, 'id'>) => void;
-  essay?: Essay;
+  onSave: (
+    groupId: string,
+    request: CreateEssayRequest,
+    companyName?: string,
+  ) => Promise<void>;
   defaultGroupId?: string;
 };
 
@@ -22,31 +25,51 @@ export function EssayDialog({
   groups,
   onClose,
   onSave,
-  essay,
   defaultGroupId,
 }: EssayDialogProps) {
-  const [company, setCompany] = useState(essay?.company ?? '');
+  const options = useCompanyOptions();
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [company, setCompany] = useState('');
   const [groupId, setGroupId] = useState(
-    essay?.groupId ?? defaultGroupId ?? unclassifiedEssayGroupId,
+    defaultGroupId ?? unclassifiedEssayGroupId,
   );
-  const [question, setQuestion] = useState(essay?.question ?? '');
-  const [answer, setAnswer] = useState(essay?.answer ?? '');
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    onSave({
-      company,
-      groupId,
-      question: question.trim(),
-      answer: answer.trim(),
-    });
-    onClose();
+    if (isSaving || options.isLoading || options.error) return;
+    const selected = options.companies.find((item) => item.name === company);
+    if (company && !selected) {
+      setError('企業一覧から企業を選択してください。');
+      return;
+    }
+    setIsSaving(true);
+    setError('');
+    try {
+      await onSave(
+        groupId,
+        {
+          companyId: selected?.id ?? null,
+          question: question.trim(),
+          answer,
+        },
+        selected?.name,
+      );
+      onClose();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : 'ESを追加できませんでした。',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
     <EditDialog
-      title={essay ? 'ESの文章を編集' : 'ESの文章を追加'}
+      title="ESの文章を追加"
       subTitle="ESSAY ARCHIVE"
       submitText="保存する"
       onClose={onClose}
@@ -54,6 +77,11 @@ export function EssayDialog({
       formClassName="max-w-2xl p-6"
     >
       <>
+        {(error || options.error) && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error || options.error}
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block min-w-0">
             <span className="text-xs font-bold text-[var(--text-strong)]">
@@ -61,7 +89,7 @@ export function EssayDialog({
             </span>
             <CompanyCombobox
               value={company}
-              options={companyNameOptions}
+              options={options.companies.map((item) => item.name)}
               allowEmpty
               onValueChange={setCompany}
               placeholder="企業名を検索"
@@ -94,6 +122,7 @@ export function EssayDialog({
           </span>
           <textarea
             required
+            maxLength={1000}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={3}
@@ -105,10 +134,9 @@ export function EssayDialog({
         <label className="block">
           <span className="text-xs font-bold text-[var(--text-strong)]">
             回答
-            <RequiredMark />
           </span>
           <textarea
-            required
+            maxLength={5000}
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             rows={9}

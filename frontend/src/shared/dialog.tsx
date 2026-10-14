@@ -1,5 +1,12 @@
 import { Trash2, X } from 'lucide-react';
-import { useEffect, useId, type FormEventHandler, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEventHandler,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 type DialogBaseProps = {
@@ -28,7 +35,7 @@ type DeleteDialogProps = {
   title: string;
   text: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 };
 
 type EditDialogProps = {
@@ -158,6 +165,8 @@ export function DeleteDialog({
   onConfirm,
 }: DeleteDialogProps) {
   const titleId = useId();
+  const pending = useRef(false);
+  const [error, setError] = useState('');
 
   return (
     <DialogBase onClose={onClose}>
@@ -177,9 +186,29 @@ export function DeleteDialog({
           </h2>
         </div>
         <p className="mt-2 text-sm text-[var(--muted)]">{text}</p>
+        {error && (
+          <p role="alert" className="mt-3 text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <DialogActions
           onClose={onClose}
-          onConfirm={onConfirm}
+          onConfirm={async () => {
+            if (pending.current) return;
+            pending.current = true;
+            setError('');
+            try {
+              await onConfirm();
+            } catch (cause) {
+              setError(
+                cause instanceof Error
+                  ? cause.message
+                  : '削除できませんでした。',
+              );
+            } finally {
+              pending.current = false;
+            }
+          }}
           confirmText="削除する"
           destructive
         />

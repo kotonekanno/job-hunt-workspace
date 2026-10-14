@@ -4,7 +4,7 @@ import { RequiredMark } from '@/shared/form';
 
 type EssayGroupDialogProps = {
   onClose: () => void;
-  onSave: (name: string) => void;
+  onSave: (name: string) => Promise<void>;
   groupName?: string;
 };
 
@@ -13,12 +13,25 @@ export function EssayGroupDialog({
   onSave,
   groupName,
 }: EssayGroupDialogProps) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const [name, setName] = useState(groupName ?? '');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(name.trim());
-    onClose();
+    if (isSaving || !name.trim()) return;
+    setIsSaving(true);
+    setError('');
+    try {
+      await onSave(name.trim());
+      onClose();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : '保存できませんでした。',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -29,20 +42,28 @@ export function EssayGroupDialog({
       onClose={onClose}
       onSubmit={handleSubmit}
     >
-      <label className="block">
-        <span className="text-xs font-bold text-[var(--text-strong)]">
-          ジャンル名
-          <RequiredMark />
-        </span>
-        <input
-          autoFocus
-          required
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="例：研究、アルバイト"
-          className="mt-2 h-10 w-full cursor-text border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] hover:border-[var(--line-strong)] focus:border-[var(--accent)]"
-        />
-      </label>
+      <>
+        {error && (
+          <p role="alert" className="text-sm text-rose-500">
+            {error}
+          </p>
+        )}
+        <label className="block">
+          <span className="text-xs font-bold text-[var(--text-strong)]">
+            ジャンル名
+            <RequiredMark />
+          </span>
+          <input
+            autoFocus
+            required
+            maxLength={50}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="例：研究、アルバイト"
+            className="mt-2 h-10 w-full cursor-text border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none transition-colors placeholder:text-[var(--faint)] hover:border-[var(--line-strong)] focus:border-[var(--accent)]"
+          />
+        </label>
+      </>
     </EditDialog>
   );
 }

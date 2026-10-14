@@ -36,6 +36,16 @@ export function TaskPage() {
         icon={<Clipboard className="size-5 text-[var(--accent)]" />}
       />
 
+      {tasks.error && (
+        <p role="alert" className="my-3 text-sm text-rose-500">
+          {tasks.error}
+        </p>
+      )}
+      {tasks.isLoading && (
+        <p role="status" className="my-3 text-sm text-[var(--muted)]">
+          タスクを読み込み中…
+        </p>
+      )}
       <TaskToolbar
         companyQuery={tasks.companyQuery}
         completedCount={tasks.completedCount}
@@ -59,7 +69,9 @@ export function TaskPage() {
         <TaskDialog
           task={editingTask}
           onClose={closeDialog}
-          onSave={tasks.saveTask}
+          onSave={(request, name) =>
+            tasks.saveTask(request, editingTask?.id, name)
+          }
         />
       )}
     </div>

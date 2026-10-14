@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyMockData';
+import { useCompanyOptions } from '@/features/companies/hooks/useCompanyOptions';
+import type { CreateTaskRequest } from '@/api/generated/models';
 import type { Task } from '@/features/task/model/task';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
@@ -9,7 +10,8 @@ type TaskDialogProps = {
   task?: Task;
   defaultCompany?: string;
   onClose: () => void;
-  onSave: (task: Task) => void;
+  onSave: (request: CreateTaskRequest, companyName?: string) => Promise<void>;
+  fixedCompanyId?: number;
 };
 
 export function TaskDialog({
@@ -17,27 +19,53 @@ export function TaskDialog({
   defaultCompany,
   onClose,
   onSave,
+  fixedCompanyId,
 }: TaskDialogProps) {
-  const [form, setForm] = useState<Task>(() =>
-    task
-      ? {
-          ...task,
-          company: task.company ?? defaultCompany,
-        }
-      : {
-          id: Date.now(),
-          title: '',
-          note: '',
-          deadline: undefined,
-          company: defaultCompany,
-          done: false,
-        },
+  const options = useCompanyOptions();
+  const [company, setCompany] = useState(
+    task?.companyName ?? defaultCompany ?? '',
   );
-
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const [form, setForm] = useState<CreateTaskRequest>({
+    title: task?.title ?? '',
+    note: task?.note ?? '',
+    deadline: task?.deadline ?? null,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(form);
-    onClose();
+    if (isSaving || options.isLoading || options.error) return;
+    const selected = options.companies.find((item) => item.name === company);
+    if (
+      company &&
+      !selected &&
+      fixedCompanyId === undefined &&
+      company !== (task?.companyName ?? '')
+    ) {
+      setError('企業一覧から企業を選択してください。');
+      return;
+    }
+    const originalCompany = task?.companyName ?? '';
+    const request: CreateTaskRequest = {
+      ...form,
+      title: form.title.trim(),
+      companyId:
+        task && company === originalCompany
+          ? undefined
+          : (fixedCompanyId ?? selected?.id ?? null),
+    };
+    setIsSaving(true);
+    setError('');
+    try {
+      await onSave(request, company || undefined);
+      onClose();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : '保存できませんでした。',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const fieldClassName =
@@ -45,21 +73,32 @@ export function TaskDialog({
 
   const fields = (
     <>
-      <label className="text-xs text-[var(--muted)]">
-        企業名
-        <CompanyCombobox
-          value={form.company ?? ''}
-          options={companyNameOptions}
-          allowEmpty
-          onValueChange={(company) =>
-            setForm({
-              ...form,
-              company: company || undefined,
-            })
-          }
-          className="mt-1"
-        />
-      </label>
+      {(error || options.error) && (
+        <p role="alert" className="text-sm text-rose-500 sm:col-span-2">
+          {error || options.error}
+        </p>
+      )}
+      {fixedCompanyId !== undefined ? (
+        <label className="text-xs text-[var(--muted)]">
+          企業名
+          <input
+            value={defaultCompany ?? company}
+            readOnly
+            className={fieldClassName}
+          />
+        </label>
+      ) : (
+        <label className="text-xs text-[var(--muted)]">
+          企業名
+          <CompanyCombobox
+            value={company}
+            options={options.companies.map((item) => item.name)}
+            allowEmpty
+            onValueChange={setCompany}
+            className="mt-1"
+          />
+        </label>
+      )}
 
       <label className="text-xs text-[var(--muted)]">
         期限
@@ -69,7 +108,7 @@ export function TaskDialog({
           onChange={(event) =>
             setForm({
               ...form,
-              deadline: event.target.value || undefined,
+              deadline: event.target.value || null,
             })
           }
           className={fieldClassName}
@@ -81,6 +120,7 @@ export function TaskDialog({
         <RequiredMark />
         <input
           required
+          maxLength={200}
           value={form.title}
           onChange={(event) =>
             setForm({
@@ -95,7 +135,8 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)] sm:col-span-2">
         詳細
         <textarea
-          value={form.note}
+          maxLength={2000}
+          value={form.note ?? ''}
           onChange={(event) =>
             setForm({
               ...form,
@@ -114,7 +155,7 @@ export function TaskDialog({
       subTitle="// TASK_EDITOR"
       onClose={onClose}
       onSubmit={submit}
-      submitText={task ? '保存する' : '追加する'}
+      submitText={isSaving ? '保存中…' : task ? '保存する' : '追加する'}
       formClassName="max-w-xl p-6 sm:p-8"
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"
