@@ -649,8 +649,8 @@ paths:
             schema:
               type: object
               properties:
-                previousSelectionStepId:
-                  description: 移動先の1個前の選考ステップのID（null：先頭に移動）
+                nextSelectionStepId:
+                  description: 移動先の1個後ろの選考ステップのID（null：末尾に移動）
                   type: integer
                   format: int32
                   nullable: true
@@ -2127,8 +2127,8 @@ components:
       description: 新規選考ステップの作成内容。
       type: object
       properties:
-        previousSelectionStepId:
-          description: 1個前の選考ステップのID（先頭の場合はnull）
+        nextSelectionStepId:
+          description: 1個後ろの選考ステップのID（末尾の場合はnull）
           type: integer
           format: int32
           nullable: true
@@ -2137,7 +2137,7 @@ components:
         note:
           $ref: '#/components/schemas/SelectionStepNote'
       required:
-        - previousSelectionStepId
+        - nextSelectionStepId
         - name
     UpdateSelectionStepRequest:
       description: 選考ステップの部分更新内容。更新する項目のみ指定する。

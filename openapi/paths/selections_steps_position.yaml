@@ -17,8 +17,8 @@ put:
         schema:
           type: object
           properties:
-            previousSelectionStepId:
-              description: 移動先の1個前の選考ステップのID（null：先頭に移動）
+            nextSelectionStepId:
+              description: 移動先の1個後ろの選考ステップのID（null：末尾に移動）
               type: integer
               format: int32
               nullable: true

@@ -120,19 +120,21 @@ public class SelectionService {
 
     boolean isActive = request.getIsActive();
 
-    selection.setActive(isActive);
-    selectionRepository.save(selection);
-
+    // 指定した選考を進行中に設定する場合
     if (isActive) {
       Selection currentActiveSelection = selectionRepository
           .findByCompany_IdAndIsActiveTrue(selection.getCompany().getId())
           .orElse(null);
 
+      // すでに進行中の選考が存在した場合
       if (currentActiveSelection != null) {
         currentActiveSelection.setActive(false);
         selectionRepository.save(currentActiveSelection);
       }
     }
+
+    selection.setActive(isActive);
+    selectionRepository.save(selection);
   }
 
   // 選考ステップを追加
@@ -145,14 +147,14 @@ public class SelectionService {
         .findByIdAndCompany_User_Id(selectionId, userId)
         .orElseThrow(() -> new NotFoundException("Selection not found"));
 
-    SelectionStep previousSelectionStep = selectionStepRepository
-        .findById(request.getPreviousSelectionStepId())
+    SelectionStep nextSelectionStep = selectionStepRepository
+        .findById(request.getNextSelectionStepId())
         .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
 
     int position = calcSelectionStepPosition(
-        selection.getCompany().getId(),
+        selectionId,
         null,
-        previousSelectionStep
+        nextSelectionStep
     );
 
     SelectionStep selectionStep = new SelectionStep();
@@ -214,18 +216,18 @@ public class SelectionService {
         .findById_AndSelection_Company_User_Id(selectionStepId, userId)
         .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
 
-    SelectionStep previousSelectionStep = null;
+    SelectionStep nextSelectionStep = null;
 
-    if (request.getPreviousSelectionStepId() != null) {
-      previousSelectionStep = selectionStepRepository
-          .findById(request.getPreviousSelectionStepId())
+    if (request.getNextSelectionStepId() != null) {
+      nextSelectionStep = selectionStepRepository
+          .findById(request.getNextSelectionStepId())
           .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
     }
 
     int newPosition = calcSelectionStepPosition(
         selectionStep.getSelection().getId(),
         selectionStepId,
-        previousSelectionStep
+        nextSelectionStep
     );
 
     selectionStep.setPosition(newPosition);
@@ -270,33 +272,33 @@ public class SelectionService {
   private int calcSelectionStepPosition(
       Integer selectionId,
       Integer selectionStepId,
-      SelectionStep previousSelectionStep
+      SelectionStep nextSelectionStep
   ) {
-    // 先頭に移動・追加した場合
-    if (previousSelectionStep == null) {
-      Integer nextPosition = selectionStepRepository
-          .findMinPositionBySelectionId(selectionId)
+    // 追加／末尾に移動した場合
+    if (nextSelectionStep == null) {
+      Integer previousPosition = selectionStepRepository
+          .findMaxPositionBySelection_Id(selectionId)
           .orElse(null);
 
       // 選考ステップがまだ存在しない場合
-      if (nextPosition == null) {
+      if (previousPosition == null) {
         return 1000;
       }
 
-      return nextPosition - 1000;
+      return previousPosition + 1000;
     }
 
-    Integer previousPosition = previousSelectionStep.getPosition();
+    Integer nextPosition = nextSelectionStep.getPosition();
 
-    Integer nextPosition = selectionStepRepository.findNextPosition(
+    Integer previousPosition = selectionStepRepository.findPreviousPosition(
         selectionId,
-        previousPosition,
+        nextPosition,
         selectionStepId
     ).orElse(null);
 
-    // 末尾に追加・移動した場合
-    if (nextPosition == null) {
-      return previousPosition + 1000;
+    // 先頭に追加・移動した場合
+    if (previousPosition == null) {
+      return nextPosition + 1000;
     }
 
     // 2つの要素の間に追加・移動した場合
@@ -308,7 +310,7 @@ public class SelectionService {
     reorderAllSteps(selectionId);
 
     SelectionStep refreshedPrevious = selectionStepRepository
-        .findById(previousSelectionStep.getId())
+        .findById(nextSelectionStep.getId())
         .orElseThrow();
 
     return calcSelectionStepPosition(

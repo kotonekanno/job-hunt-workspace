@@ -26,17 +26,17 @@ public interface SelectionStepRepository extends JpaRepository<SelectionStep, In
       FROM SelectionStep ss
       WHERE ss.selection.id = :selectionId
       """)
-  Optional<Integer> findMinPositionBySelectionId(Integer selectionId);
+  Optional<Integer> findMaxPositionBySelection_Id(Integer selectionId);
 
-  // 指定した選考ステップの次に大きいpositionの値を返す
+  // 指定した選考ステップの次に小さいpositionの値を返す
   @Query("""
-      SELECT MIN(ss.position)
+      SELECT MAx(ss.position)
       FROM SelectionStep ss
       WHERE ss.selection.id = :selectionId
-        AND ss.position > :position
+        AND ss.position < :position
         AND (:excludeId IS NULL OR ss.id <> :excludeId)
       """)
-  Optional<Integer> findNextPosition(
+  Optional<Integer> findPreviousPosition(
       Integer selectionId,
       Integer position,
       Integer excludeId

@@ -46,10 +46,10 @@ public class CompanySelectionStepController {
   @PutMapping("/position")
   public ResponseEntity<Void> updateSelectionStepPosition(
       @AuthenticationPrincipal Integer userId,
-      @PathVariable Integer selectionId,
+      @PathVariable Integer selectionStepId,
       @Valid @RequestBody ReorderSelectionStepRequest request
   ) {
-    service.reorderSelectionSteps(userId, selectionId, request);
+    service.reorderSelectionSteps(userId, selectionStepId, request);
     return ResponseEntity.noContent().build();
   }
 

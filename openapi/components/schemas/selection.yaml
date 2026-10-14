@@ -171,8 +171,8 @@ CreateSelectionStepRequest:
   description: 新規選考ステップの作成内容。
   type: object
   properties:
-    previousSelectionStepId:
-      description: 1個前の選考ステップのID（先頭の場合はnull）
+    nextSelectionStepId:
+      description: 1個後ろの選考ステップのID（末尾の場合はnull）
       type: integer
       format: int32
       nullable: true
@@ -181,7 +181,7 @@ CreateSelectionStepRequest:
     note:
       $ref: '#/SelectionStepNote'
   required:
-    - previousSelectionStepId
+    - nextSelectionStepId
     - name
 
 UpdateSelectionStepRequest:
