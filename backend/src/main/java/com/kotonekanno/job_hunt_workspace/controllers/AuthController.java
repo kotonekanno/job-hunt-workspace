@@ -7,12 +7,14 @@ import com.kotonekanno.job_hunt_workspace.config.properties.CookieProperties;
 import com.kotonekanno.job_hunt_workspace.config.properties.JwtProperties;
 import com.kotonekanno.job_hunt_workspace.dtos.auth.LoginResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.kotonekanno.job_hunt_workspace.services.AuthService;
 
+@NullMarked
 @RestController
 @RequestMapping("/auth")
 public class AuthController {

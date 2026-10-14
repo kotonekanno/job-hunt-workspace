@@ -2,6 +2,7 @@ package com.kotonekanno.job_hunt_workspace.repositories;
 
 import com.kotonekanno.job_hunt_workspace.entities.User;
 import com.kotonekanno.job_hunt_workspace.entities.VerificationToken;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@NullMarked
 @Repository
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Integer> {
   Optional<VerificationToken> findByToken(String token);
