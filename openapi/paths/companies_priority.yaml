@@ -19,21 +19,23 @@ patch:
             summary: 企業一覧画面で更新
             value:
               priority: 3
-              previousCompanyId: 1
               nextCompanyId: 2
           moveToTop:
-            summary: 志望度の先頭に移動
+            summary: 志望度の末尾に移動／企業詳細画面で更新
             value:
               priority: 3
-              previousCompanyId: null
-              nextCompanyId: 2
-          reorderInSingleView:
-            summary: 企業詳細画面で更新
-            value:
-              priority: 3
-              previousCompanyId: null
               nextCompanyId: null
 
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

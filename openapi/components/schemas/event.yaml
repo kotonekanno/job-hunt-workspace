@@ -173,7 +173,7 @@ CreateEventRequest:
     - isOnline
     - isAttending
   example:
-    companyName: 株式会社サンプル
+    companyId: 1
     category: SESSION
     title: 企業説明会
     note: 事前に提出書類を確認する。

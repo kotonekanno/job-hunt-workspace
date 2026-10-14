@@ -90,7 +90,6 @@ erDiagram
     INT position
     TEXT name
     TEXT status
-    TIMESTAMPTZ held_at
     TEXT note
   }
 
@@ -116,7 +115,7 @@ erDiagram
     INT company_id
     TEXT title
     TEXT note
-    TIMESTAMPTZ deadline
+    DATE deadline
     BOOLEAN done
   }
 
@@ -204,17 +203,16 @@ erDiagram
 | -------------- | ------------ | ---- | ------------------ |
 | id             | SERIAL       | NO   | 企業ID             |
 | user_id        | INT          | NO   | ユーザーID         |
+| priority       | SMALLINT     | NO   | 志望度             |
 | position       | INT          | NO   | 表示順             |
 | name           | TEXT         | NO   | 企業名             |
-| priority       | SMALLINT     | NO   | 志望度             |
-| current_selection_id | INT    | NO   | 進行中の選考ID     |
 | show_basic_info_widget | BOOLEAN   | NO   | 基本情報ウィジェットの表示／非表示 |
 | show_selection_widget | BOOLEAN    | NO   | 選考状況ウィジェットの表示／非表示 |
 | document       | TEXT         | YES  | Markdown形式の文書 |
 
 - priority
-  - BETWEEN 0 AND 6
-  - 0: 未分類, 1-5: 第n志望, 6: アーカイブ
+  - BETWEEN 1 AND 7
+  - 1-5: 第n志望, 6: 未分類、7: アーカイブ
 - show_*_widget
   - trueならばウィジェットを表示する
   - DEFAULT FALSE
@@ -225,10 +223,7 @@ erDiagram
 
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
-  - current_seleciton_id: selections.id(ON DELETE CASCADE)
 - UNIQUE
-  - id, user_id
-  - user_id, name
   - user_id, priority, position
 - INDEX
   - user_id, priority, position
@@ -243,7 +238,7 @@ erDiagram
 | company_id     | INT          | NO   | 企業ID             |
 | position       | INT          | NO   | 表示順             |
 | title          | TEXT         | NO   | 項目名             |
-| text           | TEXT         | NO   | 内容               |
+| text           | TEXT         | YES  | 内容               |
 
 <!-- omit in toc -->
 #### 制約
@@ -265,7 +260,7 @@ erDiagram
 | company_id     | INT          | NO   | 企業ID             |
 | occurred_at    | TIMESTAMPTZ  | NO   | 日付               |
 | by_user        | BOOLEAN      | NO   | trueならばユーザー側からのやり取り |
-| text           | TEXT         | NO   | 内容               |
+| text           | TEXT         | YES   | 内容               |
 
 <!-- omit in toc -->
 #### 制約
@@ -273,7 +268,7 @@ erDiagram
 - FOREIGN
   - company_id: companies.id(ON DELETE CASCADE)
 - INDEX
-  - company_id, occurred_at
+  - company_id, occurred_at, id
 
 ## selections
 
@@ -349,8 +344,9 @@ erDiagram
 - category
   - SESSION(説明会) | CHAT(カジュアル面談) | INTERVIEW(面接) | INTERNSHIP(インターン) | OTHER(その他)
 - is_all_day
-  - trueならばstart_date, end_dateを使用
-  - falseならばstart_time, end_timeを使用
+  - trueならばstart_date, end_dateを使用し、start_time, end_timeはNULLとする
+  - falseならばstart_time, end_timeを使用し、start_date, end_dateはNULLとする
+  - DEFAULT FALSE
 - is_online
   - DEFAULT TRUE
 - is_attending
@@ -383,7 +379,7 @@ erDiagram
 | company_id     | INT          | YES  | 企業ID             |
 | title          | TEXT         | NO   | タスク概要         |
 | note           | TEXT         | YES  | タスク詳細         |
-| deadline       | TIMESTAMPTZ  | YES  | 期限               |
+| deadline       | DATE  | YES  | 期限               |
 | done           | BOOLEAN      | NO   | 完了／未完了       |
 
 <!-- omit in toc -->
@@ -405,17 +401,17 @@ erDiagram
 | id                | SERIAL       | NO   | エントリーシートID |
 | user_id           | INT          | NO   | ユーザーID         |
 | company_id        | INT          | YES  | 企業ID             |
-| essay_group_id    | INT          | NO   | 設問グループID     |
+| essay_group_id    | INT          | YES  | 設問グループID     |
 | question          | TEXT         | NO   | 設問               |
-| answer            | TEXT         | NO   | 回答               |
+| answer            | TEXT         | YES  | 回答               |
 
 <!-- omit in toc -->
 #### 制約
 
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
-  - company_id, user_id: companies(id, user_id)(ON DELETE CASCADE)
-  - essay_group_id, user_id: essay_groups(id, user_id)(ON DELETE RESTRICT)
+  - company_id: companies.id(ON DELETE SET NULL)
+  - essay_group_id: essay_groups.id(ON DELETE SET NULL)
 - INDEX
   - essay_group_id
 
@@ -436,7 +432,6 @@ erDiagram
 - FOREIGN
   - user_id: users.id(ON DELETE CASCADE)
 - UNIQUE
-  - id, user_id
   - user_id, name
   - user_id, position
 - INDEX

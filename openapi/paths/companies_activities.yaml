@@ -31,3 +31,39 @@ post:
               - activityId
             example:
               activityId: 1
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
+
+get:
+  description: 指定したページのやりとりを20件取得する。
+  tags:
+    - Activities
+  operationId: getCompanyActivity
+  summary: やりとり履歴を取得
+  parameters:
+    - $ref: ../components/parameters/query.yaml#/PageNumber
+  responses:
+    '201':
+      description: やりとり履歴の取得に成功。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/company.yaml#/GetCompanyActivitiesResponse
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

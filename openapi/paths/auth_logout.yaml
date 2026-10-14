@@ -1,0 +1,20 @@
+# /auth/logout
+
+post:
+  description: リフレッシュトークンのCookieを削除してログアウトする。クライアントは保持しているアクセストークンも破棄する。発行済みのトークン自体は失効しない。
+  tags:
+    - Authentication
+  operationId: logout
+  summary: ログアウト
+  responses:
+    '204':
+      description: ログアウトに成功。レスポンスボディは返さない。
+      headers:
+        Set-Cookie:
+          description: refreshToken Cookieを空にし、Max-Age=0で削除する。Secure・SameSiteは環境設定に従う。
+          schema:
+            type: string
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

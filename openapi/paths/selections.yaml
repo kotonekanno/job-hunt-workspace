@@ -1,4 +1,4 @@
-# /selections
+# /companies/{companyId}/selections
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
 
@@ -21,3 +21,13 @@ post:
         application/json:
           schema:
             $ref: ../components/schemas/selection.yaml#/CreateSelectionResponse
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

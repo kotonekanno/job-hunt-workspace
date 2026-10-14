@@ -2,6 +2,52 @@
 parameters:
   - $ref: ../components/parameters/path.yaml#/EssayGroupId
 
+patch:
+  description: 指定したESグループを部分更新する。
+  tags:
+    - Essays
+  operationId: patchEssayGroup
+  summary: ESグループを部分更新
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/essay.yaml#/UpdateEssayGroupRequest
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
+
+delete:
+  description: 指定したESグループを削除する。属するESは未分類へ移動する。
+  tags:
+    - Essays
+  operationId: deleteEssayGroup
+  summary: ESグループを削除
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
+
 get:
   description: 指定したESグループのES一覧を返す。
   tags:
@@ -15,13 +61,13 @@ get:
         application/json:
           schema:
             $ref: ../components/schemas/essay.yaml#/GetEssaysResponse
-
-delete:
-  description: 指定したESグループを削除する。属するESは未分類へ移動する。
-  tags:
-    - Essays
-  operationId: deleteEssayGroup
-  summary: ESグループを削除
-  responses:
-    '204':
-      $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

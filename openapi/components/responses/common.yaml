@@ -1,2 +1,20 @@
 NoContent:
   description: 処理に成功。レスポンスボディは返さない。
+
+BadRequest:
+  description: リクエストの形式または値が不正。
+
+Unauthorized:
+  description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。
+
+Forbidden:
+  description: 指定したリソースに対する操作権限がない。
+
+NotFound:
+  description: 指定したリソースまたは関連付け先のリソースが存在しない。
+
+Conflict:
+  description: 登録済みのリソースと競合する。
+
+InternalServerError:
+  description: サーバー内部で予期しないエラーが発生した。

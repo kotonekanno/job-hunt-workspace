@@ -13,6 +13,10 @@ get:
         application/json:
           schema:
             $ref: ../components/schemas/essay.yaml#/GetEssayGroupsResponse
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
   description: ESグループを新規作成する。
@@ -42,3 +46,11 @@ post:
                 format: int32
             example:
               essayGroupId: 1
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '409':
+      $ref: ../components/responses/common.yaml#/Conflict
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

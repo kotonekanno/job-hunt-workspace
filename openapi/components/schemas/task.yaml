@@ -28,19 +28,16 @@ Task:
       description: タスクID
       type: integer
       format: int32
-    companyId:
-      description: 関連する企業のID。企業に紐付かない場合はnull
-      type: integer
-      format: int32
-      nullable: true
+    companyName:
+      $ref: ./company.yaml#/CompanyName
     title:
       $ref: '#/TaskTitle'
     note:
       $ref: '#/TaskNote'
     deadline:
-      description: 期限。タイムゾーン情報を含む日時
+      description: 期限の日付（YYYY-MM-DD）
       type: string
-      format: date-time
+      format: date
       nullable: true
     done:
       description: trueの場合は完了、falseの場合は未完了
@@ -57,7 +54,7 @@ Task:
 # Request / Response
 # ====================
 
-GetTaskResponse:
+GetTasksResponse:
   description: タスク一覧の取得結果。
   type: object
   properties:
@@ -71,10 +68,10 @@ GetTaskResponse:
   example:
     tasks:
       - id: 1
-        companyId: 1
+        companyName: 株式会社サンプル
         title: エントリーシートを提出する
         note: 事前に提出書類を確認する。
-        deadline: 2026-10-15T18:00:00+09:00
+        deadline: '2026-10-15'
         done: false
 
 CreateTaskRequest:
@@ -91,9 +88,9 @@ CreateTaskRequest:
     note:
       $ref: '#/TaskNote'
     deadline:
-      description: 期限
+      description: 期限の日付（YYYY-MM-DD）
       type: string
-      format: date-time
+      format: date
       nullable: true
   required:
     - title
@@ -102,7 +99,7 @@ CreateTaskRequest:
     companyId: 1
     title: エントリーシートを提出する
     note: 事前に提出書類を確認する。
-    deadline: 2026-10-15T10:00:00+09:00
+    deadline: '2026-10-15'
 
 UpdateTaskRequest:
   description: タスクの部分更新内容。更新する項目のみ指定する。
@@ -118,9 +115,9 @@ UpdateTaskRequest:
     note:
       $ref: '#/TaskNote'
     deadline:
-      description: 期限
+      description: 期限の日付（YYYY-MM-DD）
       type: string
-      format: date-time
+      format: date
       nullable: true
     done:
       description: true：完了 / false：未完了

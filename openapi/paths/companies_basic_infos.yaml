@@ -1,4 +1,4 @@
-# /companies/{companyId}/basic-infos
+# /companies/{companyId}/basic_infos
 parameters:
   - $ref: ../components/parameters/path.yaml#/CompanyId
 
@@ -30,3 +30,13 @@ post:
                 format: int32
             example:
               basicInfoId: 1
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

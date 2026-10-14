@@ -15,6 +15,12 @@ get:
         application/json:
           schema:
             $ref: ../components/schemas/event.yaml#/GetEventsResponse
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
   description: イベントを新規作成する。
@@ -44,3 +50,13 @@ post:
                 format: int32
             example:
               eventId: 1
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

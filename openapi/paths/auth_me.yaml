@@ -1,0 +1,15 @@
+# /auth/me
+
+get:
+  description: アクセストークンによる認証状態を確認する。ユーザー情報は返さない。
+  tags:
+    - Authentication
+  operationId: getCurrentUser
+  summary: 認証状態を確認
+  responses:
+    '200':
+      description: 認証状態の確認に成功。レスポンスボディは返さない。
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

@@ -27,15 +27,10 @@ DocumentListItem:
       description: 文書ID
       type: integer
       format: int32
-    position:
-      description: 文書の表示順
-      type: integer
-      format: int32
     title:
       $ref: '#/DocumentTitle'
   required:
     - id
-    - position
     - title
 
 Document:
@@ -74,7 +69,6 @@ GetDocumentsResponse:
   example:
     documents:
       - id: 1
-        position: 1000
         title: 面接対策
 
 CreateDocumentRequest:

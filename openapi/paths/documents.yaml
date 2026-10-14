@@ -13,6 +13,10 @@ get:
         application/json:
           schema:
             $ref: ../components/schemas/document.yaml#/GetDocumentsResponse
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
   description: 文書を新規作成する。
@@ -42,3 +46,9 @@ post:
                 format: int32
             example:
               documentId: 1
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

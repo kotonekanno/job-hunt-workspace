@@ -1,0 +1,35 @@
+package com.kotonekanno.job_hunt_workspace.entities;
+
+import com.example.api.model.SelectionStatus;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(
+    name = "selection_steps",
+    uniqueConstraints = { @UniqueConstraint(columnNames = {"selection_id", "position"}) }
+)
+@Getter
+@Setter
+public class SelectionStep {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+
+  @ManyToOne
+  @JoinColumn(name = "selection_id", nullable = false)
+  private Selection selection;
+
+  @Column(nullable = false)
+  private int position;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private SelectionStatus status = SelectionStatus.NOT_STARTED;
+
+  @Column(nullable = false)
+  private String name;
+
+  private String note;
+}

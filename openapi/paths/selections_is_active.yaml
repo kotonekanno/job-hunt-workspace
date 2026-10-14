@@ -13,6 +13,7 @@ put:
     content:
       application/json:
         schema:
+          type: object
           properties:
             isActive:
               description: true：進行中の選考（一つの企業に対し一つのみ）
@@ -22,3 +23,13 @@ put:
   responses:
     '204':
       $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

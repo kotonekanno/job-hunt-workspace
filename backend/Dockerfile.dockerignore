@@ -1,0 +1,16 @@
+# The build context is the repository root. Send only build inputs.
+**
+!backend/
+!backend/gradlew
+!backend/gradle/
+!backend/gradle/wrapper/
+!backend/gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.properties
+!backend/build.gradle.kts
+!backend/settings.gradle.kts
+!backend/src/
+!backend/src/main/
+!backend/src/main/**
+!openapi/
+!openapi/dist/
+!openapi/dist/openapi.yaml
