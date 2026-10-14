@@ -3,7 +3,7 @@ package com.kotonekanno.job_hunt_workspace.controllers;
 import com.example.api.model.CreateEventRequest;
 import com.example.api.model.CreateEvent201Response;
 import com.example.api.model.GetEventsResponse;
-import com.example.api.model.UpdateEventRequest;
+import com.kotonekanno.job_hunt_workspace.dtos.event.EventPatchRequest;
 import com.kotonekanno.job_hunt_workspace.services.EventService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
@@ -47,7 +47,7 @@ public class EventController {
   public ResponseEntity<Void> updateEvent(
       @AuthenticationPrincipal Integer userId,
       @PathVariable Integer eventId,
-      @Valid @RequestBody UpdateEventRequest request
+      @Valid @RequestBody EventPatchRequest request
   ) {
     service.update(userId, eventId, request);
     return ResponseEntity.noContent().build();

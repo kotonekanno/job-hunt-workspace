@@ -1,6 +1,7 @@
 package com.kotonekanno.job_hunt_workspace.services;
 
 import com.example.api.model.*;
+import com.kotonekanno.job_hunt_workspace.dtos.event.EventPatchRequest;
 import com.kotonekanno.job_hunt_workspace.entities.Event;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
@@ -123,13 +124,13 @@ public class EventService {
   public void update(
       Integer userId,
       Integer eventId,
-      UpdateEventRequest request
+      EventPatchRequest request
   ) {
     Event event = repository.findByIdAndUser_Id(eventId, userId)
         .orElseThrow(() -> new NotFoundException("Event not found"));
 
-    if (request.getCompanyId() != null) {
-      event.setCompany(companyRepository
+    if (request.hasCompanyId()) {
+      event.setCompany(request.getCompanyId() == null ? null : companyRepository
           .findByIdAndUserId(request.getCompanyId(), userId)
           .orElseThrow(() -> new NotFoundException("Company not found"))
       );
