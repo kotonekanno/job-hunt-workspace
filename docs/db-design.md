@@ -211,8 +211,8 @@ erDiagram
 | document       | TEXT         | YES  | Markdown形式の文書 |
 
 - priority
-  - BETWEEN 0 AND 6
-  - 0: 未分類, 1-5: 第n志望, 6: アーカイブ
+  - BETWEEN 1 AND 7
+  - 1-5: 第n志望, 6: 未分類、7: アーカイブ
 - show_*_widget
   - trueならばウィジェットを表示する
   - DEFAULT FALSE
@@ -268,7 +268,7 @@ erDiagram
 - FOREIGN
   - company_id: companies.id(ON DELETE CASCADE)
 - INDEX
-  - company_id, occurred_at
+  - company_id, occurred_at, id
 
 ## selections
 

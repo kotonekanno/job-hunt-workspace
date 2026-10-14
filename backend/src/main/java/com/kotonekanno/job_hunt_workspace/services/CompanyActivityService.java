@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 
 @NullMarked
 @Service
@@ -53,13 +55,11 @@ public class CompanyActivityService {
 
   // やりとり履歴を取得
   @Transactional(readOnly = true)
-  public GetCompanyActivitiesResponse getPerPage(
+  public List<Activity> getPerPage(
       Integer userId,
       Integer companyId,
       Integer page
   ) {
-    Company company = companyService.getOwnedCompany(companyId, userId);
-
     int pageSize = 20;
     int safePage = Math.max(page, 0);
 
@@ -71,19 +71,20 @@ public class CompanyActivityService {
     );
 
     Slice<CompanyActivity> activities =
-        repository.findByCompanyId(companyId, pageable);
+        repository.findByCompany_User_Id(companyId, userId, pageable);
 
-    return new GetCompanyActivitiesResponse()
-        .activities(
-            activities.getContent().stream()
-                .map(activity -> new Activity()
-                    .id(activity.getId())
-                    .occurredAt(activity.getOccurredAt())
-                    .byUser(activity.isByUser())
-                    .text(activity.getText())
-                )
-                .toList()
-        );
+    List<Activity> activityList = new ArrayList<>();
+    for (CompanyActivity activity : activities) {
+      activityList.add(
+          new Activity()
+              .id(activity.getId())
+              .occurredAt(activity.getOccurredAt())
+              .byUser(activity.isByUser())
+              .text(activity.getText())
+      );
+    }
+
+    return activityList;
   }
 
   // やりとり履歴を部分更新

@@ -18,6 +18,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
   Optional<Event> findByIdAndUser_Id(Integer eventId, Integer userId);
 
+  // 指定した月の予定を取得する
   @Query("""
       SELECT e FROM Event e
       LEFT JOIN FETCH e.company
@@ -35,5 +36,27 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
       @Param("endDate") LocalDate endDate,
       @Param("startTime") OffsetDateTime startTime,
       @Param("endTime") OffsetDateTime endTime
+  );
+
+  // 指定した企業に紐づく予定のうち、今日以降の開催されるものを取得する
+  @Query("""
+    SELECT e
+    FROM Event e
+    WHERE e.company.id = :companyId
+      AND (
+          (e.isAllDay = true AND e.endDay >= :today)
+          OR
+          (e.isAllDay = false AND e.endTime >= :startOfToday)
+      )
+    ORDER BY
+        CASE
+            WHEN e.isAllDay = true THEN e.startDay
+            ELSE CAST(e.startTime AS LocalDate)
+        END ASC
+    """)
+  List<Event> findUpcomingByCompanyId(
+      @Param("companyId") Integer companyId,
+      @Param("today") LocalDate today,
+      @Param("startOfToday") OffsetDateTime startOfToday
   );
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @NullMarked
@@ -22,4 +23,9 @@ public interface CompanyBasicInfoRepository extends JpaRepository<CompanyBasicIn
     WHERE b.company.id = :companyId
     """)
   Optional<Integer> findMaxPositionByCompanyId(Integer companyId);
+
+  List<CompanyBasicInfo> findByCompany_User_IdOrderByPositionAsc(Integer companyId);
+
+  // 指定した企業に紐づく基本情報をすべて削除する
+  void deleteAllByCompany_Id(Integer companyId);
 }

@@ -22,7 +22,7 @@ public class Company {
   private User user;
 
   @Column(nullable = false)
-  private short priority = 0;
+  private int priority = 6;
 
   @Column(nullable = false)
   private int position;

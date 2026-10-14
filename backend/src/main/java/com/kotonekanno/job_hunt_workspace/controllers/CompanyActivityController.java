@@ -41,7 +41,9 @@ public class CompanyActivityController {
       @PathVariable Integer companyId,
       @RequestParam(defaultValue = "0") Integer page
   ) {
-    return ResponseEntity.ok(service.getPerPage(userId, companyId, page));
+    return ResponseEntity.ok(new GetCompanyActivitiesResponse()
+        .activities(service.getPerPage(userId, companyId, page))
+    );
   }
 
   // やりとり履歴を部分更新

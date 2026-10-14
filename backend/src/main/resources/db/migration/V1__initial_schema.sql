@@ -37,7 +37,7 @@ ON essay_groups(user_id, position);
 CREATE TABLE companies (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
-  priority SMALLINT NOT NULL DEFAULT 0,
+  priority SMALLINT NOT NULL DEFAULT 6,
   position INT NOT NULL,
   name TEXT NOT NULL,
   show_basic_info_widget BOOLEAN NOT NULL DEFAULT FALSE,
@@ -45,7 +45,7 @@ CREATE TABLE companies (
   document TEXT,
   CONSTRAINT fk_companies_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT uq_companies_user_priority_position UNIQUE (user_id, priority, position),
-  CONSTRAINT chk_companies_priority CHECK(priority BETWEEN 0 AND 6)
+  CONSTRAINT chk_companies_priority CHECK(priority BETWEEN 1 AND 7)
 );
 
 CREATE INDEX idx_companies_user_priority_position
@@ -76,7 +76,7 @@ CREATE TABLE company_activities (
 );
 
 CREATE INDEX idk_company_activities_company_occurred_at
-ON company_activities(company_id, occurred_at);
+ON company_activities(company_id, occurred_at, id);
 
 -- selections
 CREATE TABLE selections (

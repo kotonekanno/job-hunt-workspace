@@ -39,10 +39,7 @@ public class SelectionService {
   ) {
     Company company = companyService.getOwnedCompany(companyId, userId);
 
-    boolean isActive = true;
-    if (selectionRepository.existsByCompany_IdAndIsActiveTrue(companyId)) {
-      isActive = false;
-    }
+    boolean isActive = !selectionRepository.existsByCompany_IdAndIsActiveTrue(companyId);
 
     // Selectionを作成
     Selection selection = new Selection();

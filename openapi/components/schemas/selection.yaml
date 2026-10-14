@@ -91,7 +91,7 @@ SelectionStepResponse:
     - name
 
 CurrentSelection:
-  description: 進行中の選考
+  description: 進行中の選考（アーカイブでは取得しない）
   type: object
   properties:
     title:

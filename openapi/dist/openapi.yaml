@@ -1522,11 +1522,11 @@ components:
       minLength: 1
       maxLength: 50
     CompanyPriority:
-      description: 志望度（0：未分類、1～5：第1～第5志望、6：アーカイブ）
+      description: 志望度（1～5：第1～第5志望、6：未分類、7：アーカイブ）
       type: integer
       format: int32
-      minimum: 0
-      maximum: 6
+      minimum: 1
+      maximum: 7
     SelectionTitle:
       description: 選考の名称
       type: string
@@ -1564,7 +1564,7 @@ components:
         - name
         - status
     CurrentSelection:
-      description: 進行中の選考
+      description: 進行中の選考（アーカイブでは取得しない）
       type: object
       properties:
         title:
@@ -1589,6 +1589,12 @@ components:
           $ref: '#/components/schemas/CompanyPriority'
         currentSelection:
           $ref: '#/components/schemas/CurrentSelection'
+        latestActivity:
+          description: 最新のやりとりの内容（アーカイブでは取得しない）
+          type: string
+          minLength: 5
+          maxLength: 510
+          nullable: true
       required:
         - id
         - name
@@ -1616,6 +1622,7 @@ components:
                 id: 1
                 name: 一次面接
                 status: PENDING
+            latestActivity: 企業がスカウト
     CreateCompanyRequest:
       description: 企業の登録内容。
       type: object
@@ -1871,7 +1878,7 @@ components:
           items:
             $ref: '#/components/schemas/BasicInfo'
         activities:
-          description: 企業とのやりとり履歴（該当する情報がない場合は空配列）
+          description: 企業とのやりとり履歴（最新20件、該当する情報がない場合は空配列）
           type: array
           items:
             $ref: '#/components/schemas/Activity'
@@ -1901,10 +1908,7 @@ components:
         - name
         - showBasicInfoWidget
         - showSelectionWidget
-        - basicInfos
         - activities
-        - selections
-        - activeSelectionId
         - document
         - events
         - tasks
