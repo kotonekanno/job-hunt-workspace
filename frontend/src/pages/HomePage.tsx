@@ -1,4 +1,4 @@
-import { HomeDashboard } from "@/features/home/ui/HomeDashboard";
+import { HomeDashboard } from '@/features/home/ui/HomeDashboard';
 
 export function HomePage() {
   return (

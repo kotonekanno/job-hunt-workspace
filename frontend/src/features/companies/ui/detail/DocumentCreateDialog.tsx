@@ -1,9 +1,6 @@
-import {
-  useState,
-  type FormEvent,
-} from "react";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
+import { useState, type FormEvent } from 'react';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
 
 type DocumentCreateDialogProps = {
   onClose: () => void;
@@ -16,11 +13,11 @@ type DocumentCreateDialogProps = {
 export function DocumentCreateDialog({
   onClose,
   onCreate,
-  dialogTitle = "書類を追加",
-  subTitle = "// DOCUMENT_CREATE",
-  placeholder = "例：一次面接対策",
+  dialogTitle = '書類を追加',
+  subTitle = '// DOCUMENT_CREATE',
+  placeholder = '例：一次面接対策',
 }: DocumentCreateDialogProps) {
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,7 +42,6 @@ export function DocumentCreateDialog({
       <label className="block text-xs text-[var(--muted)]">
         タイトル
         <RequiredMark />
-
         <input
           autoFocus
           required

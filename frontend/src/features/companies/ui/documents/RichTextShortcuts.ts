@@ -1,11 +1,11 @@
-import { Extension, type Editor } from "@tiptap/core";
+import { Extension, type Editor } from '@tiptap/core';
 
 type RichTextShortcutsOptions = {
   onOpenLink: (editor: Editor) => void;
 };
 
 function isMacPlatform() {
-  if (typeof navigator === "undefined") {
+  if (typeof navigator === 'undefined') {
     return false;
   }
 
@@ -13,7 +13,7 @@ function isMacPlatform() {
 }
 
 export const RichTextShortcuts = Extension.create<RichTextShortcutsOptions>({
-  name: "richTextShortcuts",
+  name: 'richTextShortcuts',
 
   addOptions() {
     return {
@@ -22,10 +22,10 @@ export const RichTextShortcuts = Extension.create<RichTextShortcutsOptions>({
   },
 
   addKeyboardShortcuts() {
-    const blockShortcut = isMacPlatform() ? "Mod-Alt" : "Ctrl-Shift";
+    const blockShortcut = isMacPlatform() ? 'Mod-Alt' : 'Ctrl-Shift';
 
     return {
-      "Mod-k": () => {
+      'Mod-k': () => {
         this.options.onOpenLink(this.editor);
         return true;
       },

@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useCompanyList } from "@/features/companies/hooks/useCompanyList";
-import { CompanyCreateDialog } from "@/features/companies/ui/list/CompanyCreateDialog";
-import { CompanyListToolbar } from "@/features/companies/ui/list/CompanyListToolbar";
-import { CompanyPriorityBoard } from "@/features/companies/ui/list/CompanyPriorityBoard";
-import { FloatingAddButton } from "@/shared/button";
-import { InnerHeader } from "@/shared/header";
-import { Building2 } from "lucide-react";
+import { useState } from 'react';
+import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
+import { CompanyCreateDialog } from '@/features/companies/ui/list/CompanyCreateDialog';
+import { CompanyListToolbar } from '@/features/companies/ui/list/CompanyListToolbar';
+import { CompanyPriorityBoard } from '@/features/companies/ui/list/CompanyPriorityBoard';
+import { FloatingAddButton } from '@/shared/button';
+import { InnerHeader } from '@/shared/header';
+import { Building2 } from 'lucide-react';
 
 export function CompanyListPage() {
   const companyList = useCompanyList();

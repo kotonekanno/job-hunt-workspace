@@ -1,16 +1,16 @@
-import { Reorder } from "motion/react";
-import {
-  useMemo,
-} from "react";
-import type { SelectionStatus } from "@/features/companies/model/selection";
+import { Archive } from 'lucide-react';
+import { Reorder } from 'motion/react';
+import { useMemo } from 'react';
+import type { SelectionStatus } from '@/features/companies/model/selection';
 import {
   priorities,
   secondaryPriorities,
   type CompanyListItem,
   type CompanyPriority,
-} from "@/features/companies/model/companyList";
-import { priorityLabels } from "@/features/companies/model/companyPriorityPresentation";
-import { CompanyListCard } from "@/features/companies/ui/list/CompanyListCard";
+} from '@/features/companies/model/companyList';
+import { priorityLabels } from '@/features/companies/model/companyPriorityPresentation';
+import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
+import { useListDragSession } from '@/shared/useListDragSession';
 
 type CompanyPriorityBoardProps = {
   companies: CompanyListItem[];
@@ -21,25 +21,19 @@ type CompanyPriorityBoardProps = {
       priority: CompanyPriority;
     }>,
   ) => void;
-  onSelectionResultChange: (
-    companyId: number,
-    result: SelectionStatus,
-  ) => void;
+  onSelectionResultChange: (companyId: number, result: SelectionStatus) => void;
 };
 
-const initialPriorityOrder = [
-  ...priorities,
-  ...secondaryPriorities,
-];
+const initialPriorityOrder = [...priorities, ...secondaryPriorities];
 
 const priorityTextStyles: Record<CompanyPriority, string> = {
-  1: "text-[var(--accent)]",
-  2: "text-[var(--text-strong)]",
-  3: "text-[var(--text-strong)]",
-  4: "text-[var(--muted)]",
-  5: "text-[var(--faint)]",
-  6: "text-[var(--faint)] opacity-75",
-  0: "text-[var(--muted)]",
+  1: 'text-[var(--accent)]',
+  2: 'text-[var(--text-strong)]',
+  3: 'text-[var(--text-strong)]',
+  4: 'text-[var(--muted)]',
+  5: 'text-[var(--faint)]',
+  6: 'text-[var(--faint)] opacity-75',
+  0: 'text-[var(--muted)]',
 };
 
 function getPriorityItemId(priority: CompanyPriority) {
@@ -50,24 +44,20 @@ function getCompanyItemId(companyId: number) {
   return `company-${companyId}`;
 }
 
-function getPriorityFromItemId(
-  itemId: string,
-): CompanyPriority | undefined {
-  if (!itemId.startsWith("priority-")) {
+function getPriorityFromItemId(itemId: string): CompanyPriority | undefined {
+  if (!itemId.startsWith('priority-')) {
     return undefined;
   }
 
-  return Number(itemId.replace("priority-", "")) as CompanyPriority;
+  return Number(itemId.replace('priority-', '')) as CompanyPriority;
 }
 
-function getCompanyIdFromItemId(
-  itemId: string,
-): number | undefined {
-  if (!itemId.startsWith("company-")) {
+function getCompanyIdFromItemId(itemId: string): number | undefined {
+  if (!itemId.startsWith('company-')) {
     return undefined;
   }
 
-  return Number(itemId.replace("company-", ""));
+  return Number(itemId.replace('company-', ''));
 }
 
 export function CompanyPriorityBoard({
@@ -76,14 +66,17 @@ export function CompanyPriorityBoard({
   onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
   const priorityOrder = initialPriorityOrder;
+  const { isDragSessionActive, startDragSession, endDragSession } =
+    useListDragSession();
 
   const boardItemIds = useMemo(
-    () => priorityOrder.flatMap((priority) => [
-      getPriorityItemId(priority),
-      ...companies
+    () =>
+      priorityOrder.flatMap((priority) => [
+        getPriorityItemId(priority),
+        ...companies
           .filter((company) => company.priority === priority)
           .map((company) => getCompanyItemId(company.id)),
-    ]),
+      ]),
     [companies, priorityOrder],
   );
 
@@ -128,6 +121,7 @@ export function CompanyPriorityBoard({
         axis="y"
         values={boardItemIds}
         onReorder={reorderBoard}
+        data-drag-session={isDragSessionActive}
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
@@ -143,13 +137,13 @@ export function CompanyPriorityBoard({
               layout="position"
               transition={{
                 layout: {
-                  type: "spring",
+                  type: 'spring',
                   stiffness: 420,
                   damping: 34,
                   mass: 0.75,
                 },
               }}
-              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 0 ? "pt-6" : ""}`}
+              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 0 ? 'pt-6' : ''}`}
             >
               <div
                 className={`
@@ -161,14 +155,17 @@ export function CompanyPriorityBoard({
               >
                 <div className="flex min-w-0 items-baseline gap-3">
                   <p className="shrink-0 font-mono text-[7px] tracking-[0.16em] opacity-60">
-                    PRIORITY
+                    {priority === 6 ? (
+                      <Archive aria-label="アーカイブ" className="size-4" />
+                    ) : (
+                      'PRIORITY'
+                    )}
                   </p>
 
                   <h2 className="truncate text-sm font-black">
                     {priorityLabels[priority]}
                   </h2>
                 </div>
-
               </div>
             </Reorder.Item>,
 
@@ -177,6 +174,8 @@ export function CompanyPriorityBoard({
                 key={getCompanyItemId(company.id)}
                 company={company}
                 canReorder
+                onDragSessionStart={startDragSession}
+                onDragSessionEnd={endDragSession}
                 dragValue={getCompanyItemId(company.id)}
                 onSelectionResultChange={onSelectionResultChange}
               />
@@ -184,7 +183,6 @@ export function CompanyPriorityBoard({
           ];
         })}
       </Reorder.Group>
-
     </>
   );
 }

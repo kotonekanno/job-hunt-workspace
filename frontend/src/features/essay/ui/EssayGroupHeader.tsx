@@ -1,15 +1,12 @@
-import { Files } from "lucide-react";
-import { BackLink } from "@/shared/BackLink";
+import { Files } from 'lucide-react';
+import { BackLink } from '@/shared/BackLink';
 
 type EssayGroupHeaderProps = {
   name: string;
   essayCount: number;
 };
 
-export function EssayGroupHeader({
-  name,
-  essayCount,
-}: EssayGroupHeaderProps) {
+export function EssayGroupHeader({ name, essayCount }: EssayGroupHeaderProps) {
   return (
     <div className="mb-5">
       <div className="ui-panel flex items-center gap-4 border border-[var(--line)] px-5 py-4">

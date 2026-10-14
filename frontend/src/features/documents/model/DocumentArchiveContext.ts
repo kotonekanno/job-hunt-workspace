@@ -1,5 +1,5 @@
-import { createContext } from "react";
-import type { WorkspaceDocument } from "@/features/documents/model/document";
+import { createContext } from 'react';
+import type { WorkspaceDocument } from '@/features/documents/model/document';
 
 export type DocumentArchiveValue = {
   documents: WorkspaceDocument[];
@@ -9,6 +9,5 @@ export type DocumentArchiveValue = {
   reorderDocuments: (orderedDocumentIds: number[]) => void;
 };
 
-export const DocumentArchiveContext = createContext<DocumentArchiveValue | null>(
-  null,
-);
+export const DocumentArchiveContext =
+  createContext<DocumentArchiveValue | null>(null);

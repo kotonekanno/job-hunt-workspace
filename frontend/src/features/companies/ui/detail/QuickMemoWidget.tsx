@@ -1,31 +1,26 @@
-import {
-  Check,
-  NotebookPen,
-  X,
-} from "lucide-react";
-import { useState } from "react";
+import { Check, NotebookPen, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { InlineTextarea } from '@/shared/InlineTextarea';
 
-import { WidgetFrame } from "@/features/companies/ui/detail/WidgetFrame";
-import {
-  EditIconButton,
-  IconActionButton,
-} from "@/shared/button";
+import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { EditIconButton, IconActionButton } from '@/shared/button';
 
 type QuickMemoWidgetProps = {
   onRemove: () => void;
 };
 
 const initialMemo =
-  "最終面接では、プロダクトの今後の展開と配属後の役割を確認する。";
+  '最終面接では、プロダクトの今後の展開と配属後の役割を確認する。';
 
-export function QuickMemoWidget({
-  onRemove,
-}: QuickMemoWidgetProps) {
+export function QuickMemoWidget({ onRemove }: QuickMemoWidgetProps) {
   const [memo, setMemo] = useState(initialMemo);
   const [draft, setDraft] = useState(initialMemo);
   const [isEditing, setIsEditing] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(144);
 
   function startEditing() {
+    setHeight(contentRef.current?.getBoundingClientRect().height ?? 144);
     setDraft(memo);
     setIsEditing(true);
   }
@@ -77,37 +72,34 @@ export function QuickMemoWidget({
       className="quick-memo-widget"
     >
       {isEditing ? (
-        <textarea
+        <InlineTextarea
+          initialHeight={height}
           autoFocus
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Escape") {
+            if (event.key === 'Escape') {
               cancelEditing();
             }
 
-            if (
-              event.key === "Enter" &&
-              (event.metaKey || event.ctrlKey)
-            ) {
+            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
               saveMemo();
             }
           }}
           aria-label="簡易メモを編集"
-          className="min-h-36 w-full cursor-text resize-y border border-[var(--line-strong)] bg-[var(--panel)]/70 p-3 text-sm leading-7 text-[var(--text)] outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--accent)]"
+          className="block w-full cursor-text resize-none overflow-hidden border-0 bg-[var(--panel)]/70 py-1 pl-4 pr-2 text-sm leading-7 text-[var(--text)] outline outline-1 outline-[var(--accent)]"
           placeholder="企業について覚えておきたいことを入力"
         />
       ) : (
-        <div className="relative min-h-36 py-1 pl-4 pr-2">
+        <div ref={contentRef} className="relative min-h-36 py-1 pl-4 pr-2">
           <p
             className={
               memo
-                ? "whitespace-pre-wrap text-sm leading-7 text-[var(--text)]"
-                : "whitespace-pre-wrap text-sm leading-7 text-[var(--muted)]"
+                ? 'whitespace-pre-wrap text-sm leading-7 text-[var(--text)]'
+                : 'whitespace-pre-wrap text-sm leading-7 text-[var(--muted)]'
             }
           >
-            {memo ||
-              "メモはまだありません。編集ボタンから入力できます。"}
+            {memo || 'メモはまだありません。編集ボタンから入力できます。'}
           </p>
         </div>
       )}

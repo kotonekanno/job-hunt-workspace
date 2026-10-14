@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from "react";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
+import { useState, type FormEvent } from 'react';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
 
 type EssayGroupDialogProps = {
   onClose: () => void;
@@ -13,7 +13,7 @@ export function EssayGroupDialog({
   onSave,
   groupName,
 }: EssayGroupDialogProps) {
-  const [name, setName] = useState(groupName ?? "");
+  const [name, setName] = useState(groupName ?? '');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,9 +23,9 @@ export function EssayGroupDialog({
 
   return (
     <EditDialog
-      title={groupName ? "ジャンル名を編集" : "新しいジャンルを追加"}
+      title={groupName ? 'ジャンル名を編集' : '新しいジャンルを追加'}
       subTitle="QUESTION GENRE"
-      submitText={groupName ? "変更する" : "追加する"}
+      submitText={groupName ? '変更する' : '追加する'}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

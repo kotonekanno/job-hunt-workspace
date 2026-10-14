@@ -1,17 +1,8 @@
-import {
-  Archive,
-  Check,
-  CircleOff,
-} from "lucide-react";
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { createPortal } from "react-dom";
-import type { Size } from "@/shared/shared-type";
-import type { CompanyPriority } from "../model/companyList";
+import { Archive, Check, CircleOff } from 'lucide-react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import type { Size } from '@/shared/shared-type';
+import type { CompanyPriority } from '../model/companyList';
 
 type PriorityBadgeProps = {
   priority: number | null;
@@ -20,64 +11,64 @@ type PriorityBadgeProps = {
 };
 
 const priorityTexts = [
-  "未分類",
-  "第１志望",
-  "第２志望",
-  "第３志望",
-  "第４志望",
-  "第５志望",
-  "アーカイブ",
+  '未分類',
+  '第１志望',
+  '第２志望',
+  '第３志望',
+  '第４志望',
+  '第５志望',
+  'アーカイブ',
 ] as const;
 
 const priorityOptions = [
   {
-    label: "第１志望",
+    label: '第１志望',
     value: 1,
   },
   {
-    label: "第２志望",
+    label: '第２志望',
     value: 2,
   },
   {
-    label: "第３志望",
+    label: '第３志望',
     value: 3,
   },
   {
-    label: "第４志望",
+    label: '第４志望',
     value: 4,
   },
   {
-    label: "第５志望",
+    label: '第５志望',
     value: 5,
   },
   {
-    label: "未分類",
+    label: '未分類',
     value: 0,
   },
   {
-    label: "アーカイブ",
+    label: 'アーカイブ',
     value: 6,
   },
 ] as const;
 
 const colorStyle: Record<CompanyPriority, string> = {
-  0: "border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]",
-  1: "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)]",
-  2: "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]",
-  3: "border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]",
-  4: "border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]",
-  5: "border-[var(--line)] bg-transparent text-[var(--faint)]",
-  6: "border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75",
+  0: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
+  1: 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)]',
+  2: 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]',
+  3: 'border-[var(--line-strong)] bg-[var(--panel-raised)] text-[var(--text-strong)]',
+  4: 'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]',
+  5: 'border-[var(--line)] bg-transparent text-[var(--faint)]',
+  6: 'border-[var(--line)] bg-transparent text-[var(--faint)] opacity-75',
 };
 
 const hoverColorStyle: Record<CompanyPriority, string> = {
-  0: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  1: "hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  2: "hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]",
-  3: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  4: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  5: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  6: "hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] hover:opacity-100",
+  0: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  1: 'hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  2: 'hover:bg-[var(--accent)] hover:text-[var(--accent-contrast)]',
+  3: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  4: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  5: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  6: 'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] hover:opacity-100',
 };
 
 export function PriorityBadge({
@@ -95,14 +86,13 @@ export function PriorityBadge({
   });
 
   const normalizedPriority: CompanyPriority =
-    priority === null ? 0 : priority as CompanyPriority;
+    priority === null ? 0 : (priority as CompanyPriority);
 
   const text = priorityTexts[normalizedPriority];
   const badgeStyle = colorStyle[normalizedPriority];
   const badgeHoverStyle = hoverColorStyle[normalizedPriority];
-  const sizeStyle = size === "s"
-    ? "w-16 px-2 py-1 text-[9px]"
-    : "w-24 px-3 py-1.5 text-xs";
+  const sizeStyle =
+    size === 's' ? 'w-16 px-2 py-1 text-[9px]' : 'w-24 px-3 py-1.5 text-xs';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -117,17 +107,17 @@ export function PriorityBadge({
     };
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
 
     return () => {
-      document.removeEventListener("mousedown", closeOnOutsideClick);
-      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
     };
   }, [isOpen]);
 
@@ -139,15 +129,11 @@ export function PriorityBadge({
     const menuWidth = menuRef.current?.offsetWidth ?? 192;
     const viewportPadding = 8;
     const preferredLeft = triggerRect.left;
-    const maximumLeft =
-      window.innerWidth - menuWidth - viewportPadding;
+    const maximumLeft = window.innerWidth - menuWidth - viewportPadding;
 
     setMenuPosition({
       top: triggerRect.bottom + 6,
-      left: Math.max(
-        viewportPadding,
-        Math.min(preferredLeft, maximumLeft),
-      ),
+      left: Math.max(viewportPadding, Math.min(preferredLeft, maximumLeft)),
     });
   };
 
@@ -160,23 +146,12 @@ export function PriorityBadge({
   useEffect(() => {
     if (!isOpen) return;
 
-    window.addEventListener(
-      "scroll",
-      updateMenuPosition,
-      true,
-    );
-    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
+    window.addEventListener('resize', updateMenuPosition);
 
     return () => {
-      window.removeEventListener(
-        "scroll",
-        updateMenuPosition,
-        true,
-      );
-      window.removeEventListener(
-        "resize",
-        updateMenuPosition,
-      );
+      window.removeEventListener('scroll', updateMenuPosition, true);
+      window.removeEventListener('resize', updateMenuPosition);
     };
   }, [isOpen]);
 
@@ -186,10 +161,7 @@ export function PriorityBadge({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="relative inline-flex shrink-0"
-    >
+    <div ref={containerRef} className="relative inline-flex shrink-0">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
@@ -219,8 +191,7 @@ export function PriorityBadge({
 
             <div className="mt-1 space-y-0.5">
               {priorityOptions.map((option) => {
-                const isSelected =
-                  priority === option.value;
+                const isSelected = priority === option.value;
                 const isArchive = option.value === 6;
                 const isUnassigned = option.value === 0;
 
@@ -236,20 +207,18 @@ export function PriorityBadge({
                     type="button"
                     role="option"
                     aria-selected={isSelected}
-                    onClick={() =>
-                      selectPriority(option.value)
-                    }
+                    onClick={() => selectPriority(option.value)}
                     className={`flex w-full cursor-pointer items-center gap-2 border-l-2 px-2.5 py-2 text-left transition-colors ${
                       isSelected
-                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text-strong)]"
-                        : "border-transparent text-[var(--muted)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]"
+                        ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text-strong)]'
+                        : 'border-transparent text-[var(--muted)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]'
                     }`}
                   >
                     <span
                       className={`flex size-5 shrink-0 items-center justify-center font-mono text-[8px] font-black ${
                         isSelected
-                          ? "bg-[var(--accent)] text-[var(--accent-contrast)]"
-                          : "bg-[var(--panel-raised)] text-[var(--faint)]"
+                          ? 'bg-[var(--accent)] text-[var(--accent-contrast)]'
+                          : 'bg-[var(--panel-raised)] text-[var(--faint)]'
                       }`}
                     >
                       {OptionIcon ? (

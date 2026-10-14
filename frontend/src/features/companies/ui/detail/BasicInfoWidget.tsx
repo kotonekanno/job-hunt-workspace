@@ -1,14 +1,12 @@
-import { Building2 } from "lucide-react";
-import { companyProfile } from "@/features/companies/model/companyDetail";
-import { RecordTableWidget } from "@/features/companies/ui/detail/RecordTableWidget";
+import { Building2 } from 'lucide-react';
+import { companyProfile } from '@/features/companies/model/companyDetail';
+import { RecordTableWidget } from '@/features/companies/ui/detail/RecordTableWidget';
 
 type BasicInfoWidgetProps = {
   onRemove: () => void;
 };
 
-export function BasicInfoWidget({
-  onRemove,
-}: BasicInfoWidgetProps) {
+export function BasicInfoWidget({ onRemove }: BasicInfoWidgetProps) {
   return (
     <RecordTableWidget
       title="基本情報"

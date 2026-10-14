@@ -1,31 +1,20 @@
-import {
-  Check,
-  ChevronDown,
-  Copy,
-  FilePenLine,
-} from "lucide-react";
-import { useState } from "react";
-import type {
-  Essay,
-  EssayGroup,
-} from "@/features/essay/model/essay";
-import { EssayGroupMoveDialog } from "@/features/essay/ui/EssayGroupMoveDialog";
-import { HighlightedEssayText } from "@/features/essay/ui/HighlightedEssayText";
-import { CompanyBadge } from "@/shared/badge";
-import {
-  DeleteIconButton,
-  EditIconButton,
-  IconActionButton,
-} from "@/shared/button";
-import { DeleteDialog } from "@/shared/dialog";
-import { Select } from "@/shared/select";
+import { InlineEssayField } from '@/features/essay/ui/InlineEssayField';
+import { Check, ChevronDown, Copy, FilePenLine } from 'lucide-react';
+import { useState } from 'react';
+import type { Essay, EssayGroup } from '@/features/essay/model/essay';
+import { EssayGroupMoveDialog } from '@/features/essay/ui/EssayGroupMoveDialog';
+import { HighlightedEssayText } from '@/features/essay/ui/HighlightedEssayText';
+import { CompanyBadge } from '@/shared/badge';
+import { DeleteIconButton, IconActionButton } from '@/shared/button';
+import { DeleteDialog } from '@/shared/dialog';
+import { Select } from '@/shared/select';
 
 const collapsedAnswerLength = 220;
 
 type EssayListProps = {
   essays: Essay[];
   groups: EssayGroup[];
-  onEdit: (essay: Essay) => void;
+  onSave: (essay: Essay) => void;
   onDelete: (essayId: number) => void;
   onGroupChange: (essay: Essay, groupId: string) => void;
   searchQuery?: string;
@@ -34,7 +23,7 @@ type EssayListProps = {
 type EssayListItemProps = {
   essay: Essay;
   groups: EssayGroup[];
-  onEdit: (essay: Essay) => void;
+  onSave: (essay: Essay) => void;
   onDelete: (essayId: number) => void;
   onGroupChange: (essay: Essay, groupId: string) => void;
   searchQuery: string;
@@ -43,10 +32,10 @@ type EssayListItemProps = {
 export function EssayList({
   essays,
   groups,
-  onEdit,
+  onSave,
   onDelete,
   onGroupChange,
-  searchQuery = "",
+  searchQuery = '',
 }: EssayListProps) {
   if (essays.length === 0) {
     return (
@@ -66,7 +55,7 @@ export function EssayList({
           key={essay.id}
           essay={essay}
           groups={groups}
-          onEdit={onEdit}
+          onSave={onSave}
           onDelete={onDelete}
           onGroupChange={onGroupChange}
           searchQuery={searchQuery}
@@ -79,7 +68,7 @@ export function EssayList({
 function EssayListItem({
   essay,
   groups,
-  onEdit,
+  onSave,
   onDelete,
   onGroupChange,
   searchQuery,
@@ -91,14 +80,13 @@ function EssayListItem({
   const isLongAnswer = essay.answer.length > collapsedAnswerLength;
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
   const answerMatchesQuery = Boolean(
-    normalizedQuery
-    && essay.answer.toLocaleLowerCase().includes(normalizedQuery),
+    normalizedQuery &&
+    essay.answer.toLocaleLowerCase().includes(normalizedQuery),
   );
-  const visibleAnswer = isLongAnswer
-    && !isAnswerExpanded
-    && !answerMatchesQuery
-    ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
-    : essay.answer;
+  const visibleAnswer =
+    isLongAnswer && !isAnswerExpanded && !answerMatchesQuery
+      ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
+      : essay.answer;
   const currentGroup = groups.find((group) => group.id === essay.groupId);
   const pendingGroup = groups.find((group) => group.id === pendingGroupId);
 
@@ -134,12 +122,6 @@ function EssayListItem({
               aria-label="質問の性質を変更"
               className="h-7 max-w-40 py-0 text-[10px] font-bold"
             />
-            <EditIconButton
-              size="s"
-              transparent={false}
-              ariaLabel="ESを編集"
-              onClick={() => onEdit(essay)}
-            />
             <DeleteIconButton
               size="s"
               transparent={false}
@@ -150,39 +132,34 @@ function EssayListItem({
         </div>
 
         <div>
-          <section className="border-b border-[var(--line)] p-4">
-            <p className="font-mono text-[9px] font-bold tracking-[0.16em] text-[var(--accent)]">
-              QUESTION
+          <InlineEssayField
+            label="QUESTION"
+            value={essay.question}
+            onSave={(question) => onSave({ ...essay, question })}
+          >
+            <p className="whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
+              <HighlightedEssayText text={essay.question} query={searchQuery} />
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
-              <HighlightedEssayText
-                text={essay.question}
-                query={searchQuery}
-              />
-            </p>
-          </section>
-
-          <section className="p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-mono text-[9px] font-bold tracking-[0.16em] text-[var(--accent)]">
-                ANSWER
-              </p>
+          </InlineEssayField>
+          <InlineEssayField
+            label="ANSWER"
+            value={essay.answer}
+            onSave={(answer) => onSave({ ...essay, answer })}
+            action={
               <IconActionButton
                 icon={isCopied ? Check : Copy}
                 size="s"
-                transparent={false}
-                ariaLabel={isCopied ? "コピーしました" : "回答をコピー"}
-                tooltip={isCopied ? "コピーしました" : "回答をコピー"}
+                transparent
+                ariaLabel={isCopied ? 'コピーしました' : '回答をコピー'}
                 onClick={copyAnswer}
-                iconClassName={isCopied ? "size-3 text-emerald-500" : undefined}
               />
-            </div>
-
+            }
+          >
             {isLongAnswer && !answerMatchesQuery ? (
               <button
                 type="button"
                 onClick={() => setIsAnswerExpanded((current) => !current)}
-                className="group/answer mt-2 block w-full cursor-pointer text-left"
+                className="group/answer block w-full cursor-pointer text-left"
                 aria-expanded={isAnswerExpanded}
               >
                 <span className="block whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
@@ -192,25 +169,24 @@ function EssayListItem({
                   />
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-[var(--accent)]">
-                  {isAnswerExpanded ? "折りたたむ" : "全文を表示"}
+                  {isAnswerExpanded ? '折りたたむ' : '全文を表示'}
                   <ChevronDown
                     className={`size-3.5 transition-transform ${
-                      isAnswerExpanded ? "rotate-180" : ""
+                      isAnswerExpanded ? 'rotate-180' : ''
                     }`}
                   />
                 </span>
               </button>
             ) : (
-              <p className="mt-2 whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
+              <p className="whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
                 <HighlightedEssayText
                   text={visibleAnswer}
                   query={searchQuery}
                 />
               </p>
             )}
-          </section>
+          </InlineEssayField>
         </div>
-
       </article>
 
       {isDeleteDialogOpen && (

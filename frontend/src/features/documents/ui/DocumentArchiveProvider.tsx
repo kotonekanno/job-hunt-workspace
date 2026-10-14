@@ -1,14 +1,9 @@
-import {
-  useState,
-  type ReactNode,
-} from "react";
-import {
-  DocumentArchiveContext,
-} from "@/features/documents/model/DocumentArchiveContext";
+import { useState, type ReactNode } from 'react';
+import { DocumentArchiveContext } from '@/features/documents/model/DocumentArchiveContext';
 import {
   initialWorkspaceDocuments,
   type WorkspaceDocument,
-} from "@/features/documents/model/document";
+} from '@/features/documents/model/document';
 
 type DocumentArchiveProviderProps = {
   children: ReactNode;
@@ -28,31 +23,31 @@ export function DocumentArchiveProvider({
       ...current,
       {
         id: Date.now(),
-        position: Math.max(
-          0,
-          ...current.map((document) => document.position),
-        ) + 1,
+        position:
+          Math.max(0, ...current.map((document) => document.position)) + 1,
         title,
-        text: "",
+        text: '',
       },
     ]);
   }
 
   function updateDocument(document: WorkspaceDocument) {
-    setDocuments((current) => current.map((currentDocument) => (
-      currentDocument.id === document.id
-        ? document
-        : currentDocument
-    )));
+    setDocuments((current) =>
+      current.map((currentDocument) =>
+        currentDocument.id === document.id ? document : currentDocument,
+      ),
+    );
   }
 
   function deleteDocument(documentId: number) {
-    setDocuments((current) => current
-      .filter((document) => document.id !== documentId)
-      .map((document, index) => ({
-        ...document,
-        position: index + 1,
-      })));
+    setDocuments((current) =>
+      current
+        .filter((document) => document.id !== documentId)
+        .map((document, index) => ({
+          ...document,
+          position: index + 1,
+        })),
+    );
   }
 
   function reorderDocuments(orderedDocumentIds: number[]) {

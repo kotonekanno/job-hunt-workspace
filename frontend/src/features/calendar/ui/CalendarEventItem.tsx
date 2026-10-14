@@ -1,10 +1,10 @@
 import type {
   CalendarEvent,
   EventCategory,
-} from "@/features/calendar/model/calendar";
-import { getEventStartTimeLabel } from "@/features/calendar/lib/eventTime";
-import { EventDetails } from "@/features/calendar/ui/EventDetails";
-import { HoverCard } from "@/shared/hover-card";
+} from '@/features/calendar/model/calendar';
+import { getEventStartTimeLabel } from '@/features/calendar/lib/eventTime';
+import { EventDetails } from '@/features/calendar/ui/EventDetails';
+import { HoverCard } from '@/shared/hover-card';
 
 type CalendarEventItemProps = {
   event: CalendarEvent;
@@ -13,17 +13,18 @@ type CalendarEventItemProps = {
 };
 
 const categoryColorClassName: Record<EventCategory, string> = {
-  session: "border-sky-500 bg-sky-500/10 text-[var(--text-strong)]",
-  interview: "border-rose-500 bg-rose-500/10 text-[var(--text-strong)]",
-  chat: "border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]",
-  internship: "border-purple-500 bg-purple-500/10 text-[var(--text-strong)]",
-  other: "border-slate-500 bg-slate-500/10 text-[var(--text-strong)]",
+  session: 'border-sky-500 bg-sky-500/10 text-[var(--text-strong)]',
+  interview: 'border-rose-500 bg-rose-500/10 text-[var(--text-strong)]',
+  chat: 'border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]',
+  internship: 'border-purple-500 bg-purple-500/10 text-[var(--text-strong)]',
+  other: 'border-slate-500 bg-slate-500/10 text-[var(--text-strong)]',
 };
 
 function getEventClassName(event: CalendarEvent): string {
-  const emphasisClassName = event.isAttending === false
-    ? "bg-transparent opacity-50 shadow-none"
-    : "font-semibold shadow-[0_2px_6px_var(--shadow)]";
+  const emphasisClassName =
+    event.isAttending === false
+      ? 'bg-transparent opacity-50 shadow-none'
+      : 'font-semibold shadow-[0_2px_6px_var(--shadow)]';
 
   return `${categoryColorClassName[event.category]} ${emphasisClassName}`;
 }

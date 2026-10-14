@@ -9,7 +9,7 @@ export const initialWorkspaceDocuments: WorkspaceDocument[] = [
   {
     id: 1,
     position: 1,
-    title: "就活プラン",
+    title: '就活プラン',
     text: `# 就活プラン
 
 ## 今月の目標
@@ -25,7 +25,7 @@ export const initialWorkspaceDocuments: WorkspaceDocument[] = [
   {
     id: 2,
     position: 2,
-    title: "面接対策",
+    title: '面接対策',
     text: `# 面接対策
 
 ## よく聞かれる質問
@@ -42,7 +42,7 @@ export const initialWorkspaceDocuments: WorkspaceDocument[] = [
   {
     id: 3,
     position: 3,
-    title: "自己分析メモ",
+    title: '自己分析メモ',
     text: `# 自己分析
 
 ## 大切にしたいこと

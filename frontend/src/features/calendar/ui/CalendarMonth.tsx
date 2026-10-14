@@ -1,6 +1,6 @@
-import { toDateKey, type CalendarDay } from "@/features/calendar/lib/calendar";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { CalendarEventItem } from "@/features/calendar/ui/CalendarEventItem";
+import { toDateKey, type CalendarDay } from '@/features/calendar/lib/calendar';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { CalendarEventItem } from '@/features/calendar/ui/CalendarEventItem';
 
 type CalendarMonthProps = {
   days: CalendarDay[];
@@ -9,18 +9,14 @@ type CalendarMonthProps = {
   onDelete: (eventId: number) => void;
 };
 
-const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
-function occursOnDate(
-  event: CalendarEvent,
-  dateKey: string,
-) {
+function occursOnDate(event: CalendarEvent, dateKey: string) {
   if (!event.isAllDay) {
     return event.startDate === dateKey;
   }
 
-  return event.startDate <= dateKey
-    && event.endDate >= dateKey;
+  return event.startDate <= dateKey && event.endDate >= dateKey;
 }
 
 export function CalendarMonth({
@@ -42,10 +38,10 @@ export function CalendarMonth({
                 px-2 py-2 text-center font-mono text-[10px] font-semibold
                 ${
                   index === 0
-                    ? "text-rose-500"
+                    ? 'text-rose-500'
                     : index === 6
-                      ? "text-[var(--accent)]"
-                      : "text-[var(--muted)]"
+                      ? 'text-[var(--accent)]'
+                      : 'text-[var(--muted)]'
                 }
               `}
             >
@@ -61,8 +57,8 @@ export function CalendarMonth({
               className={`
                 min-h-24 min-w-0 border-r border-b border-[var(--line)] p-1.5
                 transition-colors hover:bg-[var(--panel-raised)]
-                ${(index + 1) % 7 === 0 ? "border-r-0" : ""}
-                ${!day.isCurrentMonth ? "opacity-35" : ""}
+                ${(index + 1) % 7 === 0 ? 'border-r-0' : ''}
+                ${!day.isCurrentMonth ? 'opacity-35' : ''}
               `}
             >
               <span
@@ -70,8 +66,8 @@ export function CalendarMonth({
                   flex size-6 items-center justify-center text-[10px] font-semibold
                   ${
                     day.dateKey === todayKey
-                      ? "cyber-cut-sm bg-[var(--accent)] text-[var(--accent-contrast)]"
-                      : "text-[var(--muted)]"
+                      ? 'cyber-cut-sm bg-[var(--accent)] text-[var(--accent-contrast)]'
+                      : 'text-[var(--muted)]'
                   }
                 `}
               >

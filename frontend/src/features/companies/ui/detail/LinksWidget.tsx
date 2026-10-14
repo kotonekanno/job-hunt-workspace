@@ -1,14 +1,12 @@
-import { Link2 } from "lucide-react";
-import { companyProfile } from "@/features/companies/model/companyDetail";
-import { RecordTableWidget } from "@/features/companies/ui/detail/RecordTableWidget";
+import { Link2 } from 'lucide-react';
+import { companyProfile } from '@/features/companies/model/companyDetail';
+import { RecordTableWidget } from '@/features/companies/ui/detail/RecordTableWidget';
 
 type LinksWidgetProps = {
   onRemove: () => void;
 };
 
-export function LinksWidget({
-  onRemove,
-}: LinksWidgetProps) {
+export function LinksWidget({ onRemove }: LinksWidgetProps) {
   return (
     <RecordTableWidget
       title="関連リンク集"

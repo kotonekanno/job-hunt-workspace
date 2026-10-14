@@ -1,21 +1,21 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent } from 'react';
 import {
   priorities,
   secondaryPriorities,
   type CompanyListItem,
   type CompanyPriority,
-} from "@/features/companies/model/companyList";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
-import { Select, type SelectOption } from "@/shared/select";
+} from '@/features/companies/model/companyList';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
+import { Select, type SelectOption } from '@/shared/select';
 
 type CompanyCreateDialogProps = {
   onClose: () => void;
-  onSave: (company: Omit<CompanyListItem, "id" | "order">) => void;
+  onSave: (company: Omit<CompanyListItem, 'id' | 'order'>) => void;
 };
 
 export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [priority, setPriority] = useState<CompanyPriority>(3);
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -24,15 +24,16 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
       name,
       priority,
       selection: {
-        title: "本選考",
-        step: "書類選考",
-        status: "not_started",
+        title: '本選考',
+        step: '書類選考',
+        status: 'not_started',
       },
     });
     props.onClose();
   }
 
-  const fieldClassName = "mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]";
+  const fieldClassName =
+    'mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]';
   const priorityOptions: SelectOption<CompanyPriority>[] = [
     ...priorities.map((item) => ({
       value: item,
@@ -40,7 +41,7 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
     })),
     ...secondaryPriorities.map((item) => ({
       value: item,
-      label: item === 0 ? "未分類" : "アーカイブ",
+      label: item === 0 ? '未分類' : 'アーカイブ',
     })),
   ];
 
@@ -51,27 +52,27 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
       onClose={props.onClose}
       onSubmit={submit}
     >
-        <>
-          <label className="block text-xs text-[var(--muted)]">
-            会社名
-            <RequiredMark />
-            <input
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className={fieldClassName}
-            />
-          </label>
-          <label className="block text-xs text-[var(--muted)]">
-            志望順位
-            <Select
-              value={priority}
-              options={priorityOptions}
-              onValueChange={setPriority}
-              className="mt-1 h-10 w-full"
-            />
-          </label>
-        </>
+      <>
+        <label className="block text-xs text-[var(--muted)]">
+          会社名
+          <RequiredMark />
+          <input
+            required
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className={fieldClassName}
+          />
+        </label>
+        <label className="block text-xs text-[var(--muted)]">
+          志望順位
+          <Select
+            value={priority}
+            options={priorityOptions}
+            onValueChange={setPriority}
+            className="mt-1 h-10 w-full"
+          />
+        </label>
+      </>
     </EditDialog>
   );
 }

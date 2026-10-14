@@ -4,31 +4,26 @@ import {
   MapPin,
   Monitor,
   type LucideIcon,
-} from "lucide-react";
-import {
-  useState,
-  type FormEvent,
-} from "react";
+} from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import {
   attendanceEnabledCategories,
   eventCategories,
   eventCategoryLabels,
   type CalendarEvent,
   type EventCategory,
-} from "@/features/calendar/model/calendar";
-import { companyNameOptions } from "@/features/companies/model/companyList";
-import { CompanyCombobox } from "@/shared/CompanyCombobox";
-import { EditDialog } from "@/shared/dialog";
-import { RequiredMark } from "@/shared/form";
-import {
-  Select,
-} from "@/shared/select";
+} from '@/features/calendar/model/calendar';
+import { companyNameOptions } from '@/features/companies/model/companyList';
+import { CompanyCombobox } from '@/shared/CompanyCombobox';
+import { EditDialog } from '@/shared/dialog';
+import { RequiredMark } from '@/shared/form';
+import { Select } from '@/shared/select';
 
 type EventDialogProps = {
   event?: CalendarEvent;
   defaultCompany?: string;
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, "id">, id?: number) => void;
+  onSave: (event: Omit<CalendarEvent, 'id'>, id?: number) => void;
 };
 
 const fieldClassName = `
@@ -45,18 +40,18 @@ export function EventDialog({
   onSave,
 }: EventDialogProps) {
   const initialDate = event?.startDate ?? getTodayDateKey();
-  const [form, setForm] = useState<Omit<CalendarEvent, "id">>({
-    title: event?.title ?? "",
-    company: event?.company || defaultCompany || "",
-    category: event?.category ?? "session",
+  const [form, setForm] = useState<Omit<CalendarEvent, 'id'>>({
+    title: event?.title ?? '',
+    company: event?.company || defaultCompany || '',
+    category: event?.category ?? 'session',
     isAllDay: event?.isAllDay ?? false,
     startDate: initialDate,
     endDate: event?.endDate ?? initialDate,
-    startTime: event?.startTime ?? "10:00",
-    endTime: event?.endTime ?? "11:00",
+    startTime: event?.startTime ?? '10:00',
+    endTime: event?.endTime ?? '11:00',
     isOnline: event?.isOnline ?? true,
     isAttending: event?.isAttending ?? true,
-    note: event?.note ?? "",
+    note: event?.note ?? '',
   });
   const canSelectAttendance = attendanceEnabledCategories.includes(
     form.category,
@@ -73,18 +68,21 @@ export function EventDialog({
   function submit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault();
 
-    onSave({
-      ...form,
-      isAttending: canSelectAttendance
-        ? form.isAttending ?? true
-        : undefined,
-    }, event?.id);
+    onSave(
+      {
+        ...form,
+        isAttending: canSelectAttendance
+          ? (form.isAttending ?? true)
+          : undefined,
+      },
+      event?.id,
+    );
     onClose();
   }
 
   return (
     <EditDialog
-      title={event ? "予定を編集" : "予定を追加"}
+      title={event ? '予定を編集' : '予定を追加'}
       subTitle="// EVENT_EDITOR"
       onClose={onClose}
       onSubmit={submit}
@@ -97,13 +95,15 @@ export function EventDialog({
         <label className="text-xs text-[var(--muted)]">
           企業名
           <CompanyCombobox
-            value={form.company ?? ""}
+            value={form.company ?? ''}
             options={companyNameOptions}
             allowEmpty
-            onValueChange={(company) => setForm({
-              ...form,
-              company,
-            })}
+            onValueChange={(company) =>
+              setForm({
+                ...form,
+                company,
+              })
+            }
             className="mt-1"
           />
         </label>
@@ -114,10 +114,12 @@ export function EventDialog({
           <input
             required
             value={form.title}
-            onChange={(changeEvent) => setForm({
-              ...form,
-              title: changeEvent.target.value,
-            })}
+            onChange={(changeEvent) =>
+              setForm({
+                ...form,
+                title: changeEvent.target.value,
+              })
+            }
             className={`mt-1 ${fieldClassName}`}
           />
         </label>
@@ -140,43 +142,53 @@ export function EventDialog({
             label="終日"
             icon={CalendarClock}
             checked={form.isAllDay}
-            onChange={(isAllDay) => setForm({
-              ...form,
-              isAllDay,
-            })}
+            onChange={(isAllDay) =>
+              setForm({
+                ...form,
+                isAllDay,
+              })
+            }
           />
         </div>
 
         <DateTimeField
           label="開始"
           date={form.startDate}
-          time={form.startTime ?? "10:00"}
+          time={form.startTime ?? '10:00'}
           timeDisabled={form.isAllDay}
-          onDateChange={(startDate) => setForm({
-            ...form,
-            startDate,
-            endDate: form.endDate < startDate ? startDate : form.endDate,
-          })}
-          onTimeChange={(startTime) => setForm({
-            ...form,
-            startTime,
-          })}
+          onDateChange={(startDate) =>
+            setForm({
+              ...form,
+              startDate,
+              endDate: form.endDate < startDate ? startDate : form.endDate,
+            })
+          }
+          onTimeChange={(startTime) =>
+            setForm({
+              ...form,
+              startTime,
+            })
+          }
         />
 
         <DateTimeField
           label="終了"
           date={form.endDate}
-          time={form.endTime ?? "11:00"}
+          time={form.endTime ?? '11:00'}
           minDate={form.startDate}
           timeDisabled={form.isAllDay}
-          onDateChange={(endDate) => setForm({
-            ...form,
-            endDate,
-          })}
-          onTimeChange={(endTime) => setForm({
-            ...form,
-            endTime,
-          })}
+          onDateChange={(endDate) =>
+            setForm({
+              ...form,
+              endDate,
+            })
+          }
+          onTimeChange={(endTime) =>
+            setForm({
+              ...form,
+              endTime,
+            })
+          }
         />
 
         <div className="text-xs text-[var(--muted)]">
@@ -186,19 +198,21 @@ export function EventDialog({
             options={[
               {
                 value: true,
-                label: "オンライン",
+                label: 'オンライン',
                 icon: Monitor,
               },
               {
                 value: false,
-                label: "オフライン",
+                label: 'オフライン',
                 icon: MapPin,
               },
             ]}
-            onChange={(isOnline) => setForm({
-              ...form,
-              isOnline,
-            })}
+            onChange={(isOnline) =>
+              setForm({
+                ...form,
+                isOnline,
+              })
+            }
           />
         </div>
 
@@ -209,20 +223,24 @@ export function EventDialog({
           checkedText="参加"
           uncheckedText="不参加"
           disabled={!canSelectAttendance}
-          onChange={(isParticipating) => setForm({
-            ...form,
-            isAttending: isParticipating,
-          })}
+          onChange={(isParticipating) =>
+            setForm({
+              ...form,
+              isAttending: isParticipating,
+            })
+          }
         />
 
         <label className="text-xs text-[var(--muted)] sm:col-span-2">
           メモ
           <textarea
             value={form.note}
-            onChange={(changeEvent) => setForm({
-              ...form,
-              note: changeEvent.target.value,
-            })}
+            onChange={(changeEvent) =>
+              setForm({
+                ...form,
+                note: changeEvent.target.value,
+              })
+            }
             className="mt-1 min-h-24 w-full cursor-text resize-y border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none transition-colors hover:border-[var(--line-strong)] focus:border-[var(--accent)]"
             placeholder="準備することや確認事項など"
           />
@@ -253,9 +271,7 @@ function DateTimeField({
 }: DateTimeFieldProps) {
   return (
     <div>
-      <p className="text-xs text-[var(--muted)]">
-        {label}
-      </p>
+      <p className="text-xs text-[var(--muted)]">{label}</p>
 
       <div className="mt-1 grid grid-cols-[minmax(0,1fr)_112px] gap-2">
         <input
@@ -272,7 +288,7 @@ function DateTimeField({
           required
           type="time"
           step={300}
-          value={timeDisabled ? "" : time}
+          value={timeDisabled ? '' : time}
           disabled={timeDisabled}
           onChange={(event) => onTimeChange(event.target.value)}
           aria-label={`${label}時刻`}
@@ -298,8 +314,8 @@ function SwitchField({
   icon: Icon,
   checked,
   onChange,
-  checkedText = "オン",
-  uncheckedText = "オフ",
+  checkedText = 'オン',
+  uncheckedText = 'オフ',
   disabled = false,
 }: SwitchFieldProps) {
   return (
@@ -308,9 +324,9 @@ function SwitchField({
       <div
         className={`mt-1 flex h-10 w-full items-center justify-between border px-3 transition-colors ${
           checked
-            ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-            : "border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]"
-        } ${disabled ? "opacity-40" : ""}`}
+            ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
+            : 'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]'
+        } ${disabled ? 'opacity-40' : ''}`}
       >
         <span className="inline-flex items-center gap-2 text-xs font-bold">
           <Icon className="size-4" />
@@ -326,13 +342,13 @@ function SwitchField({
           onClick={() => onChange(!checked)}
           className={`relative h-5 w-9 cursor-pointer border transition-colors ${
             checked
-              ? "border-[var(--accent)] bg-[var(--accent)]"
-              : "border-[var(--line-strong)] bg-[var(--panel)]"
+              ? 'border-[var(--accent)] bg-[var(--accent)]'
+              : 'border-[var(--line-strong)] bg-[var(--panel)]'
           } disabled:cursor-not-allowed`}
         >
           <span
             className={`absolute left-0.5 top-0.5 size-3.5 bg-white shadow-sm transition-transform ${
-              checked ? "translate-x-[18px]" : "translate-x-0"
+              checked ? 'translate-x-[18px]' : 'translate-x-0'
             }`}
           />
         </button>
@@ -372,8 +388,8 @@ function SegmentedControl<T extends string | boolean>({
             onClick={() => onChange(option.value)}
             className={`flex h-8 cursor-pointer items-center justify-center gap-1.5 px-2 text-[10px] font-bold transition-colors ${
               isSelected
-                ? "bg-[var(--accent)] text-[var(--accent-contrast)]"
-                : "text-[var(--muted)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]"
+                ? 'bg-[var(--accent)] text-[var(--accent-contrast)]'
+                : 'text-[var(--muted)] hover:bg-[var(--panel-raised)] hover:text-[var(--text-strong)]'
             }`}
           >
             <Icon className="size-3.5" />
@@ -388,8 +404,8 @@ function SegmentedControl<T extends string | boolean>({
 function getTodayDateKey() {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const date = String(today.getDate()).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const date = String(today.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${date}`;
 }

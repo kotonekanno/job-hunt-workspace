@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useCalendar } from "@/features/calendar/hooks/useCalendar";
-import type { CalendarEvent } from "@/features/calendar/model/calendar";
-import { CalendarHeader } from "@/features/calendar/ui/CalendarHeader";
-import { CalendarMonth } from "@/features/calendar/ui/CalendarMonth";
-import { EventDialog } from "@/features/calendar/ui/EventDialog";
-import { UpcomingEvents } from "@/features/calendar/ui/UpcomingEvents";
-import { FloatingAddButton } from "@/shared/button";
+import { useState } from 'react';
+import { useCalendar } from '@/features/calendar/hooks/useCalendar';
+import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { CalendarHeader } from '@/features/calendar/ui/CalendarHeader';
+import { CalendarMonth } from '@/features/calendar/ui/CalendarMonth';
+import { EventDialog } from '@/features/calendar/ui/EventDialog';
+import { UpcomingEvents } from '@/features/calendar/ui/UpcomingEvents';
+import { FloatingAddButton } from '@/shared/button';
 
 export function CalendarPage() {
   const calendar = useCalendar();
@@ -37,7 +37,7 @@ export function CalendarPage() {
         onNextMonth={() => calendar.moveMonth(1)}
         onToday={calendar.goToToday}
       />
-      <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_434px]">
         <CalendarMonth
           days={calendar.days}
           events={calendar.events}
@@ -50,10 +50,7 @@ export function CalendarPage() {
           onDelete={calendar.deleteEvent}
         />
       </div>
-      <FloatingAddButton
-        text="予定を追加"
-        onClick={openAddDialog}
-      />
+      <FloatingAddButton text="予定を追加" onClick={openAddDialog} />
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}

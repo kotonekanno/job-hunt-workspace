@@ -1,4 +1,4 @@
-import type { SelectHTMLAttributes } from "react";
+import type { SelectHTMLAttributes } from 'react';
 
 type SelectValue = string | number;
 
@@ -10,7 +10,7 @@ export type SelectOption<T extends SelectValue> = {
 
 type SelectProps<T extends SelectValue> = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
-  "value" | "onChange"
+  'value' | 'onChange'
 > & {
   value: T;
   options: readonly SelectOption<T>[];
@@ -21,7 +21,7 @@ export function Select<T extends SelectValue>({
   value,
   options,
   onValueChange,
-  className = "",
+  className = '',
   ...props
 }: SelectProps<T>) {
   return (

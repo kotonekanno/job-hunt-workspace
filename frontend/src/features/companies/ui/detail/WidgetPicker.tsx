@@ -1,10 +1,10 @@
-import { Plus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import {
   widgetLabels,
   type WidgetType,
-} from "@/features/companies/model/companyDetail";
-import { FloatingAddButton } from "@/shared/button";
+} from '@/features/companies/model/companyDetail';
+import { FloatingAddButton } from '@/shared/button';
 
 type WidgetPickerProps = {
   hiddenWidgets: WidgetType[];
@@ -27,8 +27,8 @@ export function WidgetPicker({ hiddenWidgets, onAdd }: WidgetPickerProps) {
       }
     }
 
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
   }, []);
 
   return (
@@ -51,26 +51,28 @@ export function WidgetPicker({ hiddenWidgets, onAdd }: WidgetPickerProps) {
             <p className="px-3 py-4 text-center text-xs text-[var(--faint)]">
               すべて表示されています
             </p>
-          ) : hiddenWidgets.map((widget) => (
-            <button
-              key={widget}
-              type="button"
-              onClick={() => {
-                onAdd(widget);
-                setIsOpen(false);
-              }}
-              className="
+          ) : (
+            hiddenWidgets.map((widget) => (
+              <button
+                key={widget}
+                type="button"
+                onClick={() => {
+                  onAdd(widget);
+                  setIsOpen(false);
+                }}
+                className="
                 flex w-full cursor-pointer items-center gap-2
                 border-l-2 border-transparent px-3 py-2.5
                 text-left text-xs text-[var(--muted)]
                 hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]
                 hover:text-[var(--text-strong)]
               "
-            >
-              <Plus className="size-3.5" />
-              {widgetLabels[widget]}
-            </button>
-          ))}
+              >
+                <Plus className="size-3.5" />
+                {widgetLabels[widget]}
+              </button>
+            ))
+          )}
         </div>
       )}
     </>

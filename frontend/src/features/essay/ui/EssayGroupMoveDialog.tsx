@@ -1,10 +1,6 @@
-import { ArrowRight } from "lucide-react";
-import { useId } from "react";
-import {
-  DialogActions,
-  DialogBase,
-  DialogHeader,
-} from "@/shared/dialog";
+import { ArrowRight } from 'lucide-react';
+import { useId } from 'react';
+import { DialogActions, DialogBase, DialogHeader } from '@/shared/dialog';
 
 type EssayGroupMoveDialogProps = {
   currentGroupName: string;

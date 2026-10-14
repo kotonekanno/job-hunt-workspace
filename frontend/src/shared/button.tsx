@@ -1,19 +1,10 @@
-import {
-  Pencil,
-  Plus,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
-import {
-  useState,
-  type ButtonHTMLAttributes,
-  type ReactNode,
-} from "react";
-import { DeleteDialog } from "@/shared/dialog";
-import type { Size } from "@/shared/shared-type";
-import { Tooltip } from "@/shared/tooltip";
+import { Pencil, Plus, Trash2, type LucideIcon } from 'lucide-react';
+import { useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { DeleteDialog } from '@/shared/dialog';
+import type { Size } from '@/shared/shared-type';
+import { Tooltip } from '@/shared/tooltip';
 
-type ButtonVariant = "primary" | "secondary" | "danger-ghost";
+type ButtonVariant = 'primary' | 'secondary' | 'danger-ghost';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
@@ -29,7 +20,7 @@ type AddButtonProps = {
 type IconActionButtonBaseProps = {
   size: Size;
   transparent: boolean;
-  onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  onClick: ButtonHTMLAttributes<HTMLButtonElement>['onClick'];
   ariaLabel?: string;
 };
 
@@ -50,7 +41,7 @@ type BulkDeleteButtonProps = {
 
 type FloatingIconButtonProps = {
   icon: LucideIcon;
-  onClick: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  onClick: ButtonHTMLAttributes<HTMLButtonElement>['onClick'];
   ariaLabel: string;
   title?: string;
   tooltip?: string;
@@ -63,46 +54,49 @@ type FloatingAddButtonProps = {
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] shadow-[0_4px_14px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]",
-  secondary: "border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-[0_3px_10px_var(--shadow)]",
-  "danger-ghost": "border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-rose-500 hover:text-rose-500",
+  primary:
+    'cyber-cut-sm border-[var(--accent)] bg-[var(--accent)] font-bold text-[var(--accent-contrast)] shadow-[0_4px_14px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
+  secondary:
+    'border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:shadow-[0_3px_10px_var(--shadow)]',
+  'danger-ghost':
+    'border-[var(--line)] bg-[var(--panel-raised)] font-semibold text-[var(--muted)] hover:border-rose-500 hover:text-rose-500',
 };
 
 const sizeStyles = {
   s: {
-    button: "h-8 gap-1.5 px-3 text-[9px]",
-    icon: "size-3",
+    button: 'h-8 gap-1.5 px-3 text-[9px]',
+    icon: 'size-3',
   },
   m: {
-    button: "h-9 gap-2 px-4 text-xs",
-    icon: "size-3.5",
+    button: 'h-9 gap-2 px-4 text-xs',
+    icon: 'size-3.5',
   },
   l: {
-    button: "h-10 gap-2 px-5 text-sm",
-    icon: "size-4",
+    button: 'h-10 gap-2 px-5 text-sm',
+    icon: 'size-4',
   },
 } satisfies Record<Size, { button: string; icon: string }>;
 
 const iconActionSizeStyles = {
   s: {
-    button: "size-7",
-    icon: "size-3",
+    button: 'size-7',
+    icon: 'size-3',
   },
   m: {
-    button: "size-8",
-    icon: "size-3.5",
+    button: 'size-8',
+    icon: 'size-3.5',
   },
   l: {
-    button: "size-9",
-    icon: "size-4",
+    button: 'size-9',
+    icon: 'size-4',
   },
 } satisfies Record<Size, { button: string; icon: string }>;
 
 function Button({
   children,
-  variant = "secondary",
-  type = "button",
-  className = "",
+  variant = 'secondary',
+  type = 'button',
+  className = '',
   ...props
 }: ButtonProps) {
   return (
@@ -124,20 +118,20 @@ export function IconActionButton({
   ariaLabel,
   danger = false,
   tooltip,
-  className = "",
+  className = '',
   iconClassName,
 }: IconActionButtonProps) {
   const styles = iconActionSizeStyles[size];
   const button = (
     <Button
-      variant={danger ? "danger-ghost" : "secondary"}
+      variant={danger ? 'danger-ghost' : 'secondary'}
       onClick={onClick}
       aria-label={ariaLabel}
       title={tooltip ? undefined : ariaLabel}
       className={`${styles.button} shrink-0 p-0 ${
         transparent
-          ? "border-transparent bg-transparent hover:border-transparent hover:bg-[var(--panel-raised)]"
-          : ""
+          ? 'border-transparent bg-transparent hover:border-transparent hover:bg-[var(--panel-raised)]'
+          : ''
       } ${className}`}
     >
       <Icon className={iconClassName ?? styles.icon} />
@@ -153,7 +147,7 @@ export function EditIconButton({
   size,
   transparent,
   onClick,
-  ariaLabel = "編集",
+  ariaLabel = '編集',
 }: IconActionButtonBaseProps) {
   return (
     <IconActionButton
@@ -170,7 +164,7 @@ export function DeleteIconButton({
   size,
   transparent,
   onClick,
-  ariaLabel = "削除",
+  ariaLabel = '削除',
 }: IconActionButtonBaseProps) {
   return (
     <IconActionButton
@@ -190,7 +184,7 @@ export function FloatingIconButton({
   ariaLabel,
   title,
   tooltip = ariaLabel,
-  className = "",
+  className = '',
 }: FloatingIconButtonProps) {
   return (
     <div className="fixed right-5 bottom-5 z-10">
@@ -209,10 +203,7 @@ export function FloatingIconButton({
   );
 }
 
-export function FloatingAddButton({
-  text,
-  onClick,
-}: FloatingAddButtonProps) {
+export function FloatingAddButton({ text, onClick }: FloatingAddButtonProps) {
   return (
     <FloatingIconButton
       icon={Plus}
@@ -223,19 +214,11 @@ export function FloatingAddButton({
   );
 }
 
-export function AddButton({
-  text,
-  size,
-  onClick,
-}: AddButtonProps) {
+export function AddButton({ text, size, onClick }: AddButtonProps) {
   const styles = sizeStyles[size];
 
   return (
-    <Button
-      variant="primary"
-      onClick={onClick}
-      className={styles.button}
-    >
+    <Button variant="primary" onClick={onClick} className={styles.button}>
       <Plus className={styles.icon} />
       {text}
     </Button>
@@ -245,7 +228,7 @@ export function AddButton({
 export function OutlineAddButton({
   text,
   onClick,
-}: Omit<AddButtonProps, "size">) {
+}: Omit<AddButtonProps, 'size'>) {
   return (
     <Button
       variant="secondary"
@@ -262,7 +245,7 @@ export function BulkDeleteButton({
   size,
   count,
   onConfirm,
-  itemLabel = "完了済みのタスク",
+  itemLabel = '完了済みのタスク',
 }: BulkDeleteButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const styles = sizeStyles[size];

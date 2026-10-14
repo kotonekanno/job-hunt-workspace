@@ -1,5 +1,5 @@
-import type { EssayGroup } from "@/features/essay/model/essay";
-import { CompanyCombobox } from "@/shared/CompanyCombobox";
+import type { EssayGroup } from '@/features/essay/model/essay';
+import { CompanyCombobox } from '@/shared/CompanyCombobox';
 
 type EssayGroupComboboxProps = {
   value: string;
@@ -12,9 +12,9 @@ export function EssayGroupCombobox({
   value,
   groups,
   onValueChange,
-  className = "",
+  className = '',
 }: EssayGroupComboboxProps) {
-  const selectedName = groups.find((group) => group.id === value)?.name ?? "";
+  const selectedName = groups.find((group) => group.id === value)?.name ?? '';
   const groupNames = groups.map((group) => group.name);
 
   return (
