@@ -74,7 +74,7 @@ public class CompanyActivityService {
     );
 
     Slice<CompanyActivity> activities =
-        repository.findByCompany_User_Id(companyId, userId, pageable);
+        repository.findByCompany_IdAndCompany_User_Id(companyId, userId, pageable);
 
     List<Activity> activityList = new ArrayList<>();
     for (CompanyActivity activity : activities) {

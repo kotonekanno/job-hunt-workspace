@@ -203,7 +203,7 @@ public class EssayService {
     EssayGroup essayGroup = null;
     if (essayGroupId != null) {
       essayGroup = essayGroupRepository
-          .findById(essayGroupId)
+          .findByIdAndUser_Id(essayGroupId, userId)
           .orElseThrow(() -> new NotFoundException("EssayGroup not found"));
     }
 

@@ -24,7 +24,7 @@ public interface CompanyBasicInfoRepository extends JpaRepository<CompanyBasicIn
     """)
   Optional<Integer> findMaxPositionByCompanyId(Integer companyId);
 
-  List<CompanyBasicInfo> findByCompany_User_IdOrderByPositionAsc(Integer companyId);
+  List<CompanyBasicInfo> findByCompany_IdOrderByPositionAsc(Integer companyId);
 
   // 指定した企業に紐づく基本情報をすべて削除する
   void deleteAllByCompany_Id(Integer companyId);

@@ -17,7 +17,9 @@ import java.util.Optional;
 @NullMarked
 @Repository
 public interface CompanyActivityRepository extends JpaRepository<CompanyActivity, Integer> {
-  Page<CompanyActivity> findByCompany_User_Id(
+
+  // 指定したページのやりとり履歴を取得する
+  Page<CompanyActivity> findByCompany_IdAndCompany_User_Id(
       Integer companyId,
       Integer userId,
       Pageable pageable

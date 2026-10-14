@@ -143,7 +143,7 @@ public class CompanyService {
     List<BasicInfo> basicInfos = List.of();
     if (showBasicInfoWidget) {
       basicInfos = companyBasicInfoRepository
-          .findByCompany_User_IdOrderByPositionAsc(companyId)
+          .findByCompany_IdOrderByPositionAsc(companyId)
           .stream()
           .map(info -> new BasicInfo()
               .id(info.getId())
