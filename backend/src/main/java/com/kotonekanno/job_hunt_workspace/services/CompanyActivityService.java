@@ -5,6 +5,8 @@ import com.kotonekanno.job_hunt_workspace.entities.Company;
 import com.kotonekanno.job_hunt_workspace.entities.CompanyActivity;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.CompanyActivityRepository;
+import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
+
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -23,14 +25,14 @@ import java.util.List;
 public class CompanyActivityService {
 
   private final CompanyActivityRepository repository;
-  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   public CompanyActivityService(
       CompanyActivityRepository repository,
-      CompanyService companyService
+      CompanyRepository companyRepository
   ) {
     this.repository = repository;
-    this.companyService = companyService;
+    this.companyRepository = companyRepository;
   }
 
   // やりとり履歴を追加
@@ -40,7 +42,8 @@ public class CompanyActivityService {
       Integer companyId,
       CreateCompanyActivityRequest request
   ) {
-    Company company = companyService.getOwnedCompany(companyId, userId);
+    Company company = companyRepository.findByIdAndUserId(companyId, userId)
+        .orElseThrow(() -> new NotFoundException("Company not found"));
 
     CompanyActivity activity = new CompanyActivity();
     activity.setCompany(company);

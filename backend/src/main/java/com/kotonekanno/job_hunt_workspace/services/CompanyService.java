@@ -417,10 +417,4 @@ public class CompanyService {
       position += 1000;
     }
   }
-
-  // CompanyがUserのものであることを確認
-  public Company getOwnedCompany(Integer companyId, Integer userId) {
-    return companyRepository.findByIdAndUserId(companyId, userId)
-        .orElseThrow(() -> new NotFoundException("Company not found"));
-  }
 }

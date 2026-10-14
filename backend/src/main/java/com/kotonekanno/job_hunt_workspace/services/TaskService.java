@@ -6,6 +6,7 @@ import com.kotonekanno.job_hunt_workspace.entities.Task;
 import com.kotonekanno.job_hunt_workspace.entities.User;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.AccessDeniedException;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
+import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.TaskRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,16 +21,16 @@ public class TaskService {
 
   private final TaskRepository repository;
   private final UserRepository userRepository;
-  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   public TaskService(
       TaskRepository repository,
       UserRepository userRepository,
-      CompanyService companyService
+      CompanyRepository companyRepository
   ) {
     this.repository = repository;
     this.userRepository = userRepository;
-    this.companyService = companyService;
+    this.companyRepository = companyRepository;
   }
 
   // タスク一覧を取得
@@ -61,7 +62,10 @@ public class TaskService {
         .orElseThrow(() -> new NotFoundException("User not found")));
 
     if (request.getCompanyId() != null) {
-      task.setCompany(companyService.getOwnedCompany(request.getCompanyId(), userId));
+      task.setCompany(companyRepository
+          .findByIdAndUserId(request.getCompanyId(), userId)
+          .orElseThrow(() -> new NotFoundException("Company not found"))
+      );
     }
 
     task.setTitle(request.getTitle());
@@ -83,7 +87,10 @@ public class TaskService {
 
     if (request.hasCompanyId()) {
       task.setCompany(request.getCompanyId() == null ? null
-          : companyService.getOwnedCompany(request.getCompanyId(), userId));
+          : companyRepository
+                .findByIdAndUserId(request.getCompanyId(), userId)
+                .orElseThrow(() -> new NotFoundException("Company not found"))
+      );
     }
 
     if (request.getTitle() != null) {

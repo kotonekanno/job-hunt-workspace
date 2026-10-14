@@ -7,6 +7,8 @@ import com.kotonekanno.job_hunt_workspace.entities.Company;
 import com.kotonekanno.job_hunt_workspace.entities.CompanyBasicInfo;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.CompanyBasicInfoRepository;
+import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompanyBasicInfoService {
 
   private final CompanyBasicInfoRepository repository;
-  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   public CompanyBasicInfoService(
       CompanyBasicInfoRepository repository,
-      CompanyService companyService
+      CompanyRepository companyRepository
   ) {
     this.repository = repository;
-    this.companyService = companyService;
+    this.companyRepository = companyRepository;
   }
 
   // 基本情報を追加
@@ -31,7 +33,8 @@ public class CompanyBasicInfoService {
       Integer companyId,
       CreateCompanyBasicInfoRequest request
   ) {
-    Company company = companyService.getOwnedCompany(userId, companyId);
+    Company company = companyRepository.findByIdAndUserId(companyId, userId)
+        .orElseThrow(() -> new NotFoundException("Company not found"));
 
     int position = repository.findMaxPositionByCompanyId(companyId)
         .map(max -> max + 1000)

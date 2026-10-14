@@ -1,9 +1,9 @@
 package com.kotonekanno.job_hunt_workspace.services;
 
 import com.example.api.model.*;
-import com.example.api.model.EventCategory;
 import com.kotonekanno.job_hunt_workspace.entities.Event;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
+import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.EventRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -21,18 +21,18 @@ public class EventService {
 
   private final EventRepository repository;
   private final UserRepository userRepository;
-  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   private static final ZoneId EVENT_ZONE = ZoneId.of("Asia/Tokyo");
 
   public EventService(
       EventRepository repository,
       UserRepository userRepository,
-      CompanyService companyService
+      CompanyRepository companyRepository
   ) {
     this.repository = repository;
     this.userRepository = userRepository;
-    this.companyService = companyService;
+    this.companyRepository = companyRepository;
   }
 
   // イベント一覧を取得
@@ -96,7 +96,10 @@ public class EventService {
         .orElseThrow(() -> new NotFoundException("User not found")));
 
     if (request.getCompanyId() != null) {
-      event.setCompany(companyService.getOwnedCompany(request.getCompanyId(), userId));
+      event.setCompany(companyRepository
+          .findByIdAndUserId(request.getCompanyId(), userId)
+          .orElseThrow(() -> new NotFoundException("Company not found"))
+      );
     }
 
     event.setEventCategory(request.getCategory());
@@ -126,7 +129,10 @@ public class EventService {
         .orElseThrow(() -> new NotFoundException("Event not found"));
 
     if (request.getCompanyId() != null) {
-      event.setCompany(companyService.getOwnedCompany(request.getCompanyId(), userId));
+      event.setCompany(companyRepository
+          .findByIdAndUserId(request.getCompanyId(), userId)
+          .orElseThrow(() -> new NotFoundException("Company not found"))
+      );
     }
 
     if (request.getCategory() != null) {

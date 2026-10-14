@@ -5,6 +5,7 @@ import com.kotonekanno.job_hunt_workspace.entities.Company;
 import com.kotonekanno.job_hunt_workspace.entities.Selection;
 import com.kotonekanno.job_hunt_workspace.entities.SelectionStep;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
+import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.SelectionRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.SelectionStepRepository;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ public class SelectionService {
 
   private final SelectionRepository selectionRepository;
   private final SelectionStepRepository selectionStepRepository;
-  private final CompanyService companyService;
+  private final CompanyRepository companyRepository;
 
   public SelectionService(
       SelectionRepository selectionRepository,
       SelectionStepRepository selectionStepRepository,
-      CompanyService companyService
+      CompanyRepository companyRepository
   ) {
     this.selectionRepository = selectionRepository;
     this.selectionStepRepository = selectionStepRepository;
-    this.companyService = companyService;
+    this.companyRepository = companyRepository;
   }
 
   // 選考を追加
@@ -37,7 +38,8 @@ public class SelectionService {
       Integer companyId,
       CreateSelectionRequest request
   ) {
-    Company company = companyService.getOwnedCompany(companyId, userId);
+    Company company = companyRepository.findByIdAndUserId(companyId, userId)
+        .orElseThrow(() -> new NotFoundException("Company not found"));
 
     boolean isActive = !selectionRepository.existsByCompany_IdAndIsActiveTrue(companyId);
 
