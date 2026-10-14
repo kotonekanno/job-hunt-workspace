@@ -243,7 +243,7 @@ public class CompanyService {
     return new GetCompanyResponse()
         .name(company.getName())
         .showBasicInfoWidget(showBasicInfoWidget)
-        .showSelectionWidget(showBasicInfoWidget)
+        .showSelectionWidget(showSelectionWidget)
         .basicInfos(basicInfos)
         .activities(companyActivityService.getPerPage(userId, companyId, 0))
         .selections(selections)
@@ -343,8 +343,6 @@ public class CompanyService {
         companyBasicInfoRepository.deleteAllByCompany_Id(companyId);
       }
       company.setShowBasicInfoWidget(showBasicInfoWidget);
-
-      return;
     }
 
     if (showSelectionWidget != null) {

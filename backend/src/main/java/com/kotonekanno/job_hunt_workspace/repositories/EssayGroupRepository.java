@@ -4,6 +4,7 @@ import com.kotonekanno.job_hunt_workspace.entities.EssayGroup;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +22,14 @@ public interface EssayGroupRepository extends JpaRepository<EssayGroup, Integer>
   List<EssayGroup> findByUser_IdOrderByPositionAsc(Integer userId);
 
   // 指定したユーザーで最も大きいpositionの値を返す
-  Optional<Integer> findMaxPositionByUser_Id(Integer userId);
+  @Query("""
+    SELECT MAX(c.position)
+    FROM Company c
+    WHERE c.user.id = :userId
+    """)
+  Optional<Integer> findMaxPositionByUser_Id(
+      @Param("userId") Integer userId
+  );
 
   // 指定したESグループの次に小さいpositionの値を返す
   @Query("""

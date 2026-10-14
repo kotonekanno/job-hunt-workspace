@@ -192,7 +192,7 @@ public class EssayService {
 
   // ESを追加
   @Transactional
-  public void createEssay(
+  public CreateEssay201Response createEssay(
       Integer userId,
       Integer essayGroupId,
       CreateEssayRequest request
@@ -220,7 +220,9 @@ public class EssayService {
     essay.setQuestion(request.getQuestion());
     essay.setAnswer(request.getAnswer());
 
-    essayRepository.save(essay);
+    return new CreateEssay201Response(
+        essayRepository.save(essay).getId()
+    );
   }
 
   // ESを部分更新
@@ -246,7 +248,8 @@ public class EssayService {
 
     Company company = null;
     if (request.getCompanyId() != null) {
-      company =  companyRepository.findById(request.getCompanyId())
+      company =  companyRepository
+          .findByIdAndUserId(request.getCompanyId(), userId)
           .orElseThrow(() -> new NotFoundException("Company not found"));
     }
 

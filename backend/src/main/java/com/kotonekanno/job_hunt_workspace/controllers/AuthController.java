@@ -7,6 +7,7 @@ import com.kotonekanno.job_hunt_workspace.config.properties.CookieProperties;
 import com.kotonekanno.job_hunt_workspace.config.properties.JwtProperties;
 import com.kotonekanno.job_hunt_workspace.dtos.auth.LoginResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,9 @@ public class AuthController {
 
   // Register
   @PostMapping("/register")
-  public ResponseEntity<Register201Response> register(@RequestBody AuthRequest request) {
+  public ResponseEntity<Register201Response> register(
+      @Valid @RequestBody AuthRequest request
+  ) {
     return ResponseEntity.status(201)
         .body(authService.register(request));
   }
@@ -45,7 +48,7 @@ public class AuthController {
   // Log In
   @PostMapping("/login")
   public ResponseEntity<AccessTokenResponse> login(
-      @RequestBody AuthRequest request,
+      @Valid @RequestBody AuthRequest request,
       HttpServletResponse response
   ) {
     LoginResponse tokens = authService.login(request);
@@ -54,7 +57,7 @@ public class AuthController {
         .httpOnly(true)
         .secure(secure)
         .path("/auth/refresh")
-        .maxAge(refreshTokenExpiration)
+        .maxAge(refreshTokenExpiration / 1000)
         .sameSite(sameSite)
         .build();
 

@@ -1,10 +1,12 @@
 package com.kotonekanno.job_hunt_workspace.controllers;
 
+import com.example.api.model.CreateEssay201Response;
 import com.example.api.model.CreateEssayRequest;
 import com.example.api.model.UpdateEssayRequest;
 import com.kotonekanno.job_hunt_workspace.services.EssayService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ public class EssayController {
 
   // ESを追加
   @PostMapping
-  public ResponseEntity<Void> createEssay(
+  public ResponseEntity<CreateEssay201Response> createEssay(
       @AuthenticationPrincipal Integer userId,
       @PathVariable String essayGroupId,
       @Valid @RequestBody CreateEssayRequest request
@@ -31,8 +33,9 @@ public class EssayController {
         ? null
         : Integer.valueOf(essayGroupId);
 
-    service.createEssay(userId, groupId, request);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+        service.createEssay(userId, groupId, request)
+    );
   }
 
   // ESを部分更新

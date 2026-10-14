@@ -245,24 +245,20 @@ public class SelectionService {
         .findById_AndSelection_Company_User_Id(selectionStepId, userId)
         .orElseThrow(() -> new NotFoundException("SelectionStep not found"));
 
-    if (!(selectionStep.getStatus() == SelectionStatus.PASSED) &&
-        !(selectionStep.getStatus() == SelectionStatus.NOT_STARTED)) {
+    Integer selectionId = selectionStep.getSelection().getId();
+    Integer position = selectionStep.getPosition();
 
-      Integer selectionId = selectionStep.getSelection().getId();
-      Integer position = selectionStep.getPosition();
+    selectionStepRepository.updateStatusBefore(
+        selectionId,
+        position,
+        SelectionStatus.PASSED
+    );
 
-      selectionStepRepository.updateStatusBefore(
-          selectionId,
-          position,
-          SelectionStatus.PASSED
-      );
-
-      selectionStepRepository.updateStatusAfter(
-          selectionId,
-          position,
-          SelectionStatus.NOT_STARTED
-      );
-    }
+    selectionStepRepository.updateStatusAfter(
+        selectionId,
+        position,
+        SelectionStatus.NOT_STARTED
+    );
 
     selectionStep.setStatus(request.getStatus());
   }

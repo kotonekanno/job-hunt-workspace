@@ -34,8 +34,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
       SELECT MAX(c.position)
       FROM Company c
       WHERE c.user.id = :userId
+        AND c.priority = :priority
         AND c.position < :position
-        AND (:excludeId IS NULL OR c.id <> : excludeId)
+        AND (:excludeId IS NULL OR c.id <> :excludeId)
       """)
   Optional<Integer> findPreviousPosition(
       Integer userId,

@@ -76,7 +76,7 @@ public class EssayGroupController {
   }
 
   // ESグループの並び順を更新
-  @PutMapping("/{essayGroupId}")
+  @PutMapping("/{essayGroupId}/position")
   public ResponseEntity<Void> reorderEssayGroup(
       @AuthenticationPrincipal Integer userId,
       @PathVariable String essayGroupId,

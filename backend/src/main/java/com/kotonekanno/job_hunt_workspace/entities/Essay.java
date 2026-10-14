@@ -22,7 +22,7 @@ public class Essay {
   private Company company;
 
   @ManyToOne
-  @JoinColumn(name = "essay_group_id", nullable = false)
+  @JoinColumn(name = "essay_group_id")
   private EssayGroup essayGroup;
 
   @Column(nullable = false)
