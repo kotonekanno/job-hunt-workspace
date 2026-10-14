@@ -1,0 +1,35 @@
+# /documents/{documentId}/position
+parameters:
+  - $ref: ../components/parameters/path.yaml#/DocumentId
+
+put:
+  description: 文書の並び順を更新する。
+  tags:
+    - Documents
+  operationId: reorderDocument
+  summary: 文書の並び順を更新
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nextDocumentId:
+              description: 移動先の1個後ろの文書のID（null：末尾に移動）
+              type: integer
+              format: int32
+              nullable: true
+  responses:
+    '204':
+      $ref: ../components/responses/common.yaml#/NoContent
+    '400':
+      $ref: ../components/responses/common.yaml#/BadRequest
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

@@ -144,6 +144,9 @@ paths:
   /documents/{documentId}:
     $ref: ./paths/documents_by_id.yaml
 
+  /documents/{documentId}/position:
+    $ref: ./paths/documents_position.yaml
+
   /auth/register:
     $ref: ./paths/auth_register.yaml
 

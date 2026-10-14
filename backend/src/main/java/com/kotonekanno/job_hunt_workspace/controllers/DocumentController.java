@@ -68,4 +68,15 @@ public class DocumentController {
     service.delete(userId, documentId);
     return ResponseEntity.noContent().build();
   }
+
+  // 文書の並び順を更新
+  @PutMapping("/{documentId}/position")
+  public ResponseEntity<Void> updateDocumentPosition(
+      @AuthenticationPrincipal Integer userId,
+      @PathVariable Integer documentId,
+      @Valid @RequestBody ReorderDocumentRequest request
+  ) {
+    service.reorder(userId, documentId, request);
+    return ResponseEntity.noContent().build();
+  }
 }

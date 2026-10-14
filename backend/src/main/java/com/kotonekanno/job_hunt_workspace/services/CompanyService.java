@@ -122,6 +122,14 @@ public class CompanyService {
     int priority = request.getPriority();
     company.setPriority(priority);
 
+    int position = calcCompanyPosition(
+        userId,
+        null,
+        priority,
+        null
+    );
+    company.setPosition(position);
+
     return new CreateCompany201Response(
         companyRepository.save(company).getId()
     );

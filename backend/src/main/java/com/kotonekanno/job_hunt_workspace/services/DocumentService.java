@@ -8,6 +8,8 @@ import com.kotonekanno.job_hunt_workspace.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class DocumentService {
 
@@ -49,7 +51,12 @@ public class DocumentService {
     Document document = new Document();
     document.setUser(userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("User not found")));
+
+    int position = calcDocumentPosition(userId, null, null);
+    document.setPosition(position);
+
     document.setTitle(request.getTitle());
+    document.setText("");
 
     return new CreateDocument201Response(repository.save(document).getId());
   }
@@ -99,5 +106,95 @@ public class DocumentService {
         .orElseThrow(() -> new NotFoundException("Document not found"));
 
     repository.delete(document);
+  }
+
+  // 文書の並び順を更新
+  @Transactional
+  public void reorder(
+      Integer userId,
+      Integer documentId,
+      ReorderDocumentRequest request
+  ) {
+    Document document = repository.findByIdAndUser_Id(documentId, userId)
+        .orElseThrow(() -> new NotFoundException("Document not found"));
+
+    Document nextDocument = null;
+    if (request.getNextDocumentId() != null) {
+      nextDocument = repository
+          .findById(request.getNextDocumentId())
+          .orElseThrow(() -> new NotFoundException("Document not found"));
+    }
+
+    int newPosition = calcDocumentPosition(
+        userId,
+        documentId,
+        nextDocument
+    );
+
+    document.setPosition(newPosition);
+    repository.save(document);
+  }
+
+  // ドキュメントの並び順を計算する
+  private int calcDocumentPosition(
+      Integer userId,
+      Integer documentId,
+      Document nextDocument
+  ) {
+    // 新規作成／末尾に移動した場合
+    if (nextDocument == null) {
+      Integer previousPosition = repository
+          .findMaxPositionByUser_Id(userId)
+          .orElse(null);
+
+      // ドキュメントがまだ存在しない場合
+      if (previousPosition == null) {
+        return 1000;
+      }
+
+      return previousPosition + 1000;
+    }
+
+    Integer nextPosition = nextDocument.getPosition();
+
+    Integer previousPosition = repository.findPreviousPosition(
+        userId,
+        nextPosition,
+        documentId
+    ).orElse(null);
+
+    // 先頭に移動した場合
+    if (previousPosition == null) {
+      return nextPosition - 1000;
+    }
+
+    // 2つの要素の間に移動した場合
+    if (nextPosition - previousPosition > 1) {
+      return previousPosition + (nextPosition - previousPosition) / 2;
+    }
+
+    // 再採番を行う場合
+    reorderAll(userId);
+
+    Document refreshedNext = repository
+        .findById(nextDocument.getId())
+        .orElseThrow();
+
+    return calcDocumentPosition(userId, documentId, refreshedNext);
+  }
+
+  // ドキュメントの並び順を再採番する
+  private void reorderAll(
+      Integer userId
+  ) {
+    List<Document> documents = repository
+        .findByUser_IdOrderByPositionAsc(userId);
+
+    int position = 1000;
+
+    for (Document document : documents) {
+      document.setPosition(position);
+      position += 1000;
+    }
   }
 }
