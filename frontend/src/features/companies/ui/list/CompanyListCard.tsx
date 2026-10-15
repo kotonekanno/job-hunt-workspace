@@ -106,7 +106,7 @@ export function CompanyListCard({
         )}
         {company.priority !== 7 && (
           <span data-card-action className="inline-flex">
-            {selection ? (
+            {selection?.step ? (
               <SelectionStepBadge
                 title={selection.title}
                 step={selection.step.name}
