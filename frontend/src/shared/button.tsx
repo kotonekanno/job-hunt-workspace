@@ -35,7 +35,7 @@ type IconActionButtonProps = IconActionButtonBaseProps & {
 type BulkDeleteButtonProps = {
   size: Size;
   count: number;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   itemLabel?: string;
 };
 
@@ -267,8 +267,8 @@ export function BulkDeleteButton({
           title={`${itemLabel}を削除しますか？`}
           text={`${itemLabel}${count}件を一括削除します。この操作は取り消せません。`}
           onClose={() => setIsDialogOpen(false)}
-          onConfirm={() => {
-            onConfirm();
+          onConfirm={async () => {
+            await onConfirm();
             setIsDialogOpen(false);
           }}
         />

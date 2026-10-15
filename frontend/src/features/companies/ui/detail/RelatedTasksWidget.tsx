@@ -1,144 +1,70 @@
 import { ListTodo } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
+import { useState } from 'react';
 import type { Task } from '@/api/generated/models';
-import type { Task as TaskForm } from '@/features/task/model/task';
+import { useTasks } from '@/features/task/hooks/useTasks';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
+import { WidgetFrame } from './WidgetFrame';
 import { AddButton, BulkDeleteButton } from '@/shared/button';
+import { RequestStatus } from '@/shared/RequestStatus';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
 export function RelatedTasksWidget({
-  tasks: initialTasks,
+  companyId,
   companyName,
 }: {
-  tasks: Task[];
+  companyId: number;
   companyName: string;
 }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const tasks = useTasks(companyId);
   const [editingTask, setEditingTask] = useState<Task>();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const sortedTasks = useMemo(
-    () =>
-      [...tasks].sort((left, right) => {
-        const completionOrder = Number(left.done) - Number(right.done);
-
-        if (completionOrder !== 0) {
-          return completionOrder;
-        }
-
-        return (left.deadline ?? '\uffff').localeCompare(
-          right.deadline ?? '\uffff',
-        );
-      }),
-    [tasks],
-  );
-
-  const completedCount = tasks.filter((task) => task.done).length;
-
-  function toggleTask(id: number) {
-    setTasks((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, done: !task.done } : task,
-      ),
-    );
-  }
-
-  function saveTask(form: TaskForm) {
-    const task: Task = {
-      id: form.id,
-      title: form.title,
-      note: form.note,
-      deadline: form.deadline ?? null,
-      done: form.done,
-      companyName,
-    };
-    saveTaskState(task);
-  }
-
-  function saveTaskState(task: Task) {
-    setTasks((current) => {
-      const taskExists = current.some((item) => item.id === task.id);
-
-      if (!taskExists) {
-        return [...current, task];
-      }
-
-      return current.map((item) => (item.id === task.id ? task : item));
-    });
-  }
-
-  function openAddDialog() {
-    setEditingTask(undefined);
-    setIsDialogOpen(true);
-  }
-
-  function openEditDialog(task: Task) {
-    setEditingTask(task);
-    setIsDialogOpen(true);
-  }
-
-  function closeDialog() {
-    setEditingTask(undefined);
-    setIsDialogOpen(false);
-  }
-
-  const actions = (
-    <div className="flex items-center gap-2">
-      <BulkDeleteButton
-        size="s"
-        count={completedCount}
-        onConfirm={() =>
-          setTasks((current) => current.filter((task) => !task.done))
-        }
-      />
-
-      <AddButton text="タスクを追加" size="s" onClick={openAddDialog} />
-    </div>
-  );
-
+  const [open, setOpen] = useState(false);
   return (
     <>
       <WidgetFrame
         title="関連タスク"
         code="RELATED_TASKS"
         icon={ListTodo}
-        action={actions}
         contentClassName="overflow-x-auto"
+        action={
+          <div className="flex items-center gap-2">
+            <BulkDeleteButton
+              size="s"
+              count={tasks.completedCount}
+              onConfirm={tasks.deleteCompletedTasks}
+            />
+            <AddButton
+              text="タスクを追加"
+              size="s"
+              onClick={() => {
+                setEditingTask(undefined);
+                setOpen(true);
+              }}
+            />
+          </div>
+        }
       >
-        {sortedTasks.length === 0 ? (
+        <RequestStatus isLoading={tasks.isLoading} error={tasks.error} />
+        {!tasks.isLoading && !tasks.error && !tasks.tasks.length && (
           <WidgetEmptyState text="表示できるタスクはありません" />
-        ) : (
-          <TaskList
-            tasks={sortedTasks}
-            showCompany={false}
-            onToggle={toggleTask}
-            onEdit={openEditDialog}
-            onDelete={(id) =>
-              setTasks((current) => current.filter((task) => task.id !== id))
-            }
-          />
         )}
+        <TaskList
+          tasks={tasks.tasks}
+          showCompany={false}
+          onToggle={tasks.toggleTask}
+          onEdit={(task) => {
+            setEditingTask({ ...task, companyName });
+            setOpen(true);
+          }}
+          onDelete={tasks.deleteTask}
+        />
       </WidgetFrame>
-
-      {isDialogOpen && (
+      {open && (
         <TaskDialog
-          task={
-            editingTask
-              ? {
-                  id: editingTask.id,
-                  title: editingTask.title,
-                  note: editingTask.note,
-                  deadline: editingTask.deadline ?? undefined,
-                  done: editingTask.done,
-                  company: companyName,
-                }
-              : undefined
-          }
+          task={editingTask}
           defaultCompany={companyName}
-          onClose={closeDialog}
-          onSave={saveTask}
+          onClose={() => setOpen(false)}
+          onSave={tasks.saveTask}
         />
       )}
     </>

@@ -6,7 +6,6 @@ import type {
   UpdateSelectionStepRequest,
 } from '@/api/generated/models';
 import type { CompanySelectionActions } from '@/features/companies/hooks/useCompanySelections';
-import { selectionStatusForApi } from '@/features/companies/lib/selectionStatusPresentation';
 import { SelectionStepItem } from '@/features/companies/ui/detail/SelectionStepItem';
 import { SelectionTrackDialog } from '@/features/companies/ui/detail/SelectionTrackDialog';
 import { SelectionManageDialog } from '@/features/companies/ui/detail/SelectionManageDialog';
@@ -148,11 +147,7 @@ export function SelectionWidget({
                       }
                       onResultChange={(result) => {
                         void run(() =>
-                          actions.updateStatus(
-                            track.id,
-                            step.id,
-                            selectionStatusForApi[result],
-                          ),
+                          actions.updateStatus(track.id, step.id, result),
                         );
                       }}
                     />

@@ -1,7 +1,8 @@
+import { RequestStatus } from '@/shared/RequestStatus';
 import { NotebookTabs } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useDocumentArchive } from '@/features/documents/hooks/useDocumentArchive';
-import type { WorkspaceDocument } from '@/features/documents/model/document';
+import type { DocumentListItem } from '@/api/generated/models';
 import { DocumentList } from '@/features/documents/ui/DocumentList';
 import { DocumentCreateDialog } from '@/features/companies/ui/detail/DocumentCreateDialog';
 import { FloatingAddButton } from '@/shared/button';
@@ -16,21 +17,17 @@ export function DocumentsPage() {
     const normalizedQuery = query.trim().toLocaleLowerCase();
 
     if (!normalizedQuery) {
-      return [...documentArchive.documents].sort(
-        (left, right) => left.position - right.position,
-      );
+      return documentArchive.documents;
     }
 
-    return documentArchive.documents
-      .filter((document) =>
-        `${document.title}\n${document.text}`
-          .toLocaleLowerCase()
-          .includes(normalizedQuery),
-      )
-      .sort((left, right) => left.position - right.position);
-  }, [documentArchive.documents, query]);
+    return documentArchive.documents.filter((document) =>
+      `${document.title}\n${documentArchive.contents[document.id]?.text ?? ''}`
+        .toLocaleLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [documentArchive.documents, documentArchive.contents, query]);
 
-  function reorderFilteredDocuments(orderedDocuments: WorkspaceDocument[]) {
+  function reorderFilteredDocuments(orderedDocuments: DocumentListItem[]) {
     const visibleIds = new Set(
       filteredDocuments.map((document) => document.id),
     );
@@ -45,7 +42,7 @@ export function DocumentsPage() {
       return nextDocument.id;
     });
 
-    documentArchive.reorderDocuments(orderedIds);
+    return documentArchive.reorderDocuments(orderedIds);
   }
 
   return (
@@ -65,6 +62,10 @@ export function DocumentsPage() {
         />
       </div>
 
+      <RequestStatus
+        isLoading={documentArchive.isLoading}
+        error={documentArchive.error}
+      />
       <div className="mt-5">
         <DocumentList
           documents={filteredDocuments}

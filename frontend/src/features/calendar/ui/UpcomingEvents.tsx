@@ -1,11 +1,13 @@
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { toDateKey } from '../lib/calendar';
+import { getEventEndDate } from '@/features/calendar/lib/eventTime';
+import type { Event as CalendarEvent } from '@/api/generated/models';
 import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 
 type UpcomingEventsProps = {
   events: CalendarEvent[];
   onEdit: (event: CalendarEvent) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: number) => Promise<void>;
 };
 
 export function UpcomingEvents({
@@ -14,7 +16,7 @@ export function UpcomingEvents({
   onDelete,
 }: UpcomingEventsProps) {
   const upcomingEvents = [...events]
-    .filter((event) => event.startDate >= '2026-07-12')
+    .filter((event) => getEventEndDate(event) >= toDateKey(new Date()))
     .sort((left, right) =>
       getEventSortKey(left).localeCompare(getEventSortKey(right)),
     )

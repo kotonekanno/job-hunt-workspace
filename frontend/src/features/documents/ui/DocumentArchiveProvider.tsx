@@ -1,75 +1,89 @@
-import { useState, type ReactNode } from 'react';
-import { DocumentArchiveContext } from '@/features/documents/model/DocumentArchiveContext';
-import {
-  initialWorkspaceDocuments,
-  type WorkspaceDocument,
-} from '@/features/documents/model/document';
+import { useCallback, type ReactNode } from 'react';
+import * as api from '@/api/generated/api';
+import { authenticatedRequest } from '@/api/authenticatedRequest';
+import { requireStatus, useApiResource } from '@/api/useApiResource';
+import type { Document, UpdateDocumentRequest } from '@/api/generated/models';
+import { DocumentArchiveContext } from '../model/DocumentArchiveContext';
 
-type DocumentArchiveProviderProps = {
-  children: ReactNode;
-};
-
-export function DocumentArchiveProvider({
-  children,
-}: DocumentArchiveProviderProps) {
-  const [documents, setDocuments] = useState(
-    [...initialWorkspaceDocuments].sort(
-      (left, right) => left.position - right.position,
-    ),
-  );
-
-  function addDocument(title: string) {
-    setDocuments((current) => [
-      ...current,
-      {
-        id: Date.now(),
-        position:
-          Math.max(0, ...current.map((document) => document.position)) + 1,
-        title,
-        text: '',
-      },
-    ]);
+export function DocumentArchiveProvider({ children }: { children: ReactNode }) {
+  const loader = useCallback(async (signal: AbortSignal) => {
+    const response = await authenticatedRequest(api.getDocuments, { signal });
+    if (response.status !== 200)
+      throw new Error('ドキュメント一覧を取得できませんでした。');
+    // The list has no body; keep detail responses separately for full-text search.
+    const contents: Record<number, Document> = {};
+    await Promise.all(
+      response.data.documents.map(async (item) => {
+        const detail = await authenticatedRequest(
+          (options) => api.getDocumentById(item.id, options),
+          { signal },
+        );
+        if (detail.status !== 200)
+          throw new Error('ドキュメント本文を取得できませんでした。');
+        contents[item.id] = detail.data;
+      }),
+    );
+    return { documents: response.data.documents, contents };
+  }, []);
+  const resource = useApiResource(loader);
+  const documents = resource.data?.documents ?? [];
+  async function addDocument(title: string) {
+    requireStatus(
+      await authenticatedRequest((options) =>
+        api.createDocument({ title }, options),
+      ),
+      201,
+    );
+    await resource.refresh();
   }
-
-  function updateDocument(document: WorkspaceDocument) {
-    setDocuments((current) =>
-      current.map((currentDocument) =>
-        currentDocument.id === document.id ? document : currentDocument,
+  async function updateDocument(id: number, patch: UpdateDocumentRequest) {
+    requireStatus(
+      await authenticatedRequest((options) =>
+        api.patchDocument(id, patch, options),
       ),
     );
-  }
-
-  function deleteDocument(documentId: number) {
-    setDocuments((current) =>
-      current
-        .filter((document) => document.id !== documentId)
-        .map((document, index) => ({
-          ...document,
-          position: index + 1,
-        })),
-    );
-  }
-
-  function reorderDocuments(orderedDocumentIds: number[]) {
-    setDocuments((current) => {
-      const documentsById = new Map(
-        current.map((document) => [document.id, document]),
-      );
-
-      return orderedDocumentIds
-        .map((documentId) => documentsById.get(documentId))
-        .filter((document): document is WorkspaceDocument => Boolean(document))
-        .map((document, index) => ({
-          ...document,
-          position: index + 1,
-        }));
+    resource.setData((current) => {
+      const document = current?.contents[id];
+      if (!current || !document) return current;
+      return {
+        documents: current.documents.map((item) =>
+          item.id === id ? { ...item, title: patch.title ?? item.title } : item,
+        ),
+        contents: { ...current.contents, [id]: { ...document, ...patch } },
+      };
     });
   }
-
+  async function deleteDocument(id: number) {
+    requireStatus(
+      await authenticatedRequest((options) => api.deleteDocument(id, options)),
+    );
+    await resource.refresh();
+  }
+  async function reorderDocuments(ids: number[]) {
+    try {
+      // Apply relative positions from the end so every next ID already has its final position.
+      for (let index = ids.length - 1; index >= 0; index--) {
+        requireStatus(
+          await authenticatedRequest((options) =>
+            api.reorderDocument(
+              ids[index],
+              { nextDocumentId: ids[index + 1] ?? null },
+              options,
+            ),
+          ),
+        );
+      }
+    } finally {
+      await resource.refresh();
+    }
+  }
   return (
     <DocumentArchiveContext.Provider
       value={{
         documents,
+        contents: resource.data?.contents ?? {},
+        isLoading: resource.isLoading,
+        error: resource.error,
         addDocument,
         updateDocument,
         deleteDocument,

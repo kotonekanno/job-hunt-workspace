@@ -1,8 +1,8 @@
+import type { EventCategory } from '@/api/generated/models';
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   eventCategories,
   eventCategoryLabels,
-  type EventCategory,
 } from '@/features/calendar/model/calendar';
 import type {
   AttendanceFilter,

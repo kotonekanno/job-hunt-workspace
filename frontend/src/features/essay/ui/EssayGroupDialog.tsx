@@ -4,7 +4,7 @@ import { RequiredMark } from '@/shared/form';
 
 type EssayGroupDialogProps = {
   onClose: () => void;
-  onSave: (name: string) => void;
+  onSave: (name: string) => Promise<void>;
   groupName?: string;
 };
 
@@ -15,9 +15,9 @@ export function EssayGroupDialog({
 }: EssayGroupDialogProps) {
   const [name, setName] = useState(groupName ?? '');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(name.trim());
+    await onSave(name.trim());
     onClose();
   }
 
@@ -37,6 +37,7 @@ export function EssayGroupDialog({
         <input
           autoFocus
           required
+          maxLength={50}
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="例：研究、アルバイト"

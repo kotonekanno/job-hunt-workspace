@@ -29,13 +29,9 @@ export function useCompanyDetail(companyId: number) {
   useEffect(() => {
     const controller = new AbortController();
     const currentGeneration = ++generation.current;
-    setData(undefined);
-    setPriority(null);
-    setError('');
-    setIsLoading(true);
+    // CompanyDashboardContent is keyed by companyId, so state starts fresh per company.
     nextPage.current = 1;
     paging.current = false;
-    setIsLoadingActivities(false);
     async function load() {
       try {
         if (!Number.isSafeInteger(companyId) || companyId < 1)

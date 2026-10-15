@@ -1,107 +1,71 @@
+import { authenticatedRequest } from '@/api/authenticatedRequest';
+import * as api from '@/api/generated/api';
+import { requireStatus, useApiResource } from '@/api/useApiResource';
+import {
+  getEventEndDate,
+  getEventSortKey,
+} from '@/features/calendar/lib/eventTime';
+import { toDateKey } from '@/features/calendar/lib/calendar';
+import { RequestStatus } from '@/shared/RequestStatus';
 import { CalendarDays, History } from 'lucide-react';
-import { useState } from 'react';
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
-import type { Event, EventCategory } from '@/api/generated/models';
+import { useCallback, useState } from 'react';
+import type { Event, CreateEventRequest } from '@/api/generated/models';
 import { EventDialog } from '@/features/calendar/ui/EventDialog';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { AddButton } from '@/shared/button';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
-function getTodayKey() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const date = String(today.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${date}`;
-}
-
 export function RelatedEventsWidget({
-  events: initialEvents,
+  companyId,
   companyName,
 }: {
-  events: Event[];
+  companyId: number;
   companyName: string;
 }) {
-  const [events, setEvents] = useState<Event[]>(initialEvents);
-  const [editingEvent, setEditingEvent] = useState<CalendarEvent | undefined>();
+  const loader = useCallback(
+    async (signal: AbortSignal) => {
+      const response = await authenticatedRequest(
+        (options) => api.getCompanyById(companyId, options),
+        { signal },
+      );
+      if (response.status !== 200)
+        throw new Error('関連イベントを取得できませんでした。');
+      return response.data.events;
+    },
+    [companyId],
+  );
+  const resource = useApiResource(loader);
+  const [editingEvent, setEditingEvent] = useState<Event>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPastEvents, setShowPastEvents] = useState(false);
-  const todayKey = getTodayKey();
-  const visibleEvents = [...events]
+  const visibleEvents = [...(resource.data ?? [])]
     .filter(
       (event) =>
-        showPastEvents ||
-        (event.startDay ?? event.startTime?.slice(0, 10) ?? '') >= todayKey,
+        showPastEvents || getEventEndDate(event) >= toDateKey(new Date()),
     )
-    .sort((left, right) =>
-      (left.startDay ?? left.startTime ?? '').localeCompare(
-        right.startDay ?? right.startTime ?? '',
-      ),
-    );
-
-  const categoryForApi: Record<CalendarEvent['category'], EventCategory> = {
-    session: 'SESSION',
-    interview: 'INTERVIEW',
-    chat: 'CHAT',
-    internship: 'INTERNSHIP',
-    other: 'OTHER',
-  };
-  const categoryForForm: Record<EventCategory, CalendarEvent['category']> = {
-    SESSION: 'session',
-    INTERVIEW: 'interview',
-    CHAT: 'chat',
-    INTERNSHIP: 'internship',
-    OTHER: 'other',
-  };
-  function saveEvent(form: Omit<CalendarEvent, 'id'>, id?: number) {
-    const event: Event = {
-      id: id ?? Math.max(0, ...events.map((item) => item.id)) + 1,
-      companyName,
-      category: categoryForApi[form.category],
-      title: form.title,
-      note: form.note,
-      isAllDay: form.isAllDay,
-      isOnline: form.isOnline,
-      isAttending: form.isAttending,
-      startDay: form.isAllDay ? form.startDate : null,
-      endDay: form.isAllDay ? form.endDate : null,
-      startTime: form.isAllDay
-        ? null
-        : new Date(
-            `${form.startDate}T${form.startTime ?? '00:00'}`,
-          ).toISOString(),
-      endTime: form.isAllDay
-        ? null
-        : new Date(`${form.endDate}T${form.endTime ?? '00:00'}`).toISOString(),
-    };
-    setEvents((current) =>
+    .sort((a, b) => getEventSortKey(a).localeCompare(getEventSortKey(b)));
+  async function saveEvent(request: CreateEventRequest, id?: number) {
+    requireStatus(
       id === undefined
-        ? [...current, event]
-        : current.map((item) => (item.id === id ? event : item)),
+        ? await authenticatedRequest((options) =>
+            api.createEvent(request, options),
+          )
+        : await authenticatedRequest((options) =>
+            api.patchEvent(id, request, options),
+          ),
+      id === undefined ? 201 : 204,
     );
+    await resource.refresh();
+  }
+  async function deleteEvent(id: number) {
+    requireStatus(
+      await authenticatedRequest((options) => api.deleteEvent(id, options)),
+    );
+    await resource.refresh();
   }
   function openEditDialog(event: Event) {
-    const start = event.startTime ? new Date(event.startTime) : undefined;
-    const end = event.endTime ? new Date(event.endTime) : undefined;
-    const time = (date?: Date) =>
-      date?.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    // The dialog owns a date/time form; API data remains in its generated shape.
-    setEditingEvent({
-      id: event.id,
-      company: companyName,
-      category: categoryForForm[event.category],
-      title: event.title,
-      note: event.note,
-      isAllDay: event.isAllDay,
-      isOnline: event.isOnline,
-      isAttending: event.isAttending ?? undefined,
-      startDate: event.startDay ?? start?.toLocaleDateString('sv-SE') ?? '',
-      endDate: event.endDay ?? end?.toLocaleDateString('sv-SE') ?? '',
-      startTime: time(start),
-      endTime: time(end),
-    });
+    setEditingEvent({ ...event, companyName });
     setIsDialogOpen(true);
   }
 
@@ -140,17 +104,14 @@ export function RelatedEventsWidget({
         icon={CalendarDays}
         action={actions}
       >
+        <RequestStatus isLoading={resource.isLoading} error={resource.error} />
         <div className="space-y-2">
           {visibleEvents.map((event) => (
             <EventListItem
               key={event.id}
               event={event}
               onEdit={openEditDialog}
-              onDelete={(id) =>
-                setEvents((current) =>
-                  current.filter((event) => event.id !== id),
-                )
-              }
+              onDelete={deleteEvent}
               showCompany={false}
             />
           ))}

@@ -1,19 +1,23 @@
 import { ChevronDown, MapPin, Video } from 'lucide-react';
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
-import type { Event as ApiEvent } from '@/api/generated/models';
+import type { Event as CalendarEvent } from '@/api/generated/models';
+import {
+  getEventStartDate,
+  getEventEndDate,
+  localTime,
+} from '../lib/eventTime';
 import { useState } from 'react';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
 import { MemoPanel } from '@/shared/MemoPanel';
 
-type EventListItemProps<T extends CalendarEvent | ApiEvent> = {
-  event: T;
-  onEdit?: (event: T) => void;
-  onDelete?: (eventId: number) => void;
+type EventListItemProps = {
+  event: CalendarEvent;
+  onEdit?: (event: CalendarEvent) => void;
+  onDelete?: (eventId: number) => Promise<void>;
   showCompany?: boolean;
 };
 
-function getEventEmphasisClassName(event: CalendarEvent | ApiEvent): string {
+function getEventEmphasisClassName(event: CalendarEvent): string {
   if (event.isAttending === false) {
     return 'border-l-[var(--line-strong)] opacity-55';
   }
@@ -21,46 +25,18 @@ function getEventEmphasisClassName(event: CalendarEvent | ApiEvent): string {
   return 'border-l-[var(--accent)]';
 }
 
-export function EventListItem<T extends CalendarEvent | ApiEvent>({
+export function EventListItem({
   event,
   onEdit,
   onDelete,
   showCompany = true,
-}: EventListItemProps<T>) {
+}: EventListItemProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const localDate = (value?: string | null) =>
-    value ? new Date(value).toLocaleDateString('sv-SE') : '';
-  const localTime = (value?: string | null) =>
-    value
-      ? new Date(value).toLocaleTimeString('ja-JP', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '--:--';
-  const startDate =
-    'startDate' in event
-      ? event.startDate
-      : event.isAllDay
-        ? (event.startDay ?? '')
-        : localDate(event.startTime);
-  const endDate =
-    'endDate' in event
-      ? event.endDate
-      : event.isAllDay
-        ? (event.endDay ?? '')
-        : localDate(event.endTime);
-  const startTime =
-    'startDate' in event
-      ? (event.startTime ?? '--:--')
-      : localTime(event.startTime);
-  const endTime =
-    'endDate' in event ? (event.endTime ?? '--:--') : localTime(event.endTime);
-  const companyName =
-    'companyName' in event
-      ? event.companyName
-      : 'company' in event
-        ? event.company
-        : undefined;
+  const startDate = getEventStartDate(event);
+  const endDate = getEventEndDate(event);
+  const startTime = localTime(event.startTime);
+  const endTime = localTime(event.endTime);
+  const companyName = event.companyName;
   const FormatIcon = event.isOnline ? Video : MapPin;
 
   return (
@@ -143,8 +119,8 @@ export function EventListItem<T extends CalendarEvent | ApiEvent>({
           title="予定を削除しますか？"
           text={`「${event.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteOpen(false)}
-          onConfirm={() => {
-            onDelete(event.id);
+          onConfirm={async () => {
+            await onDelete(event.id);
             setIsDeleteOpen(false);
           }}
         />

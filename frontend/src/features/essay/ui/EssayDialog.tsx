@@ -1,10 +1,12 @@
+import type {
+  Essay,
+  EssayGroupListItem as EssayGroup,
+} from '@/api/generated/models';
 import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyMockData';
-import {
-  unclassifiedEssayGroupId,
-  type Essay,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
+import type { CreateEssayRequest } from '@/api/generated/models';
+import { RequestStatus } from '@/shared/RequestStatus';
+import { unclassifiedEssayGroupId } from '@/features/essay/model/essay';
 import { EssayGroupCombobox } from '@/features/essay/ui/EssayGroupCombobox';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
@@ -13,7 +15,7 @@ import { RequiredMark } from '@/shared/form';
 type EssayDialogProps = {
   groups: EssayGroup[];
   onClose: () => void;
-  onSave: (essay: Omit<Essay, 'id'>) => void;
+  onSave: (groupId: string, request: CreateEssayRequest) => Promise<void>;
   essay?: Essay;
   defaultGroupId?: string;
 };
@@ -25,19 +27,24 @@ export function EssayDialog({
   essay,
   defaultGroupId,
 }: EssayDialogProps) {
-  const [company, setCompany] = useState(essay?.company ?? '');
+  const companies = useCompanyList();
+  const [company, setCompany] = useState(essay?.companyName ?? '');
   const [groupId, setGroupId] = useState(
-    essay?.groupId ?? defaultGroupId ?? unclassifiedEssayGroupId,
+    defaultGroupId ?? unclassifiedEssayGroupId,
   );
   const [question, setQuestion] = useState(essay?.question ?? '');
   const [answer, setAnswer] = useState(essay?.answer ?? '');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    onSave({
-      company,
-      groupId,
+    const selected = companies.allCompanies.find(
+      (item) => item.name === company,
+    );
+    if (company && !selected)
+      throw new Error('企業一覧の読み込み後、企業を選択してください。');
+    await onSave(groupId, {
+      companyId: selected?.id ?? null,
       question: question.trim(),
       answer: answer.trim(),
     });
@@ -54,6 +61,10 @@ export function EssayDialog({
       formClassName="max-w-2xl p-6"
     >
       <>
+        <RequestStatus
+          isLoading={companies.isLoading}
+          error={companies.error}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block min-w-0">
             <span className="text-xs font-bold text-[var(--text-strong)]">
@@ -61,7 +72,7 @@ export function EssayDialog({
             </span>
             <CompanyCombobox
               value={company}
-              options={companyNameOptions}
+              options={companies.allCompanies.map((company) => company.name)}
               allowEmpty
               onValueChange={setCompany}
               placeholder="企業名を検索"
@@ -94,6 +105,7 @@ export function EssayDialog({
           </span>
           <textarea
             required
+            maxLength={1000}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={3}
@@ -108,7 +120,7 @@ export function EssayDialog({
             <RequiredMark />
           </span>
           <textarea
-            required
+            maxLength={5000}
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             rows={9}

@@ -10,10 +10,19 @@ import {
   attendanceEnabledCategories,
   eventCategories,
   eventCategoryLabels,
-  type CalendarEvent,
-  type EventCategory,
 } from '@/features/calendar/model/calendar';
-import { companyNameOptions } from '@/features/companies/model/companyMockData';
+import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
+import type {
+  CreateEventRequest,
+  Event as CalendarEvent,
+  EventCategory,
+} from '@/api/generated/models';
+import {
+  getEventStartDate,
+  getEventEndDate,
+  localTime,
+} from '../lib/eventTime';
+import { RequestStatus } from '@/shared/RequestStatus';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
@@ -23,7 +32,7 @@ type EventDialogProps = {
   event?: CalendarEvent;
   defaultCompany?: string;
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, 'id'>, id?: number) => void;
+  onSave: (request: CreateEventRequest, id?: number) => Promise<void>;
 };
 
 const fieldClassName = `
@@ -39,16 +48,17 @@ export function EventDialog({
   onClose,
   onSave,
 }: EventDialogProps) {
-  const initialDate = event?.startDate ?? getTodayDateKey();
-  const [form, setForm] = useState<Omit<CalendarEvent, 'id'>>({
+  const companies = useCompanyList();
+  const initialDate = event ? getEventStartDate(event) : getTodayDateKey();
+  const [form, setForm] = useState({
     title: event?.title ?? '',
-    company: event?.company || defaultCompany || '',
-    category: event?.category ?? 'session',
+    company: event?.companyName || defaultCompany || '',
+    category: event?.category ?? 'SESSION',
     isAllDay: event?.isAllDay ?? false,
     startDate: initialDate,
-    endDate: event?.endDate ?? initialDate,
-    startTime: event?.startTime ?? '10:00',
-    endTime: event?.endTime ?? '11:00',
+    endDate: event ? getEventEndDate(event) : initialDate,
+    startTime: event?.startTime ? localTime(event.startTime) : '10:00',
+    endTime: event?.endTime ? localTime(event.endTime) : '11:00',
     isOnline: event?.isOnline ?? true,
     isAttending: event?.isAttending ?? true,
     note: event?.note ?? '',
@@ -65,15 +75,38 @@ export function EventDialog({
     });
   }
 
-  function submit(submitEvent: FormEvent<HTMLFormElement>) {
+  async function submit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault();
 
-    onSave(
+    const company = companies.allCompanies.find(
+      (item) => item.name === form.company,
+    );
+    if (form.company && !company)
+      throw new Error('企業一覧の読み込み後、企業を選択してください。');
+    const startTime = form.isAllDay
+      ? null
+      : new Date(`${form.startDate}T${form.startTime}`).toISOString();
+    const endTime = form.isAllDay
+      ? null
+      : new Date(`${form.endDate}T${form.endTime}`).toISOString();
+    if (
+      form.endDate < form.startDate ||
+      (startTime && endTime && endTime <= startTime)
+    )
+      throw new Error('終了日時は開始日時より後にしてください。');
+    await onSave(
       {
-        ...form,
-        isAttending: canSelectAttendance
-          ? (form.isAttending ?? true)
-          : undefined,
+        title: form.title,
+        note: form.note,
+        category: form.category,
+        companyId: company?.id ?? null,
+        isAllDay: form.isAllDay,
+        isOnline: form.isOnline,
+        startDay: form.isAllDay ? form.startDate : null,
+        endDay: form.isAllDay ? form.endDate : null,
+        startTime,
+        endTime,
+        isAttending: canSelectAttendance ? form.isAttending : null,
       },
       event?.id,
     );
@@ -92,11 +125,15 @@ export function EventDialog({
       titleClassName="text-lg"
     >
       <>
+        <RequestStatus
+          isLoading={companies.isLoading}
+          error={companies.error}
+        />
         <label className="text-xs text-[var(--muted)]">
           企業名
           <CompanyCombobox
             value={form.company ?? ''}
-            options={companyNameOptions}
+            options={companies.allCompanies.map((company) => company.name)}
             allowEmpty
             onValueChange={(company) =>
               setForm({
@@ -113,6 +150,7 @@ export function EventDialog({
           <RequiredMark />
           <input
             required
+            maxLength={100}
             value={form.title}
             onChange={(changeEvent) =>
               setForm({
@@ -234,6 +272,7 @@ export function EventDialog({
         <label className="text-xs text-[var(--muted)] sm:col-span-2">
           メモ
           <textarea
+            maxLength={2000}
             value={form.note}
             onChange={(changeEvent) =>
               setForm({

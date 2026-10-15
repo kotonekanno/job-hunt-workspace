@@ -1,5 +1,5 @@
 import { Check, Clock3, Minus, X, type LucideIcon } from 'lucide-react';
-import type { SelectionStatus } from '../model/selection';
+import type { SelectionStatus } from '@/api/generated/models';
 import type { Size } from '@/shared/shared-type';
 import { HoverCard } from '@/shared/hover-card';
 
@@ -19,40 +19,40 @@ type BadgeProps = {
 };
 
 const icon: Record<SelectionStatus, LucideIcon> = {
-  not_started: Minus,
-  passed: Check,
-  failed: X,
-  pending: Clock3,
+  NOT_STARTED: Minus,
+  PASSED: Check,
+  FAILED: X,
+  PENDING: Clock3,
 };
 
 const statusColorStyle: Record<SelectionStatus, string> = {
-  not_started:
+  NOT_STARTED:
     'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--muted)]',
-  pending: 'border-amber-500/50 bg-amber-500/10 text-amber-600',
-  passed: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600',
-  failed: 'border-blue-500/50 bg-blue-500/10 text-blue-600',
+  PENDING: 'border-amber-500/50 bg-amber-500/10 text-amber-600',
+  PASSED: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-600',
+  FAILED: 'border-blue-500/50 bg-blue-500/10 text-blue-600',
 };
 
 const interactiveStatusStyle: Record<SelectionStatus, string> = {
-  not_started:
+  NOT_STARTED:
     'hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]',
-  pending: 'hover:border-amber-500 hover:bg-amber-500 hover:text-white',
-  passed: 'hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
-  failed: 'hover:border-blue-500 hover:bg-blue-500 hover:text-white',
+  PENDING: 'hover:border-amber-500 hover:bg-amber-500 hover:text-white',
+  PASSED: 'hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
+  FAILED: 'hover:border-blue-500 hover:bg-blue-500 hover:text-white',
 };
 
 const statusText: Record<SelectionStatus, string> = {
-  not_started: '未受験',
-  pending: '結果待ち',
-  passed: '合格',
-  failed: '不合格',
+  NOT_STARTED: '未受験',
+  PENDING: '結果待ち',
+  PASSED: '合格',
+  FAILED: '不合格',
 };
 
 const selectionResults: SelectionStatus[] = [
-  'not_started',
-  'pending',
-  'passed',
-  'failed',
+  'NOT_STARTED',
+  'PENDING',
+  'PASSED',
+  'FAILED',
 ];
 
 export function SelectionStatusBadge({

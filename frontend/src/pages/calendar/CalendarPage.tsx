@@ -1,6 +1,7 @@
+import { RequestStatus } from '@/shared/RequestStatus';
 import { useState } from 'react';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar';
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import type { Event as CalendarEvent } from '@/api/generated/models';
 import { CalendarHeader } from '@/features/calendar/ui/CalendarHeader';
 import { CalendarMonth } from '@/features/calendar/ui/CalendarMonth';
 import { EventDialog } from '@/features/calendar/ui/EventDialog';
@@ -37,6 +38,7 @@ export function CalendarPage() {
         onNextMonth={() => calendar.moveMonth(1)}
         onToday={calendar.goToToday}
       />
+      <RequestStatus isLoading={calendar.isLoading} error={calendar.error} />
       <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_434px]">
         <CalendarMonth
           days={calendar.days}

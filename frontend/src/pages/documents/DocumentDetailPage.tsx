@@ -6,17 +6,24 @@ import { useDocumentArchive } from '@/features/documents/hooks/useDocumentArchiv
 import { BackLink } from '@/shared/BackLink';
 import { DeleteIconButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
+import { RequestStatus } from '@/shared/RequestStatus';
 import { SearchBox } from '@/shared/SearchBox';
 
 export function DocumentDetailPage() {
+  const { documentsId } = useParams();
+  return <DocumentDetailContent key={documentsId} />;
+}
+function DocumentDetailContent() {
   const navigate = useNavigate();
   const { documentsId } = useParams();
   const documentArchive = useDocumentArchive();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const document = documentArchive.documents.find(
-    (candidate) => candidate.id === Number(documentsId),
-  );
+  const [draft, setDraft] = useState<string>();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const documentId = Number(documentsId);
+  const document = documentArchive.contents[documentId];
 
   if (!document) {
     return (
@@ -24,7 +31,10 @@ export function DocumentDetailPage() {
         <BackLink to="/documents">ドキュメント一覧へ戻る</BackLink>
         <div className="ui-empty-state mt-5 border border-dashed border-[var(--line-strong)] py-16 text-center">
           <p className="text-sm font-bold text-[var(--muted)]">
-            指定されたドキュメントは見つかりませんでした
+            {documentArchive.isLoading
+              ? '読み込み中…'
+              : documentArchive.error ||
+                '指定されたドキュメントは見つかりませんでした'}
           </p>
         </div>
       </div>
@@ -66,15 +76,38 @@ export function DocumentDetailPage() {
         />
       </div>
 
+      <RequestStatus error={error || documentArchive.error} />
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          disabled={saving || draft === undefined || draft === document.text}
+          className="cursor-pointer border border-[var(--accent)] px-3 py-1.5 text-xs text-[var(--accent)] disabled:opacity-40"
+          onClick={async () => {
+            if (draft === undefined) return;
+            setSaving(true);
+            setError('');
+            try {
+              if (draft.length > 50000)
+                throw new Error('本文は50,000文字以内で入力してください。');
+              await documentArchive.updateDocument(documentId, { text: draft });
+            } catch (cause) {
+              setError(
+                cause instanceof Error
+                  ? cause.message
+                  : '文書を保存できませんでした。',
+              );
+            } finally {
+              setSaving(false);
+            }
+          }}
+        >
+          {saving ? '保存中…' : '保存する'}
+        </button>
+      </div>
       <div className="mt-4">
         <RichTextEditor
-          value={document.text}
-          onChange={(text) =>
-            documentArchive.updateDocument({
-              ...document,
-              text,
-            })
-          }
+          value={draft ?? document.text}
+          onChange={setDraft}
           placeholder="自由にメモを入力してください"
           minHeight={560}
           className="workspace-document-editor"
@@ -88,8 +121,8 @@ export function DocumentDetailPage() {
           title="ドキュメントを削除しますか？"
           text={`「${document.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={() => {
-            documentArchive.deleteDocument(document.id);
+          onConfirm={async () => {
+            await documentArchive.deleteDocument(documentId);
             navigate('/documents');
           }}
         />

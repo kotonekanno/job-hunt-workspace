@@ -1,7 +1,12 @@
 import { InlineEssayField } from '@/features/essay/ui/InlineEssayField';
 import { Check, ChevronDown, Copy, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
-import type { Essay, EssayGroup } from '@/features/essay/model/essay';
+import type {
+  UpdateEssayRequest,
+  Essay,
+  EssayGroupListItem as EssayGroup,
+} from '@/api/generated/models';
+import { essayGroupKey } from '@/features/essay/model/essay';
 import { EssayGroupMoveDialog } from '@/features/essay/ui/EssayGroupMoveDialog';
 import { HighlightedEssayText } from '@/features/essay/ui/HighlightedEssayText';
 import { CompanyBadge } from '@/shared/badge';
@@ -14,8 +19,9 @@ const collapsedAnswerLength = 220;
 type EssayListProps = {
   essays: Essay[];
   groups: EssayGroup[];
-  onSave: (essay: Essay) => void;
-  onDelete: (essayId: number) => void;
+  groupId: string;
+  onSave: (id: number, patch: UpdateEssayRequest) => Promise<void>;
+  onDelete: (essayId: number) => Promise<void>;
   onGroupChange: (essay: Essay, groupId: string) => void;
   searchQuery?: string;
 };
@@ -23,8 +29,9 @@ type EssayListProps = {
 type EssayListItemProps = {
   essay: Essay;
   groups: EssayGroup[];
-  onSave: (essay: Essay) => void;
-  onDelete: (essayId: number) => void;
+  groupId: string;
+  onSave: (id: number, patch: UpdateEssayRequest) => Promise<void>;
+  onDelete: (essayId: number) => Promise<void>;
   onGroupChange: (essay: Essay, groupId: string) => void;
   searchQuery: string;
 };
@@ -32,6 +39,7 @@ type EssayListItemProps = {
 export function EssayList({
   essays,
   groups,
+  groupId,
   onSave,
   onDelete,
   onGroupChange,
@@ -55,6 +63,7 @@ export function EssayList({
           key={essay.id}
           essay={essay}
           groups={groups}
+          groupId={groupId}
           onSave={onSave}
           onDelete={onDelete}
           onGroupChange={onGroupChange}
@@ -68,6 +77,7 @@ export function EssayList({
 function EssayListItem({
   essay,
   groups,
+  groupId,
   onSave,
   onDelete,
   onGroupChange,
@@ -87,8 +97,12 @@ function EssayListItem({
     isLongAnswer && !isAnswerExpanded && !answerMatchesQuery
       ? `${essay.answer.slice(0, collapsedAnswerLength)}…`
       : essay.answer;
-  const currentGroup = groups.find((group) => group.id === essay.groupId);
-  const pendingGroup = groups.find((group) => group.id === pendingGroupId);
+  const currentGroup = groups.find(
+    (group) => essayGroupKey(group.id) === groupId,
+  );
+  const pendingGroup = groups.find(
+    (group) => essayGroupKey(group.id) === pendingGroupId,
+  );
 
   async function copyAnswer() {
     await navigator.clipboard.writeText(essay.answer);
@@ -101,9 +115,9 @@ function EssayListItem({
       <article className="ui-panel-interactive border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)]">
         <div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-4 py-3">
           <div className="min-w-0 flex-1">
-            {essay.company && (
+            {essay.companyName && (
               <CompanyBadge
-                company={essay.company}
+                company={essay.companyName}
                 className="inline-block max-w-full px-2"
               />
             )}
@@ -111,13 +125,13 @@ function EssayListItem({
 
           <div className="flex shrink-0 items-center gap-1.5">
             <Select
-              value={essay.groupId}
+              value={groupId}
               options={groups.map((group) => ({
-                value: group.id,
+                value: essayGroupKey(group.id),
                 label: group.name,
               }))}
-              onValueChange={(groupId) => {
-                if (groupId !== essay.groupId) setPendingGroupId(groupId);
+              onValueChange={(nextGroupId) => {
+                if (nextGroupId !== groupId) setPendingGroupId(nextGroupId);
               }}
               aria-label="質問の性質を変更"
               className="h-7 max-w-40 py-0 text-[10px] font-bold"
@@ -134,8 +148,9 @@ function EssayListItem({
         <div>
           <InlineEssayField
             label="QUESTION"
+            maxLength={1000}
             value={essay.question}
-            onSave={(question) => onSave({ ...essay, question })}
+            onSave={(question) => onSave(essay.id, { question })}
           >
             <p className="whitespace-pre-wrap text-sm font-normal leading-7 text-[var(--text)]">
               <HighlightedEssayText text={essay.question} query={searchQuery} />
@@ -143,8 +158,10 @@ function EssayListItem({
           </InlineEssayField>
           <InlineEssayField
             label="ANSWER"
+            maxLength={5000}
+            allowEmpty
             value={essay.answer}
-            onSave={(answer) => onSave({ ...essay, answer })}
+            onSave={(answer) => onSave(essay.id, { answer })}
             action={
               <IconActionButton
                 icon={isCopied ? Check : Copy}
@@ -194,8 +211,8 @@ function EssayListItem({
           title="ESを削除しますか？"
           text={`「${essay.question}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={() => {
-            onDelete(essay.id);
+          onConfirm={async () => {
+            await onDelete(essay.id);
             setIsDeleteDialogOpen(false);
           }}
         />
@@ -207,7 +224,7 @@ function EssayListItem({
           nextGroupName={pendingGroup.name}
           onClose={() => setPendingGroupId(null)}
           onConfirm={() => {
-            onGroupChange(essay, pendingGroup.id);
+            onGroupChange(essay, essayGroupKey(pendingGroup.id));
             setPendingGroupId(null);
           }}
         />

@@ -1,9 +1,6 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import type { CompanyPriority } from '@/api/generated/models';
-import type {
-  CurrentSelection,
-  SelectionStatus,
-} from '@/features/companies/model/selection';
+import type { CurrentSelection, SelectionStatus } from '@/api/generated/models';
 import { EditIconButton } from '@/shared/button';
 import { InlineEditActions } from '@/shared/InlineEditActions';
 import { PriorityBadge } from '../priority-badge';
@@ -126,8 +123,8 @@ export function CompanyHeader({
       {selection && (
         <SelectionStepBadge
           title={selection.title}
-          step={selection.step}
-          result={selection.status}
+          step={selection.step.name}
+          result={selection.step.status}
           size="l"
           onResultChange={onResultChange}
         />

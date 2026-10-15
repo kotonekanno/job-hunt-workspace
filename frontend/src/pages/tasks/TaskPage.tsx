@@ -1,6 +1,7 @@
+import { RequestStatus } from '@/shared/RequestStatus';
 import { useState } from 'react';
 import { useTasks } from '@/features/task/hooks/useTasks';
-import type { Task } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { TaskToolbar } from '@/features/task/ui/TaskToolbar';
@@ -36,6 +37,7 @@ export function TaskPage() {
         icon={<Clipboard className="size-5 text-[var(--accent)]" />}
       />
 
+      <RequestStatus isLoading={tasks.isLoading} error={tasks.error} />
       <TaskToolbar
         companyQuery={tasks.companyQuery}
         completedCount={tasks.completedCount}

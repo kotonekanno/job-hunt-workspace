@@ -1,77 +1,86 @@
-import { useMemo, useState } from 'react';
-import { getCalendarDays } from '@/features/calendar/lib/calendar';
-import {
-  calendarEvents,
-  type CalendarEvent,
-  type EventCategory,
-} from '@/features/calendar/model/calendar';
+import { useCallback, useMemo, useState } from 'react';
+import { authenticatedRequest } from '@/api/authenticatedRequest';
+import * as api from '@/api/generated/api';
+import type { CreateEventRequest, EventCategory } from '@/api/generated/models';
+import { requireStatus, useApiResource } from '@/api/useApiResource';
+import { getCalendarDays, toDateKey } from '../lib/calendar';
 
 export type OnlineFilter = 'online' | 'offline' | 'すべて';
 export type AttendanceFilter = 'attending' | 'notAttending' | 'すべて';
 
 export function useCalendar() {
-  const [displayDate, setDisplayDate] = useState(new Date(2026, 6, 1));
-  const [events, setEvents] = useState<CalendarEvent[]>(calendarEvents);
+  const [displayDate, setDisplayDate] = useState(new Date());
+  const month = toDateKey(displayDate).slice(0, 7);
+  const loader = useCallback(
+    async (signal: AbortSignal) => {
+      // Fetch all months visible in the six-week grid, including its adjacent days.
+      const [year, monthNumber] = month.split('-').map(Number);
+      const months = [
+        ...new Set(
+          getCalendarDays(new Date(year, monthNumber - 1, 1)).map((day) =>
+            day.dateKey.slice(0, 7),
+          ),
+        ),
+      ];
+      const responses = await Promise.all(
+        months.map((month) =>
+          authenticatedRequest((options) => api.getEvents({ month }, options), {
+            signal,
+          }),
+        ),
+      );
+      const events = responses.flatMap((response) => {
+        if (response.status !== 200)
+          throw new Error('予定を取得できませんでした。');
+        return response.data.events;
+      });
+      return {
+        month,
+        events: [...new Map(events.map((event) => [event.id, event])).values()],
+      };
+    },
+    [month],
+  );
+  const resource = useApiResource(loader);
   const [category, setCategory] = useState<EventCategory | 'すべて'>('すべて');
   const [format, setFormat] = useState<OnlineFilter>('すべて');
   const [status, setStatus] = useState<AttendanceFilter>('すべて');
-
-  const filteredEvents = useMemo(
-    () =>
-      events.filter(
-        (event) =>
-          (category === 'すべて' || event.category === category) &&
-          (format === 'すべて' || event.isOnline === (format === 'online')) &&
-          (status === 'すべて' ||
-            event.isAttending === (status === 'attending')),
-      ),
-    [events, category, format, status],
+  const events = useMemo(
+    () => (resource.data?.month === month ? resource.data.events : []),
+    [resource.data, month],
   );
-
-  const upcomingEvents = useMemo(
-    () =>
-      events.filter(
-        (event) =>
-          event.isAttending !== false &&
-          (category === 'すべて' || event.category === category) &&
-          (format === 'すべて' || event.isOnline === (format === 'online')),
-      ),
-    [events, category, format],
+  const filteredEvents = events.filter(
+    (event) =>
+      (category === 'すべて' || event.category === category) &&
+      (format === 'すべて' || event.isOnline === (format === 'online')) &&
+      (status === 'すべて' || event.isAttending === (status === 'attending')),
   );
-
-  function saveEvent(event: Omit<CalendarEvent, 'id'>, id?: number) {
-    if (id !== undefined) {
-      setEvents((current) =>
-        current.map((item) => (item.id === id ? { ...event, id } : item)),
-      );
-      return;
-    }
-
-    setEvents((current) => [
-      ...current,
-      {
-        ...event,
-        id: Math.max(0, ...current.map((item) => item.id)) + 1,
-      },
-    ]);
-  }
-
-  function deleteEvent(eventId: number) {
-    setEvents((current) => current.filter((event) => event.id !== eventId));
-  }
-
-  function moveMonth(offset: number) {
-    setDisplayDate(
-      (current) =>
-        new Date(current.getFullYear(), current.getMonth() + offset, 1),
+  async function saveEvent(request: CreateEventRequest, id?: number) {
+    requireStatus(
+      id === undefined
+        ? await authenticatedRequest((options) =>
+            api.createEvent(request, options),
+          )
+        : await authenticatedRequest((options) =>
+            api.patchEvent(id, request, options),
+          ),
+      id === undefined ? 201 : 204,
     );
+    await resource.refresh();
   }
-
+  async function deleteEvent(id: number) {
+    requireStatus(
+      await authenticatedRequest((options) => api.deleteEvent(id, options)),
+    );
+    await resource.refresh();
+  }
   return {
     displayDate,
     days: getCalendarDays(displayDate),
     events: filteredEvents,
-    upcomingEvents,
+    upcomingEvents: filteredEvents.filter(
+      (event) => event.isAttending !== false,
+    ),
     category,
     format,
     status,
@@ -81,7 +90,12 @@ export function useCalendar() {
     setDisplayDate,
     saveEvent,
     deleteEvent,
-    moveMonth,
-    goToToday: () => setDisplayDate(new Date(2026, 6, 1)),
+    isLoading: resource.isLoading,
+    error: resource.error,
+    moveMonth: (offset: number) =>
+      setDisplayDate(
+        (date) => new Date(date.getFullYear(), date.getMonth() + offset, 1),
+      ),
+    goToToday: () => setDisplayDate(new Date()),
   };
 }

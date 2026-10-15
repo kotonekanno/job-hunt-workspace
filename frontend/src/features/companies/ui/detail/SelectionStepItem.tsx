@@ -2,8 +2,7 @@ import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { ChevronDown } from 'lucide-react';
 
 import type { SelectionStepResponse as SelectionStep } from '@/api/generated/models';
-import type { SelectionStatus } from '@/features/companies/model/selection';
-import { selectionStatusForDisplay } from '@/features/companies/lib/selectionStatusPresentation';
+import type { SelectionStatus } from '@/api/generated/models';
 import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
 import { MemoPanel } from '@/shared/MemoPanel';
 
@@ -53,7 +52,7 @@ export function SelectionStepItem({
           <SelectionStepBadge
             title={trackName}
             step={step.name}
-            result={selectionStatusForDisplay[step.status]}
+            result={step.status}
             size="s"
             showContext={false}
             compactMenu

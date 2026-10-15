@@ -4,10 +4,6 @@ import { useState } from 'react';
 import { useCompanyDetail } from '@/features/companies/hooks/useCompanyDetail';
 import { useCompanySelections } from '@/features/companies/hooks/useCompanySelections';
 import {
-  selectionStatusForApi,
-  selectionStatusForDisplay,
-} from '@/features/companies/lib/selectionStatusPresentation';
-import {
   type WidgetType,
   widgetLabels,
   widgetOrder,
@@ -129,7 +125,7 @@ function CompanyDashboardContent({ companyId }: { companyId: number }) {
         return (
           <RelatedEventsWidget
             key={widget}
-            events={data.events}
+            companyId={companyId}
             companyName={data.name}
           />
         );
@@ -137,7 +133,7 @@ function CompanyDashboardContent({ companyId }: { companyId: number }) {
         return (
           <RelatedTasksWidget
             key={widget}
-            tasks={data.tasks}
+            companyId={companyId}
             companyName={data.name}
           />
         );
@@ -154,19 +150,14 @@ function CompanyDashboardContent({ companyId }: { companyId: number }) {
           company.priority !== 7 && active && current
             ? {
                 title: active.title,
-                step: current.name,
-                status: selectionStatusForDisplay[current.status],
+                step: current,
               }
             : undefined
         }
         onResultChange={(result) => {
           if (active && current)
             void run(() =>
-              selections.updateStatus(
-                active.id,
-                current.id,
-                selectionStatusForApi[result],
-              ),
+              selections.updateStatus(active.id, current.id, result),
             );
         }}
       />

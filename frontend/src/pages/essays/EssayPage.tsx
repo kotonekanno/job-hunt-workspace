@@ -1,10 +1,9 @@
+import { RequestStatus } from '@/shared/RequestStatus';
+import type { EssayGroupListItem as EssayGroup } from '@/api/generated/models';
 import { ArrowUpDown, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
 import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { unclassifiedEssayGroupId } from '@/features/essay/model/essay';
 import { EssayDialog } from '@/features/essay/ui/EssayDialog';
 import { EssayGroupDialog } from '@/features/essay/ui/EssayGroupDialog';
 import { EssayGroupList } from '@/features/essay/ui/EssayGroupList';
@@ -40,9 +39,12 @@ export function EssayPage() {
         </button>
       </div>
 
+      <RequestStatus
+        isLoading={essayArchive.isLoading}
+        error={essayArchive.error}
+      />
       <EssayGroupList
         groups={essayArchive.groups}
-        essays={essayArchive.essays}
         onAddGroup={() => setIsGroupDialogOpen(true)}
         onEditGroup={setEditingGroup}
         onDeleteGroup={setDeletingGroup}
@@ -82,8 +84,8 @@ export function EssayPage() {
           title={`「${deletingGroup.name}」を削除しますか？`}
           text="このジャンルに含まれるESは削除されず、「未分類」へ移動します。"
           onClose={() => setDeletingGroup(null)}
-          onConfirm={() => {
-            essayArchive.deleteGroup(deletingGroup.id);
+          onConfirm={async () => {
+            await essayArchive.deleteGroup(deletingGroup.id);
             setDeletingGroup(null);
           }}
         />

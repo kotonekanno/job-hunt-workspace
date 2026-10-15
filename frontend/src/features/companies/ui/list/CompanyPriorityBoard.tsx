@@ -1,7 +1,7 @@
 import { Archive } from 'lucide-react';
 import { Reorder } from 'motion/react';
-import { useMemo } from 'react';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+import { useMemo, useRef, useState } from 'react';
+import type { SelectionStatus } from '@/api/generated/models';
 import {
   priorities,
   secondaryPriorities,
@@ -20,7 +20,7 @@ type CompanyPriorityBoardProps = {
       companyId: number;
       priority: CompanyPriority;
     }>,
-  ) => void;
+  ) => Promise<void>;
   onSelectionResultChange: (companyId: number, result: SelectionStatus) => void;
 };
 
@@ -67,6 +67,11 @@ export function CompanyPriorityBoard({
   onCompaniesReorder,
   onSelectionResultChange,
 }: CompanyPriorityBoardProps) {
+  const [draft, setDraft] = useState<CompanyListItem[] | null>(null);
+  const draftRef = useRef<CompanyListItem[] | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const visibleCompanies = draft ?? companies;
   const priorityOrder = initialPriorityOrder;
   const { isDragSessionActive, startDragSession, endDragSession } =
     useListDragSession();
@@ -75,11 +80,11 @@ export function CompanyPriorityBoard({
     () =>
       priorityOrder.flatMap((priority) => [
         getPriorityItemId(priority),
-        ...companies
+        ...visibleCompanies
           .filter((company) => company.priority === priority)
           .map((company) => getCompanyItemId(company.id)),
       ]),
-    [companies, priorityOrder],
+    [visibleCompanies, priorityOrder],
   );
 
   function reorderBoard(orderedItemIds: string[]) {
@@ -114,12 +119,32 @@ export function CompanyPriorityBoard({
       }
     });
 
-    onCompaniesReorder(orderedCompanyIds, priorityChanges);
+    if (saving) return;
+    const priorities = new Map(
+      priorityChanges.map((change) => [change.companyId, change.priority]),
+    );
+    const byId = new Map(
+      visibleCompanies.map((company) => [company.id, company]),
+    );
+    const next = orderedCompanyIds.flatMap((id) => {
+      const company = byId.get(id);
+      return company
+        ? [{ ...company, priority: priorities.get(id) ?? company.priority }]
+        : [];
+    });
+    draftRef.current = next;
+    setDraft(next);
   }
 
   return (
     <>
+      {error && (
+        <p role="alert" className="text-sm text-rose-500">
+          {error}
+        </p>
+      )}
       <Reorder.Group
+        inert={saving}
         axis="y"
         values={boardItemIds}
         onReorder={reorderBoard}
@@ -127,7 +152,7 @@ export function CompanyPriorityBoard({
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
-          const laneCompanies = companies.filter(
+          const laneCompanies = visibleCompanies.filter(
             (company) => company.priority === priority,
           );
 
@@ -145,7 +170,7 @@ export function CompanyPriorityBoard({
                   mass: 0.75,
                 },
               }}
-              className={`w-full list-none pt-3 first:pt-0 ${priority === 7 || priority === 7 ? 'pt-6' : ''}`}
+              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 7 ? 'pt-6' : ''}`}
             >
               <div
                 className={`
@@ -175,9 +200,34 @@ export function CompanyPriorityBoard({
               <CompanyListCard
                 key={getCompanyItemId(company.id)}
                 company={company}
-                canReorder
-                onDragSessionStart={startDragSession}
-                onDragSessionEnd={endDragSession}
+                canReorder={!saving}
+                onDragSessionStart={(cancelDrag) =>
+                  startDragSession(() => {
+                    draftRef.current = null;
+                    setDraft(null);
+                    cancelDrag();
+                  })
+                }
+                onDragSessionEnd={() => {
+                  endDragSession();
+                  const next = draftRef.current;
+                  if (!next || saving) return;
+                  setSaving(true);
+                  setError('');
+                  void onCompaniesReorder(
+                    next.map((item) => item.id),
+                    next.map((item) => ({
+                      companyId: item.id,
+                      priority: item.priority,
+                    })),
+                  )
+                    .catch(() => setError('並び順を保存できませんでした。'))
+                    .finally(() => {
+                      draftRef.current = null;
+                      setDraft(null);
+                      setSaving(false);
+                    });
+                }}
                 dragValue={getCompanyItemId(company.id)}
                 onSelectionResultChange={onSelectionResultChange}
               />

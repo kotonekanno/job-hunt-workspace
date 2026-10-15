@@ -1,25 +1,37 @@
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import type { Event } from '@/api/generated/models';
+import { toDateKey } from './calendar';
 
-export function getEventStartTimeLabel(event: CalendarEvent) {
-  if (event.isAllDay) {
-    return '終日';
-  }
-
-  return event.startTime ?? '--:--';
+export function localTime(value?: string | null) {
+  return value
+    ? new Date(value).toLocaleTimeString('ja-JP', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      })
+    : '--:--';
 }
-
-export function getEventTimeRangeLabel(event: CalendarEvent) {
-  if (event.isAllDay) {
-    return '終日';
-  }
-
-  if (event.startTime && event.endTime) {
-    return `${event.startTime}–${event.endTime}`;
-  }
-
-  return event.startTime ?? event.endTime ?? '時刻未定';
+export function getEventStartDate(event: Event) {
+  return event.isAllDay
+    ? (event.startDay ?? '')
+    : event.startTime
+      ? toDateKey(new Date(event.startTime))
+      : '';
 }
-
-export function getEventSortKey(event: CalendarEvent) {
-  return `${event.startDate}${event.isAllDay ? '00:00' : (event.startTime ?? '23:59')}`;
+export function getEventEndDate(event: Event) {
+  return event.isAllDay
+    ? (event.endDay ?? '')
+    : event.endTime
+      ? toDateKey(new Date(event.endTime))
+      : '';
+}
+export function getEventStartTimeLabel(event: Event) {
+  return event.isAllDay ? '終日' : localTime(event.startTime);
+}
+export function getEventTimeRangeLabel(event: Event) {
+  return event.isAllDay
+    ? '終日'
+    : `${localTime(event.startTime)}–${localTime(event.endTime)}`;
+}
+export function getEventSortKey(event: Event) {
+  return `${getEventStartDate(event)}${event.isAllDay ? '00:00' : localTime(event.startTime)}`;
 }

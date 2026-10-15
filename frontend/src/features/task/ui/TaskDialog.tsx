@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyMockData';
-import type { Task } from '@/features/task/model/task';
+import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
+import type { CreateTaskRequest } from '@/api/generated/models';
+import { RequestStatus } from '@/shared/RequestStatus';
+import type { Task } from '@/api/generated/models';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
@@ -9,7 +11,7 @@ type TaskDialogProps = {
   task?: Task;
   defaultCompany?: string;
   onClose: () => void;
-  onSave: (task: Task) => void;
+  onSave: (request: CreateTaskRequest, id?: number) => Promise<void>;
 };
 
 export function TaskDialog({
@@ -18,25 +20,39 @@ export function TaskDialog({
   onClose,
   onSave,
 }: TaskDialogProps) {
+  const companies = useCompanyList();
   const [form, setForm] = useState<Task>(() =>
     task
       ? {
           ...task,
-          company: task.company ?? defaultCompany,
+          companyName: task.companyName ?? defaultCompany,
         }
       : {
-          id: Date.now(),
+          id: 0,
           title: '',
           note: '',
-          deadline: undefined,
-          company: defaultCompany,
+          deadline: null,
+          companyName: defaultCompany,
           done: false,
         },
   );
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(form);
+    const selected = companies.allCompanies.find(
+      (company) => company.name === form.companyName,
+    );
+    if (form.companyName && !selected)
+      throw new Error('企業一覧の読み込み後、企業を選択してください。');
+    await onSave(
+      {
+        title: form.title,
+        note: form.note,
+        deadline: form.deadline,
+        companyId: selected?.id ?? null,
+      },
+      task?.id,
+    );
     onClose();
   }
 
@@ -48,13 +64,13 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)]">
         企業名
         <CompanyCombobox
-          value={form.company ?? ''}
-          options={companyNameOptions}
+          value={form.companyName ?? ''}
+          options={companies.allCompanies.map((company) => company.name)}
           allowEmpty
           onValueChange={(company) =>
             setForm({
               ...form,
-              company: company || undefined,
+              companyName: company || undefined,
             })
           }
           className="mt-1"
@@ -69,7 +85,7 @@ export function TaskDialog({
           onChange={(event) =>
             setForm({
               ...form,
-              deadline: event.target.value || undefined,
+              deadline: event.target.value || null,
             })
           }
           className={fieldClassName}
@@ -81,6 +97,7 @@ export function TaskDialog({
         <RequiredMark />
         <input
           required
+          maxLength={200}
           value={form.title}
           onChange={(event) =>
             setForm({
@@ -95,7 +112,8 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)] sm:col-span-2">
         詳細
         <textarea
-          value={form.note}
+          maxLength={2000}
+          value={form.note ?? ''}
           onChange={(event) =>
             setForm({
               ...form,
@@ -119,6 +137,7 @@ export function TaskDialog({
       fieldsClassName="mt-5 grid gap-4 sm:grid-cols-2"
       titleClassName="text-lg"
     >
+      <RequestStatus isLoading={companies.isLoading} error={companies.error} />
       {fields}
     </EditDialog>
   );

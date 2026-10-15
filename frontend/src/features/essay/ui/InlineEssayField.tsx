@@ -9,13 +9,19 @@ export function InlineEssayField({
   onSave,
   children,
   action,
+  maxLength,
+  allowEmpty = false,
 }: {
   label: string;
   value: string;
-  onSave: (value: string) => void;
+  onSave: (value: string) => Promise<void>;
   children: ReactNode;
   action?: ReactNode;
+  maxLength: number;
+  allowEmpty?: boolean;
 }) {
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [height, setHeight] = useState(0);
@@ -31,10 +37,18 @@ export function InlineEssayField({
             <InlineEditActions
               saveLabel={`${label}を保存`}
               cancelLabel={`${label}の編集をキャンセル`}
-              disabled={!draft.trim()}
-              onSave={() => {
-                onSave(draft.trim());
-                setEditing(false);
+              disabled={saving || (!allowEmpty && !draft.trim())}
+              onSave={async () => {
+                setSaving(true);
+                setError('');
+                try {
+                  await onSave(draft.trim());
+                  setEditing(false);
+                } catch {
+                  setError('保存できませんでした。');
+                } finally {
+                  setSaving(false);
+                }
               }}
               onCancel={() => setEditing(false)}
             />
@@ -59,11 +73,18 @@ export function InlineEssayField({
           )}
         </div>
       </div>
+      {error && (
+        <p role="alert" className="text-xs text-rose-500">
+          {error}
+        </p>
+      )}
       <div ref={contentRef} className="mt-2">
         {editing ? (
           <InlineTextarea
             initialHeight={height}
             autoFocus
+            disabled={saving}
+            maxLength={maxLength}
             aria-label={label}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

@@ -1,8 +1,8 @@
 import { ArrowUpRight, FileText } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
-import { useState, type PointerEvent } from 'react';
+import { useRef, useState, type PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
-import type { WorkspaceDocument } from '@/features/documents/model/document';
+import type { DocumentListItem } from '@/api/generated/models';
 import { DeleteIconButton } from '@/shared/button';
 import { DeleteDialog } from '@/shared/dialog';
 import { DragHandle } from '@/shared/DragHandle';
@@ -10,14 +10,14 @@ import { cn } from '@/lib/utils';
 import { useListDragSession } from '@/shared/useListDragSession';
 
 type DocumentListProps = {
-  documents: WorkspaceDocument[];
-  onDelete: (documentId: number) => void;
-  onReorder: (documents: WorkspaceDocument[]) => void;
+  documents: DocumentListItem[];
+  onDelete: (documentId: number) => Promise<void>;
+  onReorder: (documents: DocumentListItem[]) => Promise<void>;
 };
 
 type DocumentListItemProps = {
-  document: WorkspaceDocument;
-  onDelete: (documentId: number) => void;
+  document: DocumentListItem;
+  onDelete: (documentId: number) => Promise<void>;
   onDragSessionStart: (cancelDrag: () => void) => void;
   onDragSessionEnd: () => void;
 };
@@ -27,7 +27,13 @@ export function DocumentList({
   onDelete,
   onReorder,
 }: DocumentListProps) {
-  const { isDragSessionActive, startDragSession, endDragSession } = useListDragSession();
+  const [draft, setDraft] = useState<DocumentListItem[] | null>(null);
+  const draftRef = useRef<DocumentListItem[] | null>(null);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const visible = draft ?? documents;
+  const { isDragSessionActive, startDragSession, endDragSession } =
+    useListDragSession();
   if (documents.length === 0) {
     return (
       <div className="ui-empty-state border border-dashed border-[var(--line-strong)] py-16 text-center">
@@ -40,27 +46,63 @@ export function DocumentList({
   }
 
   return (
-    <Reorder.Group
-      axis="y"
-      values={documents}
-      onReorder={onReorder}
-      data-drag-session={isDragSessionActive}
-      className="space-y-2 p-0"
-    >
-      {documents.map((document) => (
-        <DocumentListItem
-          key={document.id}
-          document={document}
-          onDelete={onDelete}
-          onDragSessionStart={startDragSession}
-          onDragSessionEnd={endDragSession}
-        />
-      ))}
-    </Reorder.Group>
+    <div>
+      {error && (
+        <p role="alert" className="text-sm text-rose-500">
+          {error}
+        </p>
+      )}
+      <Reorder.Group
+        inert={saving}
+        axis="y"
+        values={visible}
+        onReorder={(items) => {
+          if (saving) return;
+          draftRef.current = items;
+          setDraft(items);
+        }}
+        data-drag-session={isDragSessionActive}
+        className="space-y-2 p-0"
+      >
+        {visible.map((document) => (
+          <DocumentListItem
+            key={document.id}
+            document={document}
+            onDelete={onDelete}
+            onDragSessionStart={(cancelDrag) =>
+              startDragSession(() => {
+                draftRef.current = null;
+                setDraft(null);
+                cancelDrag();
+              })
+            }
+            onDragSessionEnd={() => {
+              endDragSession();
+              const ordered = draftRef.current;
+              if (!ordered || saving) return;
+              setSaving(true);
+              setError('');
+              void onReorder(ordered)
+                .catch(() => setError('並び順を保存できませんでした。'))
+                .finally(() => {
+                  draftRef.current = null;
+                  setDraft(null);
+                  setSaving(false);
+                });
+            }}
+          />
+        ))}
+      </Reorder.Group>
+    </div>
   );
 }
 
-function DocumentListItem({ document, onDelete, onDragSessionStart, onDragSessionEnd }: DocumentListItemProps) {
+function DocumentListItem({
+  document,
+  onDelete,
+  onDragSessionStart,
+  onDragSessionEnd,
+}: DocumentListItemProps) {
   const dragControls = useDragControls();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -130,8 +172,8 @@ function DocumentListItem({ document, onDelete, onDragSessionStart, onDragSessio
           title="ドキュメントを削除しますか？"
           text={`「${document.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={() => {
-            onDelete(document.id);
+          onConfirm={async () => {
+            await onDelete(document.id);
             setIsDeleteDialogOpen(false);
           }}
         />

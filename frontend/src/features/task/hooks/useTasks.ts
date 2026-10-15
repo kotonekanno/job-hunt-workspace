@@ -1,62 +1,107 @@
-import { useMemo, useState } from 'react';
-import { initialTasks, type Task } from '@/features/task/model/task';
+import { useCallback, useMemo, useState } from 'react';
+import { authenticatedRequest } from '@/api/authenticatedRequest';
+import * as api from '@/api/generated/api';
+import type {
+  CreateTaskRequest,
+  UpdateTaskRequest,
+} from '@/api/generated/models';
+import { requireStatus, useApiResource } from '@/api/useApiResource';
 
-export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+export function useTasks(companyId?: number) {
+  const loader = useCallback(
+    async (signal: AbortSignal) => {
+      if (companyId !== undefined) {
+        const detail = await authenticatedRequest(
+          (options) => api.getCompanyById(companyId, options),
+          { signal },
+        );
+        if (detail.status !== 200)
+          throw new Error('関連タスクを取得できませんでした。');
+        return detail.data.tasks;
+      }
+      const response = await authenticatedRequest(api.getTasks, { signal });
+      if (response.status !== 200)
+        throw new Error('タスクを取得できませんでした。');
+      return response.data.tasks;
+    },
+    [companyId],
+  );
+  const resource = useApiResource(loader);
   const [companyQuery, setCompanyQuery] = useState('');
-
-  const visibleTasks = useMemo(() => {
-    const filtered = tasks.filter(
-      (task) =>
-        !companyQuery ||
-        task.company?.toLowerCase().includes(companyQuery.toLowerCase()),
+  const [actionError, setActionError] = useState('');
+  const tasks = useMemo(() => resource.data ?? [], [resource.data]);
+  const visibleTasks = useMemo(
+    () =>
+      tasks
+        .filter(
+          (task) =>
+            !companyQuery ||
+            task.companyName
+              ?.toLowerCase()
+              .includes(companyQuery.toLowerCase()),
+        )
+        .sort(
+          (a, b) =>
+            Number(a.done) - Number(b.done) ||
+            (a.deadline ?? '\uffff').localeCompare(b.deadline ?? '\uffff'),
+        ),
+    [tasks, companyQuery],
+  );
+  async function saveTask(request: CreateTaskRequest, id?: number) {
+    requireStatus(
+      id === undefined
+        ? await authenticatedRequest((options) =>
+            api.createTask(request, options),
+          )
+        : await authenticatedRequest((options) =>
+            api.patchTask(id, request, options),
+          ),
+      id === undefined ? 201 : 204,
     );
-
-    return [...filtered].sort((left, right) => {
-      const completionOrder = Number(left.done) - Number(right.done);
-
-      if (completionOrder !== 0) {
-        return completionOrder;
-      }
-
-      return (left.deadline ?? '\uffff').localeCompare(
-        right.deadline ?? '\uffff',
+    await resource.refresh();
+  }
+  async function updateTask(id: number, patch: UpdateTaskRequest) {
+    requireStatus(
+      await authenticatedRequest((options) =>
+        api.patchTask(id, patch, options),
+      ),
+    );
+    await resource.refresh();
+  }
+  async function toggleTask(id: number) {
+    const task = tasks.find((item) => item.id === id);
+    if (!task) return;
+    setActionError('');
+    try {
+      await updateTask(id, { done: !task.done });
+    } catch (cause) {
+      setActionError(
+        cause instanceof Error ? cause.message : '更新できませんでした。',
       );
-    });
-  }, [tasks, companyQuery]);
-
-  function toggleTask(id: number) {
-    setTasks((current) =>
-      current
-        .map((task) => (task.id === id ? { ...task, done: !task.done } : task))
-        .sort((left, right) => Number(left.done) - Number(right.done)),
+    }
+  }
+  async function deleteTask(id: number) {
+    requireStatus(
+      await authenticatedRequest((options) => api.deleteTask(id, options)),
     );
+    await resource.refresh();
   }
-
-  function saveTask(task: Task) {
-    setTasks((current) => {
-      const exists = current.some((item) => item.id === task.id);
-
-      if (exists) {
-        return current.map((item) => (item.id === task.id ? task : item));
-      }
-
-      return [task, ...current];
-    });
+  async function deleteCompletedTasks() {
+    const taskIds = tasks.filter((task) => task.done).map((task) => task.id);
+    if (!taskIds.length) return;
+    requireStatus(
+      await authenticatedRequest((options) =>
+        api.bulkDeleteTasks({ taskIds }, options),
+      ),
+    );
+    await resource.refresh();
   }
-
-  function deleteTask(id: number) {
-    setTasks((current) => current.filter((task) => task.id !== id));
-  }
-
-  function deleteCompletedTasks() {
-    setTasks((current) => current.filter((task) => !task.done));
-  }
-
   return {
     tasks: visibleTasks,
     companyQuery,
     completedCount: tasks.filter((task) => task.done).length,
+    isLoading: resource.isLoading,
+    error: resource.error || actionError,
     setCompanyQuery,
     toggleTask,
     saveTask,

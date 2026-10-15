@@ -25,42 +25,39 @@ function App() {
     void initializeSession();
   }, []);
   return (
-    <DocumentArchiveProvider>
-      <EssayArchiveProvider>
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-            <Route
-              element={
-                <RequireAuth>
+        <Route
+          element={
+            <RequireAuth>
+              <DocumentArchiveProvider>
+                <EssayArchiveProvider>
                   <ProtectedLayout />
-                </RequireAuth>
-              }
-            >
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/companies" element={<CompanyListPage />} />
-              <Route
-                path="/companies/:companyId"
-                element={<CompanyDetailPage />}
-              />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/tasks" element={<TaskPage />} />
-              <Route path="/essays" element={<EssayPage />} />
-              <Route path="/essays/:groupId" element={<EssayGroupPage />} />
-              <Route path="/documents" element={<DocumentsPage />} />
-              <Route
-                path="/documents/:documentsId"
-                element={<DocumentDetailPage />}
-              />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/settings/app" element={<AppSettingsPage />} />
-            </Route>
-          </Route>
-        </Routes>
-      </EssayArchiveProvider>
-    </DocumentArchiveProvider>
+                </EssayArchiveProvider>
+              </DocumentArchiveProvider>
+            </RequireAuth>
+          }
+        >
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/companies" element={<CompanyListPage />} />
+          <Route path="/companies/:companyId" element={<CompanyDetailPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/tasks" element={<TaskPage />} />
+          <Route path="/essays" element={<EssayPage />} />
+          <Route path="/essays/:groupId" element={<EssayGroupPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route
+            path="/documents/:documentsId"
+            element={<DocumentDetailPage />}
+          />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings/app" element={<AppSettingsPage />} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 

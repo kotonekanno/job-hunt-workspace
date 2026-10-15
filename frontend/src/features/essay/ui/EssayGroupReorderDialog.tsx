@@ -1,16 +1,13 @@
+import type { EssayGroupListItem as EssayGroup } from '@/api/generated/models';
 import { GripVertical, Lock } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import { useState, type FormEvent, type PointerEvent } from 'react';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
 import { EditDialog } from '@/shared/dialog';
 
 type EssayGroupReorderDialogProps = {
   groups: EssayGroup[];
   onClose: () => void;
-  onSave: (orderedGroupIds: string[]) => void;
+  onSave: (orderedGroupIds: (number | null)[]) => Promise<void>;
 };
 
 type ReorderableGroupRowProps = {
@@ -23,17 +20,13 @@ export function EssayGroupReorderDialog({
   onSave,
 }: EssayGroupReorderDialogProps) {
   const [orderedGroups, setOrderedGroups] = useState(
-    groups
-      .filter((group) => group.id !== unclassifiedEssayGroupId)
-      .sort((left, right) => left.position - right.position),
+    groups.filter((group) => group.id !== null),
   );
-  const unclassifiedGroup = groups.find(
-    (group) => group.id === unclassifiedEssayGroupId,
-  );
+  const unclassifiedGroup = groups.find((group) => group.id === null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave([
+    await onSave([
       ...orderedGroups.map((group) => group.id),
       ...(unclassifiedGroup ? [unclassifiedGroup.id] : []),
     ]);

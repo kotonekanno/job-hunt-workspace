@@ -1,22 +1,28 @@
+import {
+  getEventStartDate,
+  getEventEndDate,
+} from '@/features/calendar/lib/eventTime';
 import { toDateKey, type CalendarDay } from '@/features/calendar/lib/calendar';
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import type { Event as CalendarEvent } from '@/api/generated/models';
 import { CalendarEventItem } from '@/features/calendar/ui/CalendarEventItem';
 
 type CalendarMonthProps = {
   days: CalendarDay[];
   events: CalendarEvent[];
   onEdit: (event: CalendarEvent) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: number) => Promise<void>;
 };
 
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
 function occursOnDate(event: CalendarEvent, dateKey: string) {
   if (!event.isAllDay) {
-    return event.startDate === dateKey;
+    return getEventStartDate(event) === dateKey;
   }
 
-  return event.startDate <= dateKey && event.endDate >= dateKey;
+  return (
+    getEventStartDate(event) <= dateKey && getEventEndDate(event) >= dateKey
+  );
 }
 
 export function CalendarMonth({
@@ -25,7 +31,7 @@ export function CalendarMonth({
   onEdit,
   onDelete,
 }: CalendarMonthProps) {
-  const todayKey = toDateKey(new Date(2026, 6, 12));
+  const todayKey = toDateKey(new Date());
 
   return (
     <div className="ui-panel overflow-x-auto border border-[var(--line)] transition-colors duration-300">

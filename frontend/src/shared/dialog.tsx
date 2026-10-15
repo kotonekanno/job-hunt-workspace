@@ -1,5 +1,12 @@
 import { Trash2, X } from 'lucide-react';
-import { useEffect, useId, type FormEventHandler, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 type DialogBaseProps = {
@@ -22,20 +29,21 @@ type DialogActionsProps = {
   confirmType?: 'button' | 'submit';
   onConfirm?: () => void;
   destructive?: boolean;
+  disabled?: boolean;
 };
 
 type DeleteDialogProps = {
   title: string;
   text: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 };
 
 type EditDialogProps = {
   title: string;
   children: ReactNode;
   onClose: () => void;
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
   subTitle?: string;
   submitText?: string;
   formClassName?: string;
@@ -126,6 +134,7 @@ export function DialogActions({
   confirmType = 'button',
   onConfirm,
   destructive = false,
+  disabled = false,
 }: DialogActionsProps) {
   return (
     <div className="mt-6 flex justify-end gap-2">
@@ -137,6 +146,7 @@ export function DialogActions({
         キャンセル
       </button>
       <button
+        disabled={disabled}
         type={confirmType}
         onClick={onConfirm}
         className={
@@ -158,6 +168,9 @@ export function DeleteDialog({
   onConfirm,
 }: DeleteDialogProps) {
   const titleId = useId();
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const busy = useRef(false);
 
   return (
     <DialogBase onClose={onClose}>
@@ -177,9 +190,33 @@ export function DeleteDialog({
           </h2>
         </div>
         <p className="mt-2 text-sm text-[var(--muted)]">{text}</p>
+        {error && (
+          <p role="alert" className="mt-3 text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <DialogActions
           onClose={onClose}
-          onConfirm={onConfirm}
+          disabled={saving}
+          onConfirm={() => {
+            if (busy.current) return;
+            busy.current = true;
+            setSaving(true);
+            setError('');
+            void Promise.resolve()
+              .then(onConfirm)
+              .catch((cause) =>
+                setError(
+                  cause instanceof Error
+                    ? cause.message
+                    : '削除できませんでした。',
+                ),
+              )
+              .finally(() => {
+                busy.current = false;
+                setSaving(false);
+              });
+          }}
           confirmText="削除する"
           destructive
         />
@@ -200,6 +237,9 @@ export function EditDialog({
   titleClassName = 'text-base',
 }: EditDialogProps) {
   const titleId = useId();
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const busy = useRef(false);
 
   return (
     <DialogBase onClose={onClose}>
@@ -207,7 +247,24 @@ export function EditDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        onSubmit={onSubmit}
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (busy.current) return;
+          busy.current = true;
+          setSaving(true);
+          setError('');
+          try {
+            // Call synchronously so handlers may still read event.currentTarget.
+            await onSubmit(event);
+          } catch (cause) {
+            setError(
+              cause instanceof Error ? cause.message : '保存できませんでした。',
+            );
+          } finally {
+            busy.current = false;
+            setSaving(false);
+          }
+        }}
         className={`ui-dialog-surface cyber-cut w-full animate-in border border-[var(--line-strong)] zoom-in-95 duration-150 ${formClassName}`}
       >
         <DialogHeader
@@ -217,11 +274,19 @@ export function EditDialog({
           subTitle={subTitle}
           titleClassName={titleClassName}
         />
-        <div className={fieldsClassName}>{children}</div>
+        <fieldset disabled={saving} className={fieldsClassName}>
+          {children}
+        </fieldset>
+        {error && (
+          <p role="alert" className="mt-3 text-sm text-rose-500">
+            {error}
+          </p>
+        )}
         <DialogActions
           onClose={onClose}
           confirmText={submitText}
           confirmType="submit"
+          disabled={saving}
         />
       </form>
     </DialogBase>

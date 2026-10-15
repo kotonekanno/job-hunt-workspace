@@ -1,5 +1,10 @@
+import {
+  getEventStartDate,
+  getEventEndDate,
+  localTime,
+} from '@/features/calendar/lib/eventTime';
 import { MapPin, Video } from 'lucide-react';
-import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import type { Event as CalendarEvent } from '@/api/generated/models';
 import { EventDeleteButton } from '@/features/calendar/ui/EventDeleteButton';
 import { EditIconButton } from '@/shared/button';
 import { MemoText } from '@/shared/MemoPanel';
@@ -12,7 +17,7 @@ type EventDetailsProps = {
   showHeading?: boolean;
   showCompany?: boolean;
   onEdit?: (event: CalendarEvent) => void;
-  onDelete?: (eventId: number) => void;
+  onDelete?: (eventId: number) => Promise<void>;
 };
 
 const sizeStyles = {
@@ -54,20 +59,20 @@ export function EventDetails({
               <>
                 <span className="font-black text-[var(--accent)]">終日</span>
 
-                {event.endDate !== event.startDate && (
+                {getEventEndDate(event) !== getEventStartDate(event) && (
                   <span className="mt-1 text-[9px] font-semibold text-[var(--muted)]">
-                    → {event.endDate.slice(5).replace('-', '/')}
+                    → {getEventEndDate(event).slice(5).replace('-', '/')}
                   </span>
                 )}
               </>
             ) : (
               <>
                 <span className="font-black text-[var(--accent)]">
-                  {event.startTime ?? '--:--'}
+                  {localTime(event.startTime)}
                 </span>
 
                 <span className="mt-1 font-semibold text-[var(--muted)]">
-                  {event.endTime ?? '--:--'}
+                  {localTime(event.endTime)}
                 </span>
               </>
             )}
@@ -76,7 +81,7 @@ export function EventDetails({
           <div className="min-w-0 flex-1">
             {showCompany && (
               <p className={`truncate text-[var(--muted)] ${styles.title}`}>
-                {event.company}
+                {event.companyName}
               </p>
             )}
 

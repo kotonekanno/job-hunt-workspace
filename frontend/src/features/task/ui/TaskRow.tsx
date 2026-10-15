@@ -1,29 +1,23 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import type { Task } from '@/features/task/model/task';
-import type { Task as ApiTask } from '@/api/generated/models';
+import type { Task } from '@/api/generated/models';
 import { CompanyBadge } from '@/shared/badge';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
 import { MemoPanel } from '@/shared/MemoPanel';
 
-type TaskRowProps<T extends Task | ApiTask> = {
-  task: T;
+type TaskRowProps = {
+  task: Task;
   showCompany?: boolean;
   showActions?: boolean;
   onToggle: (id: number) => void;
-  onEdit?: (task: T) => void;
-  onDelete?: (id: number) => void;
+  onEdit?: (task: Task) => void;
+  onDelete?: (id: number) => Promise<void>;
 };
 
-export function TaskRow<T extends Task | ApiTask>(props: TaskRowProps<T>) {
+export function TaskRow(props: TaskRowProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const companyName =
-    'companyName' in props.task
-      ? props.task.companyName
-      : 'company' in props.task
-        ? props.task.company
-        : undefined;
+  const companyName = props.task.companyName;
   const showCompany = props.showCompany ?? true;
   const showActions = props.showActions ?? true;
   const gridTemplateColumns = [
@@ -108,7 +102,7 @@ export function TaskRow<T extends Task | ApiTask>(props: TaskRowProps<T>) {
           <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
         </summary>
 
-        <MemoPanel text={props.task.note} />
+        <MemoPanel text={props.task.note ?? ''} />
       </details>
 
       {isDeleteDialogOpen && (
@@ -116,8 +110,8 @@ export function TaskRow<T extends Task | ApiTask>(props: TaskRowProps<T>) {
           title="タスクを削除しますか？"
           text={`「${props.task.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={() => {
-            props.onDelete?.(props.task.id);
+          onConfirm={async () => {
+            await props.onDelete?.(props.task.id);
             setIsDeleteDialogOpen(false);
           }}
         />

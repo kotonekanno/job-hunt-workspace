@@ -4,7 +4,7 @@ import { Reorder, useDragControls } from 'motion/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CompanyListItem } from '@/features/companies/model/companyList';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+import type { SelectionStatus } from '@/api/generated/models';
 import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
 import { DragHandle } from '@/shared/DragHandle';
 import { cn } from '@/lib/utils';
@@ -110,15 +110,7 @@ export function CompanyListCard({
               <SelectionStepBadge
                 title={selection.title}
                 step={selection.step.name}
-                result={
-                  selection.step.status === 'NOT_STARTED'
-                    ? 'not_started'
-                    : selection.step.status === 'PENDING'
-                      ? 'pending'
-                      : selection.step.status === 'PASSED'
-                        ? 'passed'
-                        : 'failed'
-                }
+                result={selection.step.status}
                 size="m"
                 onResultChange={(result) => {
                   onSelectionResultChange?.(company.id, result);
