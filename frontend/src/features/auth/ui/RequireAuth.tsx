@@ -1,11 +1,22 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { checkSession } from '@/features/auth/api/session';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const location = useLocation();
-  if (auth.status === 'loading')
+  const [checkedLocation, setCheckedLocation] = useState<string>();
+  useEffect(() => {
+    let active = true;
+    void checkSession().then(() => {
+      if (active) setCheckedLocation(location.key);
+    });
+    return () => {
+      active = false;
+    };
+  }, [location.key]);
+  if (checkedLocation !== location.key || auth.status === 'loading')
     return (
       <p role="status" className="p-6 text-sm text-[var(--muted)]">
         認証状態を確認中…
@@ -31,7 +42,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   if (auth.status !== 'authenticated')
     return (
       <Navigate
-        to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}`}
+        to={`/login?reason=login-required&returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}`}
         replace
       />
     );

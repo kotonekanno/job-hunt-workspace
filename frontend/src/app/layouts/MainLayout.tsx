@@ -2,15 +2,14 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
   BriefcaseBusiness,
   ChevronDown,
-  LogIn,
+  LogOut,
   Menu,
   Moon,
   Settings,
   Sun,
-  UserPlus,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 type Theme = 'light' | 'dark';
 
@@ -24,8 +23,6 @@ export type ProtectedLayoutOutletContext = {
 
 const accountMenuItems = [
   { label: 'アカウント設定', to: '/settings', icon: Settings },
-  { label: 'ログイン', to: '/login', icon: LogIn },
-  { label: '新規登録', to: '/register', icon: UserPlus },
 ];
 
 function getInitialTheme(): Theme {
@@ -39,11 +36,29 @@ function getInitialTheme(): Theme {
 export function MainLayout() {
   const location = useLocation();
   const auth = useAuth();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  async function handleLogout() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    setLogoutError('');
+    try {
+      await auth.signOut();
+      navigate('/login', { replace: true });
+    } catch (cause) {
+      setLogoutError(
+        cause instanceof Error ? cause.message : 'ログアウトできませんでした。',
+      );
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.matchMedia(sidebarBreakpointQuery).matches,
   );
-  const isProtectedPage = !['/login', '/register'].includes(location.pathname);
+  const isProtectedPage = !/^\/(login|register)\/*$/i.test(location.pathname);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -135,49 +150,72 @@ export function MainLayout() {
               )}
             </button>
 
-            <details className="group relative">
-              <summary className="ui-control flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 hover:border-[var(--line)] hover:bg-[var(--panel-raised)] [&::-webkit-details-marker]:hidden">
-                <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)]">
-                  {auth.status === 'authenticated' ? 'IN' : '—'}
-                </span>
-                <span className="hidden text-left lg:block">
-                  <span className="block text-xs font-semibold text-[var(--text-strong)]">
-                    {auth.status === 'authenticated' ? 'ログイン中' : 'ゲスト'}
+            {isProtectedPage && (
+              <details className="group relative">
+                <summary className="ui-control flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 hover:border-[var(--line)] hover:bg-[var(--panel-raised)] [&::-webkit-details-marker]:hidden">
+                  <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)]">
+                    {auth.status === 'authenticated' ? 'IN' : '—'}
                   </span>
-                  <span className="block font-mono text-[9px] tracking-wider text-[var(--muted)]">
-                    {auth.status === 'authenticated'
-                      ? 'AUTHENTICATED'
-                      : 'ACCOUNT ACCESS'}
+                  <span className="hidden text-left lg:block">
+                    <span className="block text-xs font-semibold text-[var(--text-strong)]">
+                      {auth.status === 'authenticated'
+                        ? 'ログイン中'
+                        : 'ゲスト'}
+                    </span>
+                    <span className="block font-mono text-[9px] tracking-wider text-[var(--muted)]">
+                      {auth.status === 'authenticated'
+                        ? 'AUTHENTICATED'
+                        : 'ACCOUNT ACCESS'}
+                    </span>
                   </span>
-                </span>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-3.5 text-[var(--accent)] transition-transform group-open:rotate-180"
-                />
-              </summary>
-              <div className="ui-floating-surface cyber-cut absolute right-0 top-[calc(100%+0.5rem)] w-56 py-2">
-                <p className="border-b border-[var(--line)] px-4 pb-2 font-mono text-[9px] font-semibold tracking-[0.2em] text-[var(--accent)]">
-                  // ACCOUNT_ACCESS
-                </p>
-                <nav className="pt-2" aria-label="アカウントメニュー">
-                  {accountMenuItems.map(({ label, to, icon: Icon }) => (
-                    <Link
-                      key={to}
-                      to={to}
-                      onClick={(event) =>
-                        event.currentTarget
-                          .closest('details')
-                          ?.removeAttribute('open')
-                      }
-                      className="flex items-center gap-3 border-l-2 border-transparent px-4 py-2.5 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]"
+                  <ChevronDown
+                    aria-hidden="true"
+                    className="size-3.5 text-[var(--accent)] transition-transform group-open:rotate-180"
+                  />
+                </summary>
+                <div className="ui-floating-surface cyber-cut absolute right-0 top-[calc(100%+0.5rem)] w-56 py-2">
+                  <p className="border-b border-[var(--line)] px-4 pb-2 font-mono text-[9px] font-semibold tracking-[0.2em] text-[var(--accent)]">
+                    // ACCOUNT_ACCESS
+                  </p>
+                  <nav className="pt-2" aria-label="アカウントメニュー">
+                    {accountMenuItems.map(({ label, to, icon: Icon }) => (
+                      <Link
+                        key={to}
+                        to={to}
+                        onClick={(event) =>
+                          event.currentTarget
+                            .closest('details')
+                            ?.removeAttribute('open')
+                        }
+                        className="flex items-center gap-3 border-l-2 border-transparent px-4 py-2.5 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]"
+                      >
+                        <Icon aria-hidden="true" className="size-4" />
+                        {label}
+                      </Link>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleLogout();
+                      }}
+                      disabled={isSigningOut}
+                      className="flex w-full cursor-pointer items-center gap-3 border-l-2 border-transparent px-4 py-2.5 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)] disabled:opacity-50"
                     >
-                      <Icon aria-hidden="true" className="size-4" />
-                      {label}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-            </details>
+                      <LogOut aria-hidden="true" className="size-4" />
+                      {isSigningOut ? 'ログアウト中…' : 'ログアウト'}
+                    </button>
+                    {logoutError && (
+                      <p
+                        role="alert"
+                        className="px-4 py-2 text-xs text-rose-500"
+                      >
+                        {logoutError}
+                      </p>
+                    )}
+                  </nav>
+                </div>
+              </details>
+            )}
           </div>
         </div>
       </header>

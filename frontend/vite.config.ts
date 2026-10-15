@@ -7,17 +7,29 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    proxy: {
-      '/auth': { target: 'http://localhost:8080', changeOrigin: true },
-      '/companies': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        bypass: (request) => {
-          if (request.headers.accept?.includes('text/html'))
-            return '/index.html';
+    proxy: Object.fromEntries(
+      [
+        '/auth',
+        '/companies',
+        '/tasks',
+        '/events',
+        '/documents',
+        '/essay-groups',
+      ].map((prefix) => [
+        prefix,
+        {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          bypass: (request: import('node:http').IncomingMessage) => {
+            if (
+              ['/companies', '/tasks', '/documents'].includes(prefix) &&
+              request.headers.accept?.includes('text/html')
+            )
+              return '/index.html';
+          },
         },
-      },
-    },
+      ]),
+    ),
   },
   resolve: {
     alias: {

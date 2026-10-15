@@ -14,7 +14,8 @@
     "openapi:build": "npm run openapi:lint && npm run openapi:bundle && npm run openapi:docs",
     "api:generate": "orval",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "test:auth": "node --import ./tests/register.mjs tests/auth.test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "^5.2.10",

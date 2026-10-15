@@ -9,7 +9,7 @@ import {
 import { useRef, useState, type FormEvent } from 'react';
 import type { AuthRequest } from '@/api/generated/models';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 type AuthMode = 'login' | 'register';
 
@@ -84,8 +84,6 @@ export function AuthForm({ mode }: AuthFormProps) {
       setIsSubmitting(false);
     }
   };
-  if (auth.status === 'authenticated')
-    return <Navigate to={returnTo} replace />;
 
   return (
     <div className="ui-panel ui-panel-accentless mx-auto grid w-full max-w-5xl overflow-hidden border border-[var(--line-strong)] md:grid-cols-[0.82fr_1.18fr]">
@@ -131,6 +129,12 @@ export function AuthForm({ mode }: AuthFormProps) {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            {mode === 'login' &&
+              searchParams.get('reason') === 'login-required' && (
+                <p role="alert" className="text-sm text-[var(--accent)]">
+                  このページを表示するにはログインが必要です。セッションの有効期限が切れている場合は、再度ログインしてください。
+                </p>
+              )}
             {error && (
               <p role="alert" className="text-sm text-rose-500">
                 {error}

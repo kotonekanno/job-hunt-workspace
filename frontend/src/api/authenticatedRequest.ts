@@ -1,9 +1,9 @@
 import {
-  clearSession,
+  checkSession,
   getAccessToken,
   getSession,
+  getSessionGeneration,
   initializeSession,
-  renewAccessToken,
 } from '@/features/auth/api/session';
 
 export async function authenticatedRequest<T extends { status: number }>(
@@ -12,6 +12,7 @@ export async function authenticatedRequest<T extends { status: number }>(
 ): Promise<T> {
   if (getSession().status === 'loading') await initializeSession();
   options.signal?.throwIfAborted();
+  const startedGeneration = getSessionGeneration();
   const sentToken = getAccessToken();
   if (!sentToken) throw new Error('ログインが必要です。');
   function withToken(token: string): RequestInit {
@@ -26,14 +27,20 @@ export async function authenticatedRequest<T extends { status: number }>(
   const response = await request(withToken(sentToken));
   if (response.status !== 401) return response;
   options.signal?.throwIfAborted();
-  const token =
-    getAccessToken() !== sentToken
-      ? getAccessToken()
-      : await renewAccessToken();
+  // Never replay a previous user's request after a new login.
+  if (getSessionGeneration() !== startedGeneration) return response;
+  // Another request may already have refreshed this session's token.
+  if (getAccessToken() === sentToken) await checkSession();
   options.signal?.throwIfAborted();
-  if (!token) return response;
-  // Retry only once; concurrent requests share the same token refresh.
+  if (getSessionGeneration() !== startedGeneration) return response;
+  const token = getAccessToken();
+  if (!token || token === sentToken) return response;
   const retried = await request(withToken(token));
-  if (retried.status === 401) clearSession();
+  if (
+    retried.status === 401 &&
+    getSessionGeneration() === startedGeneration &&
+    getAccessToken() === token
+  )
+    await checkSession();
   return retried;
 }

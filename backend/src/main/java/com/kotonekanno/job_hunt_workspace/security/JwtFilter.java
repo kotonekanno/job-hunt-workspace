@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -14,6 +16,8 @@ import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
+  private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
 
   private final JwtUtil jwtUtil;
 
@@ -44,7 +48,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
       } catch (JwtException | IllegalArgumentException e) {
-        // 無効なトークンでは認証せず、後続の認可処理に委ねる。
+        // Do not log the token or exception message, which may contain token data.
+        log.warn("JWT rejected: method={} path={} dispatcher={} reason={}",
+            request.getMethod(), request.getRequestURI(), request.getDispatcherType(),
+            e.getClass().getSimpleName());
       }
     }
 

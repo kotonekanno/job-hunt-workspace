@@ -4,6 +4,7 @@ import {
   subscribeSession,
   signIn,
   signUp,
+  signOut,
   retrySession,
 } from '@/features/auth/api/session';
 
@@ -13,5 +14,5 @@ export function useAuth() {
     getSession,
     getSession,
   );
-  return { ...session, signIn, signUp, retrySession };
+  return { ...session, signIn, signUp, signOut, retrySession };
 }

@@ -233,7 +233,7 @@ public class EssayService {
       UpdateEssayRequest request
   ) {
     Essay essay = essayRepository
-        .findById_User_Id(essayId, userId)
+        .findByIdAndUser_Id(essayId, userId)
         .orElseThrow(() -> new NotFoundException("Essay not found"));
 
     if(request.getQuestion() != null) {
@@ -263,7 +263,7 @@ public class EssayService {
       Integer essayId
   ) {
     Essay essay = essayRepository
-        .findById_User_Id(essayId, userId)
+        .findByIdAndUser_Id(essayId, userId)
         .orElseThrow(() -> new NotFoundException("Essay not found"));
 
     essayRepository.delete(essay);

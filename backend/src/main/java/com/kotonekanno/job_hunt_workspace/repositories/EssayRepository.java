@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface EssayRepository extends JpaRepository<Essay, Integer> {
 
-  Optional<Essay> findById_User_Id(
+  Optional<Essay> findByIdAndUser_Id(
       Integer id,
       Integer userId
   );
@@ -24,6 +24,7 @@ public interface EssayRepository extends JpaRepository<Essay, Integer> {
       Integer essayGroupId,
       Integer userId
   );
+
   // ESグループごとに紐づくESの件数を取得する（[ESグループID, 件数]）
   @Query("""
     SELECT e.essayGroup.id, COUNT(e)
