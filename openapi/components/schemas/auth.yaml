@@ -17,7 +17,6 @@ AccessToken:
   description: AuthorizationヘッダーにBearer形式で指定するアクセストークン
   type: string
 
-
 # ====================
 # Request / Response
 # ====================
@@ -27,9 +26,9 @@ AuthRequest:
   type: object
   properties:
     email:
-      $ref: '#/Email'
+      $ref: "#/Email"
     password:
-      $ref: '#/Password'
+      $ref: "#/Password"
   required:
     - email
     - password
@@ -42,8 +41,20 @@ AccessTokenResponse:
   type: object
   properties:
     accessToken:
-      $ref: '#/AccessToken'
+      $ref: "#/AccessToken"
   required:
     - accessToken
   example:
     accessToken: example-access-token
+
+UpdateUserRequest:
+  description: ユーザー情報の部分更新内容。
+  type: object
+  properties:
+    email:
+      $ref: "#/Email"
+    password:
+      $ref: "#/Password"
+  example:
+    email: user@example.com
+    password: SamplePassword123!

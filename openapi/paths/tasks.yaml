@@ -6,16 +6,19 @@ get:
     - Tasks
   operationId: getTasks
   summary: タスク一覧を取得
+  parameters:
+    - $ref: ../components/parameters/query.yaml#/Quantity
+    - $ref: ../components/parameters/query.yaml#/QueryCompanyId
   responses:
-    '200':
+    "200":
       description: タスク一覧の取得に成功。
       content:
         application/json:
           schema:
             $ref: ../components/schemas/task.yaml#/GetTasksResponse
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
@@ -31,7 +34,7 @@ post:
         schema:
           $ref: ../components/schemas/task.yaml#/CreateTaskRequest
   responses:
-    '201':
+    "201":
       description: タスクの新規作成に成功。作成したタスクのIDを返す。
       content:
         application/json:
@@ -46,13 +49,13 @@ post:
                 format: int32
             example:
               taskId: 1
-    '400':
+    "400":
       $ref: ../components/responses/common.yaml#/BadRequest
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '403':
+    "403":
       $ref: ../components/responses/common.yaml#/Forbidden
-    '404':
+    "404":
       $ref: ../components/responses/common.yaml#/NotFound
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError

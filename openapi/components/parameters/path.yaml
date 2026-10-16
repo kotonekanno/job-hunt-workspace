@@ -1,3 +1,12 @@
+UserId:
+  name: userId
+  in: path
+  required: true
+  schema:
+    description: ユーザーID
+    type: integer
+    format: int32
+
 CompanyId:
   name: companyId
   in: path
