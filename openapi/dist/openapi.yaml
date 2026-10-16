@@ -1544,6 +1544,34 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /settings/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    patch:
+      description: 指定したユーザーの登録情報を部分更新する。
+      tags:
+        - Authentication
+      operationId: patchUser
+      summary: ユーザー情報を部分更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     BearerAuth:
@@ -1671,6 +1699,14 @@ components:
       required: true
       schema:
         description: 文書ID
+        type: integer
+        format: int32
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        description: ユーザーID
         type: integer
         format: int32
   schemas:
@@ -2748,6 +2784,17 @@ components:
         - accessToken
       example:
         accessToken: example-access-token
+    UpdateUserRequest:
+      description: ユーザー情報の部分更新内容。
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+        password:
+          $ref: '#/components/schemas/Password'
+      example:
+        email: user@example.com
+        password: SamplePassword123!
   responses:
     Unauthorized:
       description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。

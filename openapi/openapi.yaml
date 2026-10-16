@@ -95,7 +95,7 @@ paths:
 
   /companies/{companyId}/selections/{selectionId}/is-active:
     $ref: ./paths/selections_is_active.yaml
-  
+
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
     $ref: ./paths/selections_steps_by_id.yaml
 
@@ -122,7 +122,7 @@ paths:
 
   /tasks/bulk-delete:
     $ref: ./paths/tasks_bulk_delete.yaml
-    
+
   /essay-groups:
     $ref: ./paths/essay_groups.yaml
 
@@ -161,6 +161,9 @@ paths:
 
   /auth/me:
     $ref: ./paths/auth_me.yaml
+
+  /settings/users/{userId}:
+    $ref: ./paths/settings_users_by_id.yaml
 
 components:
   securitySchemes:
