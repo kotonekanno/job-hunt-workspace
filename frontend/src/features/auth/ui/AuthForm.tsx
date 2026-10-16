@@ -57,21 +57,19 @@ export function AuthForm({ mode }: AuthFormProps) {
             <ShieldCheck className="size-5" />
           </span>
           <p className="mt-8 font-mono text-[9px] font-bold tracking-[0.2em] text-[var(--accent)]">
-            SECURE WORKSPACE
+            JOB HUNT WORKSPACE
           </p>
           <h2 className="mt-3 text-xl font-black leading-8 text-[var(--text-strong)]">
-            就職活動の情報を
-            <br />
-            ひとつの場所に。
+            極・就活管理
           </h2>
           <p className="mt-4 text-xs leading-6 text-[var(--muted)]">
-            企業、予定、タスク、ESをまとめて管理し、次にやるべきことを明確にします。
+            企業、予定、タスク、ESをまとめて管理します。
           </p>
         </div>
 
         <div className="mt-12 border-l-2 border-[var(--accent)] pl-4">
           <p className="text-[10px] font-bold text-[var(--text-strong)]">
-            JOB HUNT MANAGEMENT
+            JOB HUNT WORKSPACE
           </p>
           <p className="mt-1 font-mono text-[8px] tracking-wider text-[var(--faint)]">
             PLAN / TRACK / REVIEW
