@@ -16,11 +16,19 @@ function load(file, globals = {}) {
     },
   );
   const exports = {};
+  const originalRequire = globals.require ?? require;
+  const sharedRequire = (name) => {
+    if (name === '@/shared/useOptimisticState')
+      return load('src/shared/useOptimisticState.ts', globals);
+    if (name === '@/features/task/lib/taskMutations')
+      return load('src/features/task/lib/taskMutations.ts', globals);
+    return originalRequire(name);
+  };
   runInNewContext(outputText, {
     exports,
-    require,
     AbortController,
     ...globals,
+    require: sharedRequire,
   });
   return exports;
 }
@@ -176,11 +184,12 @@ test('history only loads initial page automatically, prevents concurrent request
   const react = {
     useState: (value) => {
       const i = cursor++;
-      if (!(i in slots)) slots[i] = value;
+      if (!(i in slots))
+        slots[i] = typeof value === 'function' ? value() : value;
       return [
         slots[i],
         (next) => {
-          slots[i] = next;
+          slots[i] = typeof next === 'function' ? next(slots[i]) : next;
         },
       ];
     },
@@ -211,7 +220,8 @@ test('history only loads initial page automatically, prevents concurrent request
   };
   let view = render();
   assert.equal(calls.length, 0);
-  const cleanup = effects[0]();
+  const cleanups = effects.splice(0).map((effect) => effect());
+  const cleanup = () => cleanups.forEach((fn) => fn?.());
   assert.equal(calls[0].page, 0);
   await view.loadNext();
   assert.equal(calls.length, 1);
@@ -318,6 +328,7 @@ test('drag preview sends no writes, drop saves once, cancellation discards previ
         if (name === 'react')
           return {
             useMemo: (fn) => fn(),
+            useCallback: (fn) => fn,
             useState: (value) => [value, () => {}],
             useRef: (value) => ({ current: value }),
           };
@@ -409,7 +420,8 @@ test('badge updates immediately, keeps displayed step after success and rolls ba
   const react = {
     useState: (value) => {
       const i = cursor++;
-      if (!(i in slots)) slots[i] = value;
+      if (!(i in slots))
+        slots[i] = typeof value === 'function' ? value() : value;
       return [
         slots[i],
         (next) => {
@@ -423,6 +435,7 @@ test('badge updates immediately, keeps displayed step after success and rolls ba
       return slots[i];
     },
     useMemo: (fn) => fn(),
+    useCallback: (fn) => fn,
     useEffect: (effect) => effects.push(effect),
   };
   const { useCompanyList } = load(
@@ -451,7 +464,8 @@ test('badge updates immediately, keeps displayed step after success and rolls ba
     return useCompanyList();
   };
   render();
-  const cleanup = effects[0]();
+  const cleanups = effects.splice(0).map((effect) => effect());
+  const cleanup = () => cleanups.forEach((fn) => fn?.());
   await new Promise(setImmediate);
   render().updateSelectionResult(1, 'PASSED');
   assert.equal(render().companies[0].currentSelection.step.status, 'PASSED');
@@ -469,4 +483,142 @@ test('badge updates immediately, keeps displayed step after success and rolls ba
   assert.equal(reads, 1);
   assert.equal(errors.length, 1);
   cleanup();
+});
+
+test('a drop patches only the dragged company in either direction or across priority lanes', async () => {
+  const previous = [company(1), company(2), company(3), company(4, 7)];
+  for (const [visible, movedId, nextId, priority] of [
+    [[company(2), company(3), company(1), company(4, 7)], 1, null, 1],
+    [[company(3), company(1), company(2), company(4, 7)], 3, 1, 1],
+    [[company(3), company(1, 7)], 1, null, 7],
+    [[company(3), company(1)], 3, 1, 1],
+  ]) {
+    const desired = board.mergeVisibleCompanyOrder(previous, visible, movedId);
+    const { api, calls } = setup(
+      async () => new Response(null, { status: 204 }),
+    );
+    await api.persistCompanyOrder(previous, desired, undefined, movedId);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, `/companies/${movedId}/priority`);
+    assert.deepEqual(JSON.parse(calls[0].body), {
+      priority,
+      nextCompanyId: nextId,
+    });
+    const unmoved = desired
+      .filter((item) => item.id !== movedId)
+      .map((item) => item.id);
+    assert.deepEqual(
+      Array.from(unmoved),
+      previous.filter((item) => item.id !== movedId).map((item) => item.id),
+    );
+    await api.persistCompanyOrder(desired, desired, undefined, movedId);
+    assert.equal(calls.length, 1);
+  }
+});
+
+test('board drag reuses card elements, renders exact Motion order and only commits on drop', async () => {
+  const slots = [];
+  let cursor = 0;
+  let updates = 0;
+  const memo = (factory, deps) => {
+    const index = cursor++;
+    const previous = slots[index];
+    if (!previous || deps.some((dep, i) => !Object.is(dep, previous.deps[i])))
+      slots[index] = { value: factory(), deps };
+    return slots[index].value;
+  };
+  const react = {
+    useMemo: memo,
+    useCallback: (callback, deps) => memo(() => callback, deps),
+    useRef: (value) => {
+      const index = cursor++;
+      slots[index] ??= { current: value };
+      return slots[index];
+    },
+    useState: (initial) => {
+      const index = cursor++;
+      slots[index] ??= { value: initial };
+      return [
+        slots[index].value,
+        (value) => {
+          updates++;
+          slots[index].value = value;
+        },
+      ];
+    },
+  };
+  let cancelDrag;
+  const session = {
+    isDragSessionActive: true,
+    startDragSession: (cancel) => {
+      cancelDrag = cancel;
+    },
+    endDragSession: () => {},
+  };
+  const { CompanyPriorityBoard } = load(
+    'src/features/companies/ui/list/CompanyPriorityBoard.tsx',
+    {
+      require: (name) => {
+        if (name === 'react') return react;
+        if (name === 'react/jsx-runtime') return require(name);
+        if (name === 'motion/react')
+          return { Reorder: { Group: 'group', Item: 'item' } };
+        if (name === 'lucide-react') return { Archive: 'archive' };
+        if (name.endsWith('/companyBoard')) return board;
+        if (name.endsWith('/CompanyListCard'))
+          return { CompanyListCard: 'card' };
+        if (name.endsWith('/useListDragSession'))
+          return { useListDragSession: () => session };
+        throw new Error(name);
+      },
+    },
+  );
+  const commits = [];
+  const props = {
+    companies: [company(1), company(2), company(3, 7)],
+    onSelectionResultChange: () => {},
+    onCompaniesReorder: async (items, id) => {
+      commits.push({ items, id });
+      return true;
+    },
+  };
+  const render = () => {
+    cursor = 0;
+    return CompanyPriorityBoard(props).props.children;
+  };
+  const initial = render();
+  const card = initial.props.children.find(
+    (element) => element.key === 'company-1',
+  );
+  card.props.onDragSessionStart(() => {});
+  const ids = initial.props.values.filter((id) => id !== 'company-1');
+  ids.push('company-1');
+  initial.props.onReorder(ids);
+  const dragging = render();
+  assert.deepEqual(
+    Array.from(dragging.props.children, (element) => element.key),
+    Array.from(ids),
+  );
+  assert.equal(dragging.props.children.at(-1), card);
+  assert.equal(card.props.company.priority, 1);
+  assert.equal(commits.length, 0);
+  const count = updates;
+  dragging.props.onReorder([...ids]);
+  assert.equal(updates, count);
+  await card.props.onDragSessionEnd();
+  assert.equal(commits.length, 1);
+  assert.equal(commits[0].id, 1);
+  assert.equal(commits[0].items.find((item) => item.id === 1).priority, 7);
+  const next = render();
+  next.props.children
+    .find((element) => element.key === 'company-1')
+    .props.onDragSessionStart(() => {});
+  next.props.onReorder(ids);
+  cancelDrag();
+  await card.props.onDragSessionEnd();
+  assert.equal(commits.length, 1);
+  assert.deepEqual(
+    Array.from(render().props.values),
+    Array.from(initial.props.values),
+  );
 });

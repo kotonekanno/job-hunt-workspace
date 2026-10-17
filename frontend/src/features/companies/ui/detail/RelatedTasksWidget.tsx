@@ -1,68 +1,46 @@
 import { ListTodo } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import {
-  companyProfile,
-  relatedTasks,
-} from '@/features/companies/model/companyDetail';
+import { useState } from 'react';
+import { useCompanyTasks } from '@/features/companies/hooks/useCompanyTasks';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
-import { companyNameOptions } from '@/features/companies/model/companyList';
-import type { TaskForm } from '@/features/task/model/task';
 import type { Task } from '@/api/generated/models/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { AddButton, BulkDeleteButton } from '@/shared/button';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 
-export function RelatedTasksWidget() {
-  const [tasks, setTasks] = useState<Task[]>(relatedTasks);
+export function RelatedTasksWidget({
+  companyId,
+  companyName,
+  initialTasks,
+  companies,
+  prepareCompanies,
+}: {
+  companyId: number;
+  companyName: string;
+  initialTasks: Task[];
+  companies: CompanyListItem[];
+  prepareCompanies: () => Promise<boolean>;
+}) {
+  const {
+    tasks: sortedTasks,
+    completedCount,
+    toggleTask,
+    saveTask,
+    deleteTask,
+    deleteCompletedTasks,
+  } = useCompanyTasks(companyId, initialTasks, companies);
   const [editingTask, setEditingTask] = useState<Task>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const sortedTasks = useMemo(
-    () =>
-      [...tasks].sort((left, right) => {
-        const completionOrder = Number(left.done) - Number(right.done);
-
-        if (completionOrder !== 0) {
-          return completionOrder;
-        }
-
-        return (left.deadline ?? '\uffff').localeCompare(
-          right.deadline ?? '\uffff',
-        );
-      }),
-    [tasks],
-  );
-
-  const completedCount = tasks.filter((task) => task.done).length;
-
-  function toggleTask(id: number) {
-    setTasks((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, done: !task.done } : task,
-      ),
-    );
-  }
-
-  function saveTask(form: TaskForm) {
-    const task: Task = { ...form, id: form.id ?? Date.now() };
-    setTasks((current) => {
-      const taskExists = current.some((item) => item.id === task.id);
-
-      if (!taskExists) {
-        return [...current, task];
-      }
-
-      return current.map((item) => (item.id === task.id ? task : item));
-    });
-  }
-
-  function openAddDialog() {
+  async function openAddDialog() {
+    if (!(await prepareCompanies())) return;
     setEditingTask(undefined);
     setIsDialogOpen(true);
   }
 
-  function openEditDialog(task: Task) {
+  async function openEditDialog(task: Task) {
+    if (!(await prepareCompanies())) return;
     setEditingTask(task);
     setIsDialogOpen(true);
   }
@@ -77,9 +55,7 @@ export function RelatedTasksWidget() {
       <BulkDeleteButton
         size="s"
         count={completedCount}
-        onConfirm={() =>
-          setTasks((current) => current.filter((task) => !task.done))
-        }
+        onConfirm={deleteCompletedTasks}
       />
 
       <AddButton text="タスクを追加" size="s" onClick={openAddDialog} />
@@ -93,7 +69,7 @@ export function RelatedTasksWidget() {
         code="RELATED_TASKS"
         icon={ListTodo}
         action={actions}
-        contentClassName="overflow-x-auto"
+        contentClassName="max-h-[24rem] overflow-auto"
       >
         {sortedTasks.length === 0 ? (
           <WidgetEmptyState text="表示できるタスクはありません" />
@@ -103,9 +79,7 @@ export function RelatedTasksWidget() {
             showCompany={false}
             onToggle={toggleTask}
             onEdit={openEditDialog}
-            onDelete={(id) =>
-              setTasks((current) => current.filter((task) => task.id !== id))
-            }
+            onDelete={deleteTask}
           />
         )}
       </WidgetFrame>
@@ -113,8 +87,8 @@ export function RelatedTasksWidget() {
       {isDialogOpen && (
         <TaskDialog
           task={editingTask}
-          defaultCompany={companyProfile.name}
-          companyOptions={companyNameOptions}
+          defaultCompany={companyName}
+          companyOptions={companies.map((company) => company.name)}
           onClose={closeDialog}
           onSave={saveTask}
         />

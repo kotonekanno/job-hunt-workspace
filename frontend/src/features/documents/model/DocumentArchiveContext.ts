@@ -14,7 +14,7 @@ export type DocumentArchiveValue = {
   addDocument: (title: string) => Promise<boolean>;
   updateDocument: (id: number, text: string) => void;
   deleteDocument: (id: number) => Promise<boolean>;
-  reorderDocuments: (ids: number[]) => void;
+  reorderDocuments: (ids: number[], movedId: number) => void;
 };
 
 export const DocumentArchiveContext =

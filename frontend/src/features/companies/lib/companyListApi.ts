@@ -35,7 +35,12 @@ export async function loadCompanies(signal?: AbortSignal) {
   return response.data.companies;
 }
 export async function addCompanyRequest(request: CreateCompanyRequest) {
-  expectStatus((await createCompany(request, options())).status, 201);
+  const response = await createCompany(request, options());
+  if (response.status !== 201) {
+    expectStatus(response.status, 201);
+    throw new Error('企業を追加できませんでした。');
+  }
+  return response.data.companyId;
 }
 export async function loadCompanyActivities(
   companyId: number,
@@ -91,6 +96,8 @@ export async function changeCompanyStatus(
 export async function persistCompanyOrder(
   previous: CompanyListItem[],
   desired: CompanyListItem[],
+  onProgress?: (saved: CompanyListItem[]) => void,
+  movedId?: number,
 ) {
   if (
     previous.length !== desired.length ||
@@ -101,6 +108,7 @@ export async function persistCompanyOrder(
   const current = previous.map((item) => ({ ...item }));
   for (let index = desired.length - 1; index >= 0; index -= 1) {
     const company = desired[index];
+    if (movedId !== undefined && company.id !== movedId) continue;
     const nextCompanyId =
       desired
         .slice(index + 1)
@@ -129,5 +137,6 @@ export async function persistCompanyOrder(
       0,
       { ...company },
     );
+    onProgress?.([...current]);
   }
 }

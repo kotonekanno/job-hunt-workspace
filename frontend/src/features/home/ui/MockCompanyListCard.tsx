@@ -1,5 +1,5 @@
 import { HoverCard } from '@/shared/hover-card';
-import { ActivitiesWidget } from '@/features/companies/ui/detail/ActivitiesWidget';
+import { MockActivitiesWidget } from '@/features/home/ui/MockActivitiesWidget';
 import { ArrowUpRight, Minus } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
@@ -103,7 +103,7 @@ export function MockCompanyListCard({
                 </span>
               }
             >
-              <ActivitiesWidget readOnly targetCompanyId={company.id} />
+              <MockActivitiesWidget readOnly targetCompanyId={company.id} />
             </HoverCard>
           </div>
         )}

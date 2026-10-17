@@ -70,22 +70,22 @@ export function DocumentsPage() {
     );
   }, [documents, contents, query]);
 
-  function reorderFilteredDocuments(orderedDocuments: DocumentListItem[]) {
-    const visibleIds = new Set(
-      filteredDocuments.map((document) => document.id),
+  function reorderFilteredDocuments(
+    orderedDocuments: DocumentListItem[],
+    movedId: number,
+  ) {
+    const index = orderedDocuments.findIndex((item) => item.id === movedId);
+    if (index < 0) return;
+    const nextId = orderedDocuments[index + 1]?.id;
+    const ids = documentArchive.documents
+      .filter((item) => item.id !== movedId)
+      .map((item) => item.id);
+    ids.splice(
+      nextId === undefined ? ids.length : ids.indexOf(nextId),
+      0,
+      movedId,
     );
-    let visibleIndex = 0;
-    const orderedIds = documentArchive.documents.map((document) => {
-      if (!visibleIds.has(document.id)) {
-        return document.id;
-      }
-
-      const nextDocument = orderedDocuments[visibleIndex];
-      visibleIndex += 1;
-      return nextDocument?.id ?? document.id;
-    });
-
-    documentArchive.reorderDocuments(orderedIds);
+    documentArchive.reorderDocuments(ids, movedId);
   }
 
   return (

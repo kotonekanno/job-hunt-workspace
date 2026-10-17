@@ -16,6 +16,7 @@ export function SelectionStepFields({
         <RequiredMark />
         <input
           required
+          maxLength={50}
           value={title}
           onChange={(event) => onChange({ title: event.target.value })}
           className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
@@ -24,6 +25,7 @@ export function SelectionStepFields({
       <label className="block text-xs text-[var(--muted)]">
         メモ
         <textarea
+          maxLength={2000}
           value={note}
           onChange={(event) => onChange({ note: event.target.value })}
           className="mt-1 min-h-20 w-full resize-y border border-[var(--line)] bg-[var(--panel)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"

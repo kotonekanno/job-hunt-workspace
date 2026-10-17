@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { CompanyActivity } from '@/features/companies/model/activity';
+import { useRef, useState } from 'react';
+import type { Activity } from '@/api/generated/models/activity';
 import type { ActivityEditField } from '@/features/companies/ui/detail/ActivityMessageMenu';
 import { EditDialog } from '@/shared/dialog';
 
@@ -11,38 +11,43 @@ export function ActivityEditDialog({
   onSave,
   onClose,
 }: {
-  activity: CompanyActivity;
+  activity: Activity;
   field: ActivityEditField;
-  onSave: (activity: CompanyActivity) => void;
+  onSave: (activity: Activity) => Promise<boolean>;
   onClose: () => void;
 }) {
   const [text, setText] = useState(activity.text);
   const [sentAt] = useState(() => {
-    const date = new Date(activity.sentAt);
+    const date = new Date(activity.occurredAt);
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
   });
   const inputStyle =
     'mt-2 w-full border border-[var(--line)] bg-[var(--panel-raised)] p-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]';
+  const saving = useRef(false);
   return (
     <EditDialog
       title={`${labels[field]}を編集`}
       submitText="保存する"
       onClose={onClose}
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        if (field === 'text' && !text.trim()) return;
+        if (saving.current || (field === 'text' && !text.trim())) return;
         const patch =
           field === 'text'
             ? { text: text.trim() }
             : {
-                sentAt: new Date(
+                occurredAt: new Date(
                   String(new FormData(event.currentTarget).get('sentAt')),
                 ).toISOString(),
               };
-        onSave({ ...activity, ...patch });
-        onClose();
+        saving.current = true;
+        try {
+          if (await onSave({ ...activity, ...patch })) onClose();
+        } finally {
+          saving.current = false;
+        }
       }}
     >
       <label className="block text-xs text-[var(--muted)]">
@@ -54,6 +59,7 @@ export function ActivityEditDialog({
             value={text}
             onChange={(event) => setText(event.target.value)}
             rows={4}
+            maxLength={500}
             className={inputStyle}
           />
         )}

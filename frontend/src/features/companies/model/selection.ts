@@ -1,3 +1,5 @@
+// Display/form state: ordered step numbers, active flags, lowercase badge status and unsaved draft IDs.
+// API payloads use the generated selection types instead.
 export type SelectionStatus =
   | 'not_started' // 未受験
   | 'pending' // 結果待ち

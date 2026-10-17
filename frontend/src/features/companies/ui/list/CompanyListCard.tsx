@@ -39,13 +39,13 @@ export function CompanyListCard({
     target instanceof Element && Boolean(target.closest('[data-card-action]'));
 
   const openCompany = (event: MouseEvent<HTMLElement>) => {
-    if (isInteractiveTarget(event.target)) return;
+    if (company.id < 0 || isInteractiveTarget(event.target)) return;
 
     navigate(companyPath);
   };
 
   const openCompanyFromKeyboard = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.target !== event.currentTarget) return;
+    if (company.id < 0 || event.target !== event.currentTarget) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
 
     event.preventDefault();

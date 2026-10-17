@@ -62,6 +62,8 @@ export async function deleteDocumentRequest(id: number) {
 export async function persistDocumentOrder(
   previous: number[],
   desired: number[],
+  onProgress?: (ids: number[]) => void,
+  movedId?: number,
 ) {
   if (
     previous.length !== desired.length ||
@@ -73,6 +75,7 @@ export async function persistDocumentOrder(
   const current = [...previous];
   for (let index = desired.length - 1; index >= 0; index -= 1) {
     const id = desired[index];
+    if (movedId !== undefined && id !== movedId) continue;
     const nextDocumentId = desired[index + 1] ?? null;
     const oldIndex = current.indexOf(id);
     if ((current[oldIndex + 1] ?? null) === nextDocumentId) continue;
@@ -87,5 +90,6 @@ export async function persistDocumentOrder(
       0,
       id,
     );
+    onProgress?.([...current]);
   }
 }

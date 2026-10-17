@@ -53,11 +53,26 @@ export function companiesFromBoard(
   });
 }
 
-// Search results occupy their existing slots; hidden companies retain their order.
+// A drag moves only its source item; hidden companies retain their relative order.
 export function mergeVisibleCompanyOrder(
   all: CompanyListItem[],
   visible: CompanyListItem[],
+  movedId?: number,
 ) {
+  if (movedId !== undefined) {
+    const index = visible.findIndex((item) => item.id === movedId);
+    const moved = visible[index];
+    if (!moved) return all;
+    const next = visible
+      .slice(index + 1)
+      .find((item) => item.priority === moved.priority);
+    const result = all.filter((item) => item.id !== movedId);
+    const insert = next
+      ? result.findIndex((item) => item.id === next.id)
+      : result.length;
+    result.splice(insert, 0, moved);
+    return result;
+  }
   const ids = new Set(visible.map((item) => item.id));
   let index = 0;
   return all.map((item) =>

@@ -242,6 +242,7 @@ public class CompanyService {
 
     return new GetCompanyResponse()
         .name(company.getName())
+        .priority(company.getPriority())
         .showBasicInfoWidget(showBasicInfoWidget)
         .showSelectionWidget(showSelectionWidget)
         .basicInfos(basicInfos)

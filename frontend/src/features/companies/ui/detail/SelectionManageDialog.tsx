@@ -1,10 +1,11 @@
-import { Fragment, useId, useState } from 'react';
+import { Fragment, useId, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Reorder } from 'motion/react';
 import type {
   Selection,
   SelectionStep,
 } from '@/features/companies/model/selection';
+import { useListDragSession } from '@/shared/useListDragSession';
 import { SelectionReorderRow } from '@/features/companies/ui/detail/SelectionReorderRow';
 import { SelectionStepDialog } from '@/features/companies/ui/detail/SelectionStepDialog';
 import { DeleteDialog, DialogBase, DialogHeader } from '@/shared/dialog';
@@ -15,7 +16,7 @@ export function SelectionManageDialog({
   onClose,
 }: {
   track: Selection;
-  onSave: (track: Selection) => void;
+  onSave: (track: Selection, movedId?: number) => Promise<boolean>;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -23,12 +24,19 @@ export function SelectionManageDialog({
   const [addingAt, setAddingAt] = useState<number>();
   const [deleting, setDeleting] = useState<SelectionStep>();
   const [dragging, setDragging] = useState(false);
-  const steps = [...track.steps].sort((a, b) => a.stepNo - b.stepNo);
-  function saveSteps(next: SelectionStep[]) {
-    onSave({
-      ...track,
-      steps: next.map((step, index) => ({ ...step, stepNo: index + 1 })),
-    });
+  const [draft, setDraft] = useState<SelectionStep[] | null>(null);
+  const draftRef = useRef<SelectionStep[] | null>(null);
+  const saving = useRef(false);
+  const { startDragSession, endDragSession } = useListDragSession();
+  const steps = draft ?? [...track.steps].sort((a, b) => a.stepNo - b.stepNo);
+  function saveSteps(next: SelectionStep[], movedId?: number) {
+    return onSave(
+      {
+        ...track,
+        steps: next.map((step, index) => ({ ...step, stepNo: index + 1 })),
+      },
+      movedId,
+    );
   }
   function addButton(index: number) {
     return (
@@ -75,6 +83,7 @@ export function SelectionManageDialog({
               選考タイトル
               <input
                 required
+                maxLength={50}
                 value={draftTitle}
                 onChange={(event) => setDraftTitle(event.target.value)}
                 className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
@@ -96,9 +105,15 @@ export function SelectionManageDialog({
             layoutScroll
             axis="y"
             values={steps.map((step) => step.id)}
-            onReorder={(ids) =>
-              saveSteps(ids.map((id) => steps.find((step) => step.id === id)!))
-            }
+            onReorder={(ids) => {
+              if (!dragging) return;
+              const next = ids.flatMap((id) => {
+                const step = steps.find((item) => item.id === id);
+                return step ? [step] : [];
+              });
+              draftRef.current = next;
+              setDraft(next);
+            }}
             data-drag-session={dragging}
             className="mt-3 max-h-[60vh] overflow-y-auto"
             style={{ position: 'relative' }}
@@ -110,8 +125,39 @@ export function SelectionManageDialog({
                   step={step}
                   index={index}
                   onDelete={() => setDeleting(step)}
-                  onDragStart={() => setDragging(true)}
-                  onDragEnd={() => setDragging(false)}
+                  onDragStart={(cancel) => {
+                    if (saving.current) {
+                      cancel();
+                      return;
+                    }
+                    setDragging(true);
+                    startDragSession(() => {
+                      setDragging(false);
+                      draftRef.current = null;
+                      setDraft(null);
+                      cancel();
+                    });
+                  }}
+                  onDragCancel={() => {
+                    draftRef.current = null;
+                    setDraft(null);
+                    setDragging(false);
+                    endDragSession();
+                  }}
+                  onDragEnd={async () => {
+                    setDragging(false);
+                    endDragSession();
+                    const next = draftRef.current;
+                    draftRef.current = null;
+                    if (!next || saving.current) return;
+                    saving.current = true;
+                    try {
+                      await saveSteps(next, step.id);
+                    } finally {
+                      saving.current = false;
+                      setDraft(null);
+                    }
+                  }}
                 />
               </Fragment>
             ))}
@@ -136,9 +182,11 @@ export function SelectionManageDialog({
           title="選考ステップを削除しますか？"
           text={`「${deleting.title}」を削除します。この操作は取り消せません。`}
           onClose={() => setDeleting(undefined)}
-          onConfirm={() => {
-            saveSteps(steps.filter((step) => step.id !== deleting.id));
-            setDeleting(undefined);
+          onConfirm={async () => {
+            if (
+              await saveSteps(steps.filter((step) => step.id !== deleting.id))
+            )
+              setDeleting(undefined);
           }}
         />
       )}

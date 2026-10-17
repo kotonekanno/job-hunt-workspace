@@ -31,6 +31,9 @@ export function EssayGroupList({
           >
             <Link
               to={essayGroupUrl(group.id)}
+              onClick={(event) => {
+                if (group.id !== null && group.id < 0) event.preventDefault();
+              }}
               className="group flex h-full min-h-36 cursor-pointer items-center gap-4 p-5 pr-14"
             >
               <span className="absolute inset-y-0 left-0 w-1 bg-[var(--accent)] opacity-35 transition-opacity group-hover:opacity-100" />

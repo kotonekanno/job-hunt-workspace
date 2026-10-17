@@ -160,6 +160,8 @@ GetCompanyResponse:
   properties:
     name:
       $ref: '#/CompanyName'
+    priority:
+      $ref: '#/CompanyPriority'
     showBasicInfoWidget:
       description: true：基本情報ウィジェットを表示 / false：非表示
       type: boolean
@@ -208,6 +210,7 @@ GetCompanyResponse:
     - tasks
   example:
     name: 株式会社サンプル
+    priority: 2
     showBasicInfoWidget: true
     showSelectionWidget: true
     basicInfos:

@@ -327,3 +327,16 @@ test('inline save failure retains draft, successful retry exits editing', async 
   );
   assert.deepEqual(written, ['編集中の回答', '編集中の回答']);
 });
+
+test('genre reorder only sends requests for groups dragged in the dialog', async () => {
+  const previous = [1, 2, 3, 4].map((id) => ({
+    id,
+    name: String(id),
+    quantity: 0,
+  }));
+  const { api, calls } = setup();
+  await api.saveEssayGroupOrder(previous, [2, 3, 4, 1], undefined, [1]);
+  assert.equal(calls.length, 1);
+  assert.ok(calls[0].url.startsWith('/essay-groups/1/'));
+  assert.deepEqual(JSON.parse(calls[0].body), { nextEssayGroupId: null });
+});

@@ -2060,6 +2060,8 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/CompanyName'
+        priority:
+          $ref: '#/components/schemas/CompanyPriority'
         showBasicInfoWidget:
           description: true：基本情報ウィジェットを表示 / false：非表示
           type: boolean
@@ -2108,6 +2110,7 @@ components:
         - tasks
       example:
         name: 株式会社サンプル
+        priority: 2
         showBasicInfoWidget: true
         showSelectionWidget: true
         basicInfos:

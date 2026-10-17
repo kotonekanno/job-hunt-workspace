@@ -13,7 +13,7 @@ type DocumentListProps = {
   documents: DocumentItem[];
   onDelete: (documentId: number) => Promise<boolean>;
   emptyMessage?: string;
-  onReorder: (documents: DocumentItem[]) => void;
+  onReorder: (documents: DocumentItem[], movedId: number) => void;
 };
 
 type DocumentListItemProps = {
@@ -34,9 +34,11 @@ export function DocumentList({
   const [draft, setDraft] = useState<DocumentItem[] | null>(null);
   const draftRef = useRef<DocumentItem[] | null>(null);
   const dragging = useRef(false);
+  const movedId = useRef<number | null>(null);
   const visibleDocuments = draft ?? documents;
 
-  function beginDrag(cancel: () => void) {
+  function beginDrag(id: number, cancel: () => void) {
+    movedId.current = id;
     dragging.current = true;
     draftRef.current = documents;
     startDragSession(() => {
@@ -51,10 +53,11 @@ export function DocumentList({
     const next = draftRef.current;
     if (
       dragging.current &&
+      movedId.current !== null &&
       next &&
       next.some((item, index) => item.id !== documents[index]?.id)
     ) {
-      onReorder(next);
+      onReorder(next, movedId.current);
     }
     dragging.current = false;
     draftRef.current = null;
@@ -90,7 +93,7 @@ export function DocumentList({
           key={document.id}
           document={document}
           onDelete={onDelete}
-          onDragSessionStart={beginDrag}
+          onDragSessionStart={(cancel) => beginDrag(document.id, cancel)}
           onDragSessionEnd={drop}
         />
       ))}
@@ -142,6 +145,9 @@ function DocumentListItem({
       >
         <Link
           to={`/documents/${document.id}`}
+          onClick={(event) => {
+            if (document.id < 0) event.preventDefault();
+          }}
           className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 px-4 py-3"
         >
           <ArrowUpRight className="size-4 shrink-0 text-[var(--accent)] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

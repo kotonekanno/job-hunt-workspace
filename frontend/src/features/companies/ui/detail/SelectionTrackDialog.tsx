@@ -1,6 +1,6 @@
 import { SelectionStepFields } from '@/features/companies/ui/detail/SelectionStepFields';
 import { Plus, Trash2 } from 'lucide-react';
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import type {
   SelectionStep,
   Selection,
@@ -16,7 +16,7 @@ import { RequiredMark } from '@/shared/form';
 type SelectionTrackDialogProps = {
   track?: Selection;
   onClose: () => void;
-  onSave: (track: Selection) => void;
+  onSave: (track: Selection) => Promise<boolean>;
 };
 
 export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
@@ -46,20 +46,27 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
     );
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    props.onSave({
-      id: props.track?.id ?? Date.now(),
-      title,
-      isActive: props.track?.isActive ?? false,
-      currentStep: props.track?.currentStep ?? steps[0].id,
-      steps: steps.map((step, index) => ({
-        ...step,
-        stepNo: index + 1,
-      })),
-    });
-    props.onClose();
+    if (saving.current) return;
+    saving.current = true;
+    try {
+      const saved = await props.onSave({
+        id: props.track?.id ?? Date.now(),
+        title,
+        isActive: props.track?.isActive ?? false,
+        currentStep: props.track?.currentStep ?? steps[0]?.id ?? 0,
+        steps: steps.map((step, index) => ({
+          ...step,
+          stepNo: index + 1,
+        })),
+      });
+      if (saved) props.onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -82,6 +89,7 @@ export function SelectionTrackDialog(props: SelectionTrackDialogProps) {
           <RequiredMark />
           <input
             required
+            maxLength={50}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="例：本選考"

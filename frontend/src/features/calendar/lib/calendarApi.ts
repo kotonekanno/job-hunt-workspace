@@ -137,11 +137,45 @@ export async function saveEventRequest(
     const update: UpdateEventRequest = request;
     if ((await patchEvent(original.id, update, options())).status !== 204)
       throw new Error('予定の更新に失敗しました。');
-  } else if ((await createEvent(request, options())).status !== 201)
-    throw new Error('予定の追加に失敗しました。');
+    return original.id;
+  } else {
+    const response = await createEvent(request, options());
+    if (response.status !== 201) throw new Error('予定の追加に失敗しました。');
+    return response.data.eventId;
+  }
 }
 
 export async function deleteEventRequest(id: number) {
   if ((await deleteEvent(id, options())).status !== 204)
     throw new Error('予定の削除に失敗しました。');
+}
+
+// Build the displayed event from the validated form; only the ID comes from POST.
+export function eventFromForm(
+  form: Omit<CalendarEvent, 'id'>,
+  id: number,
+  companies: CompanyListItem[],
+  original?: Event,
+): Event {
+  const request = eventRequest(form, companies, original);
+  return {
+    id,
+    title: request.title,
+    note: request.note ?? '',
+    category: request.category,
+    isAllDay: request.isAllDay,
+    isOnline: request.isOnline,
+    startDay: request.startDay,
+    endDay: request.endDay,
+    startTime: request.startTime,
+    endTime: request.endTime,
+    isAttending: request.isAttending,
+    companyName: form.company || null,
+  };
+}
+export function eventOverlapsMonth(event: Event, month: string) {
+  const view = toCalendarEvent(event);
+  return (
+    view.startDate.slice(0, 7) <= month && view.endDate.slice(0, 7) >= month
+  );
 }

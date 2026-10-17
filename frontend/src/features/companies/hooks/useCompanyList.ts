@@ -1,3 +1,4 @@
+import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CompanyListItem } from '@/api/generated/models/companyListItem';
 import type { CreateCompanyRequest } from '@/api/generated/models/createCompanyRequest';
@@ -12,10 +13,10 @@ import { mergeVisibleCompanyOrder } from '@/features/companies/lib/companyBoard'
 import { toast } from '@/shared/toast';
 
 export function useCompanyList() {
-  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
+  const state = useOptimisticState<CompanyListItem[]>([]);
+  const { value: companies, setValue: setCompanies } = state;
   const [query, setQuery] = useState('');
   const ready = useRef(false);
-  const busy = useRef(false);
   const mounted = useRef(false);
   useEffect(() => {
     const controller = new AbortController();
@@ -37,7 +38,7 @@ export function useCompanyList() {
       ready.current = false;
       controller.abort();
     };
-  }, []);
+  }, [setCompanies]);
   const visibleCompanies = useMemo(
     () =>
       companies.filter((company) =>
@@ -46,92 +47,69 @@ export function useCompanyList() {
     [companies, query],
   );
 
-  async function mutate(
-    action: () => Promise<void>,
-    reloadOnFailure = false,
-    reloadOnSuccess = true,
-  ) {
-    if (busy.current) return false;
-    if (!ready.current) {
-      toast.error('企業一覧を再読み込みしてから操作してください。');
-      return false;
-    }
-    busy.current = true;
-    let success = false;
-    try {
-      await action();
-      success = true;
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : '操作に失敗しました。',
-      );
-    }
-    if ((success && reloadOnSuccess) || (!success && reloadOnFailure)) {
-      try {
-        const items = await loadCompanies();
-        if (mounted.current) setCompanies(items);
-      } catch {
-        ready.current = false;
-        toast.error(
-          '一覧を再取得できませんでした。画面を再読み込みして操作結果を確認してください。',
-        );
-      }
-    }
-    busy.current = false;
-    return success;
-  }
   return {
     companies: visibleCompanies,
     query,
     setQuery,
-    addCompany: (request: CreateCompanyRequest) =>
-      mutate(() => addCompanyRequest(request)),
-    updateSelectionResult: (companyId: number, status: SelectionStatus) => {
-      const company = companies.find((item) => item.id === companyId);
-      if (!company || company.priority === 7 || !company.currentSelection)
-        return;
-      const previous = company.currentSelection;
-      void mutate(
-        async () => {
-          setCompanies((items) =>
-            items.map((item) =>
-              item.id === companyId
-                ? {
-                    ...item,
-                    currentSelection: {
-                      ...previous,
-                      step: { ...previous.step, status },
-                    },
-                  }
-                : item,
-            ),
-          );
-          try {
-            await changeCompanyStatus(company, status);
-          } catch (error) {
-            if (mounted.current)
-              setCompanies((items) =>
-                items.map((item) =>
-                  item.id === companyId
-                    ? { ...item, currentSelection: previous }
-                    : item,
-                ),
-              );
-            throw error;
-          }
-        },
-        false,
-        false,
+    addCompany: (request: CreateCompanyRequest) => {
+      if (!ready.current) return Promise.resolve(false);
+      const id = temporaryId();
+      return state.mutate(
+        (items) => [
+          ...items,
+          { ...request, id, currentSelection: null, latestActivity: null },
+        ],
+        () => addCompanyRequest(request),
+        (items, savedId) =>
+          items.map((item) =>
+            item.id === id ? { ...item, id: savedId } : item,
+          ),
       );
     },
-    reorderCompanies: (visible: CompanyListItem[]) =>
-      mutate(
+    updateSelectionResult: (companyId: number, status: SelectionStatus) => {
+      const company = companies.find((item) => item.id === companyId);
+      if (
+        !ready.current ||
+        !company ||
+        company.priority === 7 ||
+        !company.currentSelection ||
+        companyId < 0
+      )
+        return;
+      void state.mutate(
+        (items) =>
+          items.map((item) =>
+            item.id === companyId && item.currentSelection
+              ? {
+                  ...item,
+                  currentSelection: {
+                    ...item.currentSelection,
+                    step: { ...item.currentSelection.step, status },
+                  },
+                }
+              : item,
+          ),
+        () => changeCompanyStatus(company, status),
+      );
+    },
+    reorderCompanies: (visible: CompanyListItem[], movedId: number) => {
+      if (!ready.current) return Promise.resolve(false);
+      const next = mergeVisibleCompanyOrder(companies, visible, movedId);
+      let confirmed = companies;
+      return state.mutate(
+        () => next,
         () =>
           persistCompanyOrder(
             companies,
-            mergeVisibleCompanyOrder(companies, visible),
+            next,
+            (saved) => {
+              confirmed = saved;
+            },
+            movedId,
           ),
-        true,
-      ),
+        undefined,
+        () => confirmed,
+      );
+    },
   };
 }

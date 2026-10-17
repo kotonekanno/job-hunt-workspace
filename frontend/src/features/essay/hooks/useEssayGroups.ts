@@ -1,7 +1,9 @@
+import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import { useEffect, useRef, useState } from 'react';
 import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
 import type { CompanyListItem } from '@/api/generated/models/companyListItem';
 import {
+  adjustGroupCount,
   addEssayGroupRequest,
   addEssayRequest,
   deleteEssayGroupRequest,
@@ -14,10 +16,11 @@ import {
 import { toast } from '@/shared/toast';
 
 export function useEssayGroups() {
-  const [groups, setGroups] = useState<EssayGroupListItem[]>([]);
+  const state = useOptimisticState<EssayGroupListItem[]>([]);
+  const { value: groups, setValue: setGroups } = state;
+  const createdEssayIds = useRef(new Map<number, string>());
   const [companies, setCompanies] = useState<CompanyListItem[]>([]);
   const ready = useRef(false);
-  const busy = useRef(false);
   const mounted = useRef(false);
   useEffect(() => {
     const controller = new AbortController();
@@ -43,53 +46,89 @@ export function useEssayGroups() {
       mounted.current = false;
       controller.abort();
     };
-  }, []);
+  }, [setGroups]);
 
-  async function mutate(action: () => Promise<void>, recoverOrder = false) {
-    if (busy.current) return false;
-    if (!ready.current) {
-      toast.error(
-        '一覧の読み込みが完了していません。取得に失敗した場合は画面を再読み込みしてください。',
-      );
-      return false;
-    }
-    busy.current = true;
-    let saved = false;
-    try {
-      await action();
-      saved = true;
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : '操作に失敗しました。',
-      );
-    }
-    if (saved || recoverOrder) {
-      try {
-        const updated = await loadEssayGroups();
-        if (mounted.current) setGroups(updated);
-      } catch {
-        ready.current = false;
-        toast.error(
-          '一覧を再取得できませんでした。操作結果を確認するため画面を再読み込みしてください。',
-        );
-      }
-    }
-    busy.current = false;
-    return saved;
-  }
   return {
     groups,
     companyOptions: [...new Set(companies.map((company) => company.name))],
-    addGroup: (name: string) => mutate(() => addEssayGroupRequest(name)),
+    addGroup: (name: string) => {
+      if (!ready.current) return Promise.resolve(false);
+      const id = temporaryId();
+      return state.mutate(
+        (items) => [
+          ...items.filter((group) => group.id !== null),
+          { id, name, quantity: 0 },
+          ...items.filter((group) => group.id === null),
+        ],
+        () => addEssayGroupRequest(name),
+        (items, savedId) =>
+          items.map((group) =>
+            group.id === id ? { ...group, id: savedId } : group,
+          ),
+      );
+    },
     updateGroup: (id: number, name: string) =>
-      mutate(() => updateEssayGroupRequest(id, name)),
-    deleteGroup: (id: number) => mutate(() => deleteEssayGroupRequest(id)),
+      !ready.current || id < 0
+        ? Promise.resolve(false)
+        : state.mutate(
+            (items) =>
+              items.map((group) =>
+                group.id === id ? { ...group, name } : group,
+              ),
+            () => updateEssayGroupRequest(id, name),
+          ),
+    deleteGroup: (id: number) =>
+      !ready.current || id < 0
+        ? Promise.resolve(false)
+        : state.mutate(
+            (items) =>
+              adjustGroupCount(
+                items.filter((group) => group.id !== id),
+                'unclassified',
+                items.find((group) => group.id === id)?.quantity ?? 0,
+              ),
+            () => deleteEssayGroupRequest(id),
+          ),
     addEssay: (form: EssayForm) =>
-      mutate(() => addEssayRequest(form, groups, companies)),
-    reorderGroups: (ids: number[]) =>
-      mutate(
-        async () => saveEssayGroupOrder(await loadEssayGroups(), ids),
-        true,
-      ),
+      !ready.current
+        ? Promise.resolve(false)
+        : state.mutate(
+            (items) => adjustGroupCount(items, form.groupId, 1),
+            () => addEssayRequest(form, groups, companies),
+            (items, essayId) => {
+              createdEssayIds.current.set(essayId, form.groupId);
+              return items;
+            },
+          ),
+    reorderGroups: (ids: number[], movedIds: number[]) => {
+      if (!ready.current) return Promise.resolve(false);
+      let confirmed = groups;
+      return state.mutate(
+        (items) => {
+          const ordered = ids.flatMap((id) => {
+            const group = items.find((group) => group.id === id);
+            return group ? [group] : [];
+          });
+          return [...ordered, ...items.filter((group) => group.id === null)];
+        },
+        () =>
+          saveEssayGroupOrder(
+            groups,
+            ids,
+            (saved) => {
+              confirmed = [
+                ...saved.flatMap((id) => {
+                  const group = groups.find((group) => group.id === id);
+                  return group ? [group] : [];
+                }),
+                ...groups.filter((group) => group.id === null),
+              ];
+            },
+            movedIds,
+          ),
+        undefined,
+        () => confirmed,
+      );
+    },
   };
 }

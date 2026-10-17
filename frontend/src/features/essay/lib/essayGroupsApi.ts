@@ -62,7 +62,12 @@ export async function loadEssayCompanies(signal?: AbortSignal) {
 }
 export async function addEssayGroupRequest(name: string) {
   const request: CreateEssayGroupRequest = { name };
-  expectStatus((await createEssayGroup(request, options())).status, 201);
+  const response = await createEssayGroup(request, options());
+  if (response.status !== 201) {
+    expectStatus(response.status, 201);
+    throw new Error('ジャンルを追加できませんでした。');
+  }
+  return response.data.essayGroupId;
 }
 export async function updateEssayGroupRequest(id: number, name: string) {
   const request: UpdateEssayGroupRequest = { name };
@@ -100,14 +105,18 @@ export async function addEssayRequest(
     question: form.question,
     answer: form.answer,
   };
-  expectStatus(
-    (await createEssay(form.groupId, request, options())).status,
-    201,
-  );
+  const response = await createEssay(form.groupId, request, options());
+  if (response.status !== 201) {
+    expectStatus(response.status, 201);
+    throw new Error('ESを追加できませんでした。');
+  }
+  return response.data.essayId;
 }
 export async function saveEssayGroupOrder(
   previous: EssayGroupListItem[],
   desired: number[],
+  onProgress?: (ids: number[]) => void,
+  movedIds?: number[],
 ) {
   const current = previous.flatMap((group) =>
     group.id === null ? [] : [group.id],
@@ -122,6 +131,7 @@ export async function saveEssayGroupOrder(
     );
   for (let index = desired.length - 1; index >= 0; index -= 1) {
     const id = desired[index];
+    if (movedIds && !movedIds.includes(id)) continue;
     const nextEssayGroupId = desired[index + 1] ?? null;
     const oldIndex = current.indexOf(id);
     if ((current[oldIndex + 1] ?? null) === nextEssayGroupId) continue;
@@ -138,6 +148,7 @@ export async function saveEssayGroupOrder(
       0,
       id,
     );
+    onProgress?.([...current]);
   }
 }
 
@@ -175,4 +186,20 @@ export async function moveEssayRequest(
   if (!group || group.id === null)
     throw new Error('移動先のジャンルを選び直してください。');
   return updateEssayRequest(groupId, essayId, { essayGroupId: group.id });
+}
+
+export function adjustGroupCount(
+  groups: EssayGroupListItem[],
+  groupId: string,
+  delta: number,
+) {
+  const exists = groups.some((group) => groupPathId(group.id) === groupId);
+  const next = groups.map((group) =>
+    groupPathId(group.id) === groupId
+      ? { ...group, quantity: Math.max(0, group.quantity + delta) }
+      : group,
+  );
+  return !exists && groupId === 'unclassified' && delta > 0
+    ? [...next, { id: null, name: '未分類', quantity: delta }]
+    : next;
 }

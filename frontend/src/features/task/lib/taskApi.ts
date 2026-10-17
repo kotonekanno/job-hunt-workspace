@@ -26,8 +26,11 @@ function expectStatus(actual: number, expected: number) {
   if (actual !== expected) throw new Error(`API request failed: ${actual}`);
 }
 
-export async function loadTasks(signal?: AbortSignal) {
-  const response = await getTasks(undefined, options(signal));
+export async function loadTasks(signal?: AbortSignal, companyId?: number) {
+  const response = await getTasks(
+    companyId === undefined ? undefined : { companyId },
+    options(signal),
+  );
   if (response.status !== 200)
     throw new Error('タスク一覧を取得できませんでした。');
   return response.data.tasks;
@@ -74,13 +77,17 @@ export async function saveTaskRequest(
       (await patchTask(original.id, request, options())).status,
       204,
     );
+    return original.id;
   } else {
     const createRequest: CreateTaskRequest = {
       ...request,
       title: form.title,
       deadline: form.deadline || null,
     };
-    expectStatus((await createTask(createRequest, options())).status, 201);
+    const response = await createTask(createRequest, options());
+    if (response.status !== 201)
+      throw new Error('タスクを追加できませんでした。');
+    return response.data.taskId;
   }
 }
 

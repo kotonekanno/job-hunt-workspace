@@ -9,11 +9,13 @@ export function SelectionReorderRow({
   onDelete,
   onDragStart,
   onDragEnd,
+  onDragCancel,
 }: {
   step: SelectionStep;
   index: number;
   onDelete: () => void;
-  onDragStart: () => void;
+  onDragStart: (cancel: () => void) => void;
+  onDragCancel: () => void;
   onDragEnd: () => void;
 }) {
   const controls = useDragControls();
@@ -23,9 +25,12 @@ export function SelectionReorderRow({
       value={step.id}
       dragListener={false}
       dragControls={controls}
-      onDragStart={onDragStart}
+      onDragStart={() => onDragStart(() => controls.cancel())}
       onDragEnd={onDragEnd}
-      onPointerCancel={onDragEnd}
+      onPointerCancel={() => {
+        onDragCancel();
+        controls.cancel();
+      }}
       className="relative flex min-h-12 items-center gap-3 border border-[var(--line)] bg-[var(--panel-raised)] pl-3"
     >
       <span className="font-mono text-sm font-bold text-[var(--accent)]">

@@ -17,7 +17,20 @@ function load(file, globals = {}) {
     },
   );
   const exports = {};
-  runInNewContext(outputText, { exports, require, ...globals });
+  const originalRequire = globals.require ?? require;
+  const sharedRequire = (name) => {
+    if (name === '@/shared/useOptimisticState')
+      return load('src/shared/useOptimisticState.ts', globals);
+    if (name === '@/features/task/lib/taskMutations')
+      return load('src/features/task/lib/taskMutations.ts', globals);
+    return originalRequire(name);
+  };
+  runInNewContext(outputText, {
+    exports,
+    AbortController,
+    ...globals,
+    require: sharedRequire,
+  });
   return exports;
 }
 
@@ -482,5 +495,75 @@ test('detail navigation proceeds only after a successful flush, and beforeunload
     await tick();
     assert.equal(proceeded, success ? 1 : 0);
     assert.equal(reset, success ? 0 : 1);
+  }
+});
+
+test('document create caches its server ID/content, delete and reorder update before acknowledgement without refetch', async () => {
+  let reads = 0,
+    createResolve,
+    deleteReject,
+    reorderReject;
+  const h = archiveHarness({
+    fetchDocuments: async () => {
+      reads++;
+      return [{ id: 1, title: '既存' }];
+    },
+    fetchDocument: async () => {
+      throw new Error('created document must use cache');
+    },
+    createDocumentRequest: () =>
+      new Promise((resolve) => {
+        createResolve = resolve;
+      }),
+    deleteDocumentRequest: () =>
+      new Promise((resolve, reject) => {
+        deleteReject = reject;
+      }),
+    persistDocumentOrder: () =>
+      new Promise((resolve, reject) => {
+        reorderReject = reject;
+      }),
+  });
+  await h.render().loadDocuments();
+  const saving = h.render().addDocument('追加');
+  assert.equal(h.render().documents.length, 2);
+  assert.ok(h.render().documents[1].id < 0);
+  await tick();
+  createResolve(7);
+  await saving;
+  assert.equal(h.render().documents[1].id, 7);
+  assert.equal((await h.render().loadDocument(7)).title, '追加');
+  const deleting = h.render().deleteDocument(7);
+  assert.equal(h.render().documents.length, 1);
+  await tick();
+  deleteReject(new Error('failed'));
+  await deleting;
+  assert.equal(h.render().documents.length, 2);
+  h.render().reorderDocuments([7, 1], 7);
+  assert.equal(h.render().documents[0].id, 7);
+  await tick();
+  reorderReject(new Error('failed'));
+  await tick();
+  assert.equal(h.render().documents[0].id, 1);
+  assert.equal(reads, 1);
+});
+
+test('document drop sends one request for the dragged document, including downward moves', async () => {
+  for (const [desired, movedId, nextDocumentId] of [
+    [[2, 3, 4, 1], 1, null],
+    [[4, 1, 2, 3], 4, 1],
+    [[1, 3, 2, 4], 2, 4],
+  ]) {
+    const calls = [];
+    const api = apiWithFetch(async (url, options) => {
+      calls.push({ url, body: JSON.parse(options.body) });
+      return new Response(null, { status: 204 });
+    });
+    await api.persistDocumentOrder([1, 2, 3, 4], desired, undefined, movedId);
+    assert.equal(calls.length, 1);
+    assert.ok(calls[0].url.startsWith(`/documents/${movedId}/`));
+    assert.deepEqual(calls[0].body, { nextDocumentId });
+    await api.persistDocumentOrder(desired, desired, undefined, movedId);
+    assert.equal(calls.length, 1);
   }
 });

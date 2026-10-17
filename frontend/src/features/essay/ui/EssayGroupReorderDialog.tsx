@@ -7,11 +7,12 @@ import { EditDialog } from '@/shared/dialog';
 type EssayGroupReorderDialogProps = {
   groups: EssayGroupListItem[];
   onClose: () => void;
-  onSave: (orderedGroupIds: number[]) => Promise<boolean>;
+  onSave: (orderedGroupIds: number[], movedIds: number[]) => Promise<boolean>;
 };
 
 type ReorderableGroupRowProps = {
   group: EssayGroupListItem;
+  onDrop: () => void;
 };
 
 export function EssayGroupReorderDialog({
@@ -25,6 +26,7 @@ export function EssayGroupReorderDialog({
   const unclassifiedGroup = groups.find((group) => group.id === null);
 
   const saving = useRef(false);
+  const movedIds = useRef(new Set<number>());
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (saving.current) return;
@@ -35,6 +37,7 @@ export function EssayGroupReorderDialog({
           orderedGroups.flatMap((group) =>
             group.id === null ? [] : [group.id],
           ),
+          [...movedIds.current],
         )
       )
         onClose();
@@ -64,7 +67,13 @@ export function EssayGroupReorderDialog({
           className="space-y-2 p-0"
         >
           {orderedGroups.map((group) => (
-            <ReorderableGroupRow key={group.id} group={group} />
+            <ReorderableGroupRow
+              key={group.id}
+              group={group}
+              onDrop={() => {
+                if (group.id !== null) movedIds.current.add(group.id);
+              }}
+            />
           ))}
         </Reorder.Group>
 
@@ -86,7 +95,7 @@ export function EssayGroupReorderDialog({
   );
 }
 
-function ReorderableGroupRow({ group }: ReorderableGroupRowProps) {
+function ReorderableGroupRow({ group, onDrop }: ReorderableGroupRowProps) {
   const dragControls = useDragControls();
 
   function startDragging(event: PointerEvent<HTMLButtonElement>) {
@@ -99,6 +108,7 @@ function ReorderableGroupRow({ group }: ReorderableGroupRowProps) {
       value={group}
       dragListener={false}
       dragControls={dragControls}
+      onDragEnd={onDrop}
       layout="position"
       transition={{
         layout: {

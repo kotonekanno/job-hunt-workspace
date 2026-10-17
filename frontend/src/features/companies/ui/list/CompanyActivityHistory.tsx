@@ -1,3 +1,11 @@
+import type { Activity } from '@/api/generated/models/activity';
+import { ActivityComposer } from '@/features/companies/ui/detail/ActivityComposer';
+import { ActivityEditDialog } from '@/features/companies/ui/detail/ActivityEditDialog';
+import {
+  ActivityMessageMenu,
+  type ActivityEditField,
+} from '@/features/companies/ui/detail/ActivityMessageMenu';
+import { DeleteDialog } from '@/shared/dialog';
 import { Building2 } from 'lucide-react';
 import { Fragment, useLayoutEffect, useRef, useState } from 'react';
 import { useCompanyActivities } from '@/features/companies/hooks/useCompanyActivities';
@@ -14,15 +22,40 @@ const timeFormatter = new Intl.DateTimeFormat('ja-JP', {
   minute: '2-digit',
 });
 
-export function CompanyActivityHistory({ companyId }: { companyId: number }) {
-  const { activities, loading, hasMore, loadNext } =
-    useCompanyActivities(companyId);
+export function CompanyActivityHistory({
+  companyId,
+  editable = false,
+  initialPage,
+}: {
+  companyId: number;
+  editable?: boolean;
+  initialPage?: Activity[];
+}) {
+  const { activities, loading, hasMore, loadNext, create, update, remove } =
+    useCompanyActivities(companyId, initialPage);
   const viewportRef = useRef<HTMLDivElement>(null);
   const anchor = useRef<{ height: number; top: number } | null>(null);
   const initial = useRef(true);
   const fetching = useRef(false);
   const touchY = useRef<number | null>(null);
   const [edges, setEdges] = useState({ top: false, bottom: false });
+
+  const [editing, setEditing] = useState<{
+    activity: Activity;
+    field: ActivityEditField;
+  }>();
+  const [deleting, setDeleting] = useState<Activity>();
+  const mutating = useRef(false);
+  async function mutate(action: () => Promise<boolean>, scrollToEnd = false) {
+    if (mutating.current || loading || fetching.current) return false;
+    mutating.current = true;
+    if (scrollToEnd) initial.current = true;
+    try {
+      return await action();
+    } finally {
+      mutating.current = false;
+    }
+  }
 
   function updateEdges() {
     const viewport = viewportRef.current;
@@ -56,6 +89,7 @@ export function CompanyActivityHistory({ companyId }: { companyId: number }) {
       viewport.scrollTop > 1 ||
       loading ||
       fetching.current ||
+      mutating.current ||
       !hasMore
     )
       return;
@@ -69,7 +103,13 @@ export function CompanyActivityHistory({ companyId }: { companyId: number }) {
   }
 
   return (
-    <div className="flex h-[360px] max-h-[60vh] min-w-0 flex-col">
+    <div
+      className={
+        editable
+          ? 'flex min-h-0 min-w-0 flex-1 flex-col'
+          : 'flex h-[360px] max-h-[60vh] min-w-0 flex-col'
+      }
+    >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden border border-[var(--line-strong)] bg-[var(--panel-raised)]">
         <div className="relative min-h-0 flex-1 basis-0">
           <div
@@ -150,6 +190,20 @@ export function CompanyActivityHistory({ companyId }: { companyId: number }) {
                         <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                           {activity.text}
                         </p>
+                        {editable && (
+                          <ActivityMessageMenu
+                            sender={activity.byUser ? 'user' : 'company'}
+                            onSenderChange={(sender) => {
+                              void mutate(() =>
+                                update(activity.id, {
+                                  byUser: sender === 'user',
+                                }),
+                              );
+                            }}
+                            onEdit={(field) => setEditing({ activity, field })}
+                            onDelete={() => setDeleting(activity)}
+                          />
+                        )}
                       </div>
                       <time
                         dateTime={activity.occurredAt}
@@ -178,7 +232,40 @@ export function CompanyActivityHistory({ companyId }: { companyId: number }) {
             />
           )}
         </div>
+        {editable && (
+          <ActivityComposer
+            onSend={(text, sender) =>
+              mutate(() => create(text, sender === 'user'), true)
+            }
+          />
+        )}
       </div>
+      {editing && (
+        <ActivityEditDialog
+          {...editing}
+          onClose={() => setEditing(undefined)}
+          onSave={(activity) =>
+            mutate(() =>
+              update(
+                activity.id,
+                editing.field === 'text'
+                  ? { text: activity.text }
+                  : { occurredAt: activity.occurredAt },
+              ),
+            )
+          }
+        />
+      )}
+      {deleting && (
+        <DeleteDialog
+          title="メッセージを削除しますか？"
+          text={`「${deleting.text}」を削除します。`}
+          onClose={() => setDeleting(undefined)}
+          onConfirm={async () => {
+            if (await mutate(() => remove(deleting.id))) setDeleting(undefined);
+          }}
+        />
+      )}
     </div>
   );
 }

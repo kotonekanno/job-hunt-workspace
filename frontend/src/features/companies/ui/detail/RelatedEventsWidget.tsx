@@ -1,14 +1,14 @@
-import { companyNameOptions } from '@/features/companies/model/companyList';
+import type { Event } from '@/api/generated/models/event';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import {
+  useCompanyEvents,
+  selectCompanyEvents,
+} from '@/features/companies/hooks/useCompanyEvents';
 import { CalendarDays, History } from 'lucide-react';
 import { useState } from 'react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
-import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventDialog } from '@/features/calendar/ui/EventDialog';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
-import {
-  companyProfile,
-  relatedEvents,
-} from '@/features/companies/model/companyDetail';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import { AddButton } from '@/shared/button';
 import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
@@ -22,36 +22,32 @@ function getTodayKey() {
   return `${year}-${month}-${date}`;
 }
 
-export function RelatedEventsWidget() {
-  const [events, setEvents] = useState<CalendarEvent[]>(relatedEvents);
+export function RelatedEventsWidget({
+  companyId,
+  companyName,
+  companies,
+  initialEvents,
+  prepareCompanies,
+}: {
+  companyId: number;
+  companyName: string;
+  companies: CompanyListItem[];
+  initialEvents: Event[];
+  prepareCompanies: () => Promise<boolean>;
+}) {
+  const { events, saveEvent, deleteEvent } = useCompanyEvents(
+    companyId,
+    companies,
+    initialEvents,
+  );
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | undefined>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const todayKey = getTodayKey();
-  const visibleEvents = [...events]
-    .filter((event) => showPastEvents || event.startDate >= todayKey)
-    .sort((left, right) =>
-      getEventSortKey(left).localeCompare(getEventSortKey(right)),
-    );
+  const visibleEvents = selectCompanyEvents(events, todayKey, showPastEvents);
 
-  function saveEvent(event: Omit<CalendarEvent, 'id'>, id?: number) {
-    if (id !== undefined) {
-      setEvents((current) =>
-        current.map((item) => (item.id === id ? { ...event, id } : item)),
-      );
-      return;
-    }
-
-    setEvents((current) => [
-      ...current,
-      {
-        ...event,
-        id: Math.max(0, ...current.map((item) => item.id)) + 1,
-      },
-    ]);
-  }
-
-  function openEditDialog(event: CalendarEvent) {
+  async function openEditDialog(event: CalendarEvent) {
+    if (!(await prepareCompanies())) return;
     setEditingEvent(event);
     setIsDialogOpen(true);
   }
@@ -75,7 +71,8 @@ export function RelatedEventsWidget() {
       <AddButton
         text="予定を追加"
         size="s"
-        onClick={() => {
+        onClick={async () => {
+          if (!(await prepareCompanies())) return;
           setEditingEvent(undefined);
           setIsDialogOpen(true);
         }}
@@ -90,6 +87,7 @@ export function RelatedEventsWidget() {
         code="RELATED_EVENTS"
         icon={CalendarDays}
         action={actions}
+        contentClassName="max-h-[28rem] overflow-y-auto"
       >
         <div className="space-y-2">
           {visibleEvents.map((event) => (
@@ -97,11 +95,7 @@ export function RelatedEventsWidget() {
               key={event.id}
               event={event}
               onEdit={openEditDialog}
-              onDelete={(id) =>
-                setEvents((current) =>
-                  current.filter((event) => event.id !== id),
-                )
-              }
+              onDelete={deleteEvent}
               showCompany={false}
             />
           ))}
@@ -115,8 +109,8 @@ export function RelatedEventsWidget() {
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}
-          companyOptions={companyNameOptions}
-          defaultCompany={companyProfile.name}
+          companyOptions={companies.map((company) => company.name)}
+          defaultCompany={companyName}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveEvent}
         />

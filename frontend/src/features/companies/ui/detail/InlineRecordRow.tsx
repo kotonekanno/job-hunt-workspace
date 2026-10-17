@@ -1,6 +1,6 @@
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { InlineEditActions } from '@/shared/InlineEditActions';
 
 type InlineRecordRowProps = {
@@ -10,7 +10,7 @@ type InlineRecordRowProps = {
   labelName: string;
   valueName: string;
   renderValue?: (value: string) => ReactNode;
-  onSave: (label: string, value: string) => void;
+  onSave: (label: string, value: string) => Promise<boolean>;
   onCancelNew: () => void;
   onDelete: () => void;
 };
@@ -49,10 +49,15 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
     setIsEditing(true);
   }
 
-  function save() {
-    if (!canSave) return;
-    props.onSave(label.trim(), value.trim());
-    setIsEditing(false);
+  const saving = useRef(false);
+  async function save() {
+    if (!canSave || saving.current) return;
+    saving.current = true;
+    try {
+      if (await props.onSave(label.trim(), value.trim())) setIsEditing(false);
+    } finally {
+      saving.current = false;
+    }
   }
 
   function cancel() {
@@ -83,6 +88,7 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
         {isEditing ? (
           <input
             autoFocus
+            maxLength={50}
             aria-label={props.labelName}
             value={label}
             onChange={(event) => setLabel(event.target.value)}
@@ -98,6 +104,7 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
       <td className="overflow-hidden py-2 pr-2 align-middle text-sm font-medium text-[var(--text-strong)]">
         {isEditing ? (
           <input
+            maxLength={500}
             aria-label={props.valueName}
             value={value}
             onChange={(event) => setValue(event.target.value)}

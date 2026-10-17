@@ -1,3 +1,4 @@
+import { temporaryId } from '@/shared/useOptimisticState';
 import {
   useCallback,
   useEffect,
@@ -43,7 +44,7 @@ function DocumentSession({ children }: { children: ReactNode }) {
   const [dirtyIds, setDirtyIds] = useState<ReadonlySet<number>>(new Set());
   const [savingIds, setSavingIds] = useState<ReadonlySet<number>>(new Set());
   const order = useRef<DocumentListItem[]>([]);
-  const orderVersion = useRef(0);
+  const listBusy = useRef(false);
 
   useEffect(() => {
     alive.current = true;
@@ -133,22 +134,43 @@ function DocumentSession({ children }: { children: ReactNode }) {
   );
 
   async function addDocument(title: string) {
+    if (listBusy.current || !loaded.current) return false;
+    listBusy.current = true;
+    const before = order.current;
+    const localId = temporaryId();
+    order.current = [...before, { id: localId, title }];
+    setDocuments(order.current);
     try {
-      return await enqueue(async () => {
-        if (!alive.current) return false;
-        await loadDocuments();
-        if (!alive.current) return false;
-        const id = await createDocumentRequest(title);
-        if (alive.current) {
-          const items = [...order.current, { id, title }];
-          order.current = items;
-          setDocuments(items);
-        }
-        return true;
-      });
+      const id = await enqueue(() => createDocumentRequest(title));
+      order.current = order.current.map((item) =>
+        item.id === localId ? { ...item, id } : item,
+      );
+      if (alive.current) {
+        setDocuments(order.current);
+        cache.current.set(id, { title, text: '' });
+        sessions.current.set(
+          id,
+          new DocumentSaveSession(
+            '',
+            (text) =>
+              enqueue(async () => {
+                if (alive.current && sessions.current.has(id))
+                  await updateDocumentRequest(id, { text });
+              }),
+            notifySaving,
+            toast.error,
+          ),
+        );
+        setContents(new Map(cache.current));
+      }
+      return true;
     } catch {
+      order.current = before;
+      if (alive.current) setDocuments(before);
       toast.error('ドキュメントの追加に失敗しました。もう一度お試しください。');
       return false;
+    } finally {
+      listBusy.current = false;
     }
   }
 
@@ -171,67 +193,75 @@ function DocumentSession({ children }: { children: ReactNode }) {
   );
 
   async function deleteDocument(id: number) {
+    if (listBusy.current || id < 0) return false;
+    listBusy.current = true;
+    const before = order.current;
+    const document = cache.current.get(id);
+    order.current = before.filter((item) => item.id !== id);
+    cache.current.delete(id);
+    setDocuments(order.current);
+    setContents(new Map(cache.current));
     try {
-      return await enqueue(async () => {
-        if (!alive.current) return false;
-        await deleteDocumentRequest(id);
-        sessions.current.get(id)?.dispose();
-        sessions.current.delete(id);
-        notifySaving();
-        cache.current.delete(id);
-        const items = order.current.filter((item) => item.id !== id);
-        order.current = items;
-        if (alive.current) {
-          setDocuments(items);
-          setContents(new Map(cache.current));
-        }
-        return true;
-      });
+      await enqueue(() => deleteDocumentRequest(id));
+      sessions.current.get(id)?.dispose();
+      sessions.current.delete(id);
+      notifySaving();
+      return true;
     } catch {
+      order.current = before;
+      if (document) cache.current.set(id, document);
+      if (alive.current) {
+        setDocuments(before);
+        setContents(new Map(cache.current));
+      }
       toast.error('ドキュメントの削除に失敗しました。もう一度お試しください。');
       return false;
+    } finally {
+      listBusy.current = false;
     }
   }
 
-  function reorderDocuments(ids: number[]) {
-    const byId = new Map(order.current.map((item) => [item.id, item]));
+  function reorderDocuments(ids: number[], movedId: number) {
+    if (listBusy.current || !loaded.current) return;
+    const before = order.current;
+    const byId = new Map(before.map((item) => [item.id, item]));
     const items = ids.flatMap((id) => {
       const item = byId.get(id);
       return item ? [item] : [];
     });
     if (
-      items.length !== order.current.length ||
-      new Set(ids).size !== items.length
+      items.length !== before.length ||
+      new Set(ids).size !== items.length ||
+      ids.some((id) => id < 0)
     )
       return;
+    listBusy.current = true;
     order.current = items;
     setDocuments(items);
-    const version = ++orderVersion.current;
-    void enqueue(async () => {
-      if (!alive.current || version !== orderVersion.current) return;
-      try {
-        // Read the actual order so partial failures and concurrent mutations do not corrupt it.
-        const current = await fetchDocuments();
-        if (!alive.current) return;
-        await persistDocumentOrder(
-          current.map((item) => item.id),
-          ids,
+    let confirmed = before;
+    void enqueue(() =>
+      persistDocumentOrder(
+        before.map((item) => item.id),
+        ids,
+        (saved) => {
+          confirmed = saved.flatMap((id) => {
+            const item = byId.get(id);
+            return item ? [item] : [];
+          });
+        },
+        movedId,
+      ),
+    )
+      .catch(() => {
+        order.current = confirmed;
+        if (alive.current) setDocuments(confirmed);
+        toast.error(
+          '並べ替えの保存に失敗しました。保存できた範囲を表示しています。',
         );
-      } catch {
-        toast.error('並べ替えの保存に失敗しました。一覧を再取得します。');
-        try {
-          const current = await fetchDocuments();
-          if (alive.current && version === orderVersion.current) {
-            order.current = current;
-            setDocuments(current);
-          }
-        } catch {
-          toast.error(
-            '一覧を再取得できませんでした。画面を再読み込みしてください。',
-          );
-        }
-      }
-    });
+      })
+      .finally(() => {
+        listBusy.current = false;
+      });
   }
 
   return (
