@@ -26,6 +26,12 @@ tags:
     description: ドキュメント
   - name: Authentication
     description: 認証
+  - name: Users
+    description: ユーザー情報
+  - name: Dashboard
+    description: ホーム画面
+  - name: Settings
+    description: 設定
 paths:
   /companies:
     get:
@@ -1544,13 +1550,24 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /settings/users/{userId}:
-    parameters:
-      - $ref: '#/components/parameters/UserId'
+  /users/me:
+    get:
+      description: アクセストークンによる認証状態を確認する。
+      tags:
+        - Authentication
+      operationId: newGetCurrentUser
+      summary: 認証状態を確認
+      responses:
+        '200':
+          description: 認証状態の確認に成功。レスポンスボディは返さない。
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
       description: 指定したユーザーの登録情報を部分更新する。
       tags:
-        - Authentication
+        - Users
       operationId: patchUser
       summary: ユーザー情報を部分更新
       requestBody:
@@ -1564,6 +1581,54 @@ paths:
           $ref: '#/components/responses/NoContent'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /users/me/password:
+    put:
+      description: 指定したユーザーのパスワードを更新する。
+      tags:
+        - Users
+      operationId: putPassword
+      summary: パスワードを更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /dashboard:
+    get:
+      description: ホーム画面に表示する情報を返す。
+      tags:
+        - Dashboard
+      operationId: getDashboard
+      summary: ホーム画面の情報を取得
+      responses:
+        '200':
+          description: ホーム画面に表示する情報の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDashboardResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1699,14 +1764,6 @@ components:
       required: true
       schema:
         description: 文書ID
-        type: integer
-        format: int32
-    UserId:
-      name: userId
-      in: path
-      required: true
-      schema:
-        description: ユーザーID
         type: integer
         format: int32
   schemas:
@@ -2790,11 +2847,107 @@ components:
       properties:
         email:
           $ref: '#/components/schemas/Email'
-        password:
-          $ref: '#/components/schemas/Password'
       example:
         email: user@example.com
-        password: SamplePassword123!
+    UpdatePasswordRequest:
+      description: パスワードの更新内容。
+      type: object
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/Password'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+      required:
+        - oldPassword
+        - newPassword
+      example:
+        oldPassword: oldPassword123
+        newPassword: newPassword123
+    GetDashboardResponse:
+      description: ホーム画面に表示する情報。
+      type: object
+      properties:
+        statistics:
+          type: object
+          properties:
+            companies:
+              description: 保存した企業の数
+              type: integer
+              minimum: 0
+            undoneTasks:
+              description: 未完了のタスクの数
+              type: integer
+              minimum: 0
+            upcomingEvents:
+              description: 今日以降の予定の数
+              type: integer
+              minimum: 0
+            essays:
+              description: 保存したESの数
+              type: integer
+              minimum: 0
+          required:
+            - companies
+            - undoneTasks
+            - upcomingEvents
+            - essays
+        tasks:
+          description: 期限が近いタスク（最大3件）
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        companies:
+          description: 志望度が高い企業（最大5件）
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyListItem'
+        events:
+          description: 直近の予定（最大3件）
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      required:
+        - statistics
+        - tasks
+        - companies
+        - events
+      example:
+        statistics:
+          companies: 20
+          undoneTasks: 5
+          upcomingEvents: 10
+          essays: 30
+        tasks:
+          - id: 1
+            companyName: 株式会社サンプル
+            title: エントリーシートを提出する
+            note: 事前に提出書類を確認する。
+            deadline: '2026-10-15'
+            done: false
+        companies:
+          - id: 1
+            name: 株式会社サンプル
+            priority: 3
+            currentSelection:
+              title: 本選考
+              step:
+                id: 1
+                name: 一次面接
+                status: PENDING
+            latestActivity: 企業がスカウト
+        events:
+          - id: 1
+            companyName: 株式会社サンプル
+            category: SESSION
+            title: 企業説明会
+            note: 事前に提出書類を確認する。
+            isAllDay: false
+            startDay: null
+            endDay: null
+            startTime: '2026-10-15T10:00:00+09:00'
+            endTime: '2026-10-15T11:00:00+09:00'
+            isOnline: true
+            isAttending: true
   responses:
     Unauthorized:
       description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。
@@ -2832,3 +2985,8 @@ x-tagGroups:
   - name: AUTH
     tags:
       - Authentication
+      - Users
+  - name: OTHERS
+    tags:
+      - Dashboard
+      - Settings

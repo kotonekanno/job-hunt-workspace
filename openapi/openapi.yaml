@@ -39,6 +39,15 @@ tags:
   - name: Authentication
     description: 認証
 
+  - name: Users
+    description: ユーザー情報
+
+  - name: Dashboard
+    description: ホーム画面
+
+  - name: Settings
+    description: 設定
+
 x-tagGroups:
   - name: COMPANIES
     tags:
@@ -61,6 +70,11 @@ x-tagGroups:
   - name: AUTH
     tags:
       - Authentication
+      - Users
+  - name: OTHERS
+    tags:
+      - Dashboard
+      - Settings
 
 paths:
   /companies:
@@ -162,8 +176,14 @@ paths:
   /auth/me:
     $ref: ./paths/auth_me.yaml
 
-  /settings/users/{userId}:
-    $ref: ./paths/settings_users_by_id.yaml
+  /users/me:
+    $ref: ./paths/users_me.yaml
+
+  /users/me/password:
+    $ref: ./paths/users_me_password.yaml
+
+  /dashboard:
+    $ref: ./paths/dashboard.yaml
 
 components:
   securitySchemes:
