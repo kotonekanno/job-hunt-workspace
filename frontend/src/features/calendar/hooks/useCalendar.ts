@@ -1,76 +1,151 @@
-import { useMemo, useState } from 'react';
-import { getCalendarDays } from '@/features/calendar/lib/calendar';
-import {
-  calendarEvents,
-  type CalendarEvent,
-  type EventCategory,
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Event } from '@/api/generated/models/event';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import { getCalendarDays, toDateKey } from '@/features/calendar/lib/calendar';
+import type {
+  CalendarEvent,
+  EventCategory,
 } from '@/features/calendar/model/calendar';
+import {
+  deleteEventRequest,
+  loadEventCompanies,
+  loadEvents,
+  saveEventRequest,
+  selectUpcomingEvents,
+  toCalendarEvent,
+} from '@/features/calendar/lib/calendarApi';
+import { toast } from '@/shared/toast';
 
 export type OnlineFilter = 'online' | 'offline' | 'すべて';
 export type AttendanceFilter = 'attending' | 'notAttending' | 'すべて';
 
+type CalendarData = {
+  month: string;
+  currentMonth: string;
+  displayed: Event[];
+  current: Event[];
+  companies: CompanyListItem[];
+};
+
 export function useCalendar() {
-  const [displayDate, setDisplayDate] = useState(new Date(2026, 6, 1));
-  const [events, setEvents] = useState<CalendarEvent[]>(calendarEvents);
+  const [displayDate, setDisplayDate] = useState(() => new Date());
+  const [today, setToday] = useState(() => toDateKey(new Date()));
+  const month = toDateKey(displayDate).slice(0, 7);
+  const currentMonth = today.slice(0, 7);
+  const [data, setData] = useState<CalendarData>();
+  const [revision, setRevision] = useState(0);
   const [category, setCategory] = useState<EventCategory | 'すべて'>('すべて');
   const [format, setFormat] = useState<OnlineFilter>('すべて');
   const [status, setStatus] = useState<AttendanceFilter>('すべて');
+  const busy = useRef(false);
+  const ready = useRef(false);
+  const mounted = useRef(false);
 
-  const filteredEvents = useMemo(
-    () =>
-      events.filter(
-        (event) =>
-          (category === 'すべて' || event.category === category) &&
-          (format === 'すべて' || event.isOnline === (format === 'online')) &&
-          (status === 'すべて' ||
-            event.isAttending === (status === 'attending')),
-      ),
-    [events, category, format, status],
-  );
+  useEffect(() => {
+    const timer = setInterval(() => setToday(toDateKey(new Date())), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const upcomingEvents = useMemo(
-    () =>
-      events.filter(
-        (event) =>
-          event.isAttending !== false &&
-          (category === 'すべて' || event.category === category) &&
-          (format === 'すべて' || event.isOnline === (format === 'online')),
-      ),
-    [events, category, format],
-  );
+  useEffect(() => {
+    const controller = new AbortController();
+    mounted.current = true;
+    ready.current = false;
+    const displayed = loadEvents(month, controller.signal);
+    const current =
+      month === currentMonth
+        ? displayed
+        : loadEvents(currentMonth, controller.signal);
+    void Promise.all([
+      displayed,
+      current,
+      loadEventCompanies(controller.signal),
+    ])
+      .then(([displayed, current, companies]) => {
+        if (controller.signal.aborted) return;
+        setData({ month, currentMonth, displayed, current, companies });
+        ready.current = true;
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          toast.error(
+            '予定・企業一覧を取得できませんでした。画面を再読み込みしてください。',
+          );
+      });
+    return () => {
+      mounted.current = false;
+      controller.abort();
+    };
+  }, [month, currentMonth, revision]);
 
-  function saveEvent(event: Omit<CalendarEvent, 'id'>, id?: number) {
-    if (id !== undefined) {
-      setEvents((current) =>
-        current.map((item) => (item.id === id ? { ...event, id } : item)),
+  const { events, upcomingEvents } = useMemo(() => {
+    function matches(event: CalendarEvent) {
+      return (
+        (category === 'すべて' || event.category === category) &&
+        (format === 'すべて' || event.isOnline === (format === 'online')) &&
+        (status === 'すべて' ||
+          (status === 'attending'
+            ? event.isAttending !== false
+            : event.isAttending === false))
       );
-      return;
     }
+    const displayed = data?.month === month ? data.displayed : [];
+    const current = data?.currentMonth === currentMonth ? data.current : [];
+    return {
+      events: displayed.map(toCalendarEvent).filter(matches),
+      upcomingEvents: selectUpcomingEvents(
+        current.map(toCalendarEvent).filter(matches),
+        today,
+      ),
+    };
+  }, [data, month, currentMonth, today, category, format, status]);
 
-    setEvents((current) => [
-      ...current,
-      {
-        ...event,
-        id: Math.max(0, ...current.map((item) => item.id)) + 1,
-      },
-    ]);
+  async function mutate(action: () => Promise<void>) {
+    if (busy.current) return false;
+    if (
+      !ready.current ||
+      !data ||
+      data.month !== month ||
+      data.currentMonth !== currentMonth
+    ) {
+      toast.error(
+        '一覧の読み込みが完了していません。読み込みに失敗した場合は画面を再読み込みしてください。',
+      );
+      return false;
+    }
+    busy.current = true;
+    try {
+      await action();
+      ready.current = false;
+      if (mounted.current) setRevision((value) => value + 1);
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : '予定の更新に失敗しました。もう一度お試しください。',
+      );
+      return false;
+    } finally {
+      busy.current = false;
+    }
   }
 
-  function deleteEvent(eventId: number) {
-    setEvents((current) => current.filter((event) => event.id !== eventId));
-  }
-
-  function moveMonth(offset: number) {
-    setDisplayDate(
-      (current) =>
-        new Date(current.getFullYear(), current.getMonth() + offset, 1),
-    );
+  function saveEvent(form: Omit<CalendarEvent, 'id'>, id?: number) {
+    return mutate(async () => {
+      const original = [
+        ...(data?.displayed ?? []),
+        ...(data?.current ?? []),
+      ].find((event) => event.id === id);
+      if (id !== undefined && !original)
+        throw new Error('編集対象の予定を再取得してください。');
+      await saveEventRequest(form, data?.companies ?? [], original);
+    });
   }
 
   return {
     displayDate,
     days: getCalendarDays(displayDate),
-    events: filteredEvents,
+    events,
     upcomingEvents,
     category,
     format,
@@ -79,9 +154,20 @@ export function useCalendar() {
     setFormat,
     setStatus,
     setDisplayDate,
+    companyOptions: [
+      ...new Set(data?.companies.map((company) => company.name) ?? []),
+    ],
     saveEvent,
-    deleteEvent,
-    moveMonth,
-    goToToday: () => setDisplayDate(new Date(2026, 6, 1)),
+    deleteEvent: (id: number) => mutate(() => deleteEventRequest(id)),
+    moveMonth: (offset: number) =>
+      setDisplayDate(
+        (current) =>
+          new Date(current.getFullYear(), current.getMonth() + offset, 1),
+      ),
+    goToToday: () => {
+      const now = new Date();
+      setToday(toDateKey(now));
+      setDisplayDate(now);
+    },
   };
 }

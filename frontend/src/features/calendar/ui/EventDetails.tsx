@@ -12,7 +12,7 @@ type EventDetailsProps = {
   showHeading?: boolean;
   showCompany?: boolean;
   onEdit?: (event: CalendarEvent) => void;
-  onDelete?: (eventId: number) => void;
+  onDelete?: (eventId: number) => void | Promise<boolean>;
 };
 
 const sizeStyles = {

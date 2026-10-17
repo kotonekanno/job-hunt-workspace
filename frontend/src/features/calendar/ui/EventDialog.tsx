@@ -5,7 +5,7 @@ import {
   Monitor,
   type LucideIcon,
 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import {
   attendanceEnabledCategories,
   eventCategories,
@@ -13,7 +13,7 @@ import {
   type CalendarEvent,
   type EventCategory,
 } from '@/features/calendar/model/calendar';
-import { companyNameOptions } from '@/features/companies/model/companyList';
+import { toast } from '@/shared/toast';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
@@ -22,8 +22,12 @@ import { Select } from '@/shared/select';
 type EventDialogProps = {
   event?: CalendarEvent;
   defaultCompany?: string;
+  companyOptions: readonly string[];
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, 'id'>, id?: number) => void;
+  onSave: (
+    event: Omit<CalendarEvent, 'id'>,
+    id?: number,
+  ) => void | Promise<boolean>;
 };
 
 const fieldClassName = `
@@ -36,6 +40,7 @@ const fieldClassName = `
 export function EventDialog({
   event,
   defaultCompany,
+  companyOptions,
   onClose,
   onSave,
 }: EventDialogProps) {
@@ -43,7 +48,7 @@ export function EventDialog({
   const [form, setForm] = useState<Omit<CalendarEvent, 'id'>>({
     title: event?.title ?? '',
     company: event?.company || defaultCompany || '',
-    category: event?.category ?? 'session',
+    category: event?.category ?? 'SESSION',
     isAllDay: event?.isAllDay ?? false,
     startDate: initialDate,
     endDate: event?.endDate ?? initialDate,
@@ -65,19 +70,38 @@ export function EventDialog({
     });
   }
 
-  function submit(submitEvent: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+
+  async function submit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault();
 
-    onSave(
-      {
-        ...form,
-        isAttending: canSelectAttendance
-          ? (form.isAttending ?? true)
-          : undefined,
-      },
-      event?.id,
-    );
-    onClose();
+    if (saving.current) return;
+    if (
+      form.endDate < form.startDate ||
+      (!form.isAllDay &&
+        `${form.endDate}T${form.endTime}` <=
+          `${form.startDate}T${form.startTime}`)
+    ) {
+      toast.error(
+        '終了は開始より後にしてください（終日予定は同日を指定できます）。',
+      );
+      return;
+    }
+    saving.current = true;
+    try {
+      const saved = await onSave(
+        {
+          ...form,
+          isAttending: canSelectAttendance
+            ? (form.isAttending ?? true)
+            : undefined,
+        },
+        event?.id,
+      );
+      if (saved !== false) onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -96,7 +120,7 @@ export function EventDialog({
           企業名
           <CompanyCombobox
             value={form.company ?? ''}
-            options={companyNameOptions}
+            options={companyOptions}
             allowEmpty
             onValueChange={(company) =>
               setForm({
@@ -113,6 +137,7 @@ export function EventDialog({
           <RequiredMark />
           <input
             required
+            maxLength={100}
             value={form.title}
             onChange={(changeEvent) =>
               setForm({
@@ -234,6 +259,7 @@ export function EventDialog({
         <label className="text-xs text-[var(--muted)] sm:col-span-2">
           メモ
           <textarea
+            maxLength={2000}
             value={form.note}
             onChange={(changeEvent) =>
               setForm({

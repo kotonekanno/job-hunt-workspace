@@ -1,5 +1,5 @@
 import { Building2, CalendarDays, FilePenLine, ListTodo } from 'lucide-react';
-import { calendarEvents } from '@/features/calendar/model/calendar';
+import { calendarEvents } from '@/features/home/model/mockCalendarEvents';
 import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import { initialCompanyList } from '@/features/companies/model/companyList';

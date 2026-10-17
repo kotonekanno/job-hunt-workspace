@@ -1,3 +1,4 @@
+import { companyNameOptions } from '@/features/companies/model/companyList';
 import { CalendarDays, History } from 'lucide-react';
 import { useState } from 'react';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
@@ -114,6 +115,7 @@ export function RelatedEventsWidget() {
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}
+          companyOptions={companyNameOptions}
           defaultCompany={companyProfile.name}
           onClose={() => setIsDialogOpen(false)}
           onSave={saveEvent}

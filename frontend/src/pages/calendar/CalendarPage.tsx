@@ -54,6 +54,7 @@ export function CalendarPage() {
       {isDialogOpen && (
         <EventDialog
           event={editingEvent}
+          companyOptions={calendar.companyOptions}
           onClose={() => setIsDialogOpen(false)}
           onSave={calendar.saveEvent}
         />

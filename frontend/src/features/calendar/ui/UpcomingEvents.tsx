@@ -1,11 +1,10 @@
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
-import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 
 type UpcomingEventsProps = {
   events: CalendarEvent[];
   onEdit: (event: CalendarEvent) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: number) => void | Promise<boolean>;
 };
 
 export function UpcomingEvents({
@@ -13,12 +12,7 @@ export function UpcomingEvents({
   onEdit,
   onDelete,
 }: UpcomingEventsProps) {
-  const upcomingEvents = [...events]
-    .filter((event) => event.startDate >= '2026-07-12')
-    .sort((left, right) =>
-      getEventSortKey(left).localeCompare(getEventSortKey(right)),
-    )
-    .slice(0, 4);
+  const upcomingEvents = events;
 
   return (
     <aside className="ui-panel cyber-cut border border-[var(--line)] p-4 transition-colors duration-300">

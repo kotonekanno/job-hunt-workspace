@@ -85,7 +85,7 @@ export const relatedEvents: CalendarEvent[] = [
     isAllDay: false,
     startTime: '13:00',
     endTime: '14:00',
-    category: 'interview',
+    category: 'INTERVIEW',
     isOnline: false,
   },
   {
@@ -98,7 +98,7 @@ export const relatedEvents: CalendarEvent[] = [
     isAllDay: false,
     startTime: '11:00',
     endTime: '12:00',
-    category: 'chat',
+    category: 'CHAT',
     isOnline: true,
   },
 ];
