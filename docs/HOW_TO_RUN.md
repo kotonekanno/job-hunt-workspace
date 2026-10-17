@@ -17,6 +17,10 @@ docker compose build backend
 docker build -f backend/Dockerfile -t job-hunt-workspace-backend .
 ```
 
+```bash
+docker compose up -d --build backend
+```
+
 Docker内ではGradle Wrapperを使ってOpenAPIのコード生成と`bootJar`を実行する。
 ビルド対象は`backend/Dockerfile.dockerignore`で制限し、環境変数ファイルや
 ローカルのビルド成果物は送信しない。

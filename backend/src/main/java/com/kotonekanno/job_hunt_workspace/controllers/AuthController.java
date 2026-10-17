@@ -2,6 +2,7 @@ package com.kotonekanno.job_hunt_workspace.controllers;
 
 import com.example.api.model.AccessTokenResponse;
 import com.example.api.model.AuthRequest;
+import com.example.api.model.GetCurrentUser200Response;
 import com.example.api.model.Register201Response;
 import com.kotonekanno.job_hunt_workspace.config.properties.CookieProperties;
 import com.kotonekanno.job_hunt_workspace.config.properties.JwtProperties;
@@ -85,13 +86,15 @@ public class AuthController {
 
   // me
   @GetMapping("/me")
-  public ResponseEntity<Void> getCurrentUser(
+  public ResponseEntity<GetCurrentUser200Response> getCurrentUser(
       @AuthenticationPrincipal Integer userId
   ) {
     if (userId == null) {
       return ResponseEntity.status(401).build();
     }
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok().body(
+        authService.getCurrentUser(userId)
+    );
   }
 
   // Refresh token

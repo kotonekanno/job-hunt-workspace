@@ -3,7 +3,7 @@
 get:
   description: アクセストークンによる認証状態を確認する。
   tags:
-    - Authentication
+    - Users
   operationId: newGetCurrentUser
   summary: 認証状態を確認
   responses:

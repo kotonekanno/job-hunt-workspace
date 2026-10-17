@@ -1,13 +1,5 @@
-import {
-  BriefcaseBusiness,
-  ChevronDown,
-  LogIn,
-  Menu,
-  Moon,
-  Settings,
-  Sun,
-  UserPlus,
-} from 'lucide-react';
+import { AccountMenu } from '@/features/auth/ui/AccountMenu';
+import { BriefcaseBusiness, Menu, Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
@@ -20,12 +12,6 @@ export type ProtectedLayoutOutletContext = {
   toggleSidebar: () => void;
   closeSidebar: () => void;
 };
-
-const accountMenuItems = [
-  { label: 'アカウント設定', to: '/settings', icon: Settings },
-  { label: 'ログイン', to: '/login', icon: LogIn },
-  { label: '新規登録', to: '/register', icon: UserPlus },
-];
 
 function getInitialTheme(): Theme {
   const savedTheme = localStorage.getItem('job-compass-theme');
@@ -133,47 +119,7 @@ export function MainLayout() {
               )}
             </button>
 
-            <details className="group relative">
-              <summary className="ui-control flex cursor-pointer list-none items-center gap-2 border border-transparent p-1 pr-2 hover:border-[var(--line)] hover:bg-[var(--panel-raised)] [&::-webkit-details-marker]:hidden">
-                <span className="cyber-cut-sm flex size-9 items-center justify-center bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)]">
-                  YM
-                </span>
-                <span className="hidden text-left lg:block">
-                  <span className="block text-xs font-semibold text-[var(--text-strong)]">
-                    山田みらい
-                  </span>
-                  <span className="block font-mono text-[9px] tracking-wider text-[var(--muted)]">
-                    USER_01 / ONLINE
-                  </span>
-                </span>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-3.5 text-[var(--accent)] transition-transform group-open:rotate-180"
-                />
-              </summary>
-              <div className="ui-floating-surface cyber-cut absolute right-0 top-[calc(100%+0.5rem)] w-56 py-2">
-                <p className="border-b border-[var(--line)] px-4 pb-2 font-mono text-[9px] font-semibold tracking-[0.2em] text-[var(--accent)]">
-                  // ACCOUNT_ACCESS
-                </p>
-                <nav className="pt-2" aria-label="アカウントメニュー">
-                  {accountMenuItems.map(({ label, to, icon: Icon }) => (
-                    <Link
-                      key={to}
-                      to={to}
-                      onClick={(event) =>
-                        event.currentTarget
-                          .closest('details')
-                          ?.removeAttribute('open')
-                      }
-                      className="flex items-center gap-3 border-l-2 border-transparent px-4 py-2.5 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-strong)]"
-                    >
-                      <Icon aria-hidden="true" className="size-4" />
-                      {label}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-            </details>
+            {isProtectedPage && <AccountMenu />}
           </div>
         </div>
       </header>

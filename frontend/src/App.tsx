@@ -10,7 +10,6 @@ import { DocumentArchiveProvider } from './features/documents/ui/DocumentArchive
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
-import { AppSettingsPage } from './pages/settings/AppSettingsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { TaskPage } from './pages/tasks/TaskPage';
 import { DocumentsPage } from './pages/documents/DocumentsPage';
@@ -46,7 +45,6 @@ function App() {
                   element={<DocumentDetailPage />}
                 />
                 <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/settings/app" element={<AppSettingsPage />} />
               </Route>
             </Route>
           </Route>

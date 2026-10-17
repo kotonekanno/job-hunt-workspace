@@ -342,3 +342,56 @@ test('auth form navigates only on success, stores only login tokens and reports 
     }
   }
 });
+
+test('account logout clears the token and redirects only on API success', async () => {
+  for (const status of [204, 401, 500, 'offline']) {
+    const events = [];
+    const mocks = {
+      react: {
+        useRef: (current) => ({ current }),
+        useState: () => [false, () => {}],
+      },
+      'react-router-dom': {
+        Link: () => null,
+        useNavigate: () => (to, options) => {
+          assert.equal(options.replace, true);
+          events.push(to);
+        },
+      },
+      '@/api/generated/api': {
+        logout: async (options) => {
+          assert.equal(options.credentials, 'include');
+          assert.equal(options.headers.Authorization, 'Bearer test-token');
+          events.push('request');
+          if (status === 'offline') throw new Error('offline');
+          return { status };
+        },
+      },
+      '../model/accessToken': {
+        useAccessToken: () => 'test-token',
+        clearAccessToken: () => events.push('clear'),
+      },
+      '@/shared/toast': { toast: { error: () => events.push('error') } },
+    };
+    const { AccountMenu } = load('src/features/auth/ui/AccountMenu.tsx', {
+      require: (name) => mocks[name] ?? require(name),
+    });
+    function findButton(element) {
+      if (!element || typeof element !== 'object') return;
+      if (element.type === 'button') return element;
+      const children = element.props?.children;
+      for (const child of Array.isArray(children) ? children : [children]) {
+        const button = findButton(child);
+        if (button) return button;
+      }
+    }
+    const button = findButton(AccountMenu());
+    assert.ok(button);
+    button.props.onClick();
+    button.props.onClick();
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(events, status === 204
+      ? ['request', 'clear', '/login']
+      : ['request', 'error']);
+  }
+});
