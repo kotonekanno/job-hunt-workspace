@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => ({
           '/documents',
           '/events',
           '/essay-groups',
+          '/dashboard'
         ].map((route) => [
           route,
           {

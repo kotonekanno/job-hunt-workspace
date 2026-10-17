@@ -579,3 +579,117 @@ test('a multi-request selection edit keeps acknowledged IDs and changes when a l
   assert.equal(render().tracks[0].steps[0].note, '');
   assert.equal(h.gets(), 1);
 });
+
+test('home initially fetches only dashboard, preserves server counts/order and rolls back task completion', async () => {
+  const data = {
+    counts: { companies: 20, undoneTasks: 8, upcomingEvents: 15, essays: 30 },
+    tasks: [{ id: 41, title: '提出', done: false, deadline: '2026-10-18' }],
+    companies: [companies[0], companies[1]],
+    events: [
+      {
+        id: 21,
+        title: '面接',
+        category: 'INTERVIEW',
+        isAllDay: true,
+        isOnline: false,
+        startDay: '2026-10-20',
+        endDay: '2026-10-20',
+      },
+    ],
+  };
+  const h = harness((url) => {
+    assert.equal(url, '/dashboard');
+    return data;
+  });
+  const { useDashboard } = h.load('src/features/home/hooks/useDashboard.ts');
+  const render = () => h.render(useDashboard);
+  assert.equal(render().dashboard, undefined);
+  await tick();
+  assert.equal(h.gets(), 1);
+  assert.equal(h.calls[0].credentials, 'include');
+  assert.equal(h.calls[0].headers.Authorization, 'Bearer token');
+  assert.equal(render().dashboard.counts.companies, 20);
+  assert.deepEqual(
+    Array.from(render().dashboard.companies, (item) => item.id),
+    [8, 9],
+  );
+  render().toggleTask(41);
+  assert.equal(render().dashboard.tasks[0].done, true);
+  assert.equal(render().dashboard.counts.undoneTasks, 7);
+  const failed = h.accept({}, 500);
+  assert.equal(failed.url, '/tasks/41');
+  assert.equal(failed.method, 'PATCH');
+  assert.deepEqual(JSON.parse(failed.body), { done: true });
+  await tick();
+  assert.equal(render().dashboard.tasks[0].done, false);
+  assert.equal(render().dashboard.counts.undoneTasks, 8);
+  render().toggleTask(41);
+  h.accept();
+  await tick();
+  assert.equal(render().dashboard.tasks[0].done, true);
+  assert.equal(render().dashboard.counts.undoneTasks, 7);
+  assert.equal(h.gets(), 1);
+});
+
+test('home selection updates optimistically, resolves selection ID only on action and never refreshes after PUT', async () => {
+  const data = {
+    counts: { companies: 1, undoneTasks: 0, upcomingEvents: 0, essays: 0 },
+    tasks: [],
+    events: [],
+    companies: [
+      {
+        ...companies[0],
+        currentSelection: {
+          title: '本選考',
+          step: { id: 22, name: '面接', status: 'PENDING' },
+        },
+      },
+    ],
+  };
+  const h = harness((url) => {
+    if (url === '/dashboard') return data;
+    assert.equal(url, '/companies/8');
+    return {
+      activeSelectionId: 3,
+      selections: [{ id: 3, steps: [{ id: 22 }] }],
+    };
+  });
+  const { useDashboard } = h.load('src/features/home/hooks/useDashboard.ts');
+  const render = () => h.render(useDashboard);
+  render();
+  await tick();
+  assert.equal(h.gets(), 1);
+  render().updateSelectionResult(8, 'PASSED');
+  assert.equal(
+    render().dashboard.companies[0].currentSelection.step.status,
+    'PASSED',
+  );
+  await tick();
+  const request = h.accept();
+  assert.equal(request.method, 'PUT');
+  assert.deepEqual(JSON.parse(request.body), { status: 'PASSED' });
+  await tick();
+  assert.equal(h.gets(), 2);
+  assert.equal(render().dashboard.companies[0].currentSelection.step.id, 22);
+  render().updateSelectionResult(8, 'FAILED');
+  await tick();
+  h.accept({}, 500);
+  await tick();
+  assert.equal(
+    render().dashboard.companies[0].currentSelection.step.status,
+    'PASSED',
+  );
+  assert.equal(h.gets(), 3);
+});
+
+test('home reports load failure without falling back to mock data', async () => {
+  const h = harness(() => {
+    throw new Error('offline');
+  });
+  const { useDashboard } = h.load('src/features/home/hooks/useDashboard.ts');
+  h.render(useDashboard);
+  await tick();
+  assert.equal(h.render(useDashboard).dashboard, undefined);
+  assert.equal(h.errors.length, 1);
+  assert.equal(h.gets(), 1);
+});

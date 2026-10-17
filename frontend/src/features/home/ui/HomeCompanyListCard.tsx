@@ -1,13 +1,13 @@
 import { HoverCard } from '@/shared/hover-card';
-import { MockActivitiesWidget } from '@/features/home/ui/MockActivitiesWidget';
+import { CompanyActivityHistory } from '@/features/companies/ui/list/CompanyActivityHistory';
+import { apiStatus, badgeStatus } from '@/features/companies/lib/companyBoard';
 import { ArrowUpRight, Minus } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { CompanyListItem } from '@/features/companies/model/companyList';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { SelectionStatus } from '@/api/generated/models/selectionStatus';
 import { SelectionStepBadge } from '@/features/companies/ui/selection-step-badge';
-import { useMockActivities } from '@/features/companies/model/companyMockStore';
 import { DragHandle } from '@/shared/DragHandle';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +23,7 @@ type CompanyPriorityCardProps = {
   ) => void;
 };
 
-export function MockCompanyListCard({
+export function HomeCompanyListCard({
   company,
   canReorder = false,
   dragValue,
@@ -32,10 +32,6 @@ export function MockCompanyListCard({
   onSelectionResultChange,
 }: CompanyPriorityCardProps) {
   const navigate = useNavigate();
-  const [activities] = useMockActivities(company.id);
-  const latest = [...activities].sort(
-    (a, b) => Date.parse(b.sentAt) - Date.parse(a.sentAt),
-  )[0];
   const dragControls = useDragControls();
   const companyPath = `/companies/${company.id}`;
 
@@ -85,7 +81,7 @@ export function MockCompanyListCard({
           {company.name}
         </span>
 
-        {latest && (
+        {company.latestActivity && (
           <div
             data-card-action
             className="min-w-0 max-w-[35%]"
@@ -98,24 +94,23 @@ export function MockCompanyListCard({
               triggerClassName="block min-w-0 cursor-pointer"
               trigger={
                 <span className="block truncate rounded-xl rounded-tl-none border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-[11px] text-[var(--text)] transition-colors hover:bg-[color-mix(in_srgb,var(--panel),var(--accent)_8%)]">
-                  {latest.sender === 'company' ? '企業が' : 'ユーザーが'}
-                  {latest.text}
+                  {company.latestActivity}
                 </span>
               }
             >
-              <MockActivitiesWidget readOnly targetCompanyId={company.id} />
+              <CompanyActivityHistory companyId={company.id} />
             </HoverCard>
           </div>
         )}
         <span data-card-action className="inline-flex">
-          {company.selection ? (
+          {company.currentSelection ? (
             <SelectionStepBadge
-              title={company.selection.title}
-              step={company.selection.step}
-              result={company.selection.status}
+              title={company.currentSelection.title}
+              step={company.currentSelection.step.name}
+              result={badgeStatus[company.currentSelection.step.status]}
               size="m"
               onResultChange={(result) => {
-                onSelectionResultChange?.(company.id, result);
+                onSelectionResultChange?.(company.id, apiStatus[result]);
               }}
             />
           ) : (

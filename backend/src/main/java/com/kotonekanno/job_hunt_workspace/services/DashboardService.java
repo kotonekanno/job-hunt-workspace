@@ -6,12 +6,14 @@ import com.kotonekanno.job_hunt_workspace.entities.Event;
 import com.kotonekanno.job_hunt_workspace.repositories.CountRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.EventRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.UserRepository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
+@Service
 public class DashboardService {
 
   UserRepository userRepository;

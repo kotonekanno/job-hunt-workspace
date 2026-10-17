@@ -1,6 +1,9 @@
 package com.kotonekanno.job_hunt_workspace.repositories;
 
 import com.kotonekanno.job_hunt_workspace.dtos.DashboardCountsProjection;
+import com.kotonekanno.job_hunt_workspace.entities.Company;
+import org.jspecify.annotations.NullMarked;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -8,8 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
+@NullMarked
 @Repository
-public interface CountRepository {
+public interface CountRepository extends JpaRepository<Company, Integer> {
   @Query(value = """
     SELECT
         (SELECT COUNT(*)
