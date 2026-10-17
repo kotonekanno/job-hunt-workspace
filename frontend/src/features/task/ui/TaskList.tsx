@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import type { Task } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models/task';
 import { TaskRow } from '@/features/task/ui/TaskRow';
 
 type TaskListProps = {

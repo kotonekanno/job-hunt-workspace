@@ -13,12 +13,22 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     proxy: {
-      '/auth': {
-        target:
-          loadEnv(mode, process.cwd(), '').API_PROXY_TARGET ||
-          'http://localhost:8080',
-        changeOrigin: true,
-      },
+      ...Object.fromEntries(
+        ['/auth', '/tasks', '/companies'].map((route) => [
+          route,
+          {
+            target:
+              loadEnv(mode, process.cwd(), '').API_PROXY_TARGET ||
+              'http://localhost:8080',
+            changeOrigin: true,
+            // Page navigation shares paths with API endpoints.
+            bypass: (req: import('node:http').IncomingMessage) =>
+              req.headers.accept?.includes('text/html')
+                ? '/index.html'
+                : undefined,
+          },
+        ]),
+      ),
     },
   },
 }));

@@ -8,8 +8,8 @@ import { initialEssays } from '@/features/essay/model/essay';
 import { DashboardCard } from '@/features/home/ui/DashboardCard';
 import { HomeOverviewHeader } from '@/features/home/ui/HomeOverviewHeader';
 import { HomeResourceLinks } from '@/features/home/ui/HomeResourceLinks';
-import { useTasks } from '@/features/task/hooks/useTasks';
-import { initialTasks } from '@/features/task/model/task';
+import { useMockTasks } from '@/features/home/hooks/useMockTasks';
+import { initialTasks } from '@/features/home/model/mockTasks';
 import { TaskList } from '@/features/task/ui/TaskList';
 
 const today = '2026-07-12';
@@ -35,7 +35,7 @@ const summaryItems = [
   },
   {
     label: '未完了タスク',
-    value: initialTasks.filter((task) => !task.completed).length,
+    value: initialTasks.filter((task) => !task.done).length,
     unit: '件',
     icon: ListTodo,
     to: '/tasks',
@@ -57,11 +57,11 @@ const summaryItems = [
 ];
 
 export function HomeDashboard() {
-  const taskArchive = useTasks();
+  const taskArchive = useMockTasks();
   const pendingTasks = taskArchive.tasks
-    .filter((task) => !task.completed)
+    .filter((task) => !task.done)
     .sort((first, second) =>
-      (first.dueDate ?? '\uffff').localeCompare(second.dueDate ?? '\uffff'),
+      (first.deadline ?? '\uffff').localeCompare(second.deadline ?? '\uffff'),
     )
     .slice(0, 4);
 

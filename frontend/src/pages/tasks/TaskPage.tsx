@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTasks } from '@/features/task/hooks/useTasks';
-import type { Task } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { TaskToolbar } from '@/features/task/ui/TaskToolbar';
@@ -58,6 +58,7 @@ export function TaskPage() {
       {isDialogOpen && (
         <TaskDialog
           task={editingTask}
+          companyOptions={tasks.companyOptions}
           onClose={closeDialog}
           onSave={tasks.saveTask}
         />

@@ -11,7 +11,7 @@ import { Select, type SelectOption } from '@/shared/select';
 
 type CompanyCreateDialogProps = {
   onClose: () => void;
-  onSave: (company: Omit<CompanyListItem, 'id' | 'order'>) => void;
+  onSave: (company: Omit<CompanyListItem, 'id' | 'position'>) => void;
 };
 
 export function CompanyCreateDialog(props: CompanyCreateDialogProps) {

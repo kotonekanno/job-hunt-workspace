@@ -53,7 +53,7 @@ export const relatedTasks = [
     title: '最終面接の想定質問を整理する',
     note: '志望動機、入社後に取り組みたいこと、逆質問をそれぞれ3つずつ準備する。',
     deadline: '2026-07-15',
-    company: '青山テクノロジー株式会社',
+    companyName: '青山テクノロジー株式会社',
     done: false,
   },
   {
@@ -61,7 +61,7 @@ export const relatedTasks = [
     title: '交通経路を確認する',
     note: '本社までの経路と所要時間を確認し、開始15分前に到着できるようにする。',
     deadline: '2026-07-14',
-    company: '青山テクノロジー株式会社',
+    companyName: '青山テクノロジー株式会社',
     done: true,
   },
   {
@@ -69,7 +69,7 @@ export const relatedTasks = [
     title: '履歴書を印刷する',
     note: '最新の内容であることを確認し、予備を含めて2部印刷する。',
     deadline: '2026-07-13',
-    company: '青山テクノロジー株式会社',
+    companyName: '青山テクノロジー株式会社',
     done: false,
   },
 ];

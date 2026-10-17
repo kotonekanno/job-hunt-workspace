@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyList';
-import type { Task } from '@/features/task/model/task';
+import { useRef, useState, type FormEvent } from 'react';
+import type { Task } from '@/api/generated/models/task';
+import type { TaskForm } from '@/features/task/model/task';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
@@ -8,36 +8,44 @@ import { RequiredMark } from '@/shared/form';
 type TaskDialogProps = {
   task?: Task;
   defaultCompany?: string;
+  companyOptions: readonly string[];
   onClose: () => void;
-  onSave: (task: Task) => void;
+  onSave: (task: TaskForm) => void | Promise<boolean>;
 };
 
 export function TaskDialog({
   task,
   defaultCompany,
+  companyOptions,
   onClose,
   onSave,
 }: TaskDialogProps) {
-  const [form, setForm] = useState<Task>(() =>
+  const [form, setForm] = useState<TaskForm>(() =>
     task
       ? {
           ...task,
-          company: task.company ?? defaultCompany,
+          companyName: task.companyName ?? defaultCompany,
         }
       : {
-          id: Date.now(),
           title: '',
           note: '',
-          deadline: undefined,
-          company: defaultCompany,
+          deadline: null,
+          companyName: defaultCompany,
           done: false,
         },
   );
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(form);
-    onClose();
+    if (saving.current) return;
+    saving.current = true;
+    try {
+      if ((await onSave(form)) !== false) onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   const fieldClassName =
@@ -48,13 +56,13 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)]">
         企業名
         <CompanyCombobox
-          value={form.company ?? ''}
-          options={companyNameOptions}
+          value={form.companyName ?? ''}
+          options={companyOptions}
           allowEmpty
           onValueChange={(company) =>
             setForm({
               ...form,
-              company: company || undefined,
+              companyName: company || undefined,
             })
           }
           className="mt-1"
@@ -69,7 +77,7 @@ export function TaskDialog({
           onChange={(event) =>
             setForm({
               ...form,
-              deadline: event.target.value || undefined,
+              deadline: event.target.value || null,
             })
           }
           className={fieldClassName}
@@ -81,6 +89,7 @@ export function TaskDialog({
         <RequiredMark />
         <input
           required
+          maxLength={200}
           value={form.title}
           onChange={(event) =>
             setForm({
@@ -95,7 +104,8 @@ export function TaskDialog({
       <label className="text-xs text-[var(--muted)] sm:col-span-2">
         詳細
         <textarea
-          value={form.note}
+          maxLength={2000}
+          value={form.note ?? ''}
           onChange={(event) =>
             setForm({
               ...form,

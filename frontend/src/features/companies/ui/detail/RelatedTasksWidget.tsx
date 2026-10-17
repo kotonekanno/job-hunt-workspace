@@ -5,7 +5,9 @@ import {
   relatedTasks,
 } from '@/features/companies/model/companyDetail';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
-import type { Task } from '@/features/task/model/task';
+import { companyNameOptions } from '@/features/companies/model/companyList';
+import type { TaskForm } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
 import { TaskList } from '@/features/task/ui/TaskList';
 import { AddButton, BulkDeleteButton } from '@/shared/button';
@@ -42,7 +44,8 @@ export function RelatedTasksWidget() {
     );
   }
 
-  function saveTask(task: Task) {
+  function saveTask(form: TaskForm) {
+    const task: Task = { ...form, id: form.id ?? Date.now() };
     setTasks((current) => {
       const taskExists = current.some((item) => item.id === task.id);
 
@@ -111,6 +114,7 @@ export function RelatedTasksWidget() {
         <TaskDialog
           task={editingTask}
           defaultCompany={companyProfile.name}
+          companyOptions={companyNameOptions}
           onClose={closeDialog}
           onSave={saveTask}
         />
