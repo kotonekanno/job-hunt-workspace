@@ -1,20 +1,17 @@
 import { GripVertical, Lock } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
-import { useState, type FormEvent, type PointerEvent } from 'react';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { useRef, useState, type FormEvent, type PointerEvent } from 'react';
+import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
 import { EditDialog } from '@/shared/dialog';
 
 type EssayGroupReorderDialogProps = {
-  groups: EssayGroup[];
+  groups: EssayGroupListItem[];
   onClose: () => void;
-  onSave: (orderedGroupIds: string[]) => void;
+  onSave: (orderedGroupIds: number[]) => Promise<boolean>;
 };
 
 type ReorderableGroupRowProps = {
-  group: EssayGroup;
+  group: EssayGroupListItem;
 };
 
 export function EssayGroupReorderDialog({
@@ -23,21 +20,27 @@ export function EssayGroupReorderDialog({
   onSave,
 }: EssayGroupReorderDialogProps) {
   const [orderedGroups, setOrderedGroups] = useState(
-    groups
-      .filter((group) => group.id !== unclassifiedEssayGroupId)
-      .sort((left, right) => left.position - right.position),
+    groups.filter((group) => group.id !== null),
   );
-  const unclassifiedGroup = groups.find(
-    (group) => group.id === unclassifiedEssayGroupId,
-  );
+  const unclassifiedGroup = groups.find((group) => group.id === null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave([
-      ...orderedGroups.map((group) => group.id),
-      ...(unclassifiedGroup ? [unclassifiedGroup.id] : []),
-    ]);
-    onClose();
+    if (saving.current) return;
+    saving.current = true;
+    try {
+      if (
+        await onSave(
+          orderedGroups.flatMap((group) =>
+            group.id === null ? [] : [group.id],
+          ),
+        )
+      )
+        onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (

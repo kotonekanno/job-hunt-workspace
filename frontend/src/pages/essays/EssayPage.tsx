@@ -1,10 +1,9 @@
 import { ArrowUpDown, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
-import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { useEssayGroups } from '@/features/essay/hooks/useEssayGroups';
+import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
+import { groupPathId } from '@/features/essay/lib/essayGroupsApi';
+import { unclassifiedEssayGroupId } from '@/features/essay/model/essay';
 import { EssayDialog } from '@/features/essay/ui/EssayDialog';
 import { EssayGroupDialog } from '@/features/essay/ui/EssayGroupDialog';
 import { EssayGroupList } from '@/features/essay/ui/EssayGroupList';
@@ -14,11 +13,15 @@ import { DeleteDialog } from '@/shared/dialog';
 import { InnerHeader } from '@/shared/header';
 
 export function EssayPage() {
-  const essayArchive = useEssayArchive();
+  const essayArchive = useEssayGroups();
   const [isEssayDialogOpen, setIsEssayDialogOpen] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<EssayGroup | null>(null);
-  const [deletingGroup, setDeletingGroup] = useState<EssayGroup | null>(null);
+  const [editingGroup, setEditingGroup] = useState<EssayGroupListItem | null>(
+    null,
+  );
+  const [deletingGroup, setDeletingGroup] = useState<EssayGroupListItem | null>(
+    null,
+  );
   const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
 
   return (
@@ -42,7 +45,6 @@ export function EssayPage() {
 
       <EssayGroupList
         groups={essayArchive.groups}
-        essays={essayArchive.essays}
         onAddGroup={() => setIsGroupDialogOpen(true)}
         onEditGroup={setEditingGroup}
         onDeleteGroup={setDeletingGroup}
@@ -55,7 +57,16 @@ export function EssayPage() {
 
       {isEssayDialogOpen && (
         <EssayDialog
-          groups={essayArchive.groups}
+          groups={[
+            ...essayArchive.groups.map((group) => ({
+              id: groupPathId(group.id),
+              name: group.name,
+            })),
+            ...(essayArchive.groups.some((group) => group.id === null)
+              ? []
+              : [{ id: unclassifiedEssayGroupId, name: '未分類' }]),
+          ]}
+          companyOptions={essayArchive.companyOptions}
           defaultGroupId={unclassifiedEssayGroupId}
           onClose={() => setIsEssayDialogOpen(false)}
           onSave={essayArchive.addEssay}
@@ -73,7 +84,11 @@ export function EssayPage() {
         <EssayGroupDialog
           groupName={editingGroup.name}
           onClose={() => setEditingGroup(null)}
-          onSave={(name) => essayArchive.updateGroup(editingGroup.id, name)}
+          onSave={(name) =>
+            editingGroup.id === null
+              ? Promise.resolve(false)
+              : essayArchive.updateGroup(editingGroup.id, name)
+          }
         />
       )}
 
@@ -82,9 +97,12 @@ export function EssayPage() {
           title={`「${deletingGroup.name}」を削除しますか？`}
           text="このジャンルに含まれるESは削除されず、「未分類」へ移動します。"
           onClose={() => setDeletingGroup(null)}
-          onConfirm={() => {
-            essayArchive.deleteGroup(deletingGroup.id);
-            setDeletingGroup(null);
+          onConfirm={async () => {
+            if (
+              deletingGroup.id !== null &&
+              (await essayArchive.deleteGroup(deletingGroup.id))
+            )
+              setDeletingGroup(null);
           }}
         />
       )}

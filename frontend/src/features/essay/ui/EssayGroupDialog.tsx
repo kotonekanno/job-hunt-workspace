@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
 
 type EssayGroupDialogProps = {
   onClose: () => void;
-  onSave: (name: string) => void;
+  onSave: (name: string) => void | Promise<boolean>;
   groupName?: string;
 };
 
@@ -15,10 +15,16 @@ export function EssayGroupDialog({
 }: EssayGroupDialogProps) {
   const [name, setName] = useState(groupName ?? '');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave(name.trim());
-    onClose();
+    if (!name.trim() || saving.current) return;
+    saving.current = true;
+    try {
+      if ((await onSave(name.trim())) !== false) onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -37,6 +43,7 @@ export function EssayGroupDialog({
         <input
           autoFocus
           required
+          maxLength={50}
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="例：研究、アルバイト"

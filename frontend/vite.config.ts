@@ -14,22 +14,27 @@ export default defineConfig(({ mode }) => ({
   server: {
     proxy: {
       ...Object.fromEntries(
-        ['/auth', '/tasks', '/companies', '/documents', '/events'].map(
-          (route) => [
-            route,
-            {
-              target:
-                loadEnv(mode, process.cwd(), '').API_PROXY_TARGET ||
-                'http://localhost:8080',
-              changeOrigin: true,
-              // Page navigation shares paths with API endpoints.
-              bypass: (req: import('node:http').IncomingMessage) =>
-                req.headers.accept?.includes('text/html')
-                  ? '/index.html'
-                  : undefined,
-            },
-          ],
-        ),
+        [
+          '/auth',
+          '/tasks',
+          '/companies',
+          '/documents',
+          '/events',
+          '/essay-groups',
+        ].map((route) => [
+          route,
+          {
+            target:
+              loadEnv(mode, process.cwd(), '').API_PROXY_TARGET ||
+              'http://localhost:8080',
+            changeOrigin: true,
+            // Page navigation shares paths with API endpoints.
+            bypass: (req: import('node:http').IncomingMessage) =>
+              req.headers.accept?.includes('text/html')
+                ? '/index.html'
+                : undefined,
+          },
+        ]),
       ),
     },
   },
