@@ -1,30 +1,25 @@
 import { Archive } from 'lucide-react';
 import { Reorder } from 'motion/react';
-import { useMemo } from 'react';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+import { useMemo, useRef, useState } from 'react';
+import type { SelectionStatus } from '@/api/generated/models/selectionStatus';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { CompanyPriority } from '@/api/generated/models/companyPriority';
 import {
-  priorities,
-  secondaryPriorities,
-  type CompanyListItem,
-  type CompanyPriority,
-} from '@/features/companies/model/companyList';
-import { priorityLabels } from '@/features/companies/model/companyPriorityPresentation';
+  listPriorities,
+  listPriorityLabels,
+  companyBoardIds,
+  companiesFromBoard,
+} from '@/features/companies/lib/companyBoard';
 import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
 import { useListDragSession } from '@/shared/useListDragSession';
 
 type CompanyPriorityBoardProps = {
   companies: CompanyListItem[];
-  onCompaniesReorder: (
-    orderedIds: number[],
-    priorityChanges: Array<{
-      companyId: number;
-      priority: CompanyPriority;
-    }>,
-  ) => void;
+  onCompaniesReorder: (companies: CompanyListItem[]) => Promise<boolean>;
   onSelectionResultChange: (companyId: number, result: SelectionStatus) => void;
 };
 
-const initialPriorityOrder = [...priorities, ...secondaryPriorities];
+const initialPriorityOrder = listPriorities;
 
 const priorityTextStyles: Record<CompanyPriority, string> = {
   1: 'text-[var(--accent)]',
@@ -32,8 +27,8 @@ const priorityTextStyles: Record<CompanyPriority, string> = {
   3: 'text-[var(--text-strong)]',
   4: 'text-[var(--muted)]',
   5: 'text-[var(--faint)]',
-  6: 'text-[var(--faint)] opacity-75',
-  0: 'text-[var(--muted)]',
+  7: 'text-[var(--faint)] opacity-75',
+  6: 'text-[var(--muted)]',
 };
 
 function getPriorityItemId(priority: CompanyPriority) {
@@ -42,22 +37,6 @@ function getPriorityItemId(priority: CompanyPriority) {
 
 function getCompanyItemId(companyId: number) {
   return `company-${companyId}`;
-}
-
-function getPriorityFromItemId(itemId: string): CompanyPriority | undefined {
-  if (!itemId.startsWith('priority-')) {
-    return undefined;
-  }
-
-  return Number(itemId.replace('priority-', '')) as CompanyPriority;
-}
-
-function getCompanyIdFromItemId(itemId: string): number | undefined {
-  if (!itemId.startsWith('company-')) {
-    return undefined;
-  }
-
-  return Number(itemId.replace('company-', ''));
 }
 
 export function CompanyPriorityBoard({
@@ -69,65 +48,66 @@ export function CompanyPriorityBoard({
   const { isDragSessionActive, startDragSession, endDragSession } =
     useListDragSession();
 
-  const boardItemIds = useMemo(
-    () =>
-      priorityOrder.flatMap((priority) => [
-        getPriorityItemId(priority),
-        ...companies
-          .filter((company) => company.priority === priority)
-          .map((company) => getCompanyItemId(company.id)),
-      ]),
-    [companies, priorityOrder],
-  );
+  const boardItemIds = useMemo(() => companyBoardIds(companies), [companies]);
+  const [draftIds, setDraftIds] = useState<string[] | null>(null);
+  const draft = useRef<string[] | null>(null);
+  const active = useRef(false);
+  const saving = useRef(false);
+  const displayed = draftIds
+    ? companiesFromBoard(draftIds, companies)
+    : companies;
 
-  function reorderBoard(orderedItemIds: string[]) {
-    let currentPriority: CompanyPriority | undefined;
-    const orderedCompanyIds: number[] = [];
-    const priorityChanges: Array<{
-      companyId: number;
-      priority: CompanyPriority;
-    }> = [];
-
-    orderedItemIds.forEach((itemId) => {
-      const priority = getPriorityFromItemId(itemId);
-
-      if (priority !== undefined) {
-        currentPriority = priority;
-        return;
-      }
-
-      const companyId = getCompanyIdFromItemId(itemId);
-
-      if (companyId === undefined) {
-        return;
-      }
-
-      orderedCompanyIds.push(companyId);
-
-      if (currentPriority !== undefined) {
-        priorityChanges.push({
-          companyId,
-          priority: currentPriority,
-        });
-      }
+  function beginDrag(cancel: () => void) {
+    if (saving.current) {
+      cancel();
+      return;
+    }
+    active.current = true;
+    draft.current = boardItemIds;
+    startDragSession(() => {
+      active.current = false;
+      draft.current = null;
+      setDraftIds(null);
+      cancel();
     });
-
-    onCompaniesReorder(orderedCompanyIds, priorityChanges);
+  }
+  function reorderBoard(ids: string[]) {
+    if (!active.current) return;
+    draft.current = ids;
+    setDraftIds(ids);
+  }
+  async function drop() {
+    if (!active.current) return;
+    active.current = false;
+    endDragSession();
+    const ids = draft.current;
+    if (!ids || ids.every((id, index) => id === boardItemIds[index])) {
+      setDraftIds(null);
+      return;
+    }
+    saving.current = true;
+    try {
+      await onCompaniesReorder(companiesFromBoard(ids, companies));
+    } finally {
+      saving.current = false;
+      draft.current = null;
+      setDraftIds(null);
+    }
   }
 
   return (
     <>
       <Reorder.Group
         axis="y"
-        values={boardItemIds}
+        values={draftIds ?? boardItemIds}
         onReorder={reorderBoard}
         data-drag-session={isDragSessionActive}
         className="w-full space-y-1 p-0"
       >
         {priorityOrder.flatMap((priority) => {
-          const laneCompanies = companies
-            .filter((company) => company.priority === priority)
-            .sort((left, right) => left.position - right.position);
+          const laneCompanies = displayed.filter(
+            (company) => company.priority === priority,
+          );
 
           return [
             <Reorder.Item
@@ -143,7 +123,7 @@ export function CompanyPriorityBoard({
                   mass: 0.75,
                 },
               }}
-              className={`w-full list-none pt-3 first:pt-0 ${priority === 6 || priority === 0 ? 'pt-6' : ''}`}
+              className={`w-full list-none pt-3 first:pt-0 ${priority === 7 || priority === 6 ? 'pt-6' : ''}`}
             >
               <div
                 className={`
@@ -155,7 +135,7 @@ export function CompanyPriorityBoard({
               >
                 <div className="flex min-w-0 items-baseline gap-3">
                   <p className="shrink-0 font-mono text-[7px] tracking-[0.16em] opacity-60">
-                    {priority === 6 ? (
+                    {priority === 7 ? (
                       <Archive aria-label="アーカイブ" className="size-4" />
                     ) : (
                       'PRIORITY'
@@ -163,7 +143,7 @@ export function CompanyPriorityBoard({
                   </p>
 
                   <h2 className="truncate text-sm font-black">
-                    {priorityLabels[priority]}
+                    {listPriorityLabels[priority]}
                   </h2>
                 </div>
               </div>
@@ -174,8 +154,8 @@ export function CompanyPriorityBoard({
                 key={getCompanyItemId(company.id)}
                 company={company}
                 canReorder
-                onDragSessionStart={startDragSession}
-                onDragSessionEnd={endDragSession}
+                onDragSessionStart={beginDrag}
+                onDragSessionEnd={drop}
                 dragValue={getCompanyItemId(company.id)}
                 onSelectionResultChange={onSelectionResultChange}
               />

@@ -1,116 +1,137 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { CreateCompanyRequest } from '@/api/generated/models/createCompanyRequest';
+import type { SelectionStatus } from '@/api/generated/models/selectionStatus';
 import {
-  useMockCompanies,
-  setMockCompanies,
-} from '@/features/companies/model/companyMockStore';
-import { useMemo, useState } from 'react';
-import {
-  type CompanyListItem,
-  type CompanyPriority,
-} from '@/features/companies/model/companyList';
-import type { SelectionStatus } from '@/features/companies/model/selection';
+  addCompanyRequest,
+  changeCompanyStatus,
+  loadCompanies,
+  persistCompanyOrder,
+} from '@/features/companies/lib/companyListApi';
+import { mergeVisibleCompanyOrder } from '@/features/companies/lib/companyBoard';
+import { toast } from '@/shared/toast';
 
 export function useCompanyList() {
-  const companies = useMockCompanies();
-  const setCompanies = setMockCompanies;
+  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
   const [query, setQuery] = useState('');
-
+  const ready = useRef(false);
+  const busy = useRef(false);
+  const mounted = useRef(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    mounted.current = true;
+    void loadCompanies(controller.signal)
+      .then((items) => {
+        if (controller.signal.aborted) return;
+        setCompanies(items);
+        ready.current = true;
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          toast.error(
+            '企業一覧を取得できませんでした。画面を再読み込みしてください。',
+          );
+      });
+    return () => {
+      mounted.current = false;
+      ready.current = false;
+      controller.abort();
+    };
+  }, []);
   const visibleCompanies = useMemo(
     () =>
-      companies
-        .filter((company) =>
-          company.name.toLowerCase().includes(query.toLowerCase()),
-        )
-        .sort((left, right) => left.position - right.position),
+      companies.filter((company) =>
+        company.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+      ),
     [companies, query],
   );
 
-  function addCompany(company: Omit<CompanyListItem, 'id' | 'position'>) {
-    setCompanies((current) => [
-      ...current,
-      {
-        ...company,
-        id: Math.max(0, ...current.map((item) => item.id)) + 1,
-        position:
-          Math.max(
-            0,
-            ...current
-              .filter((item) => item.priority === company.priority)
-              .map((item) => item.position),
-          ) + 1,
-      },
-    ]);
-  }
-
-  function updateSelectionResult(
-    companyId: number,
-    selectionResult: SelectionStatus,
+  async function mutate(
+    action: () => Promise<void>,
+    reloadOnFailure = false,
+    reloadOnSuccess = true,
   ) {
-    setCompanies((current) =>
-      current.map((company) =>
-        company.id === companyId && company.selection
-          ? {
-              ...company,
-              selection: {
-                ...company.selection,
-                status: selectionResult,
-              },
-            }
-          : company,
-      ),
-    );
-  }
-
-  function reorderCompanies(
-    orderedIds: number[],
-    priorityChanges: Array<{
-      companyId: number;
-      priority: CompanyPriority;
-    }>,
-  ) {
-    setCompanies((current) => {
-      const priorityByCompanyId = new Map(
-        priorityChanges.map(({ companyId, priority }) => [companyId, priority]),
+    if (busy.current) return false;
+    if (!ready.current) {
+      toast.error('企業一覧を再読み込みしてから操作してください。');
+      return false;
+    }
+    busy.current = true;
+    let success = false;
+    try {
+      await action();
+      success = true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : '操作に失敗しました。',
       );
-      const updatedCompanies = current.map((company) => ({
-        ...company,
-        priority: priorityByCompanyId.get(company.id) ?? company.priority,
-      }));
-      const orderedIdSet = new Set(orderedIds);
-      const orderByCompanyId = new Map<number, number>();
-
-      for (const priority of [0, 1, 2, 3, 4, 5, 6] as CompanyPriority[]) {
-        const orderedIdsInPriority = orderedIds.filter((id) =>
-          updatedCompanies.some(
-            (company) => company.id === id && company.priority === priority,
-          ),
+    }
+    if ((success && reloadOnSuccess) || (!success && reloadOnFailure)) {
+      try {
+        const items = await loadCompanies();
+        if (mounted.current) setCompanies(items);
+      } catch {
+        ready.current = false;
+        toast.error(
+          '一覧を再取得できませんでした。画面を再読み込みして操作結果を確認してください。',
         );
-        const remainingIds = updatedCompanies
-          .filter(
-            (company) =>
-              company.priority === priority && !orderedIdSet.has(company.id),
-          )
-          .sort((left, right) => left.position - right.position)
-          .map((company) => company.id);
-
-        [...orderedIdsInPriority, ...remainingIds].forEach((id, index) => {
-          orderByCompanyId.set(id, index + 1);
-        });
       }
-
-      return updatedCompanies.map((company) => ({
-        ...company,
-        position: orderByCompanyId.get(company.id) ?? company.position,
-      }));
-    });
+    }
+    busy.current = false;
+    return success;
   }
-
   return {
-    allCompanies: companies,
     companies: visibleCompanies,
     query,
     setQuery,
-    addCompany,
-    updateSelectionResult,
-    reorderCompanies,
+    addCompany: (request: CreateCompanyRequest) =>
+      mutate(() => addCompanyRequest(request)),
+    updateSelectionResult: (companyId: number, status: SelectionStatus) => {
+      const company = companies.find((item) => item.id === companyId);
+      if (!company || company.priority === 7 || !company.currentSelection)
+        return;
+      const previous = company.currentSelection;
+      void mutate(
+        async () => {
+          setCompanies((items) =>
+            items.map((item) =>
+              item.id === companyId
+                ? {
+                    ...item,
+                    currentSelection: {
+                      ...previous,
+                      step: { ...previous.step, status },
+                    },
+                  }
+                : item,
+            ),
+          );
+          try {
+            await changeCompanyStatus(company, status);
+          } catch (error) {
+            if (mounted.current)
+              setCompanies((items) =>
+                items.map((item) =>
+                  item.id === companyId
+                    ? { ...item, currentSelection: previous }
+                    : item,
+                ),
+              );
+            throw error;
+          }
+        },
+        false,
+        false,
+      );
+    },
+    reorderCompanies: (visible: CompanyListItem[]) =>
+      mutate(
+        () =>
+          persistCompanyOrder(
+            companies,
+            mergeVisibleCompanyOrder(companies, visible),
+          ),
+        true,
+      ),
   };
 }

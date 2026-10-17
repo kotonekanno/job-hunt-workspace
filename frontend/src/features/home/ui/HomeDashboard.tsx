@@ -3,7 +3,7 @@ import { calendarEvents } from '@/features/home/model/mockCalendarEvents';
 import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import { initialCompanyList } from '@/features/companies/model/companyList';
-import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
+import { MockCompanyListCard } from '@/features/home/ui/MockCompanyListCard';
 import { initialEssays } from '@/features/home/model/mockEssays';
 import { DashboardCard } from '@/features/home/ui/DashboardCard';
 import { HomeOverviewHeader } from '@/features/home/ui/HomeOverviewHeader';
@@ -93,7 +93,7 @@ export function HomeDashboard() {
             {initialCompanyList
               .filter((company) => company.priority === 1)
               .map((company) => (
-                <CompanyListCard key={company.id} company={company} />
+                <MockCompanyListCard key={company.id} company={company} />
               ))}
           </div>
         </DashboardCard>
