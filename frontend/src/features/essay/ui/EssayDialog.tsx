@@ -1,9 +1,6 @@
+import type { Essay } from '@/api/generated/models/essay';
 import { useRef, useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyList';
-import {
-  unclassifiedEssayGroupId,
-  type Essay,
-} from '@/features/essay/model/essay';
+import { unclassifiedEssayGroupId } from '@/features/essay/model/essay';
 import type { EssayForm } from '@/features/essay/lib/essayGroupsApi';
 import {
   EssayGroupCombobox,
@@ -15,7 +12,7 @@ import { RequiredMark } from '@/shared/form';
 
 type EssayDialogProps = {
   groups: EssayGroupOption[];
-  companyOptions?: readonly string[];
+  companyOptions: readonly string[];
   onClose: () => void;
   onSave: (essay: EssayForm) => void | Promise<boolean>;
   essay?: Essay;
@@ -24,15 +21,15 @@ type EssayDialogProps = {
 
 export function EssayDialog({
   groups,
-  companyOptions = companyNameOptions,
+  companyOptions,
   onClose,
   onSave,
   essay,
   defaultGroupId,
 }: EssayDialogProps) {
-  const [company, setCompany] = useState(essay?.company ?? '');
+  const [company, setCompany] = useState(essay?.companyName ?? '');
   const [groupId, setGroupId] = useState(
-    essay?.groupId ?? defaultGroupId ?? unclassifiedEssayGroupId,
+    defaultGroupId ?? unclassifiedEssayGroupId,
   );
   const [question, setQuestion] = useState(essay?.question ?? '');
   const [answer, setAnswer] = useState(essay?.answer ?? '');

@@ -1,5 +1,9 @@
+import type { UpdateEssayRequest } from '@/api/generated/models/updateEssayRequest';
 import {
   createEssay,
+  getEssaysByGroupId,
+  patchEssay,
+  deleteEssay,
   createEssayGroup,
   deleteEssayGroup,
   getCompanies,
@@ -51,7 +55,7 @@ export async function loadEssayGroups(signal?: AbortSignal) {
   ];
 }
 export async function loadEssayCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(options(signal));
+  const response = await getCompanies(undefined, options(signal));
   if (response.status !== 200)
     throw new Error('企業一覧を取得できませんでした。');
   return response.data.companies;
@@ -135,4 +139,40 @@ export async function saveEssayGroupOrder(
       id,
     );
   }
+}
+
+export class EssayLoadError extends Error {
+  constructor(public status: number) {
+    super('文章一覧を取得できませんでした。');
+  }
+}
+export async function loadGroupEssays(groupId: string, signal?: AbortSignal) {
+  const response = await getEssaysByGroupId(groupId, options(signal));
+  if (response.status !== 200) throw new EssayLoadError(response.status);
+  return response.data.essays;
+}
+export async function updateEssayRequest(
+  groupId: string,
+  id: number,
+  request: UpdateEssayRequest,
+) {
+  expectStatus((await patchEssay(groupId, id, request, options())).status, 204);
+}
+export async function deleteEssayRequest(groupId: string, id: number) {
+  expectStatus((await deleteEssay(groupId, id, options())).status, 204);
+}
+
+export async function moveEssayRequest(
+  groupId: string,
+  essayId: number,
+  nextGroupId: string,
+  groups: EssayGroupListItem[],
+) {
+  if (nextGroupId === 'unclassified') {
+    return updateEssayRequest(groupId, essayId, { essayGroupId: null });
+  }
+  const group = groups.find((item) => groupPathId(item.id) === nextGroupId);
+  if (!group || group.id === null)
+    throw new Error('移動先のジャンルを選び直してください。');
+  return updateEssayRequest(groupId, essayId, { essayGroupId: group.id });
 }

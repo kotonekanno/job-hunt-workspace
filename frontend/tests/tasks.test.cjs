@@ -23,6 +23,7 @@ function load(file, globals) {
 function setup(status, data = {}) {
   const calls = [];
   const generated = load('src/api/generated/api.ts', {
+    URLSearchParams,
     fetch: async (url, options) => {
       calls.push({ url, ...options });
       return new Response(status === 204 ? null : JSON.stringify(data), {

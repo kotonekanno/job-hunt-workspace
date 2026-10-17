@@ -1,6 +1,7 @@
 import { ArrowRight, FileText, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
+import { essayGroupUrl } from '@/features/essay/lib/essayRoutes';
 import { groupPathId } from '@/features/essay/lib/essayGroupsApi';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 
@@ -29,7 +30,7 @@ export function EssayGroupList({
             className="ui-panel-interactive relative min-h-36 overflow-hidden border border-[var(--line)] bg-[var(--panel)] shadow-[0_3px_12px_var(--shadow)] hover:border-[var(--accent)]"
           >
             <Link
-              to={`/essays/${groupPathId(group.id)}`}
+              to={essayGroupUrl(group.id)}
               className="group flex h-full min-h-36 cursor-pointer items-center gap-4 p-5 pr-14"
             >
               <span className="absolute inset-y-0 left-0 w-1 bg-[var(--accent)] opacity-35 transition-opacity group-hover:opacity-100" />

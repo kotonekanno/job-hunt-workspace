@@ -27,14 +27,14 @@ function expectStatus(actual: number, expected: number) {
 }
 
 export async function loadTasks(signal?: AbortSignal) {
-  const response = await getTasks(options(signal));
+  const response = await getTasks(undefined, options(signal));
   if (response.status !== 200)
     throw new Error('タスク一覧を取得できませんでした。');
   return response.data.tasks;
 }
 
 export async function loadTaskCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(options(signal));
+  const response = await getCompanies(undefined, options(signal));
   if (response.status !== 200)
     throw new Error('企業一覧を取得できませんでした。');
   return response.data.companies;

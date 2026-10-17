@@ -77,7 +77,7 @@ export async function loadEvents(month: string, signal?: AbortSignal) {
 }
 
 export async function loadEventCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(options(signal));
+  const response = await getCompanies(undefined, options(signal));
   if (response.status !== 200) throw new Error('企業を取得できませんでした。');
   return response.data.companies;
 }

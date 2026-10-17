@@ -4,7 +4,7 @@ import { getEventSortKey } from '@/features/calendar/lib/eventTime';
 import { EventListItem } from '@/features/calendar/ui/EventListItem';
 import { initialCompanyList } from '@/features/companies/model/companyList';
 import { CompanyListCard } from '@/features/companies/ui/list/CompanyListCard';
-import { initialEssays } from '@/features/essay/model/essay';
+import { initialEssays } from '@/features/home/model/mockEssays';
 import { DashboardCard } from '@/features/home/ui/DashboardCard';
 import { HomeOverviewHeader } from '@/features/home/ui/HomeOverviewHeader';
 import { HomeResourceLinks } from '@/features/home/ui/HomeResourceLinks';

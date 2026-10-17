@@ -9,15 +9,21 @@ export function InlineEssayField({
   onSave,
   children,
   action,
+  maxLength,
+  required = false,
 }: {
   label: string;
   value: string;
-  onSave: (value: string) => void;
+  onSave: (value: string) => Promise<boolean>;
+  maxLength: number;
+  required?: boolean;
   children: ReactNode;
   action?: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+  const pending = useRef(false);
   const [height, setHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   return (
@@ -31,10 +37,21 @@ export function InlineEssayField({
             <InlineEditActions
               saveLabel={`${label}を保存`}
               cancelLabel={`${label}の編集をキャンセル`}
-              disabled={!draft.trim()}
-              onSave={() => {
-                onSave(draft.trim());
-                setEditing(false);
+              disabled={
+                saving ||
+                (required && !draft.trim()) ||
+                draft.length > maxLength
+              }
+              onSave={async () => {
+                if (pending.current) return;
+                pending.current = true;
+                setSaving(true);
+                try {
+                  if (await onSave(draft.trim())) setEditing(false);
+                } finally {
+                  pending.current = false;
+                  setSaving(false);
+                }
               }}
               onCancel={() => setEditing(false)}
             />
@@ -62,6 +79,8 @@ export function InlineEssayField({
       <div ref={contentRef} className="mt-2">
         {editing ? (
           <InlineTextarea
+            maxLength={maxLength}
+            disabled={saving}
             initialHeight={height}
             autoFocus
             aria-label={label}
