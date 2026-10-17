@@ -2867,7 +2867,7 @@ components:
       description: ホーム画面に表示する情報。
       type: object
       properties:
-        statistics:
+        counts:
           type: object
           properties:
             companies:
@@ -2907,12 +2907,12 @@ components:
           items:
             $ref: '#/components/schemas/Event'
       required:
-        - statistics
+        - counts
         - tasks
         - companies
         - events
       example:
-        statistics:
+        counts:
           companies: 20
           undoneTasks: 5
           upcomingEvents: 10

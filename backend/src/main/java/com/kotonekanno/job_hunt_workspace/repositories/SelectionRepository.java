@@ -54,7 +54,7 @@ public interface SelectionRepository extends JpaRepository<Selection, Integer> {
       @Param("companyId") Integer companyId
   );
 
-  // 企業一覧で必要な進行中の選考情報を取得する
+  // 指定したすべての企業の進行中の選考情報を取得する
   @Query(value = """
     SELECT
         c.id AS "companyId",
@@ -80,9 +80,11 @@ public interface SelectionRepository extends JpaRepository<Selection, Integer> {
         LIMIT 1
     ) st ON TRUE
     WHERE c.user_id = :userId
+      AND c.id IN (:companyIds)
       AND c.priority != 7
     """, nativeQuery = true)
   List<CurrentSelectionProjection> findCurrentSelections(
-      @Param("userId") Integer userId
+      @Param("userId") Integer userId,
+      @Param("companyIds") List<Integer> companyIds
   );
 }

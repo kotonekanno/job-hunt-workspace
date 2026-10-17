@@ -2,6 +2,7 @@ package com.kotonekanno.job_hunt_workspace.repositories;
 
 import com.kotonekanno.job_hunt_workspace.entities.Company;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,10 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
   Optional<Company> findByIdAndUserId(Integer companyId, Integer userId);
 
   // 指定したユーザーの企業を志望度昇順、志望度内ではposition昇順で返す
-  List<Company> findAllByUserIdOrderByPriorityAscPositionAsc(Integer userId);
+  List<Company> findAllByUser_IdOrderByPriorityAscPositionAsc(
+      Integer userId,
+      Pageable pageable
+  );
 
   // 指定した志望度内で最大のpositionを返す
   @Query("""

@@ -30,7 +30,7 @@ public interface CompanyActivityRepository extends JpaRepository<CompanyActivity
       Integer userId
   );
 
-  // 企業一覧で表示する最新のやりとり履歴を取得する
+  // 指定したすべての企業の最新のやりとり履歴を取得する
   @Query(value = """
     SELECT
         c.id AS "companyId",
@@ -47,9 +47,11 @@ public interface CompanyActivityRepository extends JpaRepository<CompanyActivity
         LIMIT 1
     ) a ON TRUE
     WHERE c.user_id = :userId
+      AND c.id IN (:companyIds)
       AND c.priority != 7
     """, nativeQuery = true)
   List<LatestActivityProjection> findLatestActivities(
-      @Param("userId") Integer userId
+      @Param("userId") Integer userId,
+      @Param("companyIds") List<Integer> companyIds
   );
 }

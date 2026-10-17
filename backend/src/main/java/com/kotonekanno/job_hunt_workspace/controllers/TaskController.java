@@ -29,7 +29,7 @@ public class TaskController {
   public ResponseEntity<GetTasksResponse> getTasks(
       @AuthenticationPrincipal Integer userId
   ) {
-    return ResponseEntity.ok(service.getAll(userId));
+    return ResponseEntity.ok(service.getAll(userId, null, null));
   }
 
   // タスクを追加
