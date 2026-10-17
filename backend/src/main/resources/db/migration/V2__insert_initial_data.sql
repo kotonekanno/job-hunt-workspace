@@ -111,16 +111,16 @@ BEGIN
       SELECT sample_company_id,
         ((sample_date - 30 + ((n - 1) / 2)) + TIME '10:00') AT TIME ZONE 'Asia/Tokyo',
         n % 2 = 1,
-        format('%s（%s回目）', CASE n % 4
-          WHEN 1 THEN '応募書類を送付しました。'
-          WHEN 2 THEN '採用担当者から書類受領の連絡が届きました。'
-          WHEN 3 THEN '面談の希望日程と事前質問を送りました。'
-          ELSE '面談日程と当日の案内が届きました。' END, n)
+        format('%s', CASE n % 4
+          WHEN 1 THEN '応募書類を送付'
+          WHEN 2 THEN '書類受領の連絡'
+          WHEN 3 THEN '面談の希望日程と事前質問を送付'
+          ELSE '面談日程と当日の案内' END, n)
       FROM generate_series(1, CASE WHEN company_no = 1 THEN 25 ELSE 3 END) AS series(n);
     ELSIF company_no IN (7, 15) THEN
       INSERT INTO company_activities (company_id, occurred_at, by_user, text)
       VALUES (sample_company_id, (sample_date - 10 + TIME '15:00') AT TIME ZONE 'Asia/Tokyo',
-        company_no = 15, CASE WHEN company_no = 15 THEN '応募辞退のメールを送付。' ELSE NULL END);
+        company_no = 15, CASE WHEN company_no = 15 THEN '応募辞退のメールを送付' ELSE NULL END);
     END IF;
 
     IF company_no <= 6 THEN
