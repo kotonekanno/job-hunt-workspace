@@ -1,0 +1,21 @@
+get:
+  description: ホーム画面に表示する情報を返す。
+  tags:
+    - Dashboard
+  operationId: getDashboard
+  summary: ホーム画面の情報を取得
+  responses:
+    '200':
+      description: ホーム画面に表示する情報の取得に成功。
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/others.yaml#/GetDashboardResponse
+    '401':
+      $ref: ../components/responses/common.yaml#/Unauthorized
+    '403':
+      $ref: ../components/responses/common.yaml#/Forbidden
+    '404':
+      $ref: ../components/responses/common.yaml#/NotFound
+    '500':
+      $ref: ../components/responses/common.yaml#/InternalServerError

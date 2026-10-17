@@ -25,7 +25,7 @@ public class CompanyController {
   public ResponseEntity<GetCompaniesResponse> getCompanies(
       @AuthenticationPrincipal Integer userId
   ) {
-    return ResponseEntity.ok(service.getList(userId));
+    return ResponseEntity.ok(service.getList(userId, null));
   }
 
   // 企業を追加

@@ -7,6 +7,8 @@ import com.kotonekanno.job_hunt_workspace.dtos.CurrentSelectionProjection;
 import com.kotonekanno.job_hunt_workspace.entities.User;
 import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,14 +56,30 @@ public class CompanyService {
   // 企業一覧を取得
   @Transactional(readOnly = true)
   public GetCompaniesResponse getList(
-      Integer userId
+      Integer userId,
+      Integer limit
   ) {
+    Pageable pageable = limit == null
+        ? Pageable.unpaged()
+        : PageRequest.of(0, limit);
+
     List<Company> companies = companyRepository
-        .findAllByUserIdOrderByPriorityAscPositionAsc(userId);
+        .findAllByUser_IdOrderByPriorityAscPositionAsc(userId, pageable);
+
+    // 企業が0件の場合
+    if (companies.isEmpty()) {
+      return new GetCompaniesResponse()
+          .companies(List.of());
+    }
+
+    // 取得した企業のIDを抽出
+    List<Integer> companyIds = companies.stream()
+        .map(Company::getId)
+        .toList();
 
     // 進行中の選考ステップを取得
     Map<Integer, CurrentSelection> currentSelections =
-        selectionRepository.findCurrentSelections(userId)
+        selectionRepository.findCurrentSelections(userId, companyIds)
             .stream()
             .collect(Collectors.toMap(
                 CurrentSelectionProjection::getCompanyId,
@@ -79,7 +97,7 @@ public class CompanyService {
 
     // 最新のやりとり履歴を取得
     Map<Integer, String> latestActivities =
-        companyActivityRepository.findLatestActivities(userId)
+        companyActivityRepository.findLatestActivities(userId, companyIds)
             .stream()
             .collect(Collectors.toMap(
                 LatestActivityProjection::getCompanyId,

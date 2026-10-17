@@ -38,7 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
       @Param("endTime") OffsetDateTime endTime
   );
 
-  // 指定した企業に紐づく予定のうち、今日以降の開催されるものを取得する
+  // 指定した企業に紐づく予定のうち、今日以降のものを取得する
   @Query("""
     SELECT e
     FROM Event e
@@ -58,5 +58,34 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
       @Param("companyId") Integer companyId,
       @Param("today") LocalDate today,
       @Param("startOfToday") OffsetDateTime startOfToday
+  );
+
+  // 今日以降の予定を最大3件取得する
+  @Query(value = """
+    SELECT e.*
+    FROM events e
+    WHERE e.user_id = :userId
+      AND (
+          (e.is_all_day = TRUE AND e.start_date >= :today)
+          OR
+          (e.is_all_day = FALSE AND e.start_time >= :startOfToday)
+      )
+    ORDER BY
+        CASE
+            WHEN e.is_all_day = TRUE THEN e.start_date
+            ELSE (e.start_time AT TIME ZONE :zoneId)::date
+        END ASC,
+        CASE
+            WHEN e.is_all_day = TRUE THEN NULL
+            ELSE e.start_time
+        END ASC NULLS FIRST,
+        e.id ASC
+    LIMIT 3
+    """, nativeQuery = true)
+  List<Event> findUpcomingEvents(
+      @Param("userId") Integer userId,
+      @Param("today") LocalDate today,
+      @Param("startOfToday") OffsetDateTime startOfToday,
+      @Param("zoneId") String zoneId
   );
 }

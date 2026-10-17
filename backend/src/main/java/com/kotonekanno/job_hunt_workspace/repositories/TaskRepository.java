@@ -2,6 +2,7 @@ package com.kotonekanno.job_hunt_workspace.repositories;
 
 import com.kotonekanno.job_hunt_workspace.entities.Task;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,10 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Integer> {
 
   @EntityGraph(attributePaths = "company")
-  List<Task> findByUser_IdOrderByIdAsc(Integer userId);
+  List<Task> findByUser_IdOrderByDeadlineAscIdAsc(
+      Integer userId,
+      Pageable pageable
+  );
 
   Optional<Task> findByIdAndUser_Id(Integer taskId, Integer userId);
 
@@ -31,5 +35,11 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     """)
   List<Task> findAllByCompanyIdOrderByDeadlineAsc(
       @Param("companyId") Integer companyId
+  );
+
+  List<Task> findByUser_IdAndDoneOrderByDeadlineAscIdAsc(
+      Integer userId,
+      Boolean done,
+      Pageable pageable
   );
 }

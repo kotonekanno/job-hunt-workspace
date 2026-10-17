@@ -53,8 +53,20 @@ UpdateUserRequest:
   properties:
     email:
       $ref: "#/Email"
-    password:
-      $ref: "#/Password"
   example:
     email: user@example.com
-    password: SamplePassword123!
+
+UpdatePasswordRequest:
+  description: パスワードの更新内容。
+  type: object
+  properties:
+    oldPassword:
+      $ref: '#/Password'
+    newPassword:
+      $ref: '#/Password'
+  required:
+    - oldPassword
+    - newPassword
+  example:
+    oldPassword: oldPassword123
+    newPassword: newPassword123

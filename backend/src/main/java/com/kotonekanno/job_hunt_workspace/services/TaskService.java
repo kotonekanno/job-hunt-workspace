@@ -9,6 +9,8 @@ import com.kotonekanno.job_hunt_workspace.exceptions.custom.NotFoundException;
 import com.kotonekanno.job_hunt_workspace.repositories.CompanyRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.TaskRepository;
 import com.kotonekanno.job_hunt_workspace.repositories.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +37,24 @@ public class TaskService {
 
   // タスク一覧を取得
   @Transactional(readOnly = true)
-  public GetTasksResponse getAll(Integer userId) {
+  public GetTasksResponse getAll(
+      Integer userId,
+      Boolean done,
+      Integer limit
+  ) {
+    Pageable pageable = limit == null
+        ? Pageable.unpaged()
+        : PageRequest.of(0, limit);
+
+    List<Task> tasks = done == null
+        ? repository.findByUser_IdOrderByDeadlineAscIdAsc(userId, pageable)
+        : repository.findByUser_IdAndDoneOrderByDeadlineAscIdAsc(
+        userId, done, pageable
+    );
+
     return new GetTasksResponse()
         .tasks(
-            repository.findByUser_IdOrderByIdAsc(userId).stream()
+            tasks.stream()
                 .map(task -> new com.example.api.model.Task()
                     .id(task.getId())
                     .companyName(task.getCompany() == null ? null : task.getCompany().getName())

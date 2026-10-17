@@ -1,0 +1,89 @@
+# ====================
+# Request / Response
+# ====================
+
+GetDashboardResponse:
+  description: ホーム画面に表示する情報。
+  type: object
+  properties:
+    counts:
+      type: object
+      properties:
+        companies:
+          description: 保存した企業の数
+          type: integer
+          minimum: 0
+        undoneTasks:
+          description: 未完了のタスクの数
+          type: integer
+          minimum: 0
+        upcomingEvents:
+          description: 今日以降の予定の数
+          type: integer
+          minimum: 0
+        essays:
+          description: 保存したESの数
+          type: integer
+          minimum: 0
+      required:
+        - companies
+        - undoneTasks
+        - upcomingEvents
+        - essays
+    tasks:
+      description: 期限が近いタスク（最大3件）
+      type: array
+      items:
+        $ref: ./task.yaml#/Task
+    companies:
+      description: 志望度が高い企業（最大5件）
+      type: array
+      items:
+        $ref: ./company.yaml#/CompanyListItem
+    events:
+      description: 直近の予定（最大3件）
+      type: array
+      items:
+        $ref: ./event.yaml#/Event
+  required:
+    - counts
+    - tasks
+    - companies
+    - events
+  example:
+    counts:
+      companies: 20
+      undoneTasks: 5
+      upcomingEvents: 10
+      essays: 30
+    tasks:
+      - id: 1
+        companyName: 株式会社サンプル
+        title: エントリーシートを提出する
+        note: 事前に提出書類を確認する。
+        deadline: '2026-10-15'
+        done: false
+    companies:
+      - id: 1
+        name: 株式会社サンプル
+        priority: 3
+        currentSelection:
+          title: 本選考
+          step:
+            id: 1
+            name: 一次面接
+            status: PENDING
+        latestActivity: 企業がスカウト
+    events:
+      - id: 1
+        companyName: 株式会社サンプル
+        category: SESSION
+        title: 企業説明会
+        note: 事前に提出書類を確認する。
+        isAllDay: false
+        startDay: null
+        endDay: null
+        startTime: 2026-10-15T10:00:00+09:00
+        endTime: 2026-10-15T11:00:00+09:00
+        isOnline: true
+        isAttending: true
