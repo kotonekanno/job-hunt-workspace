@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     proxy: {
       ...Object.fromEntries(
-        ['/auth', '/tasks', '/companies'].map((route) => [
+        ['/auth', '/tasks', '/companies', '/documents'].map((route) => [
           route,
           {
             target:
