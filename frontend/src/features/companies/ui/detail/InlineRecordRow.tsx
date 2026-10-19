@@ -41,8 +41,8 @@ export function InlineRecordRow(props: InlineRecordRowProps) {
   const [isEditing, setIsEditing] = useState(Boolean(props.isNew));
   const [label, setLabel] = useState(props.label);
   const [value, setValue] = useState(props.value);
-  const canSave = Boolean(label.trim() && value.trim());
-
+  const canSave = Boolean((label ?? "").trim() && (value ?? "").trim());
+  
   function startEditing() {
     setLabel(props.label);
     setValue(props.value);

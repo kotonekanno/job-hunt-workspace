@@ -6,7 +6,7 @@ import { loadCompany } from '@/features/companies/lib/companyDetailApi';
 export function useCompanyDetail(id: number) {
   const state = useOptimisticState<GetCompanyResponse | undefined>(undefined);
   const { value: detail, setValue: setDetail } = state;
-  const [message, setMessage] = useState('読み込み中…');
+  const [message, setMessage] = useState<string | null>(null);
   const mounted = useRef(false);
   useEffect(() => {
     const controller = new AbortController();

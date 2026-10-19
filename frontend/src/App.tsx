@@ -8,6 +8,8 @@ import { EssayPage } from './pages/essays/EssayPage';
 import { EssayGroupPage } from './pages/essays/EssayGroupPage';
 import { DocumentArchiveProvider } from './features/documents/ui/DocumentArchiveProvider';
 import { HomePage } from './pages/HomePage';
+import { LandingPage } from './pages/LandingPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
@@ -24,9 +26,12 @@ function App() {
       <DocumentArchiveProvider>
         <Routes>
           <Route element={<MainLayout />}>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+          <Route element={<MainLayout isProtectedPage />}>
             <Route element={<RequireAuth />}>
               <Route element={<ProtectedLayout />}>
                 <Route path="/home" element={<HomePage />} />

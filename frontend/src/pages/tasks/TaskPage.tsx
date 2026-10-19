@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { useState } from 'react';
 import { useTasks } from '@/features/task/hooks/useTasks';
 import type { Task } from '@/api/generated/models/task';
@@ -27,6 +28,9 @@ export function TaskPage() {
     setEditingTask(undefined);
     setIsDialogOpen(false);
   }
+
+  if (tasks.loading) return <PageLoading />;
+  if (tasks.loadError) return <PageLoadError />;
 
   return (
     <div className="mx-auto w-full max-w-6xl">

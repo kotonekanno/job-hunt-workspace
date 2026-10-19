@@ -13,6 +13,8 @@ import { mergeVisibleCompanyOrder } from '@/features/companies/lib/companyBoard'
 import { toast } from '@/shared/toast';
 
 export function useCompanyList() {
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const state = useOptimisticState<CompanyListItem[]>([]);
   const { value: companies, setValue: setCompanies } = state;
   const [query, setQuery] = useState('');
@@ -28,10 +30,14 @@ export function useCompanyList() {
         ready.current = true;
       })
       .catch(() => {
+        if (!controller.signal.aborted) setLoadError(true);
         if (!controller.signal.aborted)
           toast.error(
             '企業一覧を取得できませんでした。画面を再読み込みしてください。',
           );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => {
       mounted.current = false;
@@ -48,6 +54,8 @@ export function useCompanyList() {
   );
 
   return {
+    loading,
+    loadError,
     companies: visibleCompanies,
     query,
     setQuery,

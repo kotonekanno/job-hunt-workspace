@@ -1,3 +1,4 @@
+import { PageLoading } from '@/shared/LoadingState';
 import { temporaryId } from '@/shared/useOptimisticState';
 import type { CompanyListItem } from '@/api/generated/models/companyListItem';
 import { loadCompanies } from '@/features/companies/lib/companyListApi';
@@ -40,6 +41,7 @@ export function CompanyDashboard() {
 }
 function CompanyDetail({ id }: { id: number }) {
   const company = useCompanyDetail(id);
+  if (!company.detail && company.message === null) return <PageLoading />;
   if (!company.detail)
     return (
       <div className="mx-auto w-full max-w-7xl">

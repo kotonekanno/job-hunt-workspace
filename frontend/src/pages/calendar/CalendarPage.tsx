@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { useState } from 'react';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
@@ -21,6 +22,9 @@ export function CalendarPage() {
     setEditingEvent(event);
     setIsDialogOpen(true);
   }
+
+  if (calendar.loading) return <PageLoading />;
+  if (calendar.loadError) return <PageLoadError />;
 
   return (
     <div className="mx-auto w-full max-w-[1500px]">

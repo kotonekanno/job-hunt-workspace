@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { InnerHeader } from '@/shared/header';
 import { UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -30,8 +31,12 @@ export function SettingsPage() {
           'アカウント情報を取得できませんでした。画面を再読み込みしてください。',
         );
       });
+
     return () => controller.abort();
   }, []);
+
+  if (loadFailed) return <PageLoadError />;
+  if (!user) return <PageLoading />;
 
   return (
     <div className="mx-auto w-full max-w-3xl">

@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { NotebookTabs } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useDocumentArchive } from '@/features/documents/hooks/useDocumentArchive';
@@ -32,6 +33,7 @@ export function DocumentsPage() {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -88,6 +90,9 @@ export function DocumentsPage() {
     documentArchive.reorderDocuments(ids, movedId);
   }
 
+  if (loading) return <PageLoading />;
+  if (loadError) return <PageLoadError />;
+
   return (
     <div className="mx-auto w-full max-w-6xl">
       <InnerHeader
@@ -108,15 +113,7 @@ export function DocumentsPage() {
       <div className="mt-5">
         <DocumentList
           documents={filteredDocuments}
-          emptyMessage={
-            loading
-              ? '読み込み中…'
-              : loadError
-                ? '一覧を取得できませんでした'
-                : query.trim() && searching
-                  ? '本文を検索中…'
-                  : undefined
-          }
+          emptyMessage={query.trim() && searching ? '本文を検索中…' : undefined}
           onDelete={documentArchive.deleteDocument}
           onReorder={reorderFilteredDocuments}
         />

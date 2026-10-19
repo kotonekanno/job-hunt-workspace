@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { GetDashboardResponse } from '@/api/generated/models/getDashboardResponse';
 import type { SelectionStatus } from '@/api/generated/models/selectionStatus';
 import { useOptimisticState } from '@/shared/useOptimisticState';
@@ -8,6 +8,8 @@ import { toggleTaskRequest } from '@/features/task/lib/taskApi';
 import { changeCompanyStatus } from '@/features/companies/lib/companyListApi';
 
 export function useDashboard() {
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const state = useOptimisticState<GetDashboardResponse | undefined>(undefined);
   const { value: dashboard, setValue } = state;
   useEffect(() => {
@@ -17,15 +19,21 @@ export function useDashboard() {
         if (!controller.signal.aborted) setValue(data);
       })
       .catch(() => {
+        if (!controller.signal.aborted) setLoadError(true);
         if (!controller.signal.aborted)
           toast.error(
             'ホームの情報を取得できませんでした。画面を再読み込みしてください。',
           );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
   }, [setValue]);
 
   return {
+    loading,
+    loadError,
     dashboard,
     toggleTask: (id: number) => {
       const task = dashboard?.tasks.find((item) => item.id === id);

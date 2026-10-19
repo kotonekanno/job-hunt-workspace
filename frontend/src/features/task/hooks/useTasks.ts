@@ -7,6 +7,8 @@ import { useOptimisticState } from '@/shared/useOptimisticState';
 import { toast } from '@/shared/toast';
 
 export function useTasks() {
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const state = useOptimisticState<Task[]>([]);
   const { value: tasks, setValue: setTasks } = state;
   const [companies, setCompanies] = useState<CompanyListItem[]>([]);
@@ -28,10 +30,14 @@ export function useTasks() {
         setReady(true);
       })
       .catch(() => {
+        if (!controller.signal.aborted) setLoadError(true);
         if (!controller.signal.aborted)
           toast.error(
             'タスク・企業一覧を取得できませんでした。画面を再読み込みしてください。',
           );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => {
       mounted.current = false;
@@ -60,6 +66,8 @@ export function useTasks() {
   );
 
   return {
+    loading,
+    loadError,
     tasks: visibleTasks,
     companyOptions: [...new Set(companies.map((company) => company.name))],
     companyQuery,

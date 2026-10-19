@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { Building2, CalendarDays, FilePenLine, ListTodo } from 'lucide-react';
 import { toCalendarEvent } from '@/features/calendar/lib/calendarApi';
 import { toDateKey } from '@/features/calendar/lib/calendar';
@@ -10,7 +11,8 @@ import { useDashboard } from '@/features/home/hooks/useDashboard';
 import { TaskList } from '@/features/task/ui/TaskList';
 
 export function HomeDashboard() {
-  const { dashboard, toggleTask, updateSelectionResult } = useDashboard();
+  const { dashboard, loading, loadError, toggleTask, updateSelectionResult } =
+    useDashboard();
   const today = toDateKey(new Date());
   const upcomingEvents = (dashboard?.events ?? []).map(toCalendarEvent);
   const pendingTasks = (dashboard?.tasks ?? []).filter((task) => !task.done);
@@ -44,6 +46,9 @@ export function HomeDashboard() {
       to: '/essays',
     },
   ];
+
+  if (loading) return <PageLoading />;
+  if (loadError) return <PageLoadError />;
 
   return (
     <div className="space-y-5">

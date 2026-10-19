@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { ArrowUpDown, FilePenLine } from 'lucide-react';
 import { useState } from 'react';
 import { useEssayGroups } from '@/features/essay/hooks/useEssayGroups';
@@ -23,6 +24,9 @@ export function EssayPage() {
     null,
   );
   const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
+
+  if (essayArchive.loading) return <PageLoading />;
+  if (essayArchive.loadError) return <PageLoadError />;
 
   return (
     <div className="mx-auto w-full max-w-6xl">

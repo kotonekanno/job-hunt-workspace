@@ -1,3 +1,4 @@
+import { LoadingIndicator } from '@/shared/LoadingState';
 import type { Activity } from '@/api/generated/models/activity';
 import { ActivityComposer } from '@/features/companies/ui/detail/ActivityComposer';
 import { ActivityEditDialog } from '@/features/companies/ui/detail/ActivityEditDialog';
@@ -217,6 +218,19 @@ export function CompanyActivityHistory({
               })}
             </div>
           </div>
+          {loading && (
+            <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex justify-center">
+              <div className="border border-[var(--line-strong)] bg-[var(--panel)] px-4 py-3 shadow-[0_4px_16px_var(--shadow)]">
+                <LoadingIndicator
+                  label={
+                    activities.length
+                      ? '過去のやりとりを読み込み中…'
+                      : 'やりとり履歴を読み込み中…'
+                  }
+                />
+              </div>
+            </div>
+          )}
           {edges.top && (
             <div
               aria-hidden="true"

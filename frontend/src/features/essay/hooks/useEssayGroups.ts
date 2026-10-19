@@ -16,6 +16,8 @@ import {
 import { toast } from '@/shared/toast';
 
 export function useEssayGroups() {
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const state = useOptimisticState<EssayGroupListItem[]>([]);
   const { value: groups, setValue: setGroups } = state;
   const createdEssayIds = useRef(new Map<number, string>());
@@ -37,10 +39,14 @@ export function useEssayGroups() {
         ready.current = true;
       })
       .catch(() => {
+        if (!controller.signal.aborted) setLoadError(true);
         if (!controller.signal.aborted)
           toast.error(
             'ジャンル・企業一覧を取得できませんでした。画面を再読み込みしてください。',
           );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => {
       mounted.current = false;
@@ -49,6 +55,8 @@ export function useEssayGroups() {
   }, [setGroups]);
 
   return {
+    loading,
+    loadError,
     groups,
     companyOptions: [...new Set(companies.map((company) => company.name))],
     addGroup: (name: string) => {

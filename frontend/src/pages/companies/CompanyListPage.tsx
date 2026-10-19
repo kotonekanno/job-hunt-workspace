@@ -1,3 +1,4 @@
+import { PageLoading, PageLoadError } from '@/shared/LoadingState';
 import { useState } from 'react';
 import { useCompanyList } from '@/features/companies/hooks/useCompanyList';
 import { CompanyCreateDialog } from '@/features/companies/ui/list/CompanyCreateDialog';
@@ -10,6 +11,9 @@ import { Building2 } from 'lucide-react';
 export function CompanyListPage() {
   const companyList = useCompanyList();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  if (companyList.loading) return <PageLoading />;
+  if (companyList.loadError) return <PageLoadError />;
 
   return (
     <div className="mx-auto w-full max-w-7xl">

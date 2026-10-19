@@ -1,3 +1,4 @@
+import { PageLoading } from '@/shared/LoadingState';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEssayGroup } from '@/features/essay/hooks/useEssayGroup';
@@ -33,17 +34,17 @@ function EssayGroupDetail({ groupId }: { groupId: string | undefined }) {
     );
   }, [groupEssays, query]);
 
+  if (essayArchive.status === 'loading') return <PageLoading />;
+
   if (essayArchive.status !== 'ready' || !groupId || !essayArchive.groupName) {
     return (
       <div className="mx-auto w-full max-w-6xl">
         <BackLink to="/essays">ES文章ストックへ戻る</BackLink>
         <div className="ui-empty-state mt-5 border border-dashed border-[var(--line-strong)] py-16 text-center">
           <p className="text-sm font-bold text-[var(--muted)]">
-            {essayArchive.status === 'loading'
-              ? '読み込み中…'
-              : essayArchive.status === 'error'
-                ? '文章一覧を取得できませんでした。画面を再読み込みしてください。'
-                : '指定されたジャンルは見つかりませんでした'}
+            {essayArchive.status === 'error'
+              ? '文章一覧を取得できませんでした。画面を再読み込みしてください。'
+              : '指定されたジャンルは見つかりませんでした'}
           </p>
         </div>
       </div>

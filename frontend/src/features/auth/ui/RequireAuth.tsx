@@ -1,3 +1,4 @@
+import { PageLoading } from '@/shared/LoadingState';
 import { useEffect, useState } from 'react';
 import {
   Navigate,
@@ -30,7 +31,12 @@ export function RequireAuth() {
     };
   }, [key]);
 
-  if (result?.key !== key) return null;
+  if (result?.key !== key)
+    return (
+      <div className="w-full px-5">
+        <PageLoading label="ログイン状態を確認しています" />
+      </div>
+    );
 
   return result.authenticated ? (
     <Outlet context={context} />

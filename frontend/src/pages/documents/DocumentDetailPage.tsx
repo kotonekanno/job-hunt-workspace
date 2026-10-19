@@ -1,3 +1,4 @@
+import { PageLoading } from '@/shared/LoadingState';
 import { FileText, Save } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useBlocker, useNavigate, useParams } from 'react-router-dom';
@@ -20,7 +21,7 @@ function DocumentDetail({ id }: { id: number }) {
   const { loadDocument, saveDocument, hasUnsavedDocument } = documentArchive;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [message, setMessage] = useState('読み込み中…');
+  const [message, setMessage] = useState<string | null>(null);
   const deleting = useRef(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const document = documentArchive.contents.get(id);
@@ -72,6 +73,8 @@ function DocumentDetail({ id }: { id: number }) {
       active = false;
     };
   }, [id, loadDocument]);
+
+  if (!document && message === null) return <PageLoading />;
 
   if (!document) {
     return (

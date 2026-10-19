@@ -31,10 +31,15 @@ type CalendarData = {
 };
 
 export function useCalendar() {
+  const [loadResult, setLoadResult] = useState<{
+    key: string;
+    failed: boolean;
+  } | null>(null);
   const [displayDate, setDisplayDate] = useState(() => new Date());
   const [today, setToday] = useState(() => toDateKey(new Date()));
   const month = toDateKey(displayDate).slice(0, 7);
   const currentMonth = today.slice(0, 7);
+  const requestKey = `${month}/${currentMonth}`;
   const state = useOptimisticState<CalendarData | undefined>(undefined);
   const { value: data, setValue: setData } = state;
   const [category, setCategory] = useState<EventCategory | 'すべて'>('すべて');
@@ -50,6 +55,7 @@ export function useCalendar() {
 
   useEffect(() => {
     const controller = new AbortController();
+    let failed = false;
     mounted.current = true;
     ready.current = false;
     const displayed = loadEvents(month, controller.signal);
@@ -68,16 +74,21 @@ export function useCalendar() {
         ready.current = true;
       })
       .catch(() => {
+        failed = true;
         if (!controller.signal.aborted)
           toast.error(
             '予定・企業一覧を取得できませんでした。画面を再読み込みしてください。',
           );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted)
+          setLoadResult({ key: requestKey, failed });
       });
     return () => {
       mounted.current = false;
       controller.abort();
     };
-  }, [month, currentMonth, setData]);
+  }, [month, currentMonth, requestKey, setData]);
 
   const { events, upcomingEvents } = useMemo(() => {
     function matches(event: CalendarEvent) {
@@ -146,6 +157,8 @@ export function useCalendar() {
   }
 
   return {
+    loading: loadResult?.key !== requestKey,
+    loadError: loadResult?.key === requestKey && loadResult.failed,
     displayDate,
     days: getCalendarDays(displayDate),
     events,

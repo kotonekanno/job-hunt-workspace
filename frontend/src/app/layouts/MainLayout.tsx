@@ -1,7 +1,7 @@
 import { AccountMenu } from '@/features/auth/ui/AccountMenu';
 import { BriefcaseBusiness, Menu, Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 type Theme = 'light' | 'dark';
 
@@ -21,13 +21,15 @@ function getInitialTheme(): Theme {
     : 'light';
 }
 
-export function MainLayout() {
-  const location = useLocation();
+export function MainLayout({
+  isProtectedPage = false,
+}: {
+  isProtectedPage?: boolean;
+}) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     () => window.matchMedia(sidebarBreakpointQuery).matches,
   );
-  const isProtectedPage = !['/login', '/register'].includes(location.pathname);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -82,7 +84,7 @@ export function MainLayout() {
             )}
 
             <Link
-              to="/home"
+              to={isProtectedPage ? '/home' : '/'}
               className="flex min-w-0 items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)] ml-2"
               aria-label="極・就活管理 ホーム"
             >

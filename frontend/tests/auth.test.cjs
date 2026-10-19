@@ -157,11 +157,20 @@ test('route guard waits for authentication before rendering or redirecting', asy
       '@/shared/toast': {
         toast: { error: (message) => messages.push(message) },
       },
+      '@/shared/LoadingState': { PageLoading: () => null },
     };
     const { RequireAuth } = load('src/features/auth/ui/RequireAuth.tsx', {
       require: (name) => mocks[name] ?? require(name),
     });
-    assert.equal(RequireAuth(), null);
+    const pending = RequireAuth();
+    assert.equal(
+      pending.props.children.type,
+      mocks['@/shared/LoadingState'].PageLoading,
+    );
+    assert.equal(
+      pending.props.children.props.label,
+      'ログイン状態を確認しています',
+    );
     assert.equal(messages.length, 0);
     effects[0]();
     await Promise.resolve();
@@ -390,8 +399,9 @@ test('account logout clears the token and redirects only on API success', async 
     button.props.onClick();
     button.props.onClick();
     await new Promise((resolve) => setImmediate(resolve));
-    assert.deepEqual(events, status === 204
-      ? ['request', 'clear', '/login']
-      : ['request', 'error']);
+    assert.deepEqual(
+      events,
+      status === 204 ? ['request', 'clear', '/login'] : ['request', 'error'],
+    );
   }
 });
