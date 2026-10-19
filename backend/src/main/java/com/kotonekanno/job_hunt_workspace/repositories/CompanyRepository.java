@@ -53,4 +53,6 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
       Integer userId,
       Integer priority
   );
+
+  List<Company> findByUser_Id(Integer userId);
 }

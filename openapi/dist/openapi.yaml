@@ -1,8 +1,10 @@
 openapi: 3.0.4
 info:
   title: 超・就活管理 API
-  version: 0.1.0
+  version: 1.0.0
 servers:
+  - description: 本番環境
+    url: https://job-hunt-workspace-api.onrender.com
   - description: ローカル開発環境
     url: http://localhost:8080
 security:
@@ -87,6 +89,24 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '409':
           $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /companies/lookup:
+    get:
+      description: 企業検索用の全企業のを返す。
+      tags:
+        - Companies
+      operationId: getCompaniesLookup
+      summary: 検索用の企業一覧を取得
+      responses:
+        '200':
+          description: 検索用の企業一覧の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCompanyLookupResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /companies/{companyId}:
@@ -1899,6 +1919,29 @@ components:
       example:
         name: 株式会社サンプル
         priority: 3
+    GetCompanyLookupResponse:
+      description: 検索用の企業一覧の取得結果。
+      type: object
+      properties:
+        companies:
+          type: array
+          items:
+            properties:
+              id:
+                description: 企業ID
+                type: integer
+                format: int32
+              name:
+                $ref: '#/components/schemas/CompanyName'
+            required:
+              - id
+              - name
+      required:
+        - companies
+      example:
+        companies:
+          - id: 1
+            name: 株式会社サンプル
     BasicInfoTitle:
       description: 基本情報の項目名
       type: string

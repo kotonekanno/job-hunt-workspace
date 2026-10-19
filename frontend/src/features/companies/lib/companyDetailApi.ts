@@ -25,6 +25,12 @@ function expect(status: number, expected = 204) {
   if (status !== expected)
     throw new Error('企業情報の取得・更新に失敗しました。');
 }
+export async function loadCompanyChoices(signal?: AbortSignal) {
+  const response = await api.getCompaniesLookup(options(signal));
+  if (response.status !== 200)
+    throw new Error('企業一覧を取得できませんでした。');
+  return response.data.companies;
+}
 export async function loadCompany(id: number, signal?: AbortSignal) {
   const response = await api.getCompanyById(id, options(signal));
   if (response.status !== 200)

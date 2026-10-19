@@ -6,7 +6,7 @@ import {
   deleteEssay,
   createEssayGroup,
   deleteEssayGroup,
-  getCompanies,
+  getCompaniesLookup,
   getEssayGroups,
   patchEssayGroup,
   reorderEssayGroup,
@@ -16,7 +16,7 @@ import type { CreateEssayRequest } from '@/api/generated/models/createEssayReque
 import type { CreateEssayGroupRequest } from '@/api/generated/models/createEssayGroupRequest';
 import type { UpdateEssayGroupRequest } from '@/api/generated/models/updateEssayGroupRequest';
 import type { ReorderEssayGroupBody } from '@/api/generated/models/reorderEssayGroupBody';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import { getAccessToken } from '@/features/auth/model/accessToken';
 
 // Company selection and group selection are input state, not API response models.
@@ -55,7 +55,7 @@ export async function loadEssayGroups(signal?: AbortSignal) {
   ];
 }
 export async function loadEssayCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(undefined, options(signal));
+  const response = await getCompaniesLookup(options(signal));
   if (response.status !== 200)
     throw new Error('企業一覧を取得できませんでした。');
   return response.data.companies;
@@ -82,7 +82,7 @@ export async function deleteEssayGroupRequest(id: number) {
 export async function addEssayRequest(
   form: EssayForm,
   groups: EssayGroupListItem[],
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
 ) {
   if (
     form.groupId !== 'unclassified' &&

@@ -1,12 +1,12 @@
 import type { Task } from '@/api/generated/models/task';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import { useOptimisticState } from '@/shared/useOptimisticState';
 import { taskMutations } from '@/features/task/lib/taskMutations';
 
 export function useCompanyTasks(
   companyId: number,
   initialTasks: Task[],
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
 ) {
   const state = useOptimisticState(initialTasks);
   const tasks = state.value;

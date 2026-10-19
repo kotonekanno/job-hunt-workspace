@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Task } from '@/api/generated/models/task';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import { loadTaskCompanies, loadTasks } from '@/features/task/lib/taskApi';
 import { taskMutations } from '@/features/task/lib/taskMutations';
 import { useOptimisticState } from '@/shared/useOptimisticState';
@@ -11,7 +11,9 @@ export function useTasks() {
   const [loadError, setLoadError] = useState(false);
   const state = useOptimisticState<Task[]>([]);
   const { value: tasks, setValue: setTasks } = state;
-  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
+  const [companies, setCompanies] = useState<
+    GetCompanyLookupResponseCompaniesItem[]
+  >([]);
   const [companyQuery, setCompanyQuery] = useState('');
   const [ready, setReady] = useState(false);
   const mounted = useRef(false);

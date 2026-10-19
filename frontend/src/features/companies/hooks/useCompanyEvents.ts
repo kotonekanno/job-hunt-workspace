@@ -1,6 +1,6 @@
 import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import type { Event } from '@/api/generated/models/event';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
 import {
   eventFromForm,
@@ -26,7 +26,7 @@ export function selectCompanyEvents(
 }
 export function useCompanyEvents(
   companyId: number,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   initialEvents: Event[],
 ) {
   const state = useOptimisticState<Event[]>(initialEvents);

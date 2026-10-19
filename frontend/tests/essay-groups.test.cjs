@@ -340,3 +340,14 @@ test('genre reorder only sends requests for groups dragged in the dialog', async
   assert.ok(calls[0].url.startsWith('/essay-groups/1/'));
   assert.deepEqual(JSON.parse(calls[0].body), { nextEssayGroupId: null });
 });
+
+test('company lookup sends authentication and cancellation signal', async () => {
+  const { api, calls } = setup(200, { companies: [{ id: 7, name: '企業A' }] });
+  const signal = new AbortController().signal;
+  const companies = await api.loadEssayCompanies(signal);
+  assert.equal(companies[0].id, 7);
+  assert.equal(calls[0].url, '/companies/lookup');
+  assert.equal(calls[0].headers.Authorization, 'Bearer token');
+  assert.equal(calls[0].credentials, 'include');
+  assert.equal(calls[0].signal, signal);
+});

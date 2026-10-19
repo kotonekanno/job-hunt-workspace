@@ -1,5 +1,5 @@
 import type { Event } from '@/api/generated/models/event';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import {
   useCompanyEvents,
   selectCompanyEvents,
@@ -31,7 +31,7 @@ export function RelatedEventsWidget({
 }: {
   companyId: number;
   companyName: string;
-  companies: CompanyListItem[];
+  companies: GetCompanyLookupResponseCompaniesItem[];
   initialEvents: Event[];
   prepareCompanies: () => Promise<boolean>;
 }) {

@@ -1,12 +1,12 @@
 import {
   createEvent,
   deleteEvent,
-  getCompanies,
+  getCompaniesLookup,
   getEvents,
   patchEvent,
 } from '@/api/generated/api';
 import type { Event } from '@/api/generated/models/event';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import type { CreateEventRequest } from '@/api/generated/models/createEventRequest';
 import type { UpdateEventRequest } from '@/api/generated/models/updateEventRequest';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
@@ -77,14 +77,14 @@ export async function loadEvents(month: string, signal?: AbortSignal) {
 }
 
 export async function loadEventCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(undefined, options(signal));
+  const response = await getCompaniesLookup(options(signal));
   if (response.status !== 200) throw new Error('企業を取得できませんでした。');
   return response.data.companies;
 }
 
 export function eventRequest(
   form: Omit<CalendarEvent, 'id'>,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   original?: Event,
 ): CreateEventRequest {
   const start = new Date(`${form.startDate}T${form.startTime || '00:00'}:00`);
@@ -129,7 +129,7 @@ export function eventRequest(
 
 export async function saveEventRequest(
   form: Omit<CalendarEvent, 'id'>,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   original?: Event,
 ) {
   const request = eventRequest(form, companies, original);
@@ -154,7 +154,7 @@ export async function deleteEventRequest(id: number) {
 export function eventFromForm(
   form: Omit<CalendarEvent, 'id'>,
   id: number,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   original?: Event,
 ): Event {
   const request = eventRequest(form, companies, original);

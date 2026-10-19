@@ -1,7 +1,7 @@
 import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import { useEffect, useRef, useState } from 'react';
 import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import {
   adjustGroupCount,
   addEssayGroupRequest,
@@ -21,7 +21,9 @@ export function useEssayGroups() {
   const state = useOptimisticState<EssayGroupListItem[]>([]);
   const { value: groups, setValue: setGroups } = state;
   const createdEssayIds = useRef(new Map<number, string>());
-  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
+  const [companies, setCompanies] = useState<
+    GetCompanyLookupResponseCompaniesItem[]
+  >([]);
   const ready = useRef(false);
   const mounted = useRef(false);
   useEffect(() => {

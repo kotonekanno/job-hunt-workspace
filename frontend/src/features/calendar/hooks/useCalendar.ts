@@ -1,7 +1,7 @@
 import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Event } from '@/api/generated/models/event';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import { getCalendarDays, toDateKey } from '@/features/calendar/lib/calendar';
 import type {
   CalendarEvent,
@@ -27,7 +27,7 @@ type CalendarData = {
   currentMonth: string;
   displayed: Event[];
   current: Event[];
-  companies: CompanyListItem[];
+  companies: GetCompanyLookupResponseCompaniesItem[];
 };
 
 export function useCalendar() {
