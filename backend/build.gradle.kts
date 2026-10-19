@@ -53,9 +53,15 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+tasks.named("openApiGenerate") {
+    inputs.files(fileTree("$rootDir/../openapi") {
+        include("paths/**/*.yaml", "components/**/*.yaml")
+    })
+}
+
 openApiGenerate {
     generatorName.set("spring")
-    inputSpec.set("$rootDir/../openapi/dist/openapi.yaml")
+    inputSpec.set("$rootDir/../openapi/openapi.yaml")
     outputDir.set("$buildDir/generated/openapi")
 
     apiPackage.set("com.example.api")

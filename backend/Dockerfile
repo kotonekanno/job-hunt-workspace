@@ -6,7 +6,9 @@ COPY --chmod=0755 backend/gradlew ./gradlew
 COPY backend/gradle/ ./gradle/
 COPY backend/build.gradle.kts backend/settings.gradle.kts ./
 COPY backend/src/main/ ./src/main/
-COPY openapi/dist/openapi.yaml /app/openapi/dist/openapi.yaml
+COPY openapi/openapi.yaml /app/openapi/openapi.yaml
+COPY openapi/paths/ /app/openapi/paths/
+COPY openapi/components/ /app/openapi/components/
 
 RUN ./gradlew bootJar --no-daemon
 

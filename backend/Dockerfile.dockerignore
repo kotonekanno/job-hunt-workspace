@@ -12,5 +12,8 @@
 !backend/src/main/
 !backend/src/main/**
 !openapi/
-!openapi/dist/
-!openapi/dist/openapi.yaml
+!openapi/openapi.yaml
+!openapi/paths/
+!openapi/paths/**
+!openapi/components/
+!openapi/components/**

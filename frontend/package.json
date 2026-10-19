@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run api:generate",
     "dev": "vite",
+    "prebuild": "npm run api:generate:production",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -12,7 +14,8 @@
     "openapi:bundle": "redocly bundle ../openapi/openapi.yaml -o ../openapi/dist/openapi.yaml",
     "openapi:docs": "redocly build-docs ../openapi/dist/openapi.yaml -o ../openapi/docs/index.html",
     "openapi:build": "npm run openapi:lint && npm run openapi:bundle && npm run openapi:docs",
-    "api:generate": "orval",
+    "api:generate": "npm run openapi:bundle && orval",
+    "api:generate:production": "NODE_ENV=production npm run api:generate",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
