@@ -13,6 +13,7 @@ type CompanyComboboxProps = {
   invalidMessage?: string;
   noResultsText?: string;
   clearAriaLabel?: string;
+  clearSearchOnOpen?: boolean;
 };
 
 export function CompanyCombobox({
@@ -27,6 +28,7 @@ export function CompanyCombobox({
   invalidMessage = '一覧から項目を選択してください。',
   noResultsText = '該当する項目はありません',
   clearAriaLabel = '選択を解除する',
+  clearSearchOnOpen = false,
 }: CompanyComboboxProps) {
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -52,7 +54,8 @@ export function CompanyCombobox({
       return;
     }
 
-    const hasConfirmedValue = query === value;
+    const hasConfirmedValue =
+      query === value || (clearSearchOnOpen && query === '');
     const isEmptyAllowed = allowEmpty && !query && !value;
 
     input.setCustomValidity(
@@ -60,7 +63,7 @@ export function CompanyCombobox({
         ? ''
         : invalidMessage,
     );
-  }, [allowEmpty, invalidMessage, query, required, value]);
+  }, [allowEmpty, clearSearchOnOpen, invalidMessage, query, required, value]);
 
   useEffect(() => {
     function closeOnOutsideMouseDown(event: MouseEvent) {
@@ -86,17 +89,17 @@ export function CompanyCombobox({
   }, [value]);
 
   function selectCompany(company: string) {
+    inputRef.current?.focus();
     onValueChange(company);
     setQuery(company);
     setIsOpen(false);
-    inputRef.current?.focus();
   }
 
   function clearCompany() {
+    inputRef.current?.focus();
     onValueChange('');
     setQuery('');
     setIsOpen(false);
-    inputRef.current?.focus();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -131,7 +134,7 @@ export function CompanyCombobox({
         type="text"
         role="combobox"
         autoComplete="off"
-        required={required}
+        required={required && !(clearSearchOnOpen && value)}
         value={query}
         placeholder={placeholder}
         aria-autocomplete="list"
@@ -140,7 +143,24 @@ export function CompanyCombobox({
         onFocus={(event) => {
           setIsOpen(true);
           setActiveIndex(0);
-          event.currentTarget.select();
+          if (clearSearchOnOpen) setQuery('');
+          else event.currentTarget.select();
+        }}
+        onClick={() => {
+          if (clearSearchOnOpen && !isOpen) {
+            setQuery('');
+            setActiveIndex(0);
+            setIsOpen(true);
+          }
+        }}
+        onBlur={(event) => {
+          if (
+            clearSearchOnOpen &&
+            !rootRef.current?.contains(event.relatedTarget)
+          ) {
+            setQuery(value);
+            setIsOpen(false);
+          }
         }}
         onChange={(event) => {
           setQuery(event.target.value);

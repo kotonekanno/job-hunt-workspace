@@ -1,47 +1,56 @@
-import { useState, type FormEvent } from 'react';
-import { companyNameOptions } from '@/features/companies/model/companyList';
+import type { Essay } from '@/api/generated/models/essay';
+import { useRef, useState, type FormEvent } from 'react';
+import { unclassifiedEssayGroupId } from '@/features/essay/model/essay';
+import type { EssayForm } from '@/features/essay/lib/essayGroupsApi';
 import {
-  unclassifiedEssayGroupId,
-  type Essay,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
-import { EssayGroupCombobox } from '@/features/essay/ui/EssayGroupCombobox';
+  EssayGroupCombobox,
+  type EssayGroupOption,
+} from '@/features/essay/ui/EssayGroupCombobox';
 import { CompanyCombobox } from '@/shared/CompanyCombobox';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
 
 type EssayDialogProps = {
-  groups: EssayGroup[];
+  groups: EssayGroupOption[];
+  companyOptions: readonly string[];
   onClose: () => void;
-  onSave: (essay: Omit<Essay, 'id'>) => void;
+  onSave: (essay: EssayForm) => void | Promise<boolean>;
   essay?: Essay;
   defaultGroupId?: string;
 };
 
 export function EssayDialog({
   groups,
+  companyOptions,
   onClose,
   onSave,
   essay,
   defaultGroupId,
 }: EssayDialogProps) {
-  const [company, setCompany] = useState(essay?.company ?? '');
+  const [company, setCompany] = useState(essay?.companyName ?? '');
   const [groupId, setGroupId] = useState(
-    essay?.groupId ?? defaultGroupId ?? unclassifiedEssayGroupId,
+    defaultGroupId ?? unclassifiedEssayGroupId,
   );
   const [question, setQuestion] = useState(essay?.question ?? '');
   const [answer, setAnswer] = useState(essay?.answer ?? '');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    onSave({
-      company,
-      groupId,
-      question: question.trim(),
-      answer: answer.trim(),
-    });
-    onClose();
+    if (!question.trim() || saving.current) return;
+    saving.current = true;
+    try {
+      const saved = await onSave({
+        company,
+        groupId,
+        question: question.trim(),
+        answer: answer.trim(),
+      });
+      if (saved !== false) onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -60,8 +69,9 @@ export function EssayDialog({
               企業名
             </span>
             <CompanyCombobox
+              clearSearchOnOpen
               value={company}
-              options={companyNameOptions}
+              options={companyOptions}
               allowEmpty
               onValueChange={setCompany}
               placeholder="企業名を検索"
@@ -79,6 +89,7 @@ export function EssayDialog({
               <RequiredMark />
             </span>
             <EssayGroupCombobox
+              clearSearchOnOpen
               value={groupId}
               groups={groups}
               onValueChange={setGroupId}
@@ -94,6 +105,7 @@ export function EssayDialog({
           </span>
           <textarea
             required
+            maxLength={1000}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={3}
@@ -109,6 +121,7 @@ export function EssayDialog({
           </span>
           <textarea
             required
+            maxLength={5000}
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             rows={9}

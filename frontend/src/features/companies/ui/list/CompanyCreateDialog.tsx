@@ -1,49 +1,40 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
+import type { CreateCompanyRequest } from '@/api/generated/models/createCompanyRequest';
+import type { CompanyPriority } from '@/api/generated/models/companyPriority';
 import {
-  priorities,
-  secondaryPriorities,
-  type CompanyListItem,
-  type CompanyPriority,
-} from '@/features/companies/model/companyList';
+  listPriorities,
+  listPriorityLabels,
+} from '@/features/companies/lib/companyBoard';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
 import { Select, type SelectOption } from '@/shared/select';
 
 type CompanyCreateDialogProps = {
   onClose: () => void;
-  onSave: (company: Omit<CompanyListItem, 'id' | 'order'>) => void;
+  onSave: (company: CreateCompanyRequest) => Promise<boolean>;
 };
 
 export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
   const [name, setName] = useState('');
   const [priority, setPriority] = useState<CompanyPriority>(3);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    props.onSave({
-      name,
-      priority,
-      selection: {
-        title: '本選考',
-        step: '書類選考',
-        status: 'not_started',
-      },
-    });
-    props.onClose();
+    if (!name.trim() || saving.current) return;
+    saving.current = true;
+    try {
+      if (await props.onSave({ name: name.trim(), priority })) props.onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   const fieldClassName =
     'mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]';
-  const priorityOptions: SelectOption<CompanyPriority>[] = [
-    ...priorities.map((item) => ({
-      value: item,
-      label: `第${item}志望`,
-    })),
-    ...secondaryPriorities.map((item) => ({
-      value: item,
-      label: item === 0 ? '未分類' : 'アーカイブ',
-    })),
-  ];
+  const priorityOptions: SelectOption<CompanyPriority>[] = listPriorities.map(
+    (value) => ({ value, label: listPriorityLabels[value] }),
+  );
 
   return (
     <EditDialog
@@ -58,6 +49,7 @@ export function CompanyCreateDialog(props: CompanyCreateDialogProps) {
           <RequiredMark />
           <input
             required
+            maxLength={50}
             value={name}
             onChange={(event) => setName(event.target.value)}
             className={fieldClassName}

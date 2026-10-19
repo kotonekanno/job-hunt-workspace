@@ -18,9 +18,9 @@ import { WidgetEmptyState } from '@/shared/WidgetEmptyState';
 type SelectionWidgetProps = {
   onRemove: () => void;
   tracks: Selection[];
-  saveTrack: (track: Selection) => void;
-  removeTrack: (id: number) => void;
-  setActive: (id: number) => void;
+  saveTrack: (track: Selection, movedId?: number) => Promise<boolean>;
+  removeTrack: (id: number) => Promise<boolean>;
+  setActive: (id: number) => Promise<boolean>;
   updateStepResult: (
     trackId: number,
     stepId: number,
@@ -199,19 +199,21 @@ export function SelectionWidget({
           title="選考ステップを削除しますか？"
           text="この選考ステップとメモを削除します。この操作は取り消せません。"
           onClose={() => setDeletingStep(undefined)}
-          onConfirm={() => {
+          onConfirm={async () => {
             const track = tracks.find(
               (item) => item.id === deletingStep.trackId,
             );
-            if (track)
-              saveTrack({
+            if (
+              track &&
+              (await saveTrack({
                 ...track,
                 steps: [...track.steps]
                   .sort((a, b) => a.stepNo - b.stepNo)
                   .filter((step) => step.id !== deletingStep.stepId)
                   .map((step, index) => ({ ...step, stepNo: index + 1 })),
-              });
-            setDeletingStep(undefined);
+              }))
+            )
+              setDeletingStep(undefined);
           }}
         />
       )}
@@ -220,10 +222,9 @@ export function SelectionWidget({
           title="進行中の選考を変更しますか？"
           submitText="変更する"
           onClose={() => setPendingActive(undefined)}
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            setActive(pendingActive.id);
-            setPendingActive(undefined);
+            if (await setActive(pendingActive.id)) setPendingActive(undefined);
           }}
         >
           <p className="text-sm leading-6 text-[var(--text)]">
@@ -238,9 +239,8 @@ export function SelectionWidget({
           title="選考を削除しますか？"
           text={`「${pendingTrack.title}」と含まれる選考ステップを削除します。この操作は取り消せません。`}
           onClose={() => setPendingTrack(undefined)}
-          onConfirm={() => {
-            removeTrack(pendingTrack.id);
-            setPendingTrack(undefined);
+          onConfirm={async () => {
+            if (await removeTrack(pendingTrack.id)) setPendingTrack(undefined);
           }}
         />
       )}

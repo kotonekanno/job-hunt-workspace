@@ -1,66 +1,70 @@
-import { useMemo, useState } from 'react';
-import { initialTasks, type Task } from '@/features/task/model/task';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Task } from '@/api/generated/models/task';
+import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import { loadTaskCompanies, loadTasks } from '@/features/task/lib/taskApi';
+import { taskMutations } from '@/features/task/lib/taskMutations';
+import { useOptimisticState } from '@/shared/useOptimisticState';
+import { toast } from '@/shared/toast';
 
 export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const state = useOptimisticState<Task[]>([]);
+  const { value: tasks, setValue: setTasks } = state;
+  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
   const [companyQuery, setCompanyQuery] = useState('');
+  const [ready, setReady] = useState(false);
+  const mounted = useRef(false);
 
-  const visibleTasks = useMemo(() => {
-    const filtered = tasks.filter(
-      (task) =>
-        !companyQuery ||
-        task.company?.toLowerCase().includes(companyQuery.toLowerCase()),
-    );
+  useEffect(() => {
+    const controller = new AbortController();
+    mounted.current = true;
+    void Promise.all([
+      loadTasks(controller.signal),
+      loadTaskCompanies(controller.signal),
+    ])
+      .then(([loadedTasks, loadedCompanies]) => {
+        if (controller.signal.aborted) return;
+        setTasks(loadedTasks);
+        setCompanies(loadedCompanies);
+        setReady(true);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          toast.error(
+            'タスク・企業一覧を取得できませんでした。画面を再読み込みしてください。',
+          );
+      });
+    return () => {
+      mounted.current = false;
+      controller.abort();
+    };
+  }, [setTasks]);
 
-    return [...filtered].sort((left, right) => {
-      const completionOrder = Number(left.done) - Number(right.done);
-
-      if (completionOrder !== 0) {
-        return completionOrder;
-      }
-
-      return (left.deadline ?? '\uffff').localeCompare(
-        right.deadline ?? '\uffff',
-      );
-    });
-  }, [tasks, companyQuery]);
-
-  function toggleTask(id: number) {
-    setTasks((current) =>
-      current
-        .map((task) => (task.id === id ? { ...task, done: !task.done } : task))
-        .sort((left, right) => Number(left.done) - Number(right.done)),
-    );
-  }
-
-  function saveTask(task: Task) {
-    setTasks((current) => {
-      const exists = current.some((item) => item.id === task.id);
-
-      if (exists) {
-        return current.map((item) => (item.id === task.id ? task : item));
-      }
-
-      return [task, ...current];
-    });
-  }
-
-  function deleteTask(id: number) {
-    setTasks((current) => current.filter((task) => task.id !== id));
-  }
-
-  function deleteCompletedTasks() {
-    setTasks((current) => current.filter((task) => !task.done));
-  }
+  const visibleTasks = useMemo(
+    () =>
+      tasks
+        .filter(
+          (task) =>
+            !companyQuery ||
+            task.companyName
+              ?.toLowerCase()
+              .includes(companyQuery.toLowerCase()),
+        )
+        .sort(
+          (left, right) =>
+            Number(left.done) - Number(right.done) ||
+            (left.deadline ?? '\uffff').localeCompare(
+              right.deadline ?? '\uffff',
+            ),
+        ),
+    [tasks, companyQuery],
+  );
 
   return {
     tasks: visibleTasks,
+    companyOptions: [...new Set(companies.map((company) => company.name))],
     companyQuery,
     completedCount: tasks.filter((task) => task.done).length,
     setCompanyQuery,
-    toggleTask,
-    saveTask,
-    deleteTask,
-    deleteCompletedTasks,
+    ...taskMutations(state, companies, () => ready),
   };
 }

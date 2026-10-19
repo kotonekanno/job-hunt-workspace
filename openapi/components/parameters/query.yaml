@@ -19,3 +19,21 @@ PageNumber:
     type: integer
     minimum: 0
     default: 0
+
+Quantity:
+  description: 一度に取得する数。省略した場合は全件。
+  name: quantity
+  in: query
+  required: false
+  schema:
+    type: integer
+    minimum: 1
+
+QueryCompanyId:
+  description: 紐づく企業のID。省略した場合は企業で絞らない。
+  name: companyId
+  in: query
+  required: false
+  schema:
+    type: integer
+    format: int32

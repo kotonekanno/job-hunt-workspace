@@ -6,16 +6,18 @@ get:
     - Companies
   operationId: getCompanies
   summary: 企業一覧を取得
+  parameters:
+    - $ref: ../components/parameters/query.yaml#/Quantity
   responses:
-    '200':
+    "200":
       description: 企業一覧の取得に成功。
       content:
         application/json:
           schema:
             $ref: ../components/schemas/company.yaml#/GetCompaniesResponse
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
@@ -31,7 +33,7 @@ post:
         schema:
           $ref: ../components/schemas/company.yaml#/CreateCompanyRequest
   responses:
-    '201':
+    "201":
       description: 企業の新規作成に成功。作成した企業のIDを返す。
       content:
         application/json:
@@ -46,11 +48,11 @@ post:
                 format: int32
             example:
               companyId: 1
-    '400':
+    "400":
       $ref: ../components/responses/common.yaml#/BadRequest
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '409':
+    "409":
       $ref: ../components/responses/common.yaml#/Conflict
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError

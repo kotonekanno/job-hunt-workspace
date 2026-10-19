@@ -26,6 +26,12 @@ tags:
     description: ドキュメント
   - name: Authentication
     description: 認証
+  - name: Users
+    description: ユーザー情報
+  - name: Dashboard
+    description: ホーム画面
+  - name: Settings
+    description: 設定
 paths:
   /companies:
     get:
@@ -34,6 +40,8 @@ paths:
         - Companies
       operationId: getCompanies
       summary: 企業一覧を取得
+      parameters:
+        - $ref: '#/components/parameters/Quantity'
       responses:
         '200':
           description: 企業一覧の取得に成功。
@@ -749,6 +757,7 @@ paths:
       summary: イベント一覧を取得
       parameters:
         - $ref: '#/components/parameters/EventMonth'
+        - $ref: '#/components/parameters/QueryCompanyId'
       responses:
         '200':
           description: イベント一覧の取得に成功。
@@ -863,6 +872,9 @@ paths:
         - Tasks
       operationId: getTasks
       summary: タスク一覧を取得
+      parameters:
+        - $ref: '#/components/parameters/Quantity'
+        - $ref: '#/components/parameters/QueryCompanyId'
       responses:
         '200':
           description: タスク一覧の取得に成功。
@@ -1526,16 +1538,114 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /auth/me:
     get:
-      description: アクセストークンによる認証状態を確認する。ユーザー情報は返さない。
+      description: アクセストークンによる認証状態を確認する。
       tags:
         - Authentication
       operationId: getCurrentUser
       summary: 認証状態を確認
       responses:
         '200':
+          description: 認証状態の確認に成功。メールアドレスを返す。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    $ref: '#/components/schemas/Email'
+                required:
+                  - email
+                example:
+                  email: test@example.com
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /users/me:
+    get:
+      description: アクセストークンによる認証状態を確認する。
+      tags:
+        - Users
+      operationId: newGetCurrentUser
+      summary: 認証状態を確認
+      responses:
+        '200':
           description: 認証状態の確認に成功。レスポンスボディは返さない。
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      description: 指定したユーザーの登録情報を部分更新する。
+      tags:
+        - Users
+      operationId: patchUser
+      summary: ユーザー情報を部分更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /users/me/password:
+    put:
+      description: 指定したユーザーのパスワードを更新する。
+      tags:
+        - Users
+      operationId: putPassword
+      summary: パスワードを更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePasswordRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /dashboard:
+    get:
+      description: ホーム画面に表示する情報を返す。
+      tags:
+        - Dashboard
+      operationId: getDashboard
+      summary: ホーム画面の情報を取得
+      responses:
+        '200':
+          description: ホーム画面に表示する情報の取得に成功。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDashboardResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 components:
@@ -1549,6 +1659,124 @@ components:
       type: apiKey
       in: cookie
       name: refreshToken
+  parameters:
+    Quantity:
+      description: 一度に取得する数。省略した場合は全件。
+      name: quantity
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+    CompanyId:
+      name: companyId
+      in: path
+      required: true
+      schema:
+        description: 企業ID
+        type: integer
+        format: int32
+    BasicInfoId:
+      name: basicInfoId
+      in: path
+      required: true
+      schema:
+        description: 基本情報ID
+        type: integer
+        format: int32
+    PageNumber:
+      description: ページ番号（0始まり）。省略した場合は0。
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    ActivityId:
+      name: activityId
+      in: path
+      required: true
+      schema:
+        description: やりとり履歴ID
+        type: integer
+        format: int32
+    SelectionId:
+      name: selectionId
+      in: path
+      required: true
+      schema:
+        description: 選考ID
+        type: integer
+        format: int32
+    SelectionStepId:
+      name: selectionStepId
+      in: path
+      required: true
+      schema:
+        description: 選考ステップID
+        type: integer
+        format: int32
+    EventMonth:
+      description: 取得対象の年月（YYYY-MM）。省略した場合は現在の年月。
+      name: month
+      in: query
+      required: false
+      schema:
+        type: string
+        pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
+        minLength: 7
+        maxLength: 7
+      example: 2026-10
+    QueryCompanyId:
+      description: 紐づく企業のID。省略した場合は企業で絞らない。
+      name: companyId
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+    EventId:
+      description: イベントID
+      name: eventId
+      in: path
+      required: true
+      schema:
+        description: イベントID
+        type: integer
+        format: int32
+    TaskId:
+      description: タスクID
+      name: taskId
+      in: path
+      required: true
+      schema:
+        description: タスクID
+        type: integer
+        format: int32
+    EssayGroupId:
+      name: essayGroupId
+      in: path
+      required: true
+      schema:
+        description: ESグループIDまたはunclassified
+        type: string
+    EssayId:
+      name: essayId
+      in: path
+      required: true
+      schema:
+        description: ESのID
+        type: integer
+        format: int32
+    DocumentId:
+      name: documentId
+      in: path
+      required: true
+      schema:
+        description: 文書ID
+        type: integer
+        format: int32
   schemas:
     CompanyName:
       description: 企業名
@@ -1900,6 +2128,8 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/CompanyName'
+        priority:
+          $ref: '#/components/schemas/CompanyPriority'
         showBasicInfoWidget:
           description: true：基本情報ウィジェットを表示 / false：非表示
           type: boolean
@@ -1948,6 +2178,7 @@ components:
         - tasks
       example:
         name: 株式会社サンプル
+        priority: 2
         showBasicInfoWidget: true
         showSelectionWidget: true
         basicInfos:
@@ -2505,6 +2736,11 @@ components:
       description: ESの設問と回答の部分更新内容。更新する項目のみ指定する。
       type: object
       properties:
+        essayGroupId:
+          description: ESグループのID
+          type: integer
+          format: int32
+          nullable: true
         companyId:
           description: 関連する企業のID
           type: integer
@@ -2619,6 +2855,113 @@ components:
         - accessToken
       example:
         accessToken: example-access-token
+    UpdateUserRequest:
+      description: ユーザー情報の部分更新内容。
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+      example:
+        email: user@example.com
+    UpdatePasswordRequest:
+      description: パスワードの更新内容。
+      type: object
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/Password'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+      required:
+        - oldPassword
+        - newPassword
+      example:
+        oldPassword: oldPassword123
+        newPassword: newPassword123
+    GetDashboardResponse:
+      description: ホーム画面に表示する情報。
+      type: object
+      properties:
+        counts:
+          type: object
+          properties:
+            companies:
+              description: 保存した企業の数
+              type: integer
+              minimum: 0
+            undoneTasks:
+              description: 未完了のタスクの数
+              type: integer
+              minimum: 0
+            upcomingEvents:
+              description: 今日以降の予定の数
+              type: integer
+              minimum: 0
+            essays:
+              description: 保存したESの数
+              type: integer
+              minimum: 0
+          required:
+            - companies
+            - undoneTasks
+            - upcomingEvents
+            - essays
+        tasks:
+          description: 期限が近いタスク（最大3件）
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        companies:
+          description: 志望度が高い企業（最大5件）
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyListItem'
+        events:
+          description: 直近の予定（最大3件）
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      required:
+        - counts
+        - tasks
+        - companies
+        - events
+      example:
+        counts:
+          companies: 20
+          undoneTasks: 5
+          upcomingEvents: 10
+          essays: 30
+        tasks:
+          - id: 1
+            companyName: 株式会社サンプル
+            title: エントリーシートを提出する
+            note: 事前に提出書類を確認する。
+            deadline: '2026-10-15'
+            done: false
+        companies:
+          - id: 1
+            name: 株式会社サンプル
+            priority: 3
+            currentSelection:
+              title: 本選考
+              step:
+                id: 1
+                name: 一次面接
+                status: PENDING
+            latestActivity: 企業がスカウト
+        events:
+          - id: 1
+            companyName: 株式会社サンプル
+            category: SESSION
+            title: 企業説明会
+            note: 事前に提出書類を確認する。
+            isAllDay: false
+            startDay: null
+            endDay: null
+            startTime: '2026-10-15T10:00:00+09:00'
+            endTime: '2026-10-15T11:00:00+09:00'
+            isOnline: true
+            isAttending: true
   responses:
     Unauthorized:
       description: 認証が必要。アクセストークンが指定されていない、無効、または有効期限切れ。
@@ -2634,108 +2977,6 @@ components:
       description: 指定したリソースまたは関連付け先のリソースが存在しない。
     NoContent:
       description: 処理に成功。レスポンスボディは返さない。
-  parameters:
-    CompanyId:
-      name: companyId
-      in: path
-      required: true
-      schema:
-        description: 企業ID
-        type: integer
-        format: int32
-    BasicInfoId:
-      name: basicInfoId
-      in: path
-      required: true
-      schema:
-        description: 基本情報ID
-        type: integer
-        format: int32
-    PageNumber:
-      description: ページ番号（0始まり）。省略した場合は0。
-      name: page
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    ActivityId:
-      name: activityId
-      in: path
-      required: true
-      schema:
-        description: やりとり履歴ID
-        type: integer
-        format: int32
-    SelectionId:
-      name: selectionId
-      in: path
-      required: true
-      schema:
-        description: 選考ID
-        type: integer
-        format: int32
-    SelectionStepId:
-      name: selectionStepId
-      in: path
-      required: true
-      schema:
-        description: 選考ステップID
-        type: integer
-        format: int32
-    EventMonth:
-      description: 取得対象の年月（YYYY-MM）。省略した場合は現在の年月。
-      name: month
-      in: query
-      required: false
-      schema:
-        type: string
-        pattern: ^[0-9]{4}-(0[1-9]|1[0-2])$
-        minLength: 7
-        maxLength: 7
-      example: 2026-10
-    EventId:
-      description: イベントID
-      name: eventId
-      in: path
-      required: true
-      schema:
-        description: イベントID
-        type: integer
-        format: int32
-    TaskId:
-      description: タスクID
-      name: taskId
-      in: path
-      required: true
-      schema:
-        description: タスクID
-        type: integer
-        format: int32
-    EssayGroupId:
-      name: essayGroupId
-      in: path
-      required: true
-      schema:
-        description: ESグループIDまたはunclassified
-        type: string
-    EssayId:
-      name: essayId
-      in: path
-      required: true
-      schema:
-        description: ESのID
-        type: integer
-        format: int32
-    DocumentId:
-      name: documentId
-      in: path
-      required: true
-      schema:
-        description: 文書ID
-        type: integer
-        format: int32
 x-tagGroups:
   - name: COMPANIES
     tags:
@@ -2758,3 +2999,8 @@ x-tagGroups:
   - name: AUTH
     tags:
       - Authentication
+      - Users
+  - name: OTHERS
+    tags:
+      - Dashboard
+      - Settings

@@ -1,20 +1,18 @@
 import { GripVertical, Lock } from 'lucide-react';
 import { Reorder, useDragControls } from 'motion/react';
-import { useState, type FormEvent, type PointerEvent } from 'react';
-import {
-  unclassifiedEssayGroupId,
-  type EssayGroup,
-} from '@/features/essay/model/essay';
+import { useRef, useState, type FormEvent, type PointerEvent } from 'react';
+import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
 import { EditDialog } from '@/shared/dialog';
 
 type EssayGroupReorderDialogProps = {
-  groups: EssayGroup[];
+  groups: EssayGroupListItem[];
   onClose: () => void;
-  onSave: (orderedGroupIds: string[]) => void;
+  onSave: (orderedGroupIds: number[], movedIds: number[]) => Promise<boolean>;
 };
 
 type ReorderableGroupRowProps = {
-  group: EssayGroup;
+  group: EssayGroupListItem;
+  onDrop: () => void;
 };
 
 export function EssayGroupReorderDialog({
@@ -23,21 +21,29 @@ export function EssayGroupReorderDialog({
   onSave,
 }: EssayGroupReorderDialogProps) {
   const [orderedGroups, setOrderedGroups] = useState(
-    groups
-      .filter((group) => group.id !== unclassifiedEssayGroupId)
-      .sort((left, right) => left.position - right.position),
+    groups.filter((group) => group.id !== null),
   );
-  const unclassifiedGroup = groups.find(
-    (group) => group.id === unclassifiedEssayGroupId,
-  );
+  const unclassifiedGroup = groups.find((group) => group.id === null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  const movedIds = useRef(new Set<number>());
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave([
-      ...orderedGroups.map((group) => group.id),
-      ...(unclassifiedGroup ? [unclassifiedGroup.id] : []),
-    ]);
-    onClose();
+    if (saving.current) return;
+    saving.current = true;
+    try {
+      if (
+        await onSave(
+          orderedGroups.flatMap((group) =>
+            group.id === null ? [] : [group.id],
+          ),
+          [...movedIds.current],
+        )
+      )
+        onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -61,7 +67,13 @@ export function EssayGroupReorderDialog({
           className="space-y-2 p-0"
         >
           {orderedGroups.map((group) => (
-            <ReorderableGroupRow key={group.id} group={group} />
+            <ReorderableGroupRow
+              key={group.id}
+              group={group}
+              onDrop={() => {
+                if (group.id !== null) movedIds.current.add(group.id);
+              }}
+            />
           ))}
         </Reorder.Group>
 
@@ -83,7 +95,7 @@ export function EssayGroupReorderDialog({
   );
 }
 
-function ReorderableGroupRow({ group }: ReorderableGroupRowProps) {
+function ReorderableGroupRow({ group, onDrop }: ReorderableGroupRowProps) {
   const dragControls = useDragControls();
 
   function startDragging(event: PointerEvent<HTMLButtonElement>) {
@@ -96,6 +108,7 @@ function ReorderableGroupRow({ group }: ReorderableGroupRowProps) {
       value={group}
       dragListener={false}
       dragControls={dragControls}
+      onDragEnd={onDrop}
       layout="position"
       transition={{
         layout: {

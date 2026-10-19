@@ -39,6 +39,15 @@ tags:
   - name: Authentication
     description: 認証
 
+  - name: Users
+    description: ユーザー情報
+
+  - name: Dashboard
+    description: ホーム画面
+
+  - name: Settings
+    description: 設定
+
 x-tagGroups:
   - name: COMPANIES
     tags:
@@ -61,6 +70,11 @@ x-tagGroups:
   - name: AUTH
     tags:
       - Authentication
+      - Users
+  - name: OTHERS
+    tags:
+      - Dashboard
+      - Settings
 
 paths:
   /companies:
@@ -95,7 +109,7 @@ paths:
 
   /companies/{companyId}/selections/{selectionId}/is-active:
     $ref: ./paths/selections_is_active.yaml
-  
+
   /companies/{companyId}/selections/{selectionId}/steps/{selectionStepId}:
     $ref: ./paths/selections_steps_by_id.yaml
 
@@ -122,7 +136,7 @@ paths:
 
   /tasks/bulk-delete:
     $ref: ./paths/tasks_bulk_delete.yaml
-    
+
   /essay-groups:
     $ref: ./paths/essay_groups.yaml
 
@@ -161,6 +175,15 @@ paths:
 
   /auth/me:
     $ref: ./paths/auth_me.yaml
+
+  /users/me:
+    $ref: ./paths/users_me.yaml
+
+  /users/me/password:
+    $ref: ./paths/users_me_password.yaml
+
+  /dashboard:
+    $ref: ./paths/dashboard.yaml
 
 components:
   securitySchemes:

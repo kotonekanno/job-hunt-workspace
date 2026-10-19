@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import type { ActivitySender } from '@/features/companies/model/activity';
 
 type ActivityComposerProps = {
-  onSend: (text: string, sender: ActivitySender) => void;
+  onSend: (text: string, sender: ActivitySender) => Promise<boolean>;
 };
 
 export function ActivityComposer({ onSend }: ActivityComposerProps) {
@@ -34,12 +34,20 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
     return () => observer.disconnect();
   }, [draft]);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!draft.trim()) return;
-    onSend(draft.trim(), sender);
-    setDraft('');
-    inputRef.current?.focus();
+    if (!draft.trim() || saving.current) return;
+    saving.current = true;
+    const submitted = draft;
+    try {
+      if (await onSend(draft.trim(), sender)) {
+        setDraft((current) => (current === submitted ? '' : current));
+        inputRef.current?.focus();
+      }
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -52,6 +60,7 @@ export function ActivityComposer({ onSend }: ActivityComposerProps) {
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         rows={1}
+        maxLength={500}
         aria-label="やりとり内容"
         placeholder="やりとりを入力…"
         className="max-h-40 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto border border-[var(--line)] bg-[var(--panel-raised)] px-3 py-[9px] text-xs leading-5 text-[var(--text)] placeholder:text-[var(--faint)] focus:border-[var(--accent)]"

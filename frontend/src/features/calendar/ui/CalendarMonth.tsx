@@ -1,23 +1,16 @@
 import { toDateKey, type CalendarDay } from '@/features/calendar/lib/calendar';
 import type { CalendarEvent } from '@/features/calendar/model/calendar';
+import { layoutWeekEvents } from '@/features/calendar/lib/weekLayout';
 import { CalendarEventItem } from '@/features/calendar/ui/CalendarEventItem';
 
 type CalendarMonthProps = {
   days: CalendarDay[];
   events: CalendarEvent[];
   onEdit: (event: CalendarEvent) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: number) => void | Promise<boolean>;
 };
 
 const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-
-function occursOnDate(event: CalendarEvent, dateKey: string) {
-  if (!event.isAllDay) {
-    return event.startDate === dateKey;
-  }
-
-  return event.startDate <= dateKey && event.endDate >= dateKey;
-}
 
 export function CalendarMonth({
   days,
@@ -25,7 +18,10 @@ export function CalendarMonth({
   onEdit,
   onDelete,
 }: CalendarMonthProps) {
-  const todayKey = toDateKey(new Date(2026, 6, 12));
+  const todayKey = toDateKey(new Date());
+  const weeks = Array.from({ length: Math.ceil(days.length / 7) }, (_, index) =>
+    days.slice(index * 7, index * 7 + 7),
+  );
 
   return (
     <div className="ui-panel overflow-x-auto border border-[var(--line)] transition-colors duration-300">
@@ -50,44 +46,68 @@ export function CalendarMonth({
           ))}
         </div>
 
-        <div className="grid grid-cols-7">
-          {days.map((day, index) => (
-            <div
-              key={day.dateKey}
-              className={`
-                min-h-24 min-w-0 border-r border-b border-[var(--line)] p-1.5
-                transition-colors hover:bg-[var(--panel-raised)]
-                ${(index + 1) % 7 === 0 ? 'border-r-0' : ''}
-                ${!day.isCurrentMonth ? 'opacity-35' : ''}
-              `}
-            >
-              <span
-                className={`
-                  flex size-6 items-center justify-center text-[10px] font-semibold
-                  ${
-                    day.dateKey === todayKey
-                      ? 'cyber-cut-sm bg-[var(--accent)] text-[var(--accent-contrast)]'
-                      : 'text-[var(--muted)]'
-                  }
-                `}
+        <div>
+          {weeks.map((week) => {
+            const segments = layoutWeekEvents(week, events);
+            const laneCount = Math.max(
+              0,
+              ...segments.map((segment) => segment.lane + 1),
+            );
+            return (
+              <div
+                key={week[0]?.dateKey}
+                className="relative grid min-h-24 grid-cols-7 content-start py-1.5"
+                style={{
+                  gridTemplateRows: laneCount
+                    ? `26px repeat(${laneCount}, 22px)`
+                    : '26px',
+                }}
               >
-                {day.date.getDate()}
-              </span>
-
-              <div className="mt-0.5 min-w-0 space-y-0.5 overflow-hidden">
-                {events
-                  .filter((event) => occursOnDate(event, day.dateKey))
-                  .map((event) => (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 grid grid-cols-7"
+                >
+                  {week.map((day, index) => (
+                    <div
+                      key={day.dateKey}
+                      className={`border-b border-[var(--line)] ${index < 6 ? 'border-r' : ''}`}
+                    />
+                  ))}
+                </div>
+                {week.map((day, index) => (
+                  <div
+                    key={day.dateKey}
+                    className={`relative min-w-0 px-1.5 ${!day.isCurrentMonth ? 'opacity-35' : ''}`}
+                    style={{ gridColumn: index + 1, gridRow: 1 }}
+                  >
+                    <span
+                      className={`flex size-6 items-center justify-center text-[10px] font-semibold ${day.dateKey === todayKey ? 'cyber-cut-sm bg-[var(--accent)] text-[var(--accent-contrast)]' : 'text-[var(--muted)]'}`}
+                    >
+                      {day.date.getDate()}
+                    </span>
+                  </div>
+                ))}
+                {segments.map((segment) => (
+                  <div
+                    key={segment.event.id}
+                    className={`relative mx-1.5 min-w-0 ${week.slice(segment.startColumn - 1, segment.endColumn - 1).every((day) => !day.isCurrentMonth) ? 'opacity-35' : ''}`}
+                    style={{
+                      gridColumn: `${segment.startColumn} / ${segment.endColumn}`,
+                      gridRow: segment.lane + 2,
+                    }}
+                  >
                     <CalendarEventItem
-                      key={event.id}
-                      event={event}
+                      event={segment.event}
+                      continuesBefore={segment.continuesBefore}
+                      continuesAfter={segment.continuesAfter}
                       onEdit={onEdit}
                       onDelete={onDelete}
                     />
-                  ))}
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

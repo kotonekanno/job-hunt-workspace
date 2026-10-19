@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { EditDialog } from '@/shared/dialog';
 import { RequiredMark } from '@/shared/form';
 
 type DocumentCreateDialogProps = {
   onClose: () => void;
-  onCreate: (title: string) => void;
+  onCreate: (title: string) => void | Promise<boolean>;
   dialogTitle?: string;
   subTitle?: string;
   placeholder?: string;
@@ -19,7 +19,9 @@ export function DocumentCreateDialog({
 }: DocumentCreateDialogProps) {
   const [title, setTitle] = useState('');
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const saving = useRef(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalizedTitle = title.trim();
 
@@ -27,8 +29,13 @@ export function DocumentCreateDialog({
       return;
     }
 
-    onCreate(normalizedTitle);
-    onClose();
+    if (saving.current) return;
+    saving.current = true;
+    try {
+      if ((await onCreate(normalizedTitle)) !== false) onClose();
+    } finally {
+      saving.current = false;
+    }
   }
 
   return (
@@ -45,6 +52,7 @@ export function DocumentCreateDialog({
         <input
           autoFocus
           required
+          maxLength={50}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           className="mt-1 h-10 w-full border border-[var(--line)] bg-[var(--panel-raised)] px-3 text-sm text-[var(--text)] outline-none transition-colors focus:border-[var(--accent)]"

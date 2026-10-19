@@ -2,6 +2,7 @@ package com.kotonekanno.job_hunt_workspace.services;
 
 import com.example.api.model.AccessTokenResponse;
 import com.example.api.model.AuthRequest;
+import com.example.api.model.GetCurrentUser200Response;
 import com.example.api.model.Register201Response;
 import com.kotonekanno.job_hunt_workspace.dtos.auth.LoginResponse;
 import com.kotonekanno.job_hunt_workspace.entities.User;
@@ -103,5 +104,16 @@ public class AuthService {
     } catch (JwtException e) {
       throw new InvalidCredentialsException("Invalid refresh token");
     }
+  }
+
+  @Transactional(readOnly = true)
+  public GetCurrentUser200Response getCurrentUser(
+      Integer userId
+  ) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("User not found"));
+
+    return new GetCurrentUser200Response()
+        .email(user.getEmail());
   }
 }

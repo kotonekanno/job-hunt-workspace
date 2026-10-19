@@ -8,16 +8,18 @@ import { HoverCard } from '@/shared/hover-card';
 
 type CalendarEventItemProps = {
   event: CalendarEvent;
+  continuesBefore?: boolean;
+  continuesAfter?: boolean;
   onEdit: (event: CalendarEvent) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: number) => void | Promise<boolean>;
 };
 
 const categoryColorClassName: Record<EventCategory, string> = {
-  session: 'border-sky-500 bg-sky-500/10 text-[var(--text-strong)]',
-  interview: 'border-rose-500 bg-rose-500/10 text-[var(--text-strong)]',
-  chat: 'border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]',
-  internship: 'border-purple-500 bg-purple-500/10 text-[var(--text-strong)]',
-  other: 'border-slate-500 bg-slate-500/10 text-[var(--text-strong)]',
+  SESSION: 'border-sky-500 bg-sky-500/10 text-[var(--text-strong)]',
+  INTERVIEW: 'border-rose-500 bg-rose-500/10 text-[var(--text-strong)]',
+  CHAT: 'border-yellow-500 bg-yellow-500/10 text-[var(--text-strong)]',
+  INTERNSHIP: 'border-purple-500 bg-purple-500/10 text-[var(--text-strong)]',
+  OTHER: 'border-slate-500 bg-slate-500/10 text-[var(--text-strong)]',
 };
 
 function getEventClassName(event: CalendarEvent): string {
@@ -31,6 +33,8 @@ function getEventClassName(event: CalendarEvent): string {
 
 export function CalendarEventItem({
   event,
+  continuesBefore = false,
+  continuesAfter = false,
   onEdit,
   onDelete,
 }: CalendarEventItemProps) {
@@ -41,6 +45,7 @@ export function CalendarEventItem({
       trigger={
         <button
           type="button"
+          aria-label={`${event.title} ${event.startDate}〜${event.endDate}`}
           className={`
             block h-5 w-full min-w-0 max-w-full cursor-pointer overflow-hidden
             border-l-2 px-1.5 text-left transition-[filter,box-shadow]
@@ -50,11 +55,12 @@ export function CalendarEventItem({
         >
           <span className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1 overflow-hidden">
             <span className="shrink-0 font-mono text-[8px] opacity-75">
-              {getEventStartTimeLabel(event)}
+              {continuesBefore ? '←' : getEventStartTimeLabel(event)}
             </span>
 
             <span className="truncate text-[9px] font-bold">
-              {event.company}
+              {event.title}
+              {continuesAfter ? ' →' : ''}
             </span>
           </span>
         </button>

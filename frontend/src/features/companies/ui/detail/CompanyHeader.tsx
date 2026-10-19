@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
-import { companyProfile } from '@/features/companies/model/companyDetail';
+import type { CompanyPriority } from '@/api/generated/models/companyPriority';
 import type {
   CurrentSelection,
   SelectionStatus,
@@ -10,15 +10,21 @@ import { PriorityBadge } from '../priority-badge';
 import { SelectionStepBadge } from '../selection-step-badge';
 
 export function CompanyHeader({
-  name = companyProfile.name,
+  name,
+  priority,
+  onNameSave,
+  onPriorityChange,
   selection,
   onResultChange,
 }: {
-  name?: string;
+  name: string;
+  priority: CompanyPriority;
+  onNameSave: (name: string) => Promise<boolean>;
+  onPriorityChange: (priority: CompanyPriority) => void;
   selection?: CurrentSelection;
   onResultChange: (result: SelectionStatus) => void;
 }) {
-  const [companyName, setCompanyName] = useState(name);
+  const companyName = name;
   const [draftName, setDraftName] = useState(name);
   const [isEditingName, setIsEditingName] = useState(false);
   function startEditingName() {
@@ -26,14 +32,14 @@ export function CompanyHeader({
     setIsEditingName(true);
   }
 
-  function saveCompanyName(event: FormEvent<HTMLFormElement>) {
+  async function saveCompanyName(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextName = draftName.trim();
 
     if (!nextName) return;
 
-    setCompanyName(nextName);
+    if (!(await onNameSave(nextName))) return;
     setDraftName(nextName);
     setIsEditingName(false);
   }
@@ -52,7 +58,15 @@ export function CompanyHeader({
 
   return (
     <header className="ui-panel cyber-cut flex flex-wrap items-center gap-4 border border-[var(--line)] p-5 sm:p-6">
-      <PriorityBadge priority={2} size="m" />
+      <PriorityBadge
+        priority={priority === 6 ? 0 : priority === 7 ? 6 : priority}
+        size="m"
+        onChange={(value) => {
+          const next =
+            value === 0 || value === null ? 6 : value === 6 ? 7 : value;
+          if (next >= 1 && next <= 7) onPriorityChange(next);
+        }}
+      />
 
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {isEditingName ? (
@@ -62,6 +76,7 @@ export function CompanyHeader({
           >
             <input
               autoFocus
+              maxLength={50}
               value={draftName}
               onChange={(event) => setDraftName(event.target.value)}
               onKeyDown={handleNameKeyDown}

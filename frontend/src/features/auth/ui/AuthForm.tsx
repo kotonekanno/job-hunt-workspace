@@ -6,8 +6,12 @@ import {
   Mail,
   ShieldCheck,
 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { login, register } from '@/api/generated/api';
+import type { AuthRequest } from '@/api/generated/models/authRequest';
+import { setAccessToken } from '@/features/auth/model/accessToken';
+import { toast } from '@/shared/toast';
 
 type AuthMode = 'login' | 'register';
 
@@ -41,11 +45,68 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitting = useRef(false);
   const pageContent = content[mode];
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/home');
+    if (submitting.current) return;
+    submitting.current = true;
+    setIsSubmitting(true);
+    const request: AuthRequest = { email, password };
+
+    try {
+      if (mode === 'register') {
+        const response = await register(request, { credentials: 'include' });
+        if (response.status === 201) {
+          setPassword('');
+          toast.success('アカウントを作成しました。ログインしてください。');
+          navigate('/login', { replace: true });
+        } else {
+          toast.error(
+            response.status === 409
+              ? 'このメールアドレスはすでに登録されています。'
+              : response.status === 400
+                ? '入力内容を確認してください。'
+                : 'アカウントの作成に失敗しました。時間をおいて再度お試しください。',
+          );
+        }
+      } else {
+        const response = await login(request, { credentials: 'include' });
+        if (response.status === 200) {
+          if (
+            typeof response.data.accessToken !== 'string' ||
+            !response.data.accessToken.trim()
+          ) {
+            toast.error(
+              'ログイン情報を取得できませんでした。再度お試しください。',
+            );
+            return;
+          }
+          setAccessToken(response.data.accessToken);
+          setPassword('');
+          navigate('/home', { replace: true });
+        } else {
+          toast.error(
+            response.status === 401 || response.status === 404
+              ? 'メールアドレスまたはパスワードが正しくありません。'
+              : response.status === 403
+                ? 'アカウントが未認証です。'
+                : response.status === 400
+                  ? '入力内容を確認してください。'
+                  : 'ログインに失敗しました。時間をおいて再度お試しください。',
+          );
+        }
+      }
+    } catch {
+      toast.error(
+        '処理に失敗しました。通信環境を確認して、再度お試しください。',
+      );
+    } finally {
+      submitting.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -57,21 +118,19 @@ export function AuthForm({ mode }: AuthFormProps) {
             <ShieldCheck className="size-5" />
           </span>
           <p className="mt-8 font-mono text-[9px] font-bold tracking-[0.2em] text-[var(--accent)]">
-            SECURE WORKSPACE
+            JOB HUNT WORKSPACE
           </p>
           <h2 className="mt-3 text-xl font-black leading-8 text-[var(--text-strong)]">
-            就職活動の情報を
-            <br />
-            ひとつの場所に。
+            極・就活管理
           </h2>
           <p className="mt-4 text-xs leading-6 text-[var(--muted)]">
-            企業、予定、タスク、ESをまとめて管理し、次にやるべきことを明確にします。
+            企業、予定、タスク、ESをまとめて管理します。
           </p>
         </div>
 
         <div className="mt-12 border-l-2 border-[var(--accent)] pl-4">
           <p className="text-[10px] font-bold text-[var(--text-strong)]">
-            JOB HUNT MANAGEMENT
+            JOB HUNT WORKSPACE
           </p>
           <p className="mt-1 font-mono text-[8px] tracking-wider text-[var(--faint)]">
             PLAN / TRACK / REVIEW
@@ -119,13 +178,12 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  minLength={8}
                   autoComplete={
                     mode === 'login' ? 'current-password' : 'new-password'
                   }
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="8文字以上"
+                  placeholder="パスワード"
                   className="ui-field h-11 w-full border border-[var(--line)] bg-[var(--panel-raised)] pr-11 pl-10 text-sm text-[var(--text)] outline-none placeholder:text-[var(--faint)]"
                 />
                 <button
@@ -144,15 +202,17 @@ export function AuthForm({ mode }: AuthFormProps) {
                 </button>
               </span>
               <span className="mt-1.5 block text-[9px] text-[var(--faint)]">
-                8文字以上で入力してください
+                パスワードを入力してください
               </span>
             </label>
 
             <button
               type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
               className="ui-control cyber-cut-sm flex h-11 w-full cursor-pointer items-center justify-center gap-2 border border-[var(--accent)] bg-[var(--accent)] text-xs font-black text-[var(--accent-contrast)] shadow-[0_4px_16px_var(--accent-glow)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
             >
-              {pageContent.submitText}
+              {isSubmitting ? '送信中…' : pageContent.submitText}
               <ArrowRight className="size-3.5" />
             </button>
           </form>

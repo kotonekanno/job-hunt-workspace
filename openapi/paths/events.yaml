@@ -8,18 +8,19 @@ get:
   summary: イベント一覧を取得
   parameters:
     - $ref: ../components/parameters/query.yaml#/EventMonth
+    - $ref: ../components/parameters/query.yaml#/QueryCompanyId
   responses:
-    '200':
+    "200":
       description: イベント一覧の取得に成功。
       content:
         application/json:
           schema:
             $ref: ../components/schemas/event.yaml#/GetEventsResponse
-    '400':
+    "400":
       $ref: ../components/responses/common.yaml#/BadRequest
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError
 
 post:
@@ -35,7 +36,7 @@ post:
         schema:
           $ref: ../components/schemas/event.yaml#/CreateEventRequest
   responses:
-    '201':
+    "201":
       description: イベントの新規作成に成功。作成したイベントのIDを返す。
       content:
         application/json:
@@ -50,13 +51,13 @@ post:
                 format: int32
             example:
               eventId: 1
-    '400':
+    "400":
       $ref: ../components/responses/common.yaml#/BadRequest
-    '401':
+    "401":
       $ref: ../components/responses/common.yaml#/Unauthorized
-    '403':
+    "403":
       $ref: ../components/responses/common.yaml#/Forbidden
-    '404':
+    "404":
       $ref: ../components/responses/common.yaml#/NotFound
-    '500':
+    "500":
       $ref: ../components/responses/common.yaml#/InternalServerError

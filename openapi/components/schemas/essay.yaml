@@ -14,12 +14,11 @@ EssayQuestion:
   minLength: 1
   maxLength: 1000
 
-EssayAnswer: 
+EssayAnswer:
   description: 設問に対する回答
   type: string
   minLength: 0
   maxLength: 5000
-
 
 # ====================
 # Models
@@ -35,7 +34,7 @@ EssayGroupListItem:
       format: int32
       nullable: true
     name:
-      $ref: '#/EssayGroupName'
+      $ref: "#/EssayGroupName"
     quantity:
       description: ESグループに属するESの件数
       type: integer
@@ -56,14 +55,13 @@ Essay:
     companyName:
       $ref: ./company.yaml#/NullableCompanyName
     question:
-      $ref: '#/EssayQuestion'
+      $ref: "#/EssayQuestion"
     answer:
-      $ref: '#/EssayAnswer'
+      $ref: "#/EssayAnswer"
   required:
     - id
     - question
     - answer
-
 
 # ====================
 # Request / Response
@@ -77,7 +75,7 @@ GetEssayGroupsResponse:
       description: ESグループ一覧（該当するグループがない場合は空配列）
       type: array
       items:
-        $ref: '#/EssayGroupListItem'
+        $ref: "#/EssayGroupListItem"
   required:
     - essayGroups
   example:
@@ -91,7 +89,7 @@ CreateEssayGroupRequest:
   type: object
   properties:
     name:
-      $ref: '#/EssayGroupName'
+      $ref: "#/EssayGroupName"
   required:
     - name
   example:
@@ -102,7 +100,7 @@ UpdateEssayGroupRequest:
   type: object
   properties:
     name:
-      $ref: '#/EssayGroupName'
+      $ref: "#/EssayGroupName"
   example:
     name: ガクチカ
 
@@ -114,7 +112,7 @@ GetEssaysResponse:
       description: ESの一覧（該当するESがない場合は空配列）
       type: array
       items:
-        $ref: '#/Essay'
+        $ref: "#/Essay"
   required:
     - essays
   example:
@@ -134,9 +132,9 @@ CreateEssayRequest:
       format: int32
       nullable: true
     question:
-      $ref: '#/EssayQuestion'
+      $ref: "#/EssayQuestion"
     answer:
-      $ref: '#/EssayAnswer'
+      $ref: "#/EssayAnswer"
   required:
     - question
     - answer
@@ -149,12 +147,17 @@ UpdateEssayRequest:
   description: ESの設問と回答の部分更新内容。更新する項目のみ指定する。
   type: object
   properties:
+    essayGroupId:
+      description: ESグループのID
+      type: integer
+      format: int32
+      nullable: true
     companyId:
       description: 関連する企業のID
       type: integer
       format: int32
       nullable: true
     question:
-      $ref: '#/EssayQuestion'
+      $ref: "#/EssayQuestion"
     answer:
-      $ref: '#/EssayAnswer'
+      $ref: "#/EssayAnswer"

@@ -8,7 +8,7 @@ import { MemoPanel } from '@/shared/MemoPanel';
 type EventListItemProps = {
   event: CalendarEvent;
   onEdit?: (event: CalendarEvent) => void;
-  onDelete?: (eventId: number) => void;
+  onDelete?: (eventId: number) => void | Promise<boolean>;
   showCompany?: boolean;
 };
 

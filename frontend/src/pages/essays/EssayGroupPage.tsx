@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useEssayArchive } from '@/features/essay/hooks/useEssayArchive';
+import { useEssayGroup } from '@/features/essay/hooks/useEssayGroup';
+import { essayGroupApiId } from '@/features/essay/lib/essayRoutes';
 import { EssayDialog } from '@/features/essay/ui/EssayDialog';
 import { EssayGroupHeader } from '@/features/essay/ui/EssayGroupHeader';
 import { EssayList } from '@/features/essay/ui/EssayList';
@@ -10,16 +11,14 @@ import { FloatingAddButton } from '@/shared/button';
 
 export function EssayGroupPage() {
   const { groupId } = useParams();
-  const essayArchive = useEssayArchive();
+  return <EssayGroupDetail key={groupId} groupId={essayGroupApiId(groupId)} />;
+}
+
+function EssayGroupDetail({ groupId }: { groupId: string | undefined }) {
+  const essayArchive = useEssayGroup(groupId);
   const [query, setQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const group = essayArchive.groups.find(
-    (candidate) => candidate.id === groupId,
-  );
-  const groupEssays = useMemo(
-    () => essayArchive.essays.filter((essay) => essay.groupId === groupId),
-    [essayArchive.essays, groupId],
-  );
+  const groupEssays = essayArchive.essays;
   const filteredEssays = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
 
@@ -28,19 +27,23 @@ export function EssayGroupPage() {
     }
 
     return groupEssays.filter((essay) =>
-      [essay.company, essay.question, essay.answer].some((value) =>
+      [essay.companyName, essay.question, essay.answer].some((value) =>
         (value ?? '').toLocaleLowerCase().includes(normalizedQuery),
       ),
     );
   }, [groupEssays, query]);
 
-  if (!group) {
+  if (essayArchive.status !== 'ready' || !groupId || !essayArchive.groupName) {
     return (
       <div className="mx-auto w-full max-w-6xl">
         <BackLink to="/essays">ES文章ストックへ戻る</BackLink>
         <div className="ui-empty-state mt-5 border border-dashed border-[var(--line-strong)] py-16 text-center">
           <p className="text-sm font-bold text-[var(--muted)]">
-            指定されたジャンルは見つかりませんでした
+            {essayArchive.status === 'loading'
+              ? '読み込み中…'
+              : essayArchive.status === 'error'
+                ? '文章一覧を取得できませんでした。画面を再読み込みしてください。'
+                : '指定されたジャンルは見つかりませんでした'}
           </p>
         </div>
       </div>
@@ -49,22 +52,21 @@ export function EssayGroupPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <EssayGroupHeader name={group.name} essayCount={groupEssays.length} />
+      <EssayGroupHeader
+        name={essayArchive.groupName}
+        essayCount={groupEssays.length}
+      />
 
       <EssayToolbar query={query} onQueryChange={setQuery} />
 
       <div className="mt-5">
         <EssayList
           essays={filteredEssays}
-          groups={essayArchive.groups}
-          onSave={(essay) => essayArchive.updateEssay(essay.id, essay)}
+          groups={essayArchive.groupOptions}
+          groupId={groupId}
+          onSave={essayArchive.updateEssay}
           onDelete={essayArchive.deleteEssay}
-          onGroupChange={(essay, nextGroupId) =>
-            essayArchive.updateEssay(essay.id, {
-              ...essay,
-              groupId: nextGroupId,
-            })
-          }
+          onGroupChange={essayArchive.moveEssay}
           searchQuery={query}
         />
       </div>
@@ -76,8 +78,9 @@ export function EssayGroupPage() {
 
       {isAddDialogOpen && (
         <EssayDialog
-          groups={essayArchive.groups}
-          defaultGroupId={group.id}
+          groups={essayArchive.groupOptions}
+          defaultGroupId={groupId}
+          companyOptions={essayArchive.companyOptions}
           onClose={() => setIsAddDialogOpen(false)}
           onSave={essayArchive.addEssay}
         />

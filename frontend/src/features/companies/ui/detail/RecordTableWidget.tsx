@@ -1,3 +1,4 @@
+import type { BasicInfo } from '@/api/generated/models/basicInfo';
 import type { LucideIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { InlineRecordRow } from '@/features/companies/ui/detail/InlineRecordRow';
@@ -10,7 +11,9 @@ type RecordTableWidgetProps = {
   title: string;
   code: string;
   icon: LucideIcon;
-  initialRecords: string[][];
+  records: BasicInfo[];
+  onSave: (title: string, text: string, id?: number) => Promise<boolean>;
+  onDelete: (id: number) => Promise<boolean>;
   dialogTitle: string;
   labelName: string;
   valueName: string;
@@ -25,24 +28,28 @@ export function RecordTableWidget({
   title,
   code,
   icon,
-  initialRecords,
+  records: savedRecords,
+  onSave,
+  onDelete,
   labelName,
   valueName,
   onRemove,
   renderValue,
 }: RecordTableWidgetProps) {
-  const [records, setRecords] = useState<RecordItem[]>(() =>
-    initialRecords.map(([label = '', value = ''], index) => ({
-      id: `record-${index}`,
-      label,
-      value,
+  const [drafts, setDrafts] = useState<RecordItem[]>([]);
+  const records: RecordItem[] = [
+    ...savedRecords.map((record) => ({
+      id: String(record.id),
+      label: record.title,
+      value: record.text,
     })),
-  );
+    ...drafts,
+  ];
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const deletingRecord = records.find((record) => record.id === deletingId);
 
   function removeRecord(id: string) {
-    setRecords((current) => current.filter((record) => record.id !== id));
+    setDrafts((current) => current.filter((record) => record.id !== id));
   }
 
   return (
@@ -56,7 +63,7 @@ export function RecordTableWidget({
           <OutlineAddButton
             text="レコードを追加"
             onClick={() =>
-              setRecords((current) => [
+              setDrafts((current) => [
                 ...current,
                 { id: crypto.randomUUID(), label: '', value: '', isNew: true },
               ])
@@ -86,15 +93,20 @@ export function RecordTableWidget({
                   labelName={labelName}
                   valueName={valueName}
                   renderValue={renderValue}
-                  onSave={(label, value) =>
-                    setRecords((current) =>
-                      current.map((item) =>
-                        item.id === record.id
-                          ? { ...item, label, value, isNew: false }
-                          : item,
-                      ),
-                    )
-                  }
+                  onSave={async (label, value) => {
+                    if (record.isNew) removeRecord(record.id);
+                    const success = await onSave(
+                      label,
+                      value,
+                      record.isNew ? undefined : Number(record.id),
+                    );
+                    if (!success && record.isNew)
+                      setDrafts((items) => [
+                        ...items,
+                        { ...record, label, value },
+                      ]);
+                    return success;
+                  }}
                   onCancelNew={() => removeRecord(record.id)}
                   onDelete={() => setDeletingId(record.id)}
                 />
@@ -108,9 +120,14 @@ export function RecordTableWidget({
           title="レコードを削除しますか？"
           text={`「${deletingRecord.label}」を削除します。この操作は取り消せません。`}
           onClose={() => setDeletingId(null)}
-          onConfirm={() => {
-            removeRecord(deletingRecord.id);
-            setDeletingId(null);
+          onConfirm={async () => {
+            if (
+              deletingRecord.isNew ||
+              (await onDelete(Number(deletingRecord.id)))
+            ) {
+              removeRecord(deletingRecord.id);
+              setDeletingId(null);
+            }
           }}
         />
       )}

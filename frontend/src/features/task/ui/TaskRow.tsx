@@ -1,6 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import type { Task } from '@/features/task/model/task';
+import type { Task } from '@/api/generated/models/task';
 import { CompanyBadge } from '@/shared/badge';
 import { EditDeleteMenu } from '@/shared/EditDeleteMenu';
 import { DeleteDialog } from '@/shared/dialog';
@@ -55,8 +55,8 @@ export function TaskRow(props: TaskRowProps) {
           />
 
           {showCompany &&
-            (props.task.company ? (
-              <CompanyBadge company={props.task.company} />
+            (props.task.companyName ? (
+              <CompanyBadge company={props.task.companyName} />
             ) : (
               <span aria-hidden="true" />
             ))}
@@ -101,7 +101,7 @@ export function TaskRow(props: TaskRowProps) {
           <ChevronDown className="size-4 shrink-0 text-[var(--faint)] transition-transform duration-200 group-open:rotate-180" />
         </summary>
 
-        <MemoPanel text={props.task.note} />
+        <MemoPanel text={props.task.note ?? ''} />
       </details>
 
       {isDeleteDialogOpen && (
