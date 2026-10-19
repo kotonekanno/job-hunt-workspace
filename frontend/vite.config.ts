@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
           {
             target:
               loadEnv(mode, process.cwd(), '').API_PROXY_TARGET ||
-              'http://localhost:8080',
+              loadEnv(mode, process.cwd(), '').VITE_API_BASE_URL,
             changeOrigin: true,
             // Page navigation shares paths with API endpoints.
             bypass: (req: import('node:http').IncomingMessage) =>

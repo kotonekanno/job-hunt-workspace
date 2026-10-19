@@ -45,6 +45,7 @@ node_modules/
 /frontend/**/dist-ssr
 /frontend/**/*.local
 /frontend/src/api/generated/
+/frontend/**/.env.production
 
 # Logs
 /frontend/**/logs
