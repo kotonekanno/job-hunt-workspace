@@ -1,7 +1,7 @@
 import { PageLoading } from '@/shared/LoadingState';
 import { temporaryId } from '@/shared/useOptimisticState';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
-import { loadCompanies } from '@/features/companies/lib/companyListApi';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
+import { loadCompanyChoices } from '@/features/companies/lib/companyDetailApi';
 import { toast } from '@/shared/toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
@@ -79,13 +79,15 @@ function LoadedCompany({
     (widget) => !widgets.includes(widget),
   );
   const priority = detail.priority ?? 6;
-  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
+  const [companies, setCompanies] = useState<
+    GetCompanyLookupResponseCompaniesItem[]
+  >([]);
   const choicesReady = useRef(false);
   const choicesRequest = useRef<Promise<boolean> | null>(null);
   function prepareCompanies(): Promise<boolean> {
     if (choicesReady.current) return Promise.resolve(true);
     if (choicesRequest.current) return choicesRequest.current;
-    choicesRequest.current = loadCompanies()
+    choicesRequest.current = loadCompanyChoices()
       .then((items) => {
         setCompanies(items);
         choicesReady.current = true;

@@ -1,4 +1,4 @@
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import type { Task } from '@/api/generated/models/task';
 import type { TaskForm } from '@/features/task/model/task';
 import { temporaryId, useOptimisticState } from '@/shared/useOptimisticState';
@@ -12,7 +12,7 @@ import {
 
 export function taskMutations(
   state: ReturnType<typeof useOptimisticState<Task[]>>,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   canWrite: () => boolean,
   companyId?: number,
 ) {

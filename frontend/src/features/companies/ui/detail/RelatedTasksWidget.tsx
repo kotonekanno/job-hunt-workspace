@@ -1,7 +1,7 @@
 import { ListTodo } from 'lucide-react';
 import { useState } from 'react';
 import { useCompanyTasks } from '@/features/companies/hooks/useCompanyTasks';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import { WidgetFrame } from '@/features/companies/ui/detail/WidgetFrame';
 import type { Task } from '@/api/generated/models/task';
 import { TaskDialog } from '@/features/task/ui/TaskDialog';
@@ -19,7 +19,7 @@ export function RelatedTasksWidget({
   companyId: number;
   companyName: string;
   initialTasks: Task[];
-  companies: CompanyListItem[];
+  companies: GetCompanyLookupResponseCompaniesItem[];
   prepareCompanies: () => Promise<boolean>;
 }) {
   const {

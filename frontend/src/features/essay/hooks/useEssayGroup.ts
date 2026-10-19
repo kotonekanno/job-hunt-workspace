@@ -2,7 +2,7 @@ import { useOptimisticState, temporaryId } from '@/shared/useOptimisticState';
 import { useEffect, useRef, useState } from 'react';
 import type { Essay } from '@/api/generated/models/essay';
 import type { EssayGroupListItem } from '@/api/generated/models/essayGroupListItem';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import type { UpdateEssayRequest } from '@/api/generated/models/updateEssayRequest';
 import {
   adjustGroupCount,
@@ -25,7 +25,9 @@ export function useEssayGroup(groupId: string | undefined) {
   }>({ essays: [], groups: [] });
   const { essays, groups } = state.value;
   const { setValue } = state;
-  const [companies, setCompanies] = useState<CompanyListItem[]>([]);
+  const [companies, setCompanies] = useState<
+    GetCompanyLookupResponseCompaniesItem[]
+  >([]);
   const [status, setStatus] = useState<
     'loading' | 'ready' | 'missing' | 'error'
   >(groupId ? 'loading' : 'missing');

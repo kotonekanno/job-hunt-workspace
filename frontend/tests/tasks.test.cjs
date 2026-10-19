@@ -125,7 +125,10 @@ test('loads lists and propagates cancellation signal', async () => {
   assert.equal((await api.loadTasks(signal))[0].id, 4);
   assert.equal((await api.loadTaskCompanies(signal))[0].id, 7);
   assert.equal(calls[0].signal, signal);
-  assert.equal(calls[1].url, '/companies');
+  assert.equal(calls[1].url, '/companies/lookup');
+  assert.equal(calls[1].headers.Authorization, 'Bearer test-token');
+  assert.equal(calls[1].credentials, 'include');
+  assert.equal(calls[1].signal, signal);
 });
 
 test('unsuccessful HTTP responses reject instead of reporting success', async () => {

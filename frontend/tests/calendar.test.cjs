@@ -108,7 +108,10 @@ test('monthly GET sends month, credentials, token and abort signal', async () =>
   assert.equal(calls[0].signal, signal);
   assert.equal(calls[0].headers.Authorization, 'Bearer token');
   assert.equal(calls[0].credentials, 'include');
-  assert.equal(calls[1].url, '/companies');
+  assert.equal(calls[1].url, '/companies/lookup');
+  assert.equal(calls[1].headers.Authorization, 'Bearer token');
+  assert.equal(calls[1].credentials, 'include');
+  assert.equal(calls[1].signal, signal);
 });
 
 test('timed creation uses ISO timestamps, company ID and null for unused fields', async () => {

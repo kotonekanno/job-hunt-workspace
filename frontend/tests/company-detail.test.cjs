@@ -526,3 +526,16 @@ test('selection drop reorders only the dragged step', async () => {
   assert.equal(calls[0].url, '/companies/8/selections/3/steps/1/position');
   assert.deepEqual(JSON.parse(calls[0].body), { nextSelectionStepId: null });
 });
+
+test('company lookup sends authentication and cancellation signal', async () => {
+  const { api, calls } = setup(async () =>
+    response({ companies: [{ id: 7, name: '企業A' }] }),
+  );
+  const signal = new AbortController().signal;
+  const companies = await api.loadCompanyChoices(signal);
+  assert.equal(companies[0].id, 7);
+  assert.equal(calls[0].url, '/companies/lookup');
+  assert.equal(calls[0].headers.Authorization, 'Bearer token');
+  assert.equal(calls[0].credentials, 'include');
+  assert.equal(calls[0].signal, signal);
+});

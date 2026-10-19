@@ -2,11 +2,11 @@ import {
   bulkDeleteTasks,
   createTask,
   deleteTask,
-  getCompanies,
+  getCompaniesLookup,
   getTasks,
   patchTask,
 } from '@/api/generated/api';
-import type { CompanyListItem } from '@/api/generated/models/companyListItem';
+import type { GetCompanyLookupResponseCompaniesItem } from '@/api/generated/models/getCompanyLookupResponseCompaniesItem';
 import type { CreateTaskRequest } from '@/api/generated/models/createTaskRequest';
 import type { Task } from '@/api/generated/models/task';
 import type { UpdateTaskRequest } from '@/api/generated/models/updateTaskRequest';
@@ -37,7 +37,7 @@ export async function loadTasks(signal?: AbortSignal, companyId?: number) {
 }
 
 export async function loadTaskCompanies(signal?: AbortSignal) {
-  const response = await getCompanies(undefined, options(signal));
+  const response = await getCompaniesLookup(options(signal));
   if (response.status !== 200)
     throw new Error('企業一覧を取得できませんでした。');
   return response.data.companies;
@@ -45,7 +45,7 @@ export async function loadTaskCompanies(signal?: AbortSignal) {
 
 export function taskRequest(
   form: TaskForm,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   original?: Task,
 ): CreateTaskRequest | UpdateTaskRequest {
   const fields: CreateTaskRequest = {
@@ -68,7 +68,7 @@ export function taskRequest(
 
 export async function saveTaskRequest(
   form: TaskForm,
-  companies: CompanyListItem[],
+  companies: GetCompanyLookupResponseCompaniesItem[],
   original?: Task,
 ) {
   const request = taskRequest(form, companies, original);
