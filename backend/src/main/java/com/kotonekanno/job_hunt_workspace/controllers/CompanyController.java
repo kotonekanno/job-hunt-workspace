@@ -39,6 +39,16 @@ public class CompanyController {
     );
   }
 
+  // 検索用の企業一覧を取得する
+  @GetMapping("/lookup")
+  public ResponseEntity<GetCompanyLookupResponse> getCompaniesLookup(
+      @AuthenticationPrincipal Integer userId
+  ) {
+    return ResponseEntity.ok(
+        service.getCompaniesLookup(userId)
+    );
+  }
+
   // 企業の詳細情報を取得
   @GetMapping("/{companyId}")
   public ResponseEntity<GetCompanyResponse> getCompany(

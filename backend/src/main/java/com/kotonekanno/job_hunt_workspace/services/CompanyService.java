@@ -124,6 +124,23 @@ public class CompanyService {
         .companies(companyListItems);
   }
 
+  // 検索用の企業一覧を取得
+  @Transactional(readOnly = true)
+  public GetCompanyLookupResponse getCompaniesLookup(
+      Integer userId
+  ) {
+    List<Company> companies = companyRepository.findByUser_Id(userId);
+
+    return new GetCompanyLookupResponse()
+        .companies(companies.stream()
+            .map(company -> new GetCompanyLookupResponseCompaniesInner()
+                .id(company.getId())
+                .name(company.getName())
+            )
+            .toList()
+        );
+  }
+
   // 企業を追加
   @Transactional
   public CreateCompany201Response create(

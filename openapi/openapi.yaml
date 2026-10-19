@@ -2,9 +2,12 @@ openapi: 3.0.4
 
 info:
   title: 超・就活管理 API
-  version: 0.1.0
+  version: 1.0.0
 
 servers:
+  - description: 本番環境
+    url: https://job-hunt-workspace-api.onrender.com
+
   - description: ローカル開発環境
     url: http://localhost:8080
 
@@ -79,6 +82,9 @@ x-tagGroups:
 paths:
   /companies:
     $ref: ./paths/companies.yaml
+
+  /companies/lookup:
+    $ref: ./paths/companies_lookup.yaml
 
   /companies/{companyId}:
     $ref: ./paths/companies_by_id.yaml

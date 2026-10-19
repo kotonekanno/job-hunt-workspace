@@ -154,6 +154,31 @@ CreateCompanyRequest:
     name: 株式会社サンプル
     priority: 3
 
+GetCompanyLookupResponse:
+  description: 検索用の企業一覧の取得結果。
+  type: object
+  properties:
+    companies:
+      type: array
+      items:
+        properties:
+          id:
+            description: 企業ID
+            type: integer
+            format: int32
+          name:
+            $ref: '#/CompanyName'
+        required:
+          - id
+          - name
+  required:
+    - companies
+  example:
+    companies:
+      - id: 1
+        name: 株式会社サンプル
+
+
 GetCompanyResponse:
   description: 企業の詳細情報。
   type: object
