@@ -29,7 +29,7 @@
 
 ## デモ
 
-- 🌐 https://movie-log-frontend.vercel.app/login
+- 🌐 https://job-hunt-workspace.kotonekanno0414.workers.dev/
 - [スクリーンショット](docs/screenshots.md)
 - テストアカウント
     | メールアドレス | パスワード |
