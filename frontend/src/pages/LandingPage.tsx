@@ -4,12 +4,24 @@ import {
   CalendarDays,
   CheckCheck,
   ClipboardCheck,
+  CodeXml,
   ExternalLink,
   FilePenLine,
+  Globe,
   Info,
+  Mail,
   NotebookTabs,
 } from 'lucide-react';
+import type { SVGProps } from 'react';
 import { Link } from 'react-router-dom';
+
+function GitHubIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12 .297C5.37.297 0 5.67 0 12.297c0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.043-1.61-4.043-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.729.083-.729 1.205.084 1.838 1.237 1.838 1.237 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.536-1.524.117-3.176 0 0 1.008-.322 3.301 1.23a11.52 11.52 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.873.12 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.595 24 12.297c0-6.627-5.373-12-12-12" />
+    </svg>
+  );
+}
 
 const features = [
   {
@@ -41,6 +53,30 @@ const features = [
     title: 'メモ・資料を残す',
     description:
       '企業研究や面接の振り返りをドキュメントに。就活で得た情報を、自分の記録として残せます。',
+  },
+];
+
+const creatorLinks = [
+  {
+    icon: Mail,
+    label: 'メールアドレス',
+    url: 'kotonekanno.jp@gmail.com',
+    href: 'mailto:kotonekanno.jp@gmail.com',
+    external: false,
+  },
+  {
+    icon: GitHubIcon,
+    label: 'GitHub',
+    url: 'https://github.com/kotonekanno',
+    href: 'https://github.com/kotonekanno',
+    external: true,
+  },
+  {
+    icon: Globe,
+    label: 'ポートフォリオ',
+    url: 'https://kotonekanno.github.io/',
+    href: 'https://kotonekanno.github.io/',
+    external: true,
   },
 ];
 
@@ -222,45 +258,57 @@ export function LandingPage() {
         </Link>
       </section>
 
-      <section
+      <footer
         aria-labelledby="creator-title"
-        className="border-t border-[var(--line)] pt-8"
+        className="relative border-t border-[var(--line)] pt-8 text-sm text-[var(--muted)] before:absolute before:-top-px before:left-0 before:h-px before:w-12 before:bg-[var(--accent)]"
       >
-        <p className="font-mono text-[10px] font-bold tracking-[0.2em] text-[var(--accent)]">
-          // CREATOR
+        <h2
+          id="creator-title"
+          className="text-xs font-bold tracking-wider text-[var(--accent)]"
+        >
+          開発者情報
+        </h2>
+        <p className="mt-3 text-xl font-semibold tracking-tight text-[var(--text-strong)]">
+          Kotone Kanno
         </p>
-        <div className="mt-3 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-          <div>
-            <h2
-              id="creator-title"
-              className="text-xl font-black text-[var(--text-strong)]"
-            >
-              開発者情報
-            </h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">kotonekanno</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="https://github.com/kotonekanno"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={secondaryLink}
-            >
-              GitHub
-              <ExternalLink aria-label="新しいタブで開く" className="size-4" />
-            </a>
-            <a
-              href="https://github.com/kotonekanno/job-hunt-workspace"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={secondaryLink}
-            >
-              ソースコード
-              <ExternalLink aria-label="新しいタブで開く" className="size-4" />
-            </a>
-          </div>
+        <ul className="mt-5 flex max-w-lg flex-col gap-3">
+          {creatorLinks.map(({ icon: Icon, label, url, href, external }) => (
+            <li key={label}>
+              <a
+                href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+                className="ui-control group inline-flex max-w-full items-center gap-3 py-1 leading-5 hover:text-[var(--accent)]"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[var(--accent-soft)] text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-contrast)]">
+                  <Icon aria-hidden="true" className="size-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-medium">{label}</span>
+                  <span className="mt-0.5 block break-all text-[var(--text)] group-hover:text-[var(--accent)] group-hover:underline group-hover:underline-offset-4">
+                    {url}
+                  </span>
+                </span>
+                {external && (
+                  <span className="sr-only">（新しいタブで開く）</span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6 max-w-lg border-t border-[var(--line)] pt-4">
+          <a
+            href="https://github.com/kotonekanno/job-hunt-workspace"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ui-control inline-flex items-center gap-2 py-1 text-xs font-medium hover:text-[var(--accent)] hover:underline hover:underline-offset-4"
+          >
+            <CodeXml aria-hidden="true" className="size-3.5 shrink-0" />
+            ソースコード
+            <ExternalLink aria-label="新しいタブで開く" className="size-3" />
+          </a>
         </div>
-      </section>
+      </footer>
     </div>
   );
 }
